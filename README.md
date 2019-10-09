@@ -34,6 +34,14 @@ Python requirements are listed in ``requirements.txt``. They can be installed wi
 * change into that directory ``cd AKPlanning``
 * clone this repository ``git clone URL .``
 
+
+**Automatic Setup**
+
+1. execute the setup bash script ``Utils/setup.sh``
+
+
+**Manual Setup**
+
 1. setup a virtual environment using the proper python version ``virtualenv env -p python3.7``
 1. activate virtualenv ``source env/bin/activate``
 1. install python requirements ``pip install -r requirements.txt``
@@ -41,7 +49,17 @@ Python requirements are listed in ``requirements.txt``. They can be installed wi
 1. create a priviledged user, credentials are entered interactively on CLI ``python manage.py createsuperuser``
 1. deactivate virtualenv ``deactivate``
 
+
+**Development Server**
+
 To start the application for development use ``python manage.py runserver 0:8000`` from the root directory.
 *Do not use this for deployment!*
 
 In your browser, access ``http://127.0.0.1:8000/wannaDB/`` and continue from there.
+
+
+### Updates
+
+To update the setup to the current version on the main branch of the repository use the update script ``Utils/update.sh`` or ``Utils/update.sh --prod`` in production.
+
+Afterwards, you may check your setup by executing ``Utils/check.sh`` or ``Utils/check.sh --prod`` in production.

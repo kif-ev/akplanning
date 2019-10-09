@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Update AKPlanning
+# execute as Utils/check.sh
+
+# abort on error, print executed commands
+set -ex
+
+# activate virtualenv if necessary
+if [ -z ${VIRTUAL_ENV+x} ]; then
+    source env/bin/activate
+fi
+
+# set environment variable when we want to update in production
+if [ "$1" = "--prod" ]; then
+    export DJANGO_SETTINGS_MODULE=AKPlanning.settings_production
+fi
+
+git pull
+pip install --upgrade setuptools pip wheel
+pip install --upgrade -r requirements.txt
+
+if [ "$1" = "--prod" ]; then
+    ./manage.py collectstatic --noinput
+fi
+
+./manage.py migrate
+touch AKPlanning/wsgi.py
