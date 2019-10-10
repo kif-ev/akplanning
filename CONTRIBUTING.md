@@ -145,6 +145,8 @@ Please open an issue if you have suggestions for new labels.
 | `blocked` | Issues blocked on other issues. |
 | `duplicate` | Issues which are duplicates of other issues, i.e. they have been reported before. |
 | `wontfix` | Issues that cannot or will not be fixed for now, either because they're working as intended or for some other reason. |
+| `low-priority` | Issues that are meant to be remembered, but are low priority i.e. do not need to be fixed to maintain functionality or enable users to perform intended actions. These might take a while to resolve. |
+| `high-priority` | Issues that should be resolved as soon as possible. |
 
 
 ### Pull Request Labels
