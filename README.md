@@ -63,3 +63,10 @@ In your browser, access ``http://127.0.0.1:8000/`` and continue from there.
 To update the setup to the current version on the main branch of the repository use the update script ``Utils/update.sh`` or ``Utils/update.sh --prod`` in production.
 
 Afterwards, you may check your setup by executing ``Utils/check.sh`` or ``Utils/check.sh --prod`` in production.
+
+
+## Structure
+
+This repository contains a Django project called AKPlanning. The functionality is encapsulated into Django apps:
+
+1. AKModel: This app contains the general Django models used to represent events, users, rooms, scheduling constraints etc. This app is a basic requirements for the other apps.
