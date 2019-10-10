@@ -55,7 +55,7 @@ Python requirements are listed in ``requirements.txt``. They can be installed wi
 To start the application for development use ``python manage.py runserver 0:8000`` from the root directory.
 *Do not use this for deployment!*
 
-In your browser, access ``http://127.0.0.1:8000/wannaDB/`` and continue from there.
+In your browser, access ``http://127.0.0.1:8000/`` and continue from there.
 
 
 ### Updates
