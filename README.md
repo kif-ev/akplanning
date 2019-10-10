@@ -2,7 +2,7 @@
 
 ## Description
 
-AKPlanning is a tool used for modeling, submitting, scheduling and display AKs (German: Arbeitskreise), meaning workshops, talks or similar slot-based events.
+AKPlanning is a tool used for modeling, submitting, scheduling and displaying AKs (German: Arbeitskreise), meaning workshops, talks or similar slot-based events.
 
 It was built for KIF (German: Konferenz der deutschsprachigen Informatikfachschaften), refer to [the wiki](wiki.kif.rocks) for more Information.
 
