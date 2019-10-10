@@ -1,6 +1,8 @@
 # AKPlanning .gitignore
 # Custom
 
+# Secrets for production
+AKPlanning/settings_secrets.py
 
 # Created by https://www.gitignore.io/api/python,django,virtualenv,pycharm+all
 # Edit at https://www.gitignore.io/?templates=python,django,virtualenv,pycharm+all
