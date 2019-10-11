@@ -117,3 +117,23 @@ class AK(models.Model):
     class Meta:
         verbose_name = 'AK'
         verbose_name_plural = 'AKs'
+
+
+class Room(models.Model):
+    """ A room describes where an AK can be held.
+    """
+    name = models.CharField(max_length=64, verbose_name='Name', help_text='Name or number of the room')
+    building = models.CharField(max_length=256, verbose_name='Building', help_text='Name or number of the building')
+    capacity = models.IntegerField(verbose_name='Capacity', help_text='Maximum number of people')
+    properties = models.ManyToManyField(to=AKRequirement, verbose_name='Properties',
+                                        help_text='AK requirements fulfilled by the room')
+
+    # TODO model availability
+
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name='Event', help_text='Matching event')
+
+    class Meta:
+        verbose_name = 'Room'
+        verbose_name_plural = 'Rooms'
+        ordering = ['building', 'name']
+        unique_together = [['name', 'building']]
