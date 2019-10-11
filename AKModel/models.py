@@ -137,3 +137,21 @@ class Room(models.Model):
         verbose_name_plural = 'Rooms'
         ordering = ['building', 'name']
         unique_together = [['name', 'building']]
+
+
+class AKSlot(models.Model):
+    """ An AK Mapping matches an AK to a room during a certain time.
+    """
+    ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name='AK', help_text='AK being mapped')
+    room = models.ForeignKey(to=Room, null=True, on_delete=models.SET_NULL, verbose_name='Room',
+                             help_text='Room the AK will take place in')
+    start = models.DateTimeField(verbose_name='Slot Begin', help_text='Time and date the slot begins')
+    duration = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name='Duration',
+                                   help_text='Length in hours')
+
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name='Event', help_text='Matching event')
+
+    class Meta:
+        verbose_name = 'AK Slot'
+        verbose_name_plural = 'AK Slots'
+        ordering = ['start', 'room']

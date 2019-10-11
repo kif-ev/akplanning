@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from AKModel.models import Event, AKOwner, AKType, AKTrack, AKTag, AKRequirement, AK, Room
+from AKModel.models import Event, AKOwner, AKType, AKTrack, AKTag, AKRequirement, AK, Room, AKSlot
 
 admin.site.register(Event)
 
@@ -13,4 +13,7 @@ admin.site.register(AKTrack)
 admin.site.register(AKTag)
 admin.site.register(AKRequirement)
 admin.site.register(AK)
+
 admin.site.register(Room)
+
+admin.site.register(AKSlot)
