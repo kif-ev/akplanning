@@ -12,6 +12,11 @@ class Event(models.Model):
     place = models.CharField(max_length=128, verbose_name='Place', help_text='City etc. where the event takes place')
     active = models.BooleanField(verbose_name='Active State', help_text='Marks currently active events')
 
+    class Meta:
+        verbose_name = 'Event'
+        verbose_name_plural = 'Events'
+        ordering = ['name']
+
 
 class AKOwner(models.Model):
     """ An AKOwner describes the person organizing/holding an AK.
