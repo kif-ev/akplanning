@@ -1,0 +1,342 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-10-12 12:40+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: models.py:10 models.py:44 models.py:58 models.py:70 models.py:81
+#: models.py:95 models.py:136
+msgid "Name"
+msgstr "Name"
+
+#: models.py:11
+msgid "Name or iteration of the event"
+msgstr "Name oder Iteration des Events"
+
+#: models.py:12
+msgid "Start"
+msgstr "Start"
+
+#: models.py:12
+msgid "Time the event begins"
+msgstr "Zeit zu der das Event beginnt"
+
+#: models.py:13
+msgid "End"
+msgstr "Ende"
+
+#: models.py:13
+msgid "Time the event ends"
+msgstr "Zeit zu der das Event endet"
+
+#: models.py:14
+msgid "Place"
+msgstr "Ort"
+
+#: models.py:14
+msgid "City etc. the event takes place in"
+msgstr "Stadt o.ä. in der das Event stattfindet"
+
+#: models.py:15
+msgid "Active State"
+msgstr "Aktiver Status"
+
+#: models.py:15
+msgid "Marks currently active events"
+msgstr "Markiert aktuell aktive Events"
+
+#: models.py:18 models.py:31 models.py:83 models.py:125 models.py:144
+#: models.py:164
+msgid "Event"
+msgstr "Event"
+
+#: models.py:19
+msgid "Events"
+msgstr "Events"
+
+#: models.py:26
+msgid "Nickname"
+msgstr "Spitzname"
+
+#: models.py:26
+msgid "Name to identify an AK owner by"
+msgstr "Name durch den eine AK Leitung identifiziert wird"
+
+#: models.py:27
+msgid "E-Mail Address"
+msgstr "E-Mail Adresse"
+
+#: models.py:27
+msgid "Contact mail"
+msgstr "Kontakt E-Mail"
+
+#: models.py:28
+msgid "Institution"
+msgstr "Instutution"
+
+#: models.py:28
+msgid "Uni etc."
+msgstr "Universität o.ä."
+
+#: models.py:29 models.py:103
+msgid "Web Link"
+msgstr "Internet Link"
+
+#: models.py:29
+msgid "Link to Homepage"
+msgstr "Link zu Homepage oder Webseite"
+
+#: models.py:32 models.py:84 models.py:126 models.py:145 models.py:165
+msgid "Associated event"
+msgstr "Zugehöriges Event"
+
+#: models.py:35
+msgid "AK Owner"
+msgstr "AK Leitung"
+
+#: models.py:36
+msgid "AK Owners"
+msgstr "AK Leitungen"
+
+#: models.py:44
+msgid "Name of the AK Type"
+msgstr "Name des AK Typs"
+
+#: models.py:45 models.py:59
+msgid "Color"
+msgstr "Farbe"
+
+#: models.py:45 models.py:59
+msgid "Color for displaying"
+msgstr "Farbe für die Anzeige"
+
+#: models.py:50
+msgid "AK Type"
+msgstr "AK Typ"
+
+#: models.py:51
+msgid "AK Types"
+msgstr "AK Typen"
+
+#: models.py:58
+msgid "Name of the AK Track"
+msgstr "Name des AK Tracks"
+
+#: models.py:62
+msgid "AK Track"
+msgstr "AK Track"
+
+#: models.py:63
+msgid "AK Tracks"
+msgstr "AK Tracks"
+
+#: models.py:70
+msgid "Name of the AK Tag"
+msgstr "Name das AK Tags"
+
+#: models.py:73
+msgid "AK Tag"
+msgstr "AK Tag"
+
+#: models.py:74
+msgid "AK Tags"
+msgstr "AK Tags"
+
+#: models.py:81
+msgid "Name of the Requirement"
+msgstr "Name der Anforderung"
+
+#: models.py:87
+msgid "AK Requirement"
+msgstr "AK Anforderung"
+
+#: models.py:88
+msgid "AK Requirements"
+msgstr "AK Anforderungen"
+
+#: models.py:95
+msgid "Name of the AK"
+msgstr "Name des AKs"
+
+#: models.py:96
+msgid "Short Name"
+msgstr "Kurzer Name"
+
+#: models.py:97
+msgid "Name displayed in the schedule"
+msgstr "Name zur Anzeige im AK Plan"
+
+#: models.py:98
+msgid "Description"
+msgstr "Beschreibung"
+
+#: models.py:98
+msgid "Description of the AK"
+msgstr "Beschreibung des AKs"
+
+#: models.py:100
+msgid "Owners"
+msgstr "Leitungen"
+
+#: models.py:100
+msgid "Those organizing the AK"
+msgstr "Menschen, die den AK organisieren und halten"
+
+#: models.py:103
+msgid "Link to wiki page"
+msgstr "Link zur Wiki Seite"
+
+#: models.py:105
+msgid "Type"
+msgstr "Typ"
+
+#: models.py:105
+msgid "Type of the AK"
+msgstr "Typ des AKs"
+
+#: models.py:106
+msgid "Tags"
+msgstr "Tags"
+
+#: models.py:106
+msgid "Tags provided by owners"
+msgstr "Tags, die durch die AK Leitung vergeben wurden"
+
+#: models.py:107
+msgid "Track"
+msgstr "Track"
+
+#: models.py:108
+msgid "Track the AK belongs to"
+msgstr "Track zu dem der AK gehört"
+
+#: models.py:110
+msgid "Resolution Intention"
+msgstr "Resolutionsabsicht"
+
+#: models.py:111
+msgid "Intends to submit a resolution"
+msgstr "Beabsichtigt eine Resolution einzureichen"
+
+#: models.py:112
+msgid "Requirements"
+msgstr "Anforderungen"
+
+#: models.py:113
+msgid "AK's Requirements"
+msgstr "Anforderungen des AKs"
+
+#: models.py:115
+msgid "Conflicting AKs"
+msgstr "AK Konflikte"
+
+#: models.py:116
+msgid "AKs that conflict and thus must not take place at the same time"
+msgstr "AKs, die Konflikte haben und deshalb nicht gleichzeitig stattfinden dürfen"
+
+#: models.py:117
+msgid "Prerequisite AKs"
+msgstr "Vorausgesetzte AKs"
+
+#: models.py:118
+msgid "AKs that should precede this AK in the schedule"
+msgstr "AKS die im AK Plan vor diesem AK stattfinden müssen"
+
+#: models.py:121
+msgid "Internal Notes"
+msgstr "Interne Notizen"
+
+#: models.py:121
+msgid "Notes to organizers"
+msgstr "Notizen an die Organisator*innen"
+
+#: models.py:123
+msgid "Interest"
+msgstr "Interesse"
+
+#: models.py:123
+msgid "Expected number of people"
+msgstr "Erwartete Personenzahl"
+
+#: models.py:129 models.py:157
+msgid "AK"
+msgstr "AK"
+
+#: models.py:130
+msgid "AKs"
+msgstr "AKs"
+
+#: models.py:136
+msgid "Name or number of the room"
+msgstr "Name oder Nummer des Raums"
+
+#: models.py:137
+msgid "Building"
+msgstr "Gebäude"
+
+#: models.py:137
+msgid "Name/number of the building"
+msgstr "Name oder Nummer des Gebäudes"
+
+#: models.py:138
+msgid "Capacity"
+msgstr "Kapazität"
+
+#: models.py:138
+msgid "Maximum number of people"
+msgstr "Maximale Personenzahl"
+
+#: models.py:139
+msgid "Properties"
+msgstr "Eigenschaften"
+
+#: models.py:140
+msgid "AK requirements fulfilled by the room"
+msgstr "AK Anforderungen, die dieser Raum erfüllt"
+
+#: models.py:148 models.py:158
+msgid "Room"
+msgstr "Raum"
+
+#: models.py:149
+msgid "Rooms"
+msgstr "Räume"
+
+#: models.py:157
+msgid "AK being mapped"
+msgstr "AK, der zugeordnet wird"
+
+#: models.py:159
+msgid "Room the AK will take place in"
+msgstr "Raum in dem der AK stattfindet"
+
+#: models.py:160
+msgid "Slot Begin"
+msgstr "Beginn des Slots"
+
+#: models.py:160
+msgid "Time and date the slot begins"
+msgstr "Zeit und Datum zu der der AK beginnt"
+
+#: models.py:161
+msgid "Duration"
+msgstr "Dauer"
+
+#: models.py:162
+msgid "Length in hours"
+msgstr "Länge in Stunden"
+
+#: models.py:168
+msgid "AK Slot"
+msgstr "AK Slot"
+
+#: models.py:169
+msgid "AK Slots"
+msgstr "AK Slot"
