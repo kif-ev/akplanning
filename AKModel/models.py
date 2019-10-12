@@ -44,8 +44,6 @@ class AKType(models.Model):
     name = models.CharField(max_length=64, unique=True, verbose_name=_('Name'), help_text=_('Name of the AK Type'))
     color = models.CharField(max_length=7, blank=True, verbose_name=_('Color'), help_text=_('Color for displaying'))
 
-    # TODO model availability
-
     class Meta:
         verbose_name = _('AK Type')
         verbose_name_plural = _('AK Types')
@@ -116,7 +114,6 @@ class AK(models.Model):
                                        help_text=_('AKs that conflict and thus must not take place at the same time'))
     prerequisites = models.ManyToManyField(to='AK', blank=True, verbose_name=_('Prerequisite AKs'),
                                            help_text=_('AKs that should precede this AK in the schedule'))
-    # TODO model availability
 
     notes = models.TextField(blank=True, verbose_name=_('Internal Notes'), help_text=_('Notes to organizers'))
 
@@ -138,8 +135,6 @@ class Room(models.Model):
     capacity = models.IntegerField(verbose_name=_('Capacity'), help_text=_('Maximum number of people'))
     properties = models.ManyToManyField(to=AKRequirement, verbose_name=_('Properties'),
                                         help_text=_('AK requirements fulfilled by the room'))
-
-    # TODO model availability
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
