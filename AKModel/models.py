@@ -11,7 +11,8 @@ class Event(models.Model):
                             help_text=_('Name or iteration of the event'))
     start = models.DateTimeField(verbose_name=_('Start'), help_text=_('Time the event begins'))
     end = models.DateTimeField(verbose_name=_('End'), help_text=_('Time the event ends'))
-    place = models.CharField(max_length=128, verbose_name=_('Place'), help_text=_('City etc. the event takes place in'))
+    place = models.CharField(max_length=128, blank=True, verbose_name=_('Place'),
+                             help_text=_('City etc. the event takes place in'))
     active = models.BooleanField(verbose_name=_('Active State'), help_text=_('Marks currently active events'))
 
     class Meta:
@@ -102,7 +103,7 @@ class AK(models.Model):
 
     type = models.ForeignKey(to=AKType, on_delete=models.PROTECT, verbose_name=_('Type'), help_text=_('Type of the AK'))
     tags = models.ManyToManyField(to=AKTag, blank=True, verbose_name=_('Tags'), help_text=_('Tags provided by owners'))
-    track = models.ForeignKey(to=AKTrack, on_delete=models.SET_NULL, null=True, verbose_name=_('Track'),
+    track = models.ForeignKey(to=AKTrack, blank=True, on_delete=models.SET_NULL, null=True, verbose_name=_('Track'),
                               help_text=_('Track the AK belongs to'))
 
     reso = models.BooleanField(verbose_name=_('Resolution Intention'), default=False,
@@ -131,9 +132,10 @@ class Room(models.Model):
     """ A room describes where an AK can be held.
     """
     name = models.CharField(max_length=64, verbose_name=_('Name'), help_text=_('Name or number of the room'))
-    building = models.CharField(max_length=256, verbose_name=_('Building'), help_text=_('Name/number of the building'))
+    building = models.CharField(max_length=256, blank=True, verbose_name=_('Building'),
+                                help_text=_('Name or number of the building'))
     capacity = models.IntegerField(verbose_name=_('Capacity'), help_text=_('Maximum number of people'))
-    properties = models.ManyToManyField(to=AKRequirement, verbose_name=_('Properties'),
+    properties = models.ManyToManyField(to=AKRequirement, blank=True, verbose_name=_('Properties'),
                                         help_text=_('AK requirements fulfilled by the room'))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
