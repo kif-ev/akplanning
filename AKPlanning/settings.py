@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'AKModel.apps.AkmodelConfig',
     'AKDashboard.apps.AkdashboardConfig',
+    'AKSubmission.apps.AksubmissionConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
