@@ -141,4 +141,8 @@ Afterwards, you may check your setup by executing ``Utils/check.sh`` or ``Utils/
 
 This repository contains a Django project called AKPlanning. The functionality is encapsulated into Django apps:
 
-1. AKModel: This app contains the general Django models used to represent events, users, rooms, scheduling constraints etc. This app is a basic requirements for the other apps.
+1. **AKModel**: This app contains the general Django models used to represent events, users, rooms, scheduling constraints etc. This app is a basic requirements for the other apps. Data Imoort/Export also goes here.
+1. **AKDashboard**: This app provides a landing page for the project. Per Event it provides links to all relevant functionalities and views.
+1. **AKSubmission**: This app provides forms to submit all kinds of AKs, edit or delete them, as well as a list of all submitted AKs for an event.
+1. **AKScheduling**: This app allows organizers to schedule AKs, i.e. assigne rooms, slots, etc. Ir marks conflicts of all modeled constraints and assists in creating a suitable schedule.
+1. **AKPlan**: This app diplays AKs and where/when they will take place for each event. Views are optimised according to usage/purpose.
