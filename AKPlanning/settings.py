@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'AKDashboard.apps.AkdashboardConfig',
     'AKSubmission.apps.AksubmissionConfig',
     'AKScheduling.apps.AkschedulingConfig',
+    'AKPlan.apps.AkplanConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
