@@ -121,12 +121,15 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = (
+    'static_common',
+)
 
 # Settings for Bootstrap
 BOOTSTRAP4 = {
     # Use custom CSS
     "css_url": {
-        "href": STATIC_URL + "AKDashboard/css/bootstrap.css",
+        "href": STATIC_URL + "common/css/bootstrap.css",
     },
 }
 
