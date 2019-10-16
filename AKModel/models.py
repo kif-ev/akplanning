@@ -21,6 +21,9 @@ class Event(models.Model):
         verbose_name_plural = _('Events')
         ordering = ['name']
 
+    def __str__(self):
+        return self.name
+
 
 class AKOwner(models.Model):
     """ An AKOwner describes the person organizing/holding an AK.
@@ -39,6 +42,11 @@ class AKOwner(models.Model):
         ordering = ['name']
         unique_together = [['name', 'institution']]
 
+    def __str__(self):
+        if self.institution != "":
+            return f"{self.name} ({self.institution})"
+        return self.name
+
 
 class AKType(models.Model):
     """ An AKType describes the characteristics of an AK, e.g. content vs. recreational.
@@ -50,6 +58,9 @@ class AKType(models.Model):
         verbose_name = _('AK Type')
         verbose_name_plural = _('AK Types')
         ordering = ['name']
+
+    def __str__(self):
+        return self.name
 
 
 class AKTrack(models.Model):
@@ -63,6 +74,9 @@ class AKTrack(models.Model):
         verbose_name_plural = _('AK Tracks')
         ordering = ['name']
 
+    def __str__(self):
+        return self.name
+
 
 class AKTag(models.Model):
     """ An AKTag is a keyword given to an AK by (one of) its owner(s).
@@ -73,6 +87,9 @@ class AKTag(models.Model):
         verbose_name = _('AK Tag')
         verbose_name_plural = _('AK Tags')
         ordering = ['name']
+
+    def __str__(self):
+        return self.name
 
 
 class AKRequirement(models.Model):
@@ -87,6 +104,9 @@ class AKRequirement(models.Model):
         verbose_name = _('AK Requirement')
         verbose_name_plural = _('AK Requirements')
         ordering = ['name']
+
+    def __str__(self):
+        return self.name
 
 
 class AK(models.Model):
@@ -128,6 +148,11 @@ class AK(models.Model):
         verbose_name = _('AK')
         verbose_name_plural = _('AKs')
 
+    def __str__(self):
+        if self.short_name != "":
+            return self.short_name
+        return self.name
+
 
 class Room(models.Model):
     """ A room describes where an AK can be held.
@@ -148,6 +173,11 @@ class Room(models.Model):
         ordering = ['building', 'name']
         unique_together = [['name', 'building']]
 
+    def __str__(self):
+        if self.building != "":
+            return f"{self.building} {self.name}"
+        return self.name
+
 
 class AKSlot(models.Model):
     """ An AK Mapping matches an AK to a room during a certain time.
@@ -166,3 +196,15 @@ class AKSlot(models.Model):
         verbose_name = _('AK Slot')
         verbose_name_plural = _('AK Slots')
         ordering = ['start', 'room']
+
+    def __str__(self):
+        if self.room is not None:
+            return f"{self.ak} @ {self.start_simplified} in {self.room}"
+        return f"{self.ak} @ {self.start_simplified}"
+
+    @property
+    def start_simplified(self):
+        """
+        Display start time of slot in format weekday + time, e.g. "Fri 14:00"
+        """
+        return self.start.strftime('%a %H:%M')
