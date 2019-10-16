@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'bootstrap4',
+    'fontawesome',
 ]
 
 MIDDLEWARE = [
@@ -119,3 +121,17 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = (
+    'static_common',
+)
+
+# Settings for Bootstrap
+BOOTSTRAP4 = {
+    # Use custom CSS
+    "css_url": {
+        "href": STATIC_URL + "common/css/bootstrap.css",
+    },
+}
+
+# Settings for FontAwesome
+FONTAWESOME_CSS_URL = "//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css"
