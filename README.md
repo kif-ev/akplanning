@@ -120,7 +120,7 @@ Remember to use a secret key that is not stored in any repository or similar, an
     </VirtualHost>
     ````
 
-  replacing $SUBDOMAIN with the subdomain the system should be available under, and $MAILADDRESS with the e-mail address of your administrator. Then symlink it to ``sites-enabled`` e.g. by using ``ln -s /etc/apache2/sites-available/akplanning.conf /etc/apache2/sites-enabled/akplanning.conf``.
+    replacing $SUBDOMAIN with the subdomain the system should be available under, and $MAILADDRESS with the e-mail address of your administrator. Then symlink it to ``sites-enabled`` e.g. by using ``ln -s /etc/apache2/sites-available/akplanning.conf /etc/apache2/sites-enabled/akplanning.conf``.
 1. restart Apache ``sudo systemctl restart apache2.service``
 1. create a dedicated user, e.g. ``adduser django``
 1. transfer ownership of the folder to the new user ``chown -R django:django /srv/WannaDB``
