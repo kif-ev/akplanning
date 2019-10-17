@@ -24,6 +24,10 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+    @staticmethod
+    def get_by_slug(slug):
+        return Event.objects.get(slug=slug)
+
 
 class AKOwner(models.Model):
     """ An AKOwner describes the person organizing/holding an AK.
