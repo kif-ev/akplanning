@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-17 14:14+0000\n"
+"POT-Creation-Date: 2019-10-17 23:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,27 +17,70 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: templates/AKSubmission/submission_overview.html:9
-#: templates/AKSubmission/submission_overview.html:13
+#: templates/AKSubmission/ak_detail.html:6
+#: templates/AKSubmission/ak_detail.html:11
+#: templates/AKSubmission/ak_detail.html:16
+#: templates/AKSubmission/ak_list.html:6 templates/AKSubmission/ak_list.html:11
+#: templates/AKSubmission/ak_list.html:16
+#: templates/AKSubmission/submission_overview.html:6
+#: templates/AKSubmission/submission_overview.html:11
+#: templates/AKSubmission/submission_overview.html:15
 msgid "AK Submission"
 msgstr "AK-Eintragung"
 
-#: templates/AKSubmission/submission_overview.html:18
-msgid "Submit"
-msgstr "Eintragen"
-
-#: templates/AKSubmission/submission_overview.html:24
-msgid "Current AKs"
-msgstr "Aktuelle AKs"
-
-#: templates/AKSubmission/submission_overview.html:27
-msgid "Name"
-msgstr "Name"
-
-#: templates/AKSubmission/submission_overview.html:27
+#: templates/AKSubmission/ak_detail.html:28
+#: templates/AKSubmission/ak_list_table.html:6
 msgid "Who?"
 msgstr "Wer?"
 
-#: templates/AKSubmission/submission_overview.html:27
+#: templates/AKSubmission/ak_detail.html:29
+#: templates/AKSubmission/ak_list_table.html:6
+msgid "Type"
+msgstr "Typ"
+
+#: templates/AKSubmission/ak_detail.html:31
+#: templates/AKSubmission/ak_list_table.html:6
 msgid "Tags"
 msgstr "Tags"
+
+#: templates/AKSubmission/ak_detail.html:39
+msgid "Reso?"
+msgstr "Reso?"
+
+#: templates/AKSubmission/ak_detail.html:55
+msgid "When?"
+msgstr "Wann?"
+
+#: templates/AKSubmission/ak_detail.html:56
+msgid "Duration"
+msgstr "Dauer"
+
+#: templates/AKSubmission/ak_detail.html:57
+msgid "Room"
+msgstr "Raum"
+
+#: templates/AKSubmission/ak_list.html:12
+msgid "AKs"
+msgstr "AKs"
+
+#: templates/AKSubmission/ak_list_table.html:6
+msgid "Name"
+msgstr "Name"
+
+#: templates/AKSubmission/ak_list_table.html:13
+#, fuzzy
+#| msgid "Current AKs"
+msgid "Present AK"
+msgstr "Aktuelle AKs"
+
+#: templates/AKSubmission/ak_list_table.html:15
+msgid "Reso"
+msgstr "Reso"
+
+#: templates/AKSubmission/submission_overview.html:20
+msgid "Submit"
+msgstr "Eintragen"
+
+#: templates/AKSubmission/submission_overview.html:26
+msgid "Current AKs"
+msgstr "Aktuelle AKs"

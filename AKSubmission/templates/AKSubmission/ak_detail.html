@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load fontawesome %}
+
+{% block title %}{{ ak.event.slug }} - {% trans "AK Submission" %} - {{ ak.slug }}{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
+    <li class="breadcrumb-item"><a href="#">{{ ak.event.slug }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'submit:submission_overview' event_slug=ak.event.slug %}">{% trans "AK Submission" %}</a></li>
+    <li class="breadcrumb-item active">{{ ak.name }}</li>
+{% endblock %}
+
+{% block content %}
+    <h1 style="margin-bottom: 30px;">{{ ak.event.name }}: {% trans "AK Submission" %}</h1>
+
+    <div class="float-right">
+        {% if ak.link != "" %}
+            <a href="{{ ak.link }}" class="btn btn-info">{%  fontawesome_icon 'external-link-alt' %}</a>
+        {% endif %}
+        <a href="#" class="btn btn-success">{%  fontawesome_icon 'pencil-alt' %}</a>
+    </div>
+
+    <h2>{{ ak.name }}</h2>
+
+    <table class="table table-borderless">
+        <tr><td>{% trans "Who?" %}</td><td>{{ ak.owners_list }}</td></tr>
+        <tr><td>{% trans "Type" %}</td><td><a href="{% url 'submit:ak_list_by_type' event_slug=ak.event.slug type_pk=ak.type.pk %}"><span class="badge badge-primary">{{ ak.type }}</span></a></td></tr>
+        <tr>
+            <td>{% trans "Tags" %}</td>
+            <td>
+                {% for tag in ak.tags.all %}
+                    <a href="{% url 'submit:ak_list_by_tag' event_slug=ak.event.slug tag_pk=tag.pk %}"><span class="badge badge-info">{{ tag }}</span></a>
+                {% endfor %}
+            </td>
+        </tr>
+        <tr>
+            <td>{% trans "Reso?" %}</td>
+            <td>
+                {% if  ak.reso %}
+                    {% fontawesome_icon "check" %}
+                {% else %}
+                    {% fontawesome_icon "times" %}
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <p style="margin-top: 30px;margin-bottom: 30px;">{{ ak.description }}</p>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{% trans "When?" %}</th>
+                <th>{% trans "Duration" %}</th>
+                <th>{% trans "Room" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for slot in ak.akslot_set.all %}
+                <tr>
+                    <td>{{ slot.start_simplified }}</td>
+                    <td>{{ slot.duration }}</td>
+                    <td>{{ slot.room }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

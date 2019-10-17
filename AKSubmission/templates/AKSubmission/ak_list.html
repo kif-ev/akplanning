@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load fontawesome %}
+
+{% block title %}{{ event.slug }} - {% trans "AK Submission" %}{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
+    <li class="breadcrumb-item"><a href="#">{{ event.slug }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
+    <li class="breadcrumb-item active">{% trans "AKs" %}</li>
+{% endblock %}
+
+{% block content %}
+    <h1>{{ event.name }}: {% trans "AK Submission" %}</h1>
+
+    <b>Types:</b>
+    {% for type in types %}
+        <a href="{% url 'submit:ak_list_by_type' event_slug=event.slug type_pk=type.pk %}"><span class="badge badge-primary">{{ type }}</span></a>
+    {% endfor %}
+
+    <br><br>
+
+    <b>Tags:</b>
+    {% for tag in tags.all %}
+        <a href="{% url 'submit:ak_list_by_tag' event_slug=event.slug tag_pk=tag.pk %}"><span class="badge badge-primary">{{ tag }}</span></a>
+    {% endfor %}
+
+    <br><br>
+
+    {% if filter_condition_string != "" %}
+        <h2 class="text-secondary">{{ filter_condition_string }}</h2>
+    {% endif %}
+
+    {% include "AKSubmission/ak_list_table.html" %}
+
+{% endblock %}
