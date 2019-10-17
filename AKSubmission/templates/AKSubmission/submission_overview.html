@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load fontawesome %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
+    <li class="breadcrumb-item"><a href="#">{{ event.slug }}</a></li>
+    <li class="breadcrumb-item active">{% trans "AK Submission" %}</li>
+{% endblock %}
+
+{% block content %}
+    <h1>{{ event.name }}: {% trans "AK Submission" %}</h1>
+
+    Lorem ipsum...
+
+    <div class="jumbotron" style="margin-top:20px;">
+        <h2>{% trans "Submit" %}</h2>
+        <a href="#" class="btn btn-primary">Neuer AK</a>
+        <a href="#" class="btn btn-info">Neuer AK-Wunsch</a>
+    </div>
+
+
+    <h2>{% trans "Current AKs" %}</h2>
+
+    <table class="table table-striped">
+        <tr><th>{% trans "Name" %}</th><th>{% trans "Who?" %}</th><th>{% trans "Tags" %}</th><th></th></tr>
+
+        {% for ak in AKs %}
+            <tr>
+                <td>{{ ak.name }}</td>
+                <td>{{ ak.owners_list }}</td>
+                <td>
+                    {% for tag in ak.tags.all %}
+                        <span class="badge badge-info">{{ tag }}</span>
+                    {% endfor %}
+                </td>
+                <td>
+                    <a href="#" class="btn btn-primary">{%  fontawesome_icon 'info' %}</a>
+                    <a href="#" class="btn btn-success">{%  fontawesome_icon 'edit' %}</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

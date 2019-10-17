@@ -153,6 +153,10 @@ class AK(models.Model):
             return self.short_name
         return self.name
 
+    @property
+    def owners_list(self):
+        return ", ".join(str(owner) for owner in self.owners.all())
+
 
 class Room(models.Model):
     """ A room describes where an AK can be held.
