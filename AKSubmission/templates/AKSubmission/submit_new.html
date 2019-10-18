@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load bootstrap4 %}
+{% load fontawesome %}
 
 {% block title %}{{ event.slug }} - {% trans "New AK" %}{% endblock %}
 
@@ -16,6 +17,13 @@
     <h2>{% trans 'New AK' %}</h2>
     <form method="POST" class="post-form">{% csrf_token %}
         {% bootstrap_form form %}
-        <button type="submit" class="save btn btn-default">Save</button>
+        {% buttons %}
+            <button type="reset" class="btn btn-danger">
+                {% fontawesome_icon "times" %} {% trans "Reset" %}
+            </button>
+            <button type="submit" class="save btn btn-default float-right">
+                {% fontawesome_icon "check" %} {% trans "Submit" %}
+            </button>
+        {% endbuttons %}
     </form>
 {% endblock %}
