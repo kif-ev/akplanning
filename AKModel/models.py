@@ -47,7 +47,7 @@ class AKOwner(models.Model):
         unique_together = [['name', 'institution']]
 
     def __str__(self):
-        if self.institution != "":
+        if self.institution:
             return f"{self.name} ({self.institution})"
         return self.name
 
@@ -153,7 +153,7 @@ class AK(models.Model):
         verbose_name_plural = _('AKs')
 
     def __str__(self):
-        if self.short_name != "":
+        if self.short_name:
             return self.short_name
         return self.name
 
@@ -182,7 +182,7 @@ class Room(models.Model):
         unique_together = [['name', 'building']]
 
     def __str__(self):
-        if self.building != "":
+        if self.building:
             return f"{self.building} {self.name}"
         return self.name
 
@@ -206,7 +206,7 @@ class AKSlot(models.Model):
         ordering = ['start', 'room']
 
     def __str__(self):
-        if self.room is not None:
+        if self.room:
             return f"{self.ak} @ {self.start_simplified} in {self.room}"
         return f"{self.ak} @ {self.start_simplified}"
 
