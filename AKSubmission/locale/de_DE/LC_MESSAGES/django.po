@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-17 23:30+0000\n"
+"POT-Creation-Date: 2019-10-18 11:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,10 +35,11 @@ msgstr "Wer?"
 
 #: templates/AKSubmission/ak_detail.html:29
 #: templates/AKSubmission/ak_list_table.html:6
-msgid "Type"
-msgstr "Typ"
+msgid "Category"
+msgstr "Kategorie"
 
 #: templates/AKSubmission/ak_detail.html:31
+#: templates/AKSubmission/ak_list.html:25
 #: templates/AKSubmission/ak_list_table.html:6
 msgid "Tags"
 msgstr "Tags"
@@ -62,6 +63,12 @@ msgstr "Raum"
 #: templates/AKSubmission/ak_list.html:12
 msgid "AKs"
 msgstr "AKs"
+
+#: templates/AKSubmission/ak_list.html:18
+#, fuzzy
+#| msgid "Category"
+msgid "Categories"
+msgstr "Kategorie"
 
 #: templates/AKSubmission/ak_list_table.html:6
 msgid "Name"

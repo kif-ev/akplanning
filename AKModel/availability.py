@@ -10,7 +10,7 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from AKModel.models import Event, AKOwner, Room, AK, AKType
+from AKModel.models import Event, AKOwner, Room, AK, AKCategory
 
 zero_time = datetime.time(0, 0)
 
@@ -21,7 +21,7 @@ zero_time = datetime.time(0, 0)
 # remove serialization as requirements are not covered
 # add translation
 # add meta class
-# enable availabilites for AKs and AKTypes
+# enable availabilites for AKs and AKCategories
 # add verbose names and help texts to model attributes
 class Availability(models.Model):
     """The Availability class models when people or rooms are available for.
@@ -65,14 +65,14 @@ class Availability(models.Model):
         verbose_name=_('AK'),
         help_text=_('AK whose availability this is'),
     )
-    ak_type = models.ForeignKey(
-        to=AKType,
+    ak_category = models.ForeignKey(
+        to=AKCategory,
         related_name='availabilities',
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        verbose_name=_('AK Type'),
-        help_text=_('AK Type whose availability this is'),
+        verbose_name=_('AK Category'),
+        help_text=_('AK Category whose availability this is'),
     )
     start = models.DateTimeField()
     end = models.DateTimeField()
@@ -82,22 +82,23 @@ class Availability(models.Model):
         room = getattr(self.room, 'name', None)
         event = getattr(getattr(self, 'event', None), 'name', None)
         ak = getattr(self.ak, 'name', None)
-        ak_type = getattr(self.ak_type, 'name', None)
-        return f'Availability(event={event}, person={person}, room={room}, ak={ak}, ak type={ak_type})'
+        ak_category = getattr(self.ak_category, 'name', None)
+        return f'Availability(event={event}, person={person}, room={room}, ak={ak}, ak category={ak_category})'
 
     def __hash__(self):
-        return hash((getattr(self, 'event', None), self.person, self.room, self.ak, self.ak_type, self.start, self.end))
+        return hash(
+            (getattr(self, 'event', None), self.person, self.room, self.ak, self.ak_category, self.start, self.end))
 
     def __eq__(self, other: 'Availability') -> bool:
         """Comparisons like ``availability1 == availability2``.
 
-        Checks if ``event``, ``person``, ``room``, ``ak``, ``ak_type``, ``start`` and ``end``
+        Checks if ``event``, ``person``, ``room``, ``ak``, ``ak_category``, ``start`` and ``end``
         are the same.
         """
         return all(
             [
                 getattr(self, attribute, None) == getattr(other, attribute, None)
-                for attribute in ['event', 'person', 'room', 'ak', 'ak_type', 'start', 'end']
+                for attribute in ['event', 'person', 'room', 'ak', 'ak_category', 'start', 'end']
             ]
         )
 

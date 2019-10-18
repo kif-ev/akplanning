@@ -3,13 +3,13 @@
 from django.contrib import admin
 
 from AKModel.availability import Availability
-from AKModel.models import Event, AKOwner, AKType, AKTrack, AKTag, AKRequirement, AK, Room, AKSlot
+from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, Room, AKSlot
 
 admin.site.register(Event)
 
 admin.site.register(AKOwner)
 
-admin.site.register(AKType)
+admin.site.register(AKCategory)
 admin.site.register(AKTrack)
 admin.site.register(AKTag)
 admin.site.register(AKRequirement)
@@ -17,7 +17,7 @@ admin.site.register(AKRequirement)
 
 class AKAdmin(admin.ModelAdmin):
     model = AK
-    list_display = ['name', 'short_name', 'type', 'is_wish']
+    list_display = ['name', 'short_name', 'category', 'is_wish']
 
     def is_wish(self, obj):
         return obj.wish

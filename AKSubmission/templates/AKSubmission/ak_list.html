@@ -15,14 +15,15 @@
 {% block content %}
     <h1>{{ event.name }}: {% trans "AK Submission" %}</h1>
 
-    <b>Types:</b>
-    {% for type in types %}
-        <a href="{% url 'submit:ak_list_by_type' event_slug=event.slug type_pk=type.pk %}"><span class="badge badge-primary">{{ type }}</span></a>
+    <b>{% trans 'Categories' %}:</b>
+    {% for category in categories %}
+        <a href="{% url 'submit:ak_list_by_category' event_slug=event.slug category_pk=category.pk %}"><span
+                class="badge badge-primary">{{ category }}</span></a>
     {% endfor %}
 
     <br><br>
 
-    <b>Tags:</b>
+    <b>{% trans 'Tags' %}:</b>
     {% for tag in tags.all %}
         <a href="{% url 'submit:ak_list_by_tag' event_slug=event.slug tag_pk=tag.pk %}"><span class="badge badge-primary">{{ tag }}</span></a>
     {% endfor %}

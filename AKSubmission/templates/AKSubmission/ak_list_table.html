@@ -3,7 +3,13 @@
 
 <table id="akTable" class="table table-striped">
   <thead>
-    <tr><th>{% trans "Name" %}</th><th>{% trans "Who?" %}</th><th>{% trans "Type" %}</th><th>{% trans "Tags" %}</th><th></th></tr>
+  <tr>
+      <th>{% trans "Name" %}</th>
+      <th>{% trans "Who?" %}</th>
+      <th>{% trans 'Category' %}</th>
+      <th>{% trans "Tags" %}</th>
+      <th></th>
+  </tr>
   </thead>
   <tbody>
     {% for ak in AKs %}
@@ -16,7 +22,8 @@
                 {% endif %}
             </td>
             <td>{{ ak.owners_list }}</td>
-            <td><a href="{% url 'submit:ak_list_by_type' event_slug=event.slug type_pk=ak.type.pk %}"><span class="badge badge-primary">{{ ak.type }}</span></a></td>
+            <td><a href="{% url 'submit:ak_list_by_category' event_slug=event.slug category_pk=ak.category.pk %}"><span
+                    class="badge badge-primary">{{ ak.category }}</span></a></td>
             <td>
                 {% for tag in ak.tags.all %}
                     <a href="{% url 'submit:ak_list_by_tag' event_slug=event.slug tag_pk=tag.pk %}"><span class="badge badge-info">{{ tag }}</span></a>

@@ -26,7 +26,12 @@
 
     <table class="table table-borderless">
         <tr><td>{% trans "Who?" %}</td><td>{{ ak.owners_list }}</td></tr>
-        <tr><td>{% trans "Type" %}</td><td><a href="{% url 'submit:ak_list_by_type' event_slug=ak.event.slug type_pk=ak.type.pk %}"><span class="badge badge-primary">{{ ak.type }}</span></a></td></tr>
+        <tr>
+            <td>{% trans 'Category' %}</td>
+            <td>
+                <a href="{% url 'submit:ak_list_by_category' event_slug=ak.event.slug category_pk=ak.category.pk %}"><span
+                        class="badge badge-primary">{{ ak.category }}</span></a></td>
+        </tr>
         <tr>
             <td>{% trans "Tags" %}</td>
             <td>

@@ -1,17 +1,16 @@
 from django.http import Http404
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView
 
-from AKModel.models import AK, AKType, AKTag
+from AKModel.models import AK, AKCategory, AKTag
 from AKModel.views import FilterByEventSlugMixin
-
-from django.utils.translation import gettext_lazy as _
 
 
 class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
     model = AK
     context_object_name = "AKs"
     template_name = "AKSubmission/submission_overview.html"
-    ordering = ["type"]
+    ordering = ['category']
 
 
 class AKDetailView(DetailView):
@@ -28,30 +27,30 @@ class AKListView(FilterByEventSlugMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
-        context["types"] = AKType.objects.all()
+        context['categories'] = AKCategory.objects.all()
         context["tags"] = AKTag.objects.all()
         context["filter_condition_string"] = self.filter_condition_string
         return context
 
 
-class AKListByTypeView(AKListView):
-    type = None
+class AKListByCategoryView(AKListView):
+    category = None
 
     def get_queryset(self):
-        # Find type based on event slug
+        # Find category based on event slug
         try:
-            self.type = AKType.objects.get(pk=self.kwargs['type_pk'])
-            self.filter_condition_string = f"{_('Type')} = {self.type.name}"
-        except AKType.DoesNotExist:
+            self.category = AKCategory.objects.get(pk=self.kwargs['category_pk'])
+            self.filter_condition_string = f"{_('Category')} = {self.category.name}"
+        except AKCategory.DoesNotExist:
             raise Http404
-        return super().get_queryset().filter(type=self.type)
+        return super().get_queryset().filter(category=self.category)
 
 
 class AKListByTagView(AKListView):
     tag = None
 
     def get_queryset(self):
-        # Find type based on event slug
+        # Find category based on event slug
         try:
             self.tag = AKTag.objects.get(pk=self.kwargs['tag_pk'])
             self.filter_condition_string = f"{_('Tag')} = {self.tag.name}"

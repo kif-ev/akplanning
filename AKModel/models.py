@@ -52,15 +52,15 @@ class AKOwner(models.Model):
         return self.name
 
 
-class AKType(models.Model):
-    """ An AKType describes the characteristics of an AK, e.g. content vs. recreational.
+class AKCategory(models.Model):
+    """ An AKCategory describes the characteristics of an AK, e.g. content vs. recreational.
     """
-    name = models.CharField(max_length=64, unique=True, verbose_name=_('Name'), help_text=_('Name of the AK Type'))
+    name = models.CharField(max_length=64, unique=True, verbose_name=_('Name'), help_text=_('Name of the AK Category'))
     color = models.CharField(max_length=7, blank=True, verbose_name=_('Color'), help_text=_('Color for displaying'))
 
     class Meta:
-        verbose_name = _('AK Type')
-        verbose_name_plural = _('AK Types')
+        verbose_name = _('AK Category')
+        verbose_name_plural = _('AK Categories')
         ordering = ['name']
 
     def __str__(self):
@@ -127,7 +127,8 @@ class AK(models.Model):
     # TODO generate automatically
     link = models.URLField(blank=True, verbose_name=_('Web Link'), help_text=_('Link to wiki page'))
 
-    type = models.ForeignKey(to=AKType, on_delete=models.PROTECT, verbose_name=_('Type'), help_text=_('Type of the AK'))
+    category = models.ForeignKey(to=AKCategory, on_delete=models.PROTECT, verbose_name=_('Category'),
+                                 help_text=_('Category of the AK'))
     tags = models.ManyToManyField(to=AKTag, blank=True, verbose_name=_('Tags'), help_text=_('Tags provided by owners'))
     track = models.ForeignKey(to=AKTrack, blank=True, on_delete=models.SET_NULL, null=True, verbose_name=_('Track'),
                               help_text=_('Track the AK belongs to'))
