@@ -135,6 +135,8 @@ class AK(models.Model):
 
     reso = models.BooleanField(verbose_name=_('Resolution Intention'), default=False,
                                help_text=_('Intends to submit a resolution'))
+    present = models.BooleanField(verbose_name=_("Present this AK"), null=True, help_text=_("Present results of this AK"))
+
     requirements = models.ManyToManyField(to=AKRequirement, blank=True, verbose_name=_('Requirements'),
                                           help_text=_("AK's Requirements"))
 
