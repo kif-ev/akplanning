@@ -13,7 +13,19 @@ admin.site.register(AKType)
 admin.site.register(AKTrack)
 admin.site.register(AKTag)
 admin.site.register(AKRequirement)
-admin.site.register(AK)
+
+
+class AKAdmin(admin.ModelAdmin):
+    model = AK
+    list_display = ['name', 'short_name', 'type', 'is_wish']
+
+    def is_wish(self, obj):
+        return obj.wish
+
+    is_wish.boolean = True
+
+
+admin.site.register(AK, AKAdmin)
 
 admin.site.register(Room)
 

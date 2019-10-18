@@ -121,7 +121,8 @@ class AK(models.Model):
                                   help_text=_('Name displayed in the schedule'))
     description = models.TextField(blank=True, verbose_name=_('Description'), help_text=_('Description of the AK'))
 
-    owners = models.ManyToManyField(to=AKOwner, verbose_name=_('Owners'), help_text=_('Those organizing the AK'))
+    owners = models.ManyToManyField(to=AKOwner, blank=True, verbose_name=_('Owners'),
+                                    help_text=_('Those organizing the AK'))
 
     # TODO generate automatically
     link = models.URLField(blank=True, verbose_name=_('Web Link'), help_text=_('Link to wiki page'))
@@ -160,6 +161,10 @@ class AK(models.Model):
     @property
     def owners_list(self):
         return ", ".join(str(owner) for owner in self.owners.all())
+
+    @property
+    def wish(self):
+        return self.owners.count() == 0
 
 
 class Room(models.Model):
