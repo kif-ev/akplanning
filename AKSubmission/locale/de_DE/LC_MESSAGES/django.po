@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-18 14:15+0000\n"
+"POT-Creation-Date: 2019-10-18 22:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -84,9 +84,22 @@ msgstr "Diesen AK vorstellen"
 msgid "Reso"
 msgstr "Reso"
 
+#: templates/AKSubmission/submission_overview.html:17
+msgid ""
+"On this page you can see a list of current AKs, change them and add new ones."
+msgstr "Auf dieser Seite kannst du eine Liste von aktuellen AKs sehen, diese bearbeiten und neue hinzufügen."
+
 #: templates/AKSubmission/submission_overview.html:20
 msgid "Submit"
 msgstr "Eintragen"
+
+#: templates/AKSubmission/submission_overview.html:21
+msgid "New AK"
+msgstr "Neuer AK"
+
+#: templates/AKSubmission/submission_overview.html:22
+msgid "New AK Wish"
+msgstr "Neuer AK-Wunsch"
 
 #: templates/AKSubmission/submission_overview.html:26
 msgid "Current AKs"
