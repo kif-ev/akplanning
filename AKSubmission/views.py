@@ -1,9 +1,11 @@
 from django.http import Http404
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView
 
 from AKModel.models import AK, AKCategory, AKTag
 from AKModel.views import FilterByEventSlugMixin
+from AKSubmission.forms import AKForm
 
 
 class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
@@ -57,3 +59,12 @@ class AKListByTagView(AKListView):
         except AKTag.DoesNotExist:
             raise Http404
         return super().get_queryset().filter(tags=self.tag)
+
+
+class AKSubmissionView(CreateView):
+    model = AK
+    template_name = 'AKSubmission/submit_new.html'
+    form_class = AKForm
+
+    def get_success_url(self):
+        return reverse_lazy('submit:submission_overview', kwargs={'event_slug': self.kwargs['event_slug']})

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block title %}{{ event.slug }} - {% trans "New AK" %}{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
+    <li class="breadcrumb-item"><a href="#">{{ event.slug }}</a></li>
+    <li class="breadcrumb-item"><a href="#">{% trans "AK Submission" %}</a></li>
+    <li class="breadcrumb-item active">{% trans "New AK" %}</li>
+{% endblock %}
+
+{% block content %}
+    <h2>{% trans 'New AK' %}</h2>
+    <form method="POST" class="post-form">{% csrf_token %}
+        {% bootstrap_form form %}
+        <button type="submit" class="save btn btn-default">Save</button>
+    </form>
+{% endblock %}
