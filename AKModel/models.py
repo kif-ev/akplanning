@@ -135,7 +135,8 @@ class AK(models.Model):
 
     reso = models.BooleanField(verbose_name=_('Resolution Intention'), default=False,
                                help_text=_('Intends to submit a resolution'))
-    present = models.BooleanField(verbose_name=_("Present this AK"), null=True, help_text=_("Present results of this AK"))
+    present = models.BooleanField(verbose_name=_("Present this AK"), null=True,
+                                  help_text=_("Present results of this AK"))
 
     requirements = models.ManyToManyField(to=AKRequirement, blank=True, verbose_name=_('Requirements'),
                                           help_text=_("AK's Requirements"))
@@ -199,7 +200,7 @@ class AKSlot(models.Model):
     """ An AK Mapping matches an AK to a room during a certain time.
     """
     ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'), help_text=_('AK being mapped'))
-    room = models.ForeignKey(to=Room, null=True, on_delete=models.SET_NULL, verbose_name=_('Room'),
+    room = models.ForeignKey(to=Room, blank=True, null=True, on_delete=models.SET_NULL, verbose_name=_('Room'),
                              help_text=_('Room the AK will take place in'))
     start = models.DateTimeField(verbose_name=_('Slot Begin'), help_text=_('Time and date the slot begins'))
     duration = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Duration'),
