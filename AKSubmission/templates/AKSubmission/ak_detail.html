@@ -17,6 +17,8 @@
 {% block content %}
     <h1 style="margin-bottom: 30px;">{{ ak.event.name }}: {% trans "AK Submission" %}</h1>
 
+    {% include "AKSubmission/messages.html" %}
+
     <div class="float-right">
         {% if ak.link != "" %}
             <a href="{{ ak.link }}" class="btn btn-info">{%  fontawesome_icon 'external-link-alt' %}</a>

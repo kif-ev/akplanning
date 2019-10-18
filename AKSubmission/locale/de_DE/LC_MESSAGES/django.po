@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-18 22:22+0000\n"
+"POT-Creation-Date: 2019-10-18 23:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,42 +25,43 @@ msgstr ""
 #: templates/AKSubmission/submission_overview.html:6
 #: templates/AKSubmission/submission_overview.html:11
 #: templates/AKSubmission/submission_overview.html:15
+#: templates/AKSubmission/submit_new.html:12
 msgid "AK Submission"
 msgstr "AK-Eintragung"
 
-#: templates/AKSubmission/ak_detail.html:30
+#: templates/AKSubmission/ak_detail.html:32
 #: templates/AKSubmission/ak_list_table.html:10
 msgid "Who?"
 msgstr "Wer?"
 
-#: templates/AKSubmission/ak_detail.html:32
+#: templates/AKSubmission/ak_detail.html:34
 #: templates/AKSubmission/ak_list_table.html:11
 msgid "Category"
 msgstr "Kategorie"
 
-#: templates/AKSubmission/ak_detail.html:38
+#: templates/AKSubmission/ak_detail.html:40
 msgid "Present this AK"
 msgstr "Diesen AK vorstellen"
 
-#: templates/AKSubmission/ak_detail.html:42
+#: templates/AKSubmission/ak_detail.html:44
 #: templates/AKSubmission/ak_list.html:26
 #: templates/AKSubmission/ak_list_table.html:12
 msgid "Tags"
 msgstr "Tags"
 
-#: templates/AKSubmission/ak_detail.html:48
+#: templates/AKSubmission/ak_detail.html:50
 msgid "Reso?"
 msgstr "Reso?"
 
-#: templates/AKSubmission/ak_detail.html:60
+#: templates/AKSubmission/ak_detail.html:62
 msgid "When?"
 msgstr "Wann?"
 
-#: templates/AKSubmission/ak_detail.html:61
+#: templates/AKSubmission/ak_detail.html:63
 msgid "Duration"
 msgstr "Dauer"
 
-#: templates/AKSubmission/ak_detail.html:62
+#: templates/AKSubmission/ak_detail.html:64
 msgid "Room"
 msgstr "Raum"
 
@@ -87,13 +88,19 @@ msgstr "Reso"
 #: templates/AKSubmission/submission_overview.html:17
 msgid ""
 "On this page you can see a list of current AKs, change them and add new ones."
-msgstr "Auf dieser Seite kannst du eine Liste von aktuellen AKs sehen, diese bearbeiten und neue hinzufügen."
+msgstr ""
+"Auf dieser Seite kannst du eine Liste von aktuellen AKs sehen, diese "
+"bearbeiten und neue hinzufügen."
 
 #: templates/AKSubmission/submission_overview.html:20
+#: templates/AKSubmission/submit_new.html:26
 msgid "Submit"
 msgstr "Eintragen"
 
 #: templates/AKSubmission/submission_overview.html:21
+#: templates/AKSubmission/submit_new.html:7
+#: templates/AKSubmission/submit_new.html:13
+#: templates/AKSubmission/submit_new.html:18
 msgid "New AK"
 msgstr "Neuer AK"
 
@@ -104,3 +111,11 @@ msgstr "Neuer AK-Wunsch"
 #: templates/AKSubmission/submission_overview.html:26
 msgid "Current AKs"
 msgstr "Aktuelle AKs"
+
+#: templates/AKSubmission/submit_new.html:23
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+#: views.py:71
+msgid "AK successfully created"
+msgstr "AK erfolgreich angelegt"

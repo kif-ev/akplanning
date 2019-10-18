@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.http import Http404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -67,4 +68,5 @@ class AKSubmissionView(CreateView):
     form_class = AKForm
 
     def get_success_url(self):
-        return reverse_lazy('submit:submission_overview', kwargs={'event_slug': self.kwargs['event_slug']})
+        messages.add_message(self.request, messages.SUCCESS, _("AK successfully created"))
+        return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.pk})
