@@ -3,6 +3,8 @@
 {% load i18n %}
 {% load fontawesome %}
 
+{% load tags_AKSubmission %}
+
 {% block title %}{{ event.slug }} - {% trans "AK Submission" %}{% endblock %}
 
 {% block breadcrumbs %}
@@ -16,17 +18,13 @@
     <h1>{{ event.name }}: {% trans "AK Submission" %}</h1>
 
     <b>{% trans 'Categories' %}:</b>
-    {% for category in categories %}
-        <a href="{% url 'submit:ak_list_by_category' event_slug=event.slug category_pk=category.pk %}"><span
-                class="badge badge-primary">{{ category }}</span></a>
-    {% endfor %}
+    {% category_list categories event.slug %}
+
 
     <br><br>
 
     <b>{% trans 'Tags' %}:</b>
-    {% for tag in tags.all %}
-        <a href="{% url 'submit:ak_list_by_tag' event_slug=event.slug tag_pk=tag.pk %}"><span class="badge badge-primary">{{ tag }}</span></a>
-    {% endfor %}
+    {% tag_list tags.all event.slug %}
 
     <br><br>
 

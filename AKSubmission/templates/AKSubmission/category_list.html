@@ -1,0 +1,5 @@
+{% load tags_AKSubmission %}
+
+{% for category in categories %}
+    {% category_linked_badge category event_slug %}
+{% endfor %}

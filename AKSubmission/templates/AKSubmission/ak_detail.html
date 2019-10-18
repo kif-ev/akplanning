@@ -3,6 +3,8 @@
 {% load i18n %}
 {% load fontawesome %}
 
+{% load tags_AKSubmission %}
+
 {% block title %}{{ ak.event.slug }} - {% trans "AK Submission" %} - {{ ak.slug }}{% endblock %}
 
 {% block breadcrumbs %}
@@ -29,25 +31,23 @@
         <tr>
             <td>{% trans 'Category' %}</td>
             <td>
-                <a href="{% url 'submit:ak_list_by_category' event_slug=ak.event.slug category_pk=ak.category.pk %}"><span
-                        class="badge badge-primary">{{ ak.category }}</span></a></td>
+                {% category_linked_badge ak.category ak.event.slug %}
+            </td>
+        </tr>
+        <tr>
+            <td>{% trans "Present this AK" %}</td>
+            <td>{{ ak.present | bool_symbol }}</td>
         </tr>
         <tr>
             <td>{% trans "Tags" %}</td>
             <td>
-                {% for tag in ak.tags.all %}
-                    <a href="{% url 'submit:ak_list_by_tag' event_slug=ak.event.slug tag_pk=tag.pk %}"><span class="badge badge-info">{{ tag }}</span></a>
-                {% endfor %}
+                {% tag_list ak.tags.all ak.event.slug %}
             </td>
         </tr>
         <tr>
             <td>{% trans "Reso?" %}</td>
             <td>
-                {% if  ak.reso %}
-                    {% fontawesome_icon "check" %}
-                {% else %}
-                    {% fontawesome_icon "times" %}
-                {% endif %}
+                {{ ak.reso | bool_symbol }}
             </td>
         </tr>
     </table>
