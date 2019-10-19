@@ -19,7 +19,7 @@ class AKForm(forms.ModelForm):
                   'conflicts',
                   'prerequisites',
                   'notes',
-                  'event']
+                  ]
 
         widgets = {
             'requirements': forms.CheckboxSelectMultiple,

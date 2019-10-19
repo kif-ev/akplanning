@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView, CreateView
 
-from AKModel.models import AK, AKCategory, AKTag
+from AKModel.models import AK, AKCategory, AKTag, Event
 from AKModel.views import FilterByEventSlugMixin
 from AKSubmission.forms import AKForm
 
@@ -70,3 +70,20 @@ class AKSubmissionView(CreateView):
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK successfully created"))
         return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.pk})
+
+    def form_valid(self, form):
+        instance = form.save(commit=False)
+
+        # Set event
+        instance.event = Event.get_by_slug(self.kwargs["event_slug"])
+
+        # Generate short name if not given
+        # TODO
+
+        # Generate wiki link
+        # TODO
+
+        # Generate slot(s)
+        # TODO
+
+        return super().form_valid(form)
