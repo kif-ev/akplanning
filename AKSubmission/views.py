@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView, CreateView
 
 from AKModel.models import AK, AKCategory, AKTag, Event
-from AKModel.views import FilterByEventSlugMixin
+from AKModel.views import FilterByEventSlugMixin, EventSlugMixin
 from AKSubmission.forms import AKForm
 
 
@@ -62,7 +62,7 @@ class AKListByTagView(AKListView):
         return super().get_queryset().filter(tags=self.tag)
 
 
-class AKSubmissionView(CreateView):
+class AKSubmissionView(EventSlugMixin, CreateView):
     model = AK
     template_name = 'AKSubmission/submit_new.html'
     form_class = AKForm
