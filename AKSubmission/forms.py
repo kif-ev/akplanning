@@ -20,3 +20,7 @@ class AKForm(forms.ModelForm):
                   'prerequisites',
                   'notes',
                   'event']
+
+        widgets = {
+            'requirements': forms.CheckboxSelectMultiple,
+        }
