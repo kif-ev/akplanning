@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-18 23:53+0000\n"
+"POT-Creation-Date: 2019-10-19 00:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -93,7 +93,7 @@ msgstr ""
 "bearbeiten und neue hinzufügen."
 
 #: templates/AKSubmission/submission_overview.html:20
-#: templates/AKSubmission/submit_new.html:26
+#: templates/AKSubmission/submit_new.html:29
 msgid "Submit"
 msgstr "Eintragen"
 
@@ -115,6 +115,10 @@ msgstr "Aktuelle AKs"
 #: templates/AKSubmission/submit_new.html:23
 msgid "Reset"
 msgstr "Zurücksetzen"
+
+#: templates/AKSubmission/submit_new.html:26
+msgid "Cancel"
+msgstr "Abbrechen"
 
 #: views.py:71
 msgid "AK successfully created"

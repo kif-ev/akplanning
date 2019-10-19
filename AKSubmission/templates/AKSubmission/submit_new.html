@@ -9,7 +9,7 @@
 {% block breadcrumbs %}
     <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
     <li class="breadcrumb-item"><a href="#">{{ event.slug }}</a></li>
-    <li class="breadcrumb-item"><a href="#">{% trans "AK Submission" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
     <li class="breadcrumb-item active">{% trans "New AK" %}</li>
 {% endblock %}
 
@@ -20,9 +20,13 @@
         {% bootstrap_form form %}
         {% buttons %}
             <button type="reset" class="btn btn-danger">
-                {% fontawesome_icon "times" %} {% trans "Reset" %}
+                {% fontawesome_icon "undo-alt" %} {% trans "Reset" %}
             </button>
-            <button type="submit" class="save btn btn-default float-right">
+            &nbsp;&nbsp;
+            <a href="{% url 'submit:submission_overview' event_slug=event.slug %}" class="btn btn-secondary">
+                {% fontawesome_icon "times" %} {% trans "Cancel" %}
+            </a>
+            <button type="submit" class="save btn btn-primary float-right">
                 {% fontawesome_icon "check" %} {% trans "Submit" %}
             </button>
         {% endbuttons %}
