@@ -4,9 +4,11 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView, CreateView
 
-from AKModel.models import AK, AKCategory, AKTag, Event
-from AKModel.views import FilterByEventSlugMixin, EventSlugMixin
-from AKSubmission.forms import AKForm
+from AKModel.models import AK, AKCategory, AKTag
+from AKModel.models import Event
+from AKModel.views import EventSlugMixin
+from AKModel.views import FilterByEventSlugMixin
+from AKSubmission.forms import AKForm, AKWishForm
 
 
 class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
@@ -87,3 +89,8 @@ class AKSubmissionView(EventSlugMixin, CreateView):
         # TODO
 
         return super().form_valid(form)
+
+
+class AKWishSubmissionView(AKSubmissionView):
+    template_name = 'AKSubmission/submit_new_wish.html'
+    form_class = AKWishForm

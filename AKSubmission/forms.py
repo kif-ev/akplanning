@@ -24,3 +24,8 @@ class AKForm(forms.ModelForm):
         widgets = {
             'requirements': forms.CheckboxSelectMultiple,
         }
+
+
+class AKWishForm(AKForm):
+    class Meta(AKForm.Meta):
+        exclude = ['owners']

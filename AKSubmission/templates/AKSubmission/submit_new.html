@@ -15,7 +15,9 @@
 
 {% block content %}
     {% include "AKSubmission/messages.html" %}
-    <h2>{% trans 'New AK' %}</h2>
+    {% block headline %}
+        <h2>{% trans 'New AK' %}</h2>
+    {% endblock %}
     <form method="POST" class="post-form">{% csrf_token %}
         {% bootstrap_form form %}
         {% buttons %}

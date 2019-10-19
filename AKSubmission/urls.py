@@ -14,6 +14,7 @@ urlpatterns = [
             path('aks/category/<int:category_pk>', views.AKListByCategoryView.as_view(), name='ak_list_by_category'),
             path('aks/tag/<int:tag_pk>', views.AKListByTagView.as_view(), name='ak_list_by_tag'),
             path('new/', views.AKSubmissionView.as_view(), name='submit_ak'),
+            path('new_wish/', views.AKWishSubmissionView.as_view(), name='submit_ak_wish'),
         ])
     ),
 ]
