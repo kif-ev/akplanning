@@ -24,4 +24,6 @@ if [ "$1" = "--prod" ]; then
 fi
 
 ./manage.py migrate
+./manage.py collectstatic --noinput
+./manage.py compilemessages
 touch AKPlanning/wsgi.py

@@ -18,6 +18,10 @@ pip install -r requirements.txt
 # Setup database
 python manage.py migrate
 
+# Prepare static files and translations
+python manage.py collectstatic --noinput
+python manage.py compilemessages
+
 # Create superuser
 # Credentials are entered interactively on CLI
 python manage.py createsuperuser
