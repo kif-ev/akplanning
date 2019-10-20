@@ -12,6 +12,23 @@ class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
     template_name = "AKSubmission/submission_overview.html"
     ordering = ['category']
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+
+        # Sort AKs into different lists (by their category)
+        categories = []
+        aks_for_category = []
+        current_category = None
+        for ak in context["AKs"]:
+            if ak.category != current_category:
+                current_category = ak.category
+                aks_for_category = []
+                categories.append((current_category, aks_for_category))
+            aks_for_category.append(ak)
+        context["categories"] = categories
+
+        return context
+
 
 class AKDetailView(DetailView):
     model = AK
