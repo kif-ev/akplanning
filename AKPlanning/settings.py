@@ -137,3 +137,6 @@ BOOTSTRAP4 = {
 
 # Settings for FontAwesome
 FONTAWESOME_CSS_URL = "//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css"
+
+# Treat wishes as seperate category in submission views?
+WISHES_AS_CATEGORY = True

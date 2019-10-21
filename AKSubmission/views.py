@@ -4,6 +4,7 @@ from django.views.generic import ListView, DetailView
 
 from AKModel.models import AK, AKCategory, AKTag
 from AKModel.views import FilterByEventSlugMixin
+from django.conf import settings
 
 
 class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
@@ -18,13 +19,20 @@ class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
         # Sort AKs into different lists (by their category)
         categories = []
         aks_for_category = []
+        ak_wishes = []
         current_category = None
         for ak in context["AKs"]:
             if ak.category != current_category:
                 current_category = ak.category
                 aks_for_category = []
                 categories.append((current_category, aks_for_category))
-            aks_for_category.append(ak)
+            if settings.WISHES_AS_CATEGORY and ak.wish:
+                ak_wishes.append(ak)
+            else:
+                aks_for_category.append(ak)
+
+        if settings.WISHES_AS_CATEGORY:
+            categories.append(({"name":_("Wishes"), "pk": "wish", "description": _("AKs one would like to have")}, ak_wishes))
         context["categories"] = categories
 
         return context
