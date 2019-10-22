@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-18 22:22+0000\n"
+"POT-Creation-Date: 2019-10-21 22:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,6 +27,11 @@ msgstr ""
 #: templates/AKSubmission/submission_overview.html:15
 msgid "AK Submission"
 msgstr "AK-Eintragung"
+
+#: templates/AKSubmission/ak_detail.html:27
+#: templates/AKSubmission/ak_list_table.html:30
+msgid "AK Wish"
+msgstr "AK-Wunsch"
 
 #: templates/AKSubmission/ak_detail.html:30
 #: templates/AKSubmission/ak_list_table.html:10
@@ -87,7 +92,9 @@ msgstr "Reso"
 #: templates/AKSubmission/submission_overview.html:17
 msgid ""
 "On this page you can see a list of current AKs, change them and add new ones."
-msgstr "Auf dieser Seite kannst du eine Liste von aktuellen AKs sehen, diese bearbeiten und neue hinzufügen."
+msgstr ""
+"Auf dieser Seite kannst du eine Liste von aktuellen AKs sehen, diese "
+"bearbeiten und neue hinzufügen."
 
 #: templates/AKSubmission/submission_overview.html:20
 msgid "Submit"
@@ -104,3 +111,13 @@ msgstr "Neuer AK-Wunsch"
 #: templates/AKSubmission/submission_overview.html:26
 msgid "Current AKs"
 msgstr "Aktuelle AKs"
+
+#: views.py:33
+msgid "Wishes"
+msgstr "Wünsche"
+
+#: views.py:33
+msgid "AKs one would like to have"
+msgstr ""
+"AKs die sich gewünscht wurden, aber bei denen noch nicht klar ist, wer sie "
+"macht. Falls du dir das vorstellen kannst, trag dich einfach ein"

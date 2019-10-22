@@ -25,6 +25,25 @@
 
     <h2>{% trans "Current AKs" %}</h2>
 
-    {% include "AKSubmission/ak_list_table.html" %}
+    <noscript>
+        {% include "AKSubmission/ak_list_table.html" %}
+    </noscript>
+
+    <ul class="nav nav-tabs" style="margin-bottom:15px">
+        {% for category, _ in categories %}
+          <li class="nav-item">
+            <a class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab" href="#category_{{ category.pk }}">{{ category.name }}</a>
+          </li>
+        {% endfor %}
+    </ul>
+
+    <div id="akListTabbed" class="tab-content">
+        {% for category, AKs in categories %}
+            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="category_{{ category.pk }}">
+                <p><b>{{ category.name }}:</b> {{ category.description }}</p>
+                {% include "AKSubmission/ak_list_table.html" %}
+            </div>
+        {% endfor %}
+    </div>
 
 {% endblock %}

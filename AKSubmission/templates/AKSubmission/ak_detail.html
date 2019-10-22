@@ -24,7 +24,7 @@
         <a href="#" class="btn btn-success">{%  fontawesome_icon 'pencil-alt' %}</a>
     </div>
 
-    <h2>{{ ak.name }}</h2>
+    <h2>{% if ak.wish %}{% trans "AK Wish" %}: {% endif %}{{ ak.name }}</h2>
 
     <table class="table table-borderless">
         <tr><td>{% trans "Who?" %}</td><td>{{ ak.owners_list }}</td></tr>
