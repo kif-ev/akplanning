@@ -1,6 +1,6 @@
 from django import forms
 
-from AKModel.models import AK
+from AKModel.models import AK, AKOwner
 
 
 class AKForm(forms.ModelForm):
@@ -29,3 +29,9 @@ class AKForm(forms.ModelForm):
 class AKWishForm(AKForm):
     class Meta(AKForm.Meta):
         exclude = ['owners']
+
+
+class AKOwnerForm(forms.ModelForm):
+    class Meta:
+        model = AKOwner
+        fields = ['name', 'email', 'institution', 'link']

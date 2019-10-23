@@ -17,10 +17,8 @@
     {% blocktrans %}On this page you can see a list of current AKs, change them and add new ones.{% endblocktrans %}
 
     <div class="jumbotron" style="margin-top:20px;">
-        <h2>{% trans "Submit" %}</h2>
-        <a href="{% url 'submit:submit_ak' event_slug=event.slug %}" class="btn btn-primary">{% trans "New AK" %}</a>
-        <a href="{% url 'submit:submit_ak_wish' event_slug=event.slug %}"
-           class="btn btn-info">{% trans "New AK Wish" %}</a>
+        <a href="{% url 'submit:akowner_select_create' event_slug=event.slug %}" class="btn btn-primary">{% trans "New AK" %}</a>
+        <a href="{% url 'submit:submit_ak_wish' event_slug=event.slug  %}" class="btn btn-info">{% trans "New AK Wish" %}</a>
     </div>
 
 
