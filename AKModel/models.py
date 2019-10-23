@@ -91,6 +91,7 @@ class AKCategory(models.Model):
     """
     name = models.CharField(max_length=64, unique=True, verbose_name=_('Name'), help_text=_('Name of the AK Category'))
     color = models.CharField(max_length=7, blank=True, verbose_name=_('Color'), help_text=_('Color for displaying'))
+    description = models.TextField(blank=True, verbose_name=_("Description"), help_text=_("Short description of this AK Category"))
 
     class Meta:
         verbose_name = _('AK Category')

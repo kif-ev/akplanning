@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('AKSubmission.urls', namespace='submit')),
+    path('i18n/', include('django.conf.urls.i18n')),
 ]

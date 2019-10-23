@@ -25,7 +25,13 @@
                     <span class="badge badge-dark badge-pill" title="{% trans 'Reso' %}">{% fontawesome_icon "scroll" %}</span>
                 {% endif %}
             </td>
-            <td>{{ ak.owners_list }}</td>
+            <td>
+                {% if ak.wish %}
+                    <span class="badge badge-dark badge-pill">{% trans "AK Wish" %}</span>
+                {% else %}
+                    {{ ak.owners_list }}
+                {% endif %}
+            </td>
             <td>{% category_linked_badge ak.category event.slug %}</td>
             <td>{% tag_list ak.tags.all event.slug %}</td>
             <td class="text-right">
