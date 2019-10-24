@@ -1,8 +1,10 @@
 from django.contrib import messages
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import ListView, DetailView, CreateView
+from django.views import View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 
 from AKModel.models import AK, AKCategory, AKTag, AKOwner
 from AKModel.models import Event
@@ -41,6 +43,9 @@ class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
         if settings.WISHES_AS_CATEGORY:
             categories.append(({"name":_("Wishes"), "pk": "wish", "description": _("AKs one would like to have")}, ak_wishes))
         context["categories"] = categories
+
+        # Get list of existing owners for event (for AK submission start)
+        context["existingOwners"] = AKOwner.objects.filter(event=self.event)
 
         return context
 
@@ -91,15 +96,10 @@ class AKListByTagView(AKListView):
         return super().get_queryset().filter(tags=self.tag)
 
 
-class AKSubmissionView(EventSlugMixin, CreateView):
+class AKAndAKWishSubmissionView(EventSlugMixin, CreateView):
     model = AK
     template_name = 'AKSubmission/submit_new.html'
     form_class = AKForm
-
-    def get_initial(self):
-        initials = super(AKSubmissionView, self).get_initial()
-        initials['owners'] = [AKOwner.get_by_slug(self.kwargs['owner_slug'])]
-        return initials
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK successfully created"))
@@ -123,14 +123,26 @@ class AKSubmissionView(EventSlugMixin, CreateView):
         return super().form_valid(form)
 
 
-class AKWishSubmissionView(AKSubmissionView):
+class AKSubmissionView(AKAndAKWishSubmissionView):
+    def get_initial(self):
+        initials = super(AKAndAKWishSubmissionView, self).get_initial()
+        initials['owners'] = [AKOwner.get_by_slug(self.kwargs['owner_slug'])]
+        return initials
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context['owner'] = get_object_or_404(AKOwner, slug=self.kwargs['owner_slug'])
+        return context
+
+
+class AKWishSubmissionView(AKAndAKWishSubmissionView):
     template_name = 'AKSubmission/submit_new_wish.html'
     form_class = AKWishForm
 
 
-class AKOwnerSelectCreateView(EventSlugMixin, CreateView):
+class AKOwnerCreateView(EventSlugMixin, CreateView):
     model = AKOwner
-    template_name = 'AKSubmission/akowner_create_select.html'
+    template_name = 'AKSubmission/akowner_create_update.html'
     form_class = AKOwnerForm
 
     def get_success_url(self):
@@ -144,3 +156,46 @@ class AKOwnerSelectCreateView(EventSlugMixin, CreateView):
         instance.event = Event.get_by_slug(self.kwargs["event_slug"])
 
         return super().form_valid(form)
+
+
+class AKOwnerSelectDispatchView(EventSlugMixin, View):
+    """
+    This view only serves as redirect to prepopulate the owners field in submission create view
+    """
+    def post(self, request, *args, **kwargs):
+        owner_id = request.POST["owner_id"]
+
+        if owner_id == "-1":
+            return HttpResponseRedirect(
+                reverse_lazy('submit:akowner_create', kwargs={'event_slug': kwargs['event_slug']}))
+
+        owner = get_object_or_404(AKOwner, pk=request.POST["owner_id"])
+        return HttpResponseRedirect(
+            reverse_lazy('submit:submit_ak', kwargs={'event_slug': kwargs['event_slug'], 'owner_slug': owner.slug}))
+
+
+class AKOwnerEditView(EventSlugMixin, UpdateView):
+    model = AKOwner
+    template_name = "AKSubmission/akowner_create_update.html"
+    form_class = AKOwnerForm
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, _("Person Info successfully updated"))
+        return reverse_lazy('submit:submission_overview', kwargs={'event_slug': self.kwargs['event_slug']})
+
+
+class AKOwnerEditDispatchView(EventSlugMixin, View):
+    """
+    This view only serves as redirect choose the correct edit view
+    """
+    def post(self, request, *args, **kwargs):
+        owner_id = request.POST["owner_id"]
+
+        if owner_id == "-1":
+            messages.add_message(self.request, messages.WARNING, _("No user selected"))
+            return HttpResponseRedirect(
+                reverse_lazy('submit:submission_overview', kwargs={'event_slug': kwargs['event_slug']}))
+
+        owner = get_object_or_404(AKOwner, pk=request.POST["owner_id"])
+        return HttpResponseRedirect(
+            reverse_lazy('submit:akowner_edit', kwargs={'event_slug': kwargs['event_slug'], 'slug': owner.slug}))

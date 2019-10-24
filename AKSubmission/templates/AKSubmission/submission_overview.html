@@ -14,11 +14,39 @@
 {% block content %}
     <h1>{{ event.name }}: {% trans "AK Submission" %}</h1>
 
+    {% include "AKSubmission/messages.html" %}
+
     {% blocktrans %}On this page you can see a list of current AKs, change them and add new ones.{% endblocktrans %}
 
     <div class="jumbotron" style="margin-top:20px;">
-        <a href="{% url 'submit:akowner_select_create' event_slug=event.slug %}" class="btn btn-primary">{% trans "New AK" %}</a>
-        <a href="{% url 'submit:submit_ak_wish' event_slug=event.slug  %}" class="btn btn-info">{% trans "New AK Wish" %}</a>
+        <form method="POST" action="#" class="form-row">
+            {% csrf_token %}
+            <a href="{% url 'submit:submit_ak_wish' event_slug=event.slug  %}" class="btn btn-info">
+                {% trans "New AK Wish" %}
+            </a>
+            <span style="font-size: 1.5em">
+                &nbsp;&nbsp; | &nbsp;
+                <label for="selectOwnerId" class="align-middle d-inline">{% trans "Who" %}:</label>
+            </span>&nbsp;&nbsp;
+            <select name="owner_id" id="selectOwnerId" class="">
+                <option value="-1">{% trans "I do not own AKs yet" %}</option>
+                {% for owner in existingOwners %}
+                    <option value="{{ owner.pk }}">{{ owner }}</option>
+                {% endfor %}
+            </select> &nbsp;&nbsp;
+            <input
+                    type="submit"
+                    class="btn btn-primary"
+                    value="{% trans "New AK" %}"
+                    formaction="{% url 'submit:akowner_select' event_slug=event.slug %}"
+            />&nbsp;&nbsp;
+            <input
+                    type="submit"
+                    class="btn btn-success"
+                    value="{% trans 'Edit Person Info' %}"
+                    formaction="{% url 'submit:akowner_edit_dispatch' event_slug=event.slug %}"
+            />
+        </form>
     </div>
 
 
