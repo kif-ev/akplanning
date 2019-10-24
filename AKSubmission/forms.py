@@ -32,7 +32,8 @@ class AKForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Use better multiple select input for owners, conflicts and prerequisites
-        self.fields["owners"].widget.attrs = {'class': 'chosen-select'}
+        if "owners" in self.fields:
+            self.fields["owners"].widget.attrs = {'class': 'chosen-select'}
         self.fields["conflicts"].widget.attrs = {'class': 'chosen-select'}
         self.fields["prerequisites"].widget.attrs = {'class': 'chosen-select'}
 
