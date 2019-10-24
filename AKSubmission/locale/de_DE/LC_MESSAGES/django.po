@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-24 21:34+0000\n"
+"POT-Creation-Date: 2019-10-24 23:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,15 +17,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: forms.py:38
+#: forms.py:39
 msgid "Separate multiple tags with semicolon"
 msgstr "Mehrere Tags mit Semikolon trennen"
 
-#: forms.py:80
+#: forms.py:60
+#, python-format
+msgid "\"%(duration)s\" is not a valid duration"
+msgstr "\"%(duration)s\" ist keine gültige Dauer"
+
+#: forms.py:94
 msgid "Duration(s)"
 msgstr "Dauer(n)"
 
-#: forms.py:81
+#: forms.py:95
 msgid ""
 "Enter at least one planned duration (in hours). If your AK should have "
 "multiple slots, use multiple lines"
@@ -188,14 +193,14 @@ msgstr ""
 msgid "AK successfully created"
 msgstr "AK erfolgreich angelegt"
 
-#: views.py:151
+#: views.py:152
 msgid "AK successfully updated"
 msgstr "AK erfolgreich bearbeitet"
 
-#: views.py:208
+#: views.py:209
 msgid "Person Info successfully updated"
 msgstr "Personen-Info erfolgreich bearbeitet"
 
-#: views.py:220
+#: views.py:221
 msgid "No user selected"
 msgstr "Keine Person ausgewählt"

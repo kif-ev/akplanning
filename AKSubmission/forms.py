@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 
 from AKModel.models import AK, AKOwner
 
@@ -51,6 +52,16 @@ class AKForm(forms.ModelForm):
             duration = int(h) + int(m) / 60
         if "," in str(duration):
             duration = float(duration.replace(",", "."))
+
+        try:
+            float(duration)
+        except ValueError:
+            raise ValidationError(
+                _('"%(duration)s" is not a valid duration'),
+                code='invalid',
+                params={'duration': duration},
+            )
+
         return duration
 
     def clean(self):
