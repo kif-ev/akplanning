@@ -39,7 +39,7 @@
                 {% if ak.link %}
                     <a href="{{ ak.link }}" class="btn btn-info">{%  fontawesome_icon 'external-link-alt' %}</a>
                 {% endif %}
-                <a href="#" class="btn btn-success">{%  fontawesome_icon 'pencil-alt' %}</a>
+                <a href="{% url 'submit:ak_edit' event_slug=event.slug pk=ak.pk %}" class="btn btn-success">{%  fontawesome_icon 'pencil-alt' %}</a>
             </td>
         </tr>
         <tr>

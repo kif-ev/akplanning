@@ -1,0 +1,16 @@
+{% extends 'AKSubmission/submit_new.html' %}
+
+{% load i18n %}
+
+{% block title %}{{ event.slug }} - {% trans "New AK Wish" %}{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
+    <li class="breadcrumb-item"><a href="#">{{ event.slug }}</a></li>
+    <li class="breadcrumb-item"><a href="#">{% trans "AK Submission" %}</a></li>
+    <li class="breadcrumb-item active">{% trans "New AK Wish" %}</li>
+{% endblock %}
+
+{% block headline %}
+    <h2>{% trans 'New AK Wish' %}</h2>
+{% endblock %}

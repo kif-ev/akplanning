@@ -1,0 +1,22 @@
+{% extends 'AKSubmission/submit_new.html' %}
+
+{% load i18n %}
+{% load bootstrap4 %}
+{% load fontawesome %}
+{% load staticfiles %}
+
+{% block title %}{{ event.slug }} - {% trans "Edit AK" %}{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
+    <li class="breadcrumb-item"><a href="#">{{ event.slug }}</a></li>
+    <li class="breadcrumb-item"><a
+            href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
+    <li class="breadcrumb-item"><a href="#">{{ ak.short_name }}</a></li>
+    <li class="breadcrumb-item active">{% trans "Edit" %}</li>
+{% endblock %}
+
+
+{% block headline %}
+    <h2>{% trans 'Edit AK' %}</h2>
+{% endblock %}

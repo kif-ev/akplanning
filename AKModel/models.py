@@ -1,5 +1,8 @@
 # Create your models here.
+import itertools
+
 from django.db import models
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 
@@ -15,6 +18,8 @@ class Event(models.Model):
     place = models.CharField(max_length=128, blank=True, verbose_name=_('Place'),
                              help_text=_('City etc. the event takes place in'))
     active = models.BooleanField(verbose_name=_('Active State'), help_text=_('Marks currently active events'))
+
+    base_url = models.URLField(verbose_name=_("Base URL"), help_text=_("Prefix for wiki link construction"), blank=True)
 
     class Meta:
         verbose_name = _('Event')
@@ -32,7 +37,9 @@ class Event(models.Model):
 class AKOwner(models.Model):
     """ An AKOwner describes the person organizing/holding an AK.
     """
-    name = models.CharField(max_length=256, verbose_name=_('Nickname'), help_text=_('Name to identify an AK owner by'))
+    name = models.CharField(max_length=64, verbose_name=_('Nickname'), help_text=_('Name to identify an AK owner by'))
+    slug = models.SlugField(max_length=64, blank=True, unique=True, verbose_name=_('Slug'),
+                            help_text=_('Slug for URL generation'))
     email = models.EmailField(max_length=128, blank=True, verbose_name=_('E-Mail Address'), help_text=_('Contact mail'))
     institution = models.CharField(max_length=128, blank=True, verbose_name=_('Institution'), help_text=_('Uni etc.'))
     link = models.URLField(blank=True, verbose_name=_('Web Link'), help_text=_('Link to Homepage'))
@@ -50,6 +57,35 @@ class AKOwner(models.Model):
         if self.institution:
             return f"{self.name} ({self.institution})"
         return self.name
+
+    def _generate_slug(self):
+        max_length = self._meta.get_field('slug').max_length
+
+        slug_candidate = slugify(self.name)[:max_length]
+        if not AKOwner.objects.filter(slug=slug_candidate).exists():
+            self.slug = slug_candidate
+            return
+        slug_candidate = slugify(slug_candidate + '_' + self.institution)[:max_length]
+        if not AKOwner.objects.filter(slug=slug_candidate).exists():
+            self.slug = slug_candidate
+            return
+        for i in itertools.count(1):
+            if not AKOwner.objects.filter(slug=slug_candidate).exists():
+                break
+            digits = len(str(i))
+            slug_candidate = '{}-{}'.format(slug_candidate[:-digits + 1], i)
+
+        self.slug = slug_candidate
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self._generate_slug()
+
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_by_slug(slug):
+        return AKOwner.objects.get(slug=slug)
 
 
 class AKCategory(models.Model):
@@ -117,8 +153,8 @@ class AKRequirement(models.Model):
 class AK(models.Model):
     """ An AK is a slot-based activity to be scheduled during an event.
     """
-    name = models.CharField(max_length=256, unique=True, verbose_name=_('Name'), help_text=_('Name of the AK'))
-    short_name = models.CharField(max_length=64, unique=True, blank=True, verbose_name=_('Short Name'),
+    name = models.CharField(max_length=256, verbose_name=_('Name'), help_text=_('Name of the AK'))
+    short_name = models.CharField(max_length=64, blank=True, verbose_name=_('Short Name'),
                                   help_text=_('Name displayed in the schedule'))
     description = models.TextField(blank=True, verbose_name=_('Description'), help_text=_('Description of the AK'))
 
@@ -136,7 +172,8 @@ class AK(models.Model):
 
     reso = models.BooleanField(verbose_name=_('Resolution Intention'), default=False,
                                help_text=_('Intends to submit a resolution'))
-    present = models.BooleanField(verbose_name=_("Present this AK"), null=True, help_text=_("Present results of this AK"))
+    present = models.BooleanField(verbose_name=_("Present this AK"), null=True,
+                                  help_text=_("Present results of this AK"))
 
     requirements = models.ManyToManyField(to=AKRequirement, blank=True, verbose_name=_('Requirements'),
                                           help_text=_("AK's Requirements"))
@@ -156,6 +193,7 @@ class AK(models.Model):
     class Meta:
         verbose_name = _('AK')
         verbose_name_plural = _('AKs')
+        unique_together = [('name', 'event'), ('short_name', 'event')]
 
     def __str__(self):
         if self.short_name:
@@ -200,9 +238,10 @@ class AKSlot(models.Model):
     """ An AK Mapping matches an AK to a room during a certain time.
     """
     ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'), help_text=_('AK being mapped'))
-    room = models.ForeignKey(to=Room, null=True, on_delete=models.SET_NULL, verbose_name=_('Room'),
+    room = models.ForeignKey(to=Room, blank=True, null=True, on_delete=models.SET_NULL, verbose_name=_('Room'),
                              help_text=_('Room the AK will take place in'))
-    start = models.DateTimeField(verbose_name=_('Slot Begin'), help_text=_('Time and date the slot begins'))
+    start = models.DateTimeField(verbose_name=_('Slot Begin'), help_text=_('Time and date the slot begins'),
+                                 blank=True, null=True)
     duration = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Duration'),
                                    help_text=_('Length in hours'))
 
@@ -224,4 +263,6 @@ class AKSlot(models.Model):
         """
         Display start time of slot in format weekday + time, e.g. "Fri 14:00"
         """
+        if self.start is None:
+            return _("Not scheduled yet")
         return self.start.strftime('%a %H:%M')

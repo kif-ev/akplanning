@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load bootstrap4 %}
+{% load fontawesome %}
+
+{% block title %}{{ event.slug }} - {% trans "AK Owner" %}{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
+    <li class="breadcrumb-item"><a href="#">{{ event.slug }}</a></li>
+    <li class="breadcrumb-item"><a
+            href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
+    <li class="breadcrumb-item active">{{ owner.slug }}</li>
+{% endblock %}
+
+{% block content %}
+    {% block headline %}
+        <h2>{% trans 'AK Owner' %}</h2>
+    {% endblock %}
+    <form method="POST" class="post-form">{% csrf_token %}
+        {% bootstrap_form form %}
+        {% buttons %}
+            <button type="reset" class="btn btn-danger">
+                {% fontawesome_icon "undo-alt" %} {% trans "Reset" %}
+            </button>
+
+            <a href="{% url 'submit:submission_overview' event_slug=event.slug %}" class="btn btn-secondary">
+                {% fontawesome_icon "times" %} {% trans "Cancel" %}
+            </a>
+            <button type="submit" class="save btn btn-primary float-right">
+                {% fontawesome_icon "check" %} {% trans "Submit" %}
+            </button>
+        {% endbuttons %}
+    </form>
+{% endblock %}

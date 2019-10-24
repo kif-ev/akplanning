@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load bootstrap4 %}
+{% load fontawesome %}
+{% load staticfiles %}
+
+{% block title %}{{ event.slug }} - {% trans "New AK" %}{% endblock %}
+
+{% block imports %}
+    <link rel="stylesheet" href="{% static 'common/vendor/chosen-js/chosen.css' %}">
+    <link rel="stylesheet" href="{% static 'common/css/bootstrap-choosen.css' %}">
+{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
+    <li class="breadcrumb-item"><a href="#">{{ event.slug }}</a></li>
+    <li class="breadcrumb-item"><a
+            href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
+    <li class="breadcrumb-item"><a href="#">{{ owner.slug }}</a></li>
+    <li class="breadcrumb-item active">{% trans "New AK" %}</li>
+{% endblock %}
+
+{% block content %}
+    {% include "AKSubmission/messages.html" %}
+
+    {% block headline %}
+        <h2>{% trans 'New AK' %}</h2>
+    {% endblock %}
+    <form method="POST" class="post-form">{% csrf_token %}
+        {% bootstrap_form form %}
+        {% buttons %}
+            <button type="reset" class="btn btn-danger">
+                {% fontawesome_icon "undo-alt" %} {% trans "Reset" %}
+            </button>
+
+            <a href="{% url 'submit:submission_overview' event_slug=event.slug %}" class="btn btn-secondary">
+                {% fontawesome_icon "times" %} {% trans "Cancel" %}
+            </a>
+            <button type="submit" class="save btn btn-primary float-right">
+                {% fontawesome_icon "check" %} {% trans "Submit" %}
+            </button>
+        {% endbuttons %}
+    </form>
+{% endblock %}
+
+{% block bottom_script %}
+    <script src="{% static 'common/vendor/chosen-js/chosen.jquery.js' %}"></script>
+    <script>
+    $(function() {
+        $('.chosen-select').chosen();
+      });
+    </script>
+{% endblock %}

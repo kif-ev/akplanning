@@ -17,11 +17,13 @@
 {% block content %}
     <h1 style="margin-bottom: 30px;">{{ ak.event.name }}: {% trans "AK Submission" %}</h1>
 
+    {% include "AKSubmission/messages.html" %}
+
     <div class="float-right">
         {% if ak.link != "" %}
             <a href="{{ ak.link }}" class="btn btn-info">{%  fontawesome_icon 'external-link-alt' %}</a>
         {% endif %}
-        <a href="#" class="btn btn-success">{%  fontawesome_icon 'pencil-alt' %}</a>
+        <a href="{% url 'submit:ak_edit' event_slug=ak.event.slug pk=ak.pk %}" class="btn btn-success">{%  fontawesome_icon 'pencil-alt' %}</a>
     </div>
 
     <h2>{% if ak.wish %}{% trans "AK Wish" %}: {% endif %}{{ ak.name }}</h2>

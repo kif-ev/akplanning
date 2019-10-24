@@ -1,0 +1,10 @@
+{% load tags_AKSubmission %}
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-dismissible {{ message.tags | message_bootstrap_class }}">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+{% endif %}
