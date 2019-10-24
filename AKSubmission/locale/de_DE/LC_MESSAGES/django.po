@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-24 14:18+0000\n"
+"POT-Creation-Date: 2019-10-24 21:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,10 +17,27 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: forms.py:38
+msgid "Separate multiple tags with semicolon"
+msgstr "Mehrere Tags mit Semikolon trennen"
+
+#: forms.py:80
+msgid "Duration(s)"
+msgstr "Dauer(n)"
+
+#: forms.py:81
+msgid ""
+"Enter at least one planned duration (in hours). If your AK should have "
+"multiple slots, use multiple lines"
+msgstr ""
+"Mindestens eine geplante Dauer (in Stunden) angeben. Wenn der AK mehrere "
+"Slots haben soll, mehrere Zeilen verwenden"
+
 #: templates/AKSubmission/ak_detail.html:8
 #: templates/AKSubmission/ak_detail.html:13
 #: templates/AKSubmission/ak_detail.html:18
-#: templates/AKSubmission/ak_list.html:8 templates/AKSubmission/ak_list.html:13
+#: templates/AKSubmission/ak_edit.html:14 templates/AKSubmission/ak_list.html:8
+#: templates/AKSubmission/ak_list.html:13
 #: templates/AKSubmission/ak_list.html:18
 #: templates/AKSubmission/akowner_create_update.html:13
 #: templates/AKSubmission/submission_overview.html:6
@@ -71,6 +88,14 @@ msgstr "Dauer"
 #: templates/AKSubmission/ak_detail.html:64
 msgid "Room"
 msgstr "Raum"
+
+#: templates/AKSubmission/ak_edit.html:8 templates/AKSubmission/ak_edit.html:21
+msgid "Edit AK"
+msgstr "AK bearbeiten"
+
+#: templates/AKSubmission/ak_edit.html:16
+msgid "Edit"
+msgstr "Bearbeiten"
 
 #: templates/AKSubmission/ak_list.html:14
 msgid "AKs"
@@ -163,14 +188,14 @@ msgstr ""
 msgid "AK successfully created"
 msgstr "AK erfolgreich angelegt"
 
-#: views.py:149
+#: views.py:151
 msgid "AK successfully updated"
 msgstr "AK erfolgreich bearbeitet"
 
-#: views.py:193
+#: views.py:208
 msgid "Person Info successfully updated"
 msgstr "Personen-Info erfolgreich bearbeitet"
 
-#: views.py:205
+#: views.py:220
 msgid "No user selected"
 msgstr "Keine Person ausgewählt"

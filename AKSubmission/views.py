@@ -6,12 +6,12 @@ from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 
-from AKModel.models import AK, AKCategory, AKTag, AKOwner
+from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot
 from AKModel.models import Event
 from AKModel.views import EventSlugMixin
 from AKModel.views import FilterByEventSlugMixin
 
-from AKSubmission.forms import AKForm, AKWishForm, AKOwnerForm
+from AKSubmission.forms import AKForm, AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm
 
 from django.conf import settings
 
@@ -99,34 +99,36 @@ class AKListByTagView(AKListView):
 class AKAndAKWishSubmissionView(EventSlugMixin, CreateView):
     model = AK
     template_name = 'AKSubmission/submit_new.html'
-    form_class = AKForm
+    form_class = AKSubmissionForm
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK successfully created"))
         return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.pk})
 
     def form_valid(self, form):
-        instance = form.save(commit=False)
-
-        # Set event
-        instance.event = Event.get_by_slug(self.kwargs["event_slug"])
-
-        # Generate short name if not given
-        # TODO
+        super_form_valid = super().form_valid(form)
 
         # Generate wiki link
         # TODO
 
-        # Generate slot(s)
-        # TODO
+        # Set tags (and generate them if necessary)
+        for tag_name in form.cleaned_data["tag_names"]:
+            tag, _ = AKTag.objects.get_or_create(name=tag_name)
+            self.object.tags.add(tag)
 
-        return super().form_valid(form)
+        # Generate slot(s)
+        for duration in form.cleaned_data["durations"]:
+            new_slot = AKSlot(ak=self.object, duration=duration, event=self.object.event)
+            new_slot.save()
+
+        return super_form_valid
 
 
 class AKSubmissionView(AKAndAKWishSubmissionView):
     def get_initial(self):
         initials = super(AKAndAKWishSubmissionView, self).get_initial()
         initials['owners'] = [AKOwner.get_by_slug(self.kwargs['owner_slug'])]
+        initials['event'] = self.event
         return initials
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -142,12 +144,25 @@ class AKWishSubmissionView(AKAndAKWishSubmissionView):
 
 class AKEditView(EventSlugMixin, UpdateView):
     model = AK
-    template_name = 'AKSubmission/submit_new.html'
-    form_class = AKForm
+    template_name = 'AKSubmission/ak_edit.html'
+    form_class = AKEditForm
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK successfully updated"))
         return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.pk})
+
+    def form_valid(self, form):
+        super_form_valid = super().form_valid(form)
+
+        # Detach existing tags
+        self.object.tags.clear()
+
+        # Set tags (and generate them if necessary)
+        for tag_name in form.cleaned_data["tag_names"]:
+            tag, _ = AKTag.objects.get_or_create(name=tag_name)
+            self.object.tags.add(tag)
+
+        return super_form_valid
 
 
 class AKOwnerCreateView(EventSlugMixin, CreateView):

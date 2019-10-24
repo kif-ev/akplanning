@@ -151,8 +151,8 @@ class AKRequirement(models.Model):
 class AK(models.Model):
     """ An AK is a slot-based activity to be scheduled during an event.
     """
-    name = models.CharField(max_length=256, unique=True, verbose_name=_('Name'), help_text=_('Name of the AK'))
-    short_name = models.CharField(max_length=64, unique=True, blank=True, verbose_name=_('Short Name'),
+    name = models.CharField(max_length=256, verbose_name=_('Name'), help_text=_('Name of the AK'))
+    short_name = models.CharField(max_length=64, blank=True, verbose_name=_('Short Name'),
                                   help_text=_('Name displayed in the schedule'))
     description = models.TextField(blank=True, verbose_name=_('Description'), help_text=_('Description of the AK'))
 
@@ -191,6 +191,7 @@ class AK(models.Model):
     class Meta:
         verbose_name = _('AK')
         verbose_name_plural = _('AKs')
+        unique_together = [('name', 'event'), ('short_name', 'event')]
 
     def __str__(self):
         if self.short_name:
@@ -237,7 +238,8 @@ class AKSlot(models.Model):
     ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'), help_text=_('AK being mapped'))
     room = models.ForeignKey(to=Room, blank=True, null=True, on_delete=models.SET_NULL, verbose_name=_('Room'),
                              help_text=_('Room the AK will take place in'))
-    start = models.DateTimeField(verbose_name=_('Slot Begin'), help_text=_('Time and date the slot begins'))
+    start = models.DateTimeField(verbose_name=_('Slot Begin'), help_text=_('Time and date the slot begins'),
+                                 blank=True, null=True)
     duration = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Duration'),
                                    help_text=_('Length in hours'))
 
@@ -259,4 +261,6 @@ class AKSlot(models.Model):
         """
         Display start time of slot in format weekday + time, e.g. "Fri 14:00"
         """
+        if self.start is None:
+            return _("Not scheduled yet")
         return self.start.strftime('%a %H:%M')
