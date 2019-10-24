@@ -25,6 +25,13 @@ class AKForm(forms.ModelForm):
             'requirements': forms.CheckboxSelectMultiple,
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Use better multiple select input for owners, conflicts and prerequisites
+        self.fields["owners"].widget.attrs = {'class': 'chosen-select'}
+        self.fields["conflicts"].widget.attrs = {'class': 'chosen-select'}
+        self.fields["prerequisites"].widget.attrs = {'class': 'chosen-select'}
+
 
 class AKWishForm(AKForm):
     class Meta(AKForm.Meta):
