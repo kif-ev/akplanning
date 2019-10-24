@@ -140,6 +140,16 @@ class AKWishSubmissionView(AKAndAKWishSubmissionView):
     form_class = AKWishForm
 
 
+class AKEditView(EventSlugMixin, UpdateView):
+    model = AK
+    template_name = 'AKSubmission/submit_new.html'
+    form_class = AKForm
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, _("AK successfully updated"))
+        return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.pk})
+
+
 class AKOwnerCreateView(EventSlugMixin, CreateView):
     model = AKOwner
     template_name = 'AKSubmission/akowner_create_update.html'

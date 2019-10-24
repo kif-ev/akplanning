@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-23 23:56+0000\n"
+"POT-Creation-Date: 2019-10-24 14:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,7 +26,7 @@ msgstr ""
 #: templates/AKSubmission/submission_overview.html:6
 #: templates/AKSubmission/submission_overview.html:11
 #: templates/AKSubmission/submission_overview.html:15
-#: templates/AKSubmission/submit_new.html:13
+#: templates/AKSubmission/submit_new.html:19
 #: templates/AKSubmission/submit_new_wish.html:10
 msgid "AK Submission"
 msgstr "AK-Eintragung"
@@ -98,17 +98,17 @@ msgid "AK Owner"
 msgstr "AK-Leitung"
 
 #: templates/AKSubmission/akowner_create_update.html:25
-#: templates/AKSubmission/submit_new.html:27
+#: templates/AKSubmission/submit_new.html:34
 msgid "Reset"
 msgstr "Zurücksetzen"
 
 #: templates/AKSubmission/akowner_create_update.html:29
-#: templates/AKSubmission/submit_new.html:31
+#: templates/AKSubmission/submit_new.html:38
 msgid "Cancel"
 msgstr "Abbrechen"
 
 #: templates/AKSubmission/akowner_create_update.html:32
-#: templates/AKSubmission/submit_new.html:34
+#: templates/AKSubmission/submit_new.html:41
 msgid "Submit"
 msgstr "Eintragen"
 
@@ -135,9 +135,9 @@ msgid "I do not own AKs yet"
 msgstr "Ich leite bisher keine AKs"
 
 #: templates/AKSubmission/submission_overview.html:40
-#: templates/AKSubmission/submit_new.html:7
-#: templates/AKSubmission/submit_new.html:15
+#: templates/AKSubmission/submit_new.html:8
 #: templates/AKSubmission/submit_new.html:21
+#: templates/AKSubmission/submit_new.html:28
 msgid "New AK"
 msgstr "Neuer AK"
 
@@ -163,10 +163,14 @@ msgstr ""
 msgid "AK successfully created"
 msgstr "AK erfolgreich angelegt"
 
-#: views.py:183
+#: views.py:149
+msgid "AK successfully updated"
+msgstr "AK erfolgreich bearbeitet"
+
+#: views.py:193
 msgid "Person Info successfully updated"
 msgstr "Personen-Info erfolgreich bearbeitet"
 
-#: views.py:195
+#: views.py:205
 msgid "No user selected"
 msgstr "Keine Person ausgewählt"
