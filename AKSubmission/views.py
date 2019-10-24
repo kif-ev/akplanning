@@ -109,7 +109,8 @@ class AKAndAKWishSubmissionView(EventSlugMixin, CreateView):
         super_form_valid = super().form_valid(form)
 
         # Generate wiki link
-        # TODO
+        self.object.link = form.cleaned_data["event"].base_url + form.cleaned_data["name"].replace(" ", "_")
+        self.object.save()
 
         # Set tags (and generate them if necessary)
         for tag_name in form.cleaned_data["tag_names"]:

@@ -19,6 +19,8 @@ class Event(models.Model):
                              help_text=_('City etc. the event takes place in'))
     active = models.BooleanField(verbose_name=_('Active State'), help_text=_('Marks currently active events'))
 
+    base_url = models.URLField(verbose_name=_("Base URL"), help_text=_("Prefix for wiki link construction"), blank=True)
+
     class Meta:
         verbose_name = _('Event')
         verbose_name_plural = _('Events')

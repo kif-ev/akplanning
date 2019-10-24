@@ -72,6 +72,9 @@ class AKForm(forms.ModelForm):
 
 class AKSubmissionForm(AKForm):
 
+    class Meta(AKForm.Meta):
+        exclude = ['link']
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Add field for durations
