@@ -19,11 +19,8 @@ git pull
 pip install --upgrade setuptools pip wheel
 pip install --upgrade -r requirements.txt
 
-if [ "$1" = "--prod" ]; then
-    ./manage.py collectstatic --noinput
-fi
-
 ./manage.py migrate
 ./manage.py collectstatic --noinput
 ./manage.py compilemessages
+
 touch AKPlanning/wsgi.py
