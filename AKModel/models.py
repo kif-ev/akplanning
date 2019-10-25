@@ -20,6 +20,8 @@ class Event(models.Model):
     active = models.BooleanField(verbose_name=_('Active State'), help_text=_('Marks currently active events'))
 
     base_url = models.URLField(verbose_name=_("Base URL"), help_text=_("Prefix for wiki link construction"), blank=True)
+    default_slot = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name='Default Slot Length',
+                                       help_text='Default length in hours that is assumed for AKs in this event.')
 
     class Meta:
         verbose_name = _('Event')
@@ -92,7 +94,8 @@ class AKCategory(models.Model):
     """
     name = models.CharField(max_length=64, unique=True, verbose_name=_('Name'), help_text=_('Name of the AK Category'))
     color = models.CharField(max_length=7, blank=True, verbose_name=_('Color'), help_text=_('Color for displaying'))
-    description = models.TextField(blank=True, verbose_name=_("Description"), help_text=_("Short description of this AK Category"))
+    description = models.TextField(blank=True, verbose_name=_("Description"),
+                                   help_text=_("Short description of this AK Category"))
 
     class Meta:
         verbose_name = _('AK Category')

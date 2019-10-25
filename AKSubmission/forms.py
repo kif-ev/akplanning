@@ -108,7 +108,9 @@ class AKSubmissionForm(AKForm):
             widget=forms.Textarea,
             label=_("Duration(s)"),
             help_text=_(
-                "Enter at least one planned duration (in hours). If your AK should have multiple slots, use multiple lines")
+                "Enter at least one planned duration (in hours). If your AK should have multiple slots, use multiple lines"),
+            initial=
+            self.initial.get('event').default_slot
         )
 
 
