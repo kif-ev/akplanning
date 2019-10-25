@@ -121,4 +121,4 @@ class AKOwnerForm(forms.ModelForm):
 
     class Meta:
         model = AKOwner
-        fields = ['name', 'email', 'institution', 'link']
+        fields = ['name', 'institution', 'link']

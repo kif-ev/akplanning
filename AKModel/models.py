@@ -40,7 +40,6 @@ class AKOwner(models.Model):
     name = models.CharField(max_length=64, verbose_name=_('Nickname'), help_text=_('Name to identify an AK owner by'))
     slug = models.SlugField(max_length=64, blank=True, unique=True, verbose_name=_('Slug'),
                             help_text=_('Slug for URL generation'))
-    email = models.EmailField(max_length=128, blank=True, verbose_name=_('E-Mail Address'), help_text=_('Contact mail'))
     institution = models.CharField(max_length=128, blank=True, verbose_name=_('Institution'), help_text=_('Uni etc.'))
     link = models.URLField(blank=True, verbose_name=_('Web Link'), help_text=_('Link to Homepage'))
 
