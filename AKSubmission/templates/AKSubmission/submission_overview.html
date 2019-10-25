@@ -3,7 +3,7 @@
 {% load i18n %}
 {% load fontawesome %}
 
-{% block title %}{{ event.slug }} - {% trans "AK Submission" %}{% endblock %}
+{% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Submission" %}{% endblock %}
 
 {% block breadcrumbs %}
     <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block content %}
-    <h1>{{ event.name }}: {% trans "AK Submission" %}</h1>
+    <h1>{% trans "AKs" %}: {{ event.name }}</h1>
 
     {% include "AKSubmission/messages.html" %}
 

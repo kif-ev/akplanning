@@ -5,7 +5,7 @@
 
 {% load tags_AKSubmission %}
 
-{% block title %}{{ ak.event.slug }} - {% trans "AK Submission" %} - {{ ak.slug }}{% endblock %}
+{% block title %}{% trans "AKs" %}: {{ ak.event.name }} - {% trans "AK" %}: {{ ak.name }}{% endblock %}
 
 {% block breadcrumbs %}
     <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
@@ -15,8 +15,6 @@
 {% endblock %}
 
 {% block content %}
-    <h1 style="margin-bottom: 30px;">{{ ak.event.name }}: {% trans "AK Submission" %}</h1>
-
     {% include "AKSubmission/messages.html" %}
 
     <div class="float-right">

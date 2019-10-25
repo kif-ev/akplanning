@@ -5,7 +5,7 @@
 {% load fontawesome %}
 {% load staticfiles %}
 
-{% block title %}{{ event.slug }} - {% trans "New AK" %}{% endblock %}
+{% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "New AK" %}{% endblock %}
 
 {% block imports %}
     <link rel="stylesheet" href="{% static 'common/vendor/chosen-js/chosen.css' %}">

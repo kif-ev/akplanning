@@ -4,14 +4,14 @@
 {% load bootstrap4 %}
 {% load fontawesome %}
 
-{% block title %}{{ event.slug }} - {% trans "AK Owner" %}{% endblock %}
+{% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Owner" %}{% endblock %}
 
 {% block breadcrumbs %}
     <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
     <li class="breadcrumb-item"><a href="#">{{ event.slug }}</a></li>
     <li class="breadcrumb-item"><a
             href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
-    <li class="breadcrumb-item active">{{ owner.slug }}</li>
+    <li class="breadcrumb-item active">{% trans "AK Owner" %}</li>
 {% endblock %}
 
 {% block content %}
@@ -29,7 +29,7 @@
                 {% fontawesome_icon "times" %} {% trans "Cancel" %}
             </a>
             <button type="submit" class="save btn btn-primary float-right">
-                {% fontawesome_icon "check" %} {% trans "Submit" %}
+                {% fontawesome_icon "check" %} {% trans "Continue" %}
             </button>
         {% endbuttons %}
     </form>
