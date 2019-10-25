@@ -7,7 +7,7 @@ set -ex
 
 # activate virtualenv if necessary
 if [ -z ${VIRTUAL_ENV+x} ]; then
-    source env/bin/activate
+    source venv/bin/activate
 fi
 
 # set environment variable when we want to update in production

@@ -6,12 +6,12 @@
 set -ex
 
 # remove old virtualenv
-rm -rf env/
+rm -rf venv/
 
 # Setup Python Environment
 # Requires: Virtualenv, appropriate Python installation
-virtualenv env -p python3.7
-source env/bin/activate
+virtualenv venv -p python3.7
+source venv/bin/activate
 pip install --upgrade setuptools pip wheel
 pip install -r requirements.txt
 

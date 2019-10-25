@@ -4,7 +4,7 @@
 
 # activate virtualenv when necessary
 if [ -z ${VIRTUAL_ENV+x} ]; then
-    source env/bin/activate
+    source venv/bin/activate
 fi
 
 # enable really all warnings, some of them are silenced by default
