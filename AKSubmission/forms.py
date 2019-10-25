@@ -108,7 +108,7 @@ class AKEditForm(AKForm):
 
 class AKWishForm(AKSubmissionForm):
     class Meta(AKForm.Meta):
-        exclude = ['owners']
+        exclude = ['owners', 'link']
 
 
 class AKOwnerForm(forms.ModelForm):

@@ -142,6 +142,11 @@ class AKWishSubmissionView(AKAndAKWishSubmissionView):
     template_name = 'AKSubmission/submit_new_wish.html'
     form_class = AKWishForm
 
+    def get_initial(self):
+        initials = super(AKAndAKWishSubmissionView, self).get_initial()
+        initials['event'] = self.event
+        return initials
+
 
 class AKEditView(EventSlugMixin, UpdateView):
     model = AK
