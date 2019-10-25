@@ -1,12 +1,13 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from AKModel.models import AK, AKOwner
 
-from django.utils.translation import ugettext_lazy as _
-
 
 class AKForm(forms.ModelForm):
+    required_css_class = 'required'
+
     class Meta:
         model = AK
         fields = ['name',
@@ -83,7 +84,6 @@ class AKForm(forms.ModelForm):
 
 
 class AKSubmissionForm(AKForm):
-
     class Meta(AKForm.Meta):
         exclude = ['link']
 
@@ -93,7 +93,8 @@ class AKSubmissionForm(AKForm):
         self.fields["durations"] = forms.CharField(
             widget=forms.Textarea,
             label=_("Duration(s)"),
-            help_text=_("Enter at least one planned duration (in hours). If your AK should have multiple slots, use multiple lines")
+            help_text=_(
+                "Enter at least one planned duration (in hours). If your AK should have multiple slots, use multiple lines")
         )
 
 
@@ -112,6 +113,8 @@ class AKWishForm(AKSubmissionForm):
 
 
 class AKOwnerForm(forms.ModelForm):
+    required_css_class = 'required'
+
     class Meta:
         model = AKOwner
         fields = ['name', 'email', 'institution', 'link']
