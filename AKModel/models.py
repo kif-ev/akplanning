@@ -97,7 +97,7 @@ class AKCategory(models.Model):
     description = models.TextField(blank=True, verbose_name=_("Description"),
                                    help_text=_("Short description of this AK Category"))
 
-    event = models.ForeignKey(to=Event, null=True, on_delete=models.CASCADE, verbose_name=_('Event'),
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
     class Meta:
@@ -115,7 +115,7 @@ class AKTrack(models.Model):
     name = models.CharField(max_length=64, unique=True, verbose_name=_('Name'), help_text=_('Name of the AK Track'))
     color = models.CharField(max_length=7, blank=True, verbose_name=_('Color'), help_text=_('Color for displaying'))
 
-    event = models.ForeignKey(to=Event, null=True, on_delete=models.CASCADE, verbose_name=_('Event'),
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
     class Meta:
