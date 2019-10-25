@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -10,10 +11,7 @@ from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot
 from AKModel.models import Event
 from AKModel.views import EventSlugMixin
 from AKModel.views import FilterByEventSlugMixin
-
-from AKSubmission.forms import AKForm, AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm
-
-from django.conf import settings
+from AKSubmission.forms import AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm
 
 
 class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
@@ -41,7 +39,8 @@ class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
                 aks_for_category.append(ak)
 
         if settings.WISHES_AS_CATEGORY:
-            categories.append(({"name":_("Wishes"), "pk": "wish", "description": _("AKs one would like to have")}, ak_wishes))
+            categories.append(
+                ({"name": _("Wishes"), "pk": "wish", "description": _("AKs one would like to have")}, ak_wishes))
         context["categories"] = categories
 
         # Get list of existing owners for event (for AK submission start)
@@ -109,7 +108,8 @@ class AKAndAKWishSubmissionView(EventSlugMixin, CreateView):
         super_form_valid = super().form_valid(form)
 
         # Generate wiki link
-        self.object.link = form.cleaned_data["event"].base_url + form.cleaned_data["name"].replace(" ", "_")
+        if form.cleaned_data["event"].base_url:
+            self.object.link = form.cleaned_data["event"].base_url + form.cleaned_data["name"].replace(" ", "_")
         self.object.save()
 
         # Set tags (and generate them if necessary)
@@ -193,6 +193,7 @@ class AKOwnerSelectDispatchView(EventSlugMixin, View):
     """
     This view only serves as redirect to prepopulate the owners field in submission create view
     """
+
     def post(self, request, *args, **kwargs):
         owner_id = request.POST["owner_id"]
 
@@ -219,6 +220,7 @@ class AKOwnerEditDispatchView(EventSlugMixin, View):
     """
     This view only serves as redirect choose the correct edit view
     """
+
     def post(self, request, *args, **kwargs):
         owner_id = request.POST["owner_id"]
 
