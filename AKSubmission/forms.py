@@ -4,7 +4,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from AKModel.models import AK, AKOwner, AKCategory, AKRequirement
+from AKModel.models import AK, AKOwner, AKCategory, AKRequirement, AKSlot
 
 
 class AKForm(forms.ModelForm):
@@ -135,3 +135,13 @@ class AKOwnerForm(forms.ModelForm):
     class Meta:
         model = AKOwner
         fields = ['name', 'institution', 'link']
+
+
+class AKDurationForm(forms.ModelForm):
+    class Meta:
+        model = AKSlot
+        fields = ['duration', 'ak', 'event']
+        widgets = {
+            'ak': forms.HiddenInput,
+            'event': forms.HiddenInput
+        }

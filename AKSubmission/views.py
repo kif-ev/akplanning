@@ -1,17 +1,17 @@
 from django.conf import settings
 from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot
 from AKModel.models import Event
 from AKModel.views import EventSlugMixin
 from AKModel.views import FilterByEventSlugMixin
-from AKSubmission.forms import AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm
+from AKSubmission.forms import AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm, AKDurationForm
 
 
 class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
@@ -232,3 +232,67 @@ class AKOwnerEditDispatchView(EventSlugMixin, View):
         owner = get_object_or_404(AKOwner, pk=request.POST["owner_id"])
         return HttpResponseRedirect(
             reverse_lazy('submit:akowner_edit', kwargs={'event_slug': kwargs['event_slug'], 'slug': owner.slug}))
+
+
+class AKSlotAddView(EventSlugMixin, CreateView):
+    model = AKSlot
+    form_class = AKDurationForm
+    template_name = "AKSubmission/akslot_add_update.html"
+
+    def get_initial(self):
+        initials = super(AKSlotAddView, self).get_initial()
+        initials['event'] = self.event
+        initials['ak'] = get_object_or_404(AK, pk=self.kwargs['pk'])
+        return initials
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context['ak'] = get_object_or_404(AK, pk=self.kwargs['pk'])
+        return context
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully added"))
+        return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
+
+
+class AKSlotEditView(EventSlugMixin, UpdateView):
+    model = AKSlot
+    form_class = AKDurationForm
+    template_name = "AKSubmission/akslot_add_update.html"
+
+    def get(self, request, *args, **kwargs):
+        akslot = get_object_or_404(AKSlot, pk=kwargs["pk"])
+        if akslot.start is not None:
+            messages.add_message(self.request, messages.WARNING, _("You cannot edit a slot that has already been scheduled"))
+            return redirect('submit:ak_detail', event_slug=self.kwargs['event_slug'], pk=akslot.ak.pk)
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context['ak'] = self.object.ak
+        return context
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully updated"))
+        return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
+
+
+class AKSlotDeleteView(EventSlugMixin, DeleteView):
+    model = AKSlot
+    template_name = "AKSubmission/akslot_delete.html"
+
+    def get(self, request, *args, **kwargs):
+        akslot = get_object_or_404(AKSlot, pk=kwargs["pk"])
+        if akslot.start is not None:
+            messages.add_message(self.request, messages.WARNING, _("You cannot delete a slot that has already been scheduled"))
+            return redirect('submit:ak_detail', event_slug=self.kwargs['event_slug'], pk=akslot.ak.pk)
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context['ak'] = self.object.ak
+        return context
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully deleted"))
+        return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load bootstrap4 %}
+{% load fontawesome %}
+
+{% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Duration(s)" %}{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
+    <li class="breadcrumb-item"><a href="#">{{ event.slug }}</a></li>
+    <li class="breadcrumb-item"><a
+            href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}">{{ ak.short_name }}</a></li>
+    <li class="breadcrumb-item active">{% trans "AK Duration(s)" %}</li>
+{% endblock %}
+
+{% block content %}
+    {% block headline %}
+        <h2>{% trans 'AK Duration(s)' %}</h2>
+    {% endblock %}
+    <form method="POST" class="post-form">{% csrf_token %}
+        {% bootstrap_form form %}
+        {% buttons %}
+            <button type="reset" class="btn btn-danger">
+                {% fontawesome_icon "undo-alt" %} {% trans "Reset" %}
+            </button>
+
+            <a href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}" class="btn btn-secondary">
+                {% fontawesome_icon "times" %} {% trans "Cancel" %}
+            </a>
+            <button type="submit" class="save btn btn-primary float-right">
+                {% fontawesome_icon "check" %} {% trans "Continue" %}
+            </button>
+        {% endbuttons %}
+    </form>
+{% endblock %}

@@ -60,6 +60,7 @@
                 <th>{% trans "When?" %}</th>
                 <th>{% trans "Duration" %}</th>
                 <th>{% trans "Room" %}</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -68,9 +69,19 @@
                     <td>{{ slot.start_simplified }}</td>
                     <td>{{ slot.duration }}</td>
                     <td>{{ slot.room }}</td>
+                    <td>
+                        {% if not slot.start %}
+                            <a href="{% url 'submit:akslot_edit' event_slug=ak.event.slug pk=slot.pk %}" class="btn btn-success">{%  fontawesome_icon 'pencil-alt' %}</a>
+                            <a href="{% url 'submit:akslot_delete' event_slug=ak.event.slug pk=slot.pk %}" class="btn btn-danger">{%  fontawesome_icon 'times' %}</a>
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <div class="">
+        <a href="{% url 'submit:akslot_add' event_slug=ak.event.slug pk=ak.pk %}" class="btn btn-success">{%  fontawesome_icon 'plus' %} {% trans "Add another slot" %}</a>
+    </div>
 
 {% endblock %}

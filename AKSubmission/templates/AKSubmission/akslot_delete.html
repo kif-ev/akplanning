@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load bootstrap4 %}
+{% load fontawesome %}
+
+{% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Duration(s)" %}{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
+    <li class="breadcrumb-item"><a href="#">{{ event.slug }}</a></li>
+    <li class="breadcrumb-item"><a
+            href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}">{{ ak.short_name }}</a></li>
+    <li class="breadcrumb-item active">{% trans "AK Duration(s)" %}</li>
+{% endblock %}
+
+{% block content %}
+    {% block headline %}
+        <h2>{% trans 'AK Duration(s)' %}</h2>
+    {% endblock %}
+    <form method="POST" class="post-form">{% csrf_token %}
+
+        <div class="alert alert-danger" style="margin-top:20px;margin-bottom: 20px;">
+            <h4>{% trans "Do you really want to delete this AK Slot?" %}</h4>
+        </div>
+
+        <table class="table">
+            <tbody>
+            <tr><td>{% trans "AK" %}</td><td>{{ akslot.ak }}</td></tr>
+            <tr><td>{% trans "Duration" %}</td><td>{{ akslot.duration }}</td></tr>
+            </tbody>
+        </table>
+        {% buttons %}
+            <a href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}" class="btn btn-secondary">
+                {% fontawesome_icon "times" %} {% trans "Cancel" %}
+            </a>
+            <button type="submit" class="save btn btn-danger float-right" value="Confirm">
+                {% fontawesome_icon "check" %} {% trans "Confirm" %}
+            </button>
+        {% endbuttons %}
+    </form>
+{% endblock %}
