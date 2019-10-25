@@ -72,7 +72,11 @@ class AKForm(forms.ModelForm):
         # Generate short name if not given
         short_name = self.cleaned_data["short_name"]
         if len(short_name) == 0:
-            cleaned_data["short_name"] = ''.join(x for x in self.cleaned_data["name"].title() if x.isalnum())
+            short_name = self.cleaned_data['name']
+            short_name = short_name.partition(':')[0]
+            short_name = short_name.partition(' - ')[0]
+            short_name = short_name.partition(' (')[0]
+            cleaned_data["short_name"] = short_name[:AK._meta.get_field('short_name').max_length]
 
         # Get tag names from raw tags
         cleaned_data["tag_names"] = [name.strip().lower() for name in cleaned_data["tags_raw"].split(";")]
