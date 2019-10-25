@@ -1,3 +1,5 @@
+import itertools
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -76,6 +78,14 @@ class AKForm(forms.ModelForm):
             short_name = short_name.partition(':')[0]
             short_name = short_name.partition(' - ')[0]
             short_name = short_name.partition(' (')[0]
+            for i in itertools.count(1):
+                if not AK.objects.filter(short_name=short_name, event=self.cleaned_data["event"]).exists():
+                    break
+                print(short_name)
+                digits = len(str(i))
+                print(digits)
+                short_name = '{}-{}'.format(short_name[:-(digits + 1)], i)
+                print(short_name)
             cleaned_data["short_name"] = short_name[:AK._meta.get_field('short_name').max_length]
 
         # Get tag names from raw tags

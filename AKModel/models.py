@@ -72,7 +72,7 @@ class AKOwner(models.Model):
             if not AKOwner.objects.filter(slug=slug_candidate).exists():
                 break
             digits = len(str(i))
-            slug_candidate = '{}-{}'.format(slug_candidate[:-digits + 1], i)
+            slug_candidate = '{}-{}'.format(slug_candidate[:-(digits + 1)], i)
 
         self.slug = slug_candidate
 
