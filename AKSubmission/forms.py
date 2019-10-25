@@ -4,7 +4,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from AKModel.models import AK, AKOwner
+from AKModel.models import AK, AKOwner, AKCategory, AKRequirement
 
 
 class AKForm(forms.ModelForm):
@@ -47,6 +47,9 @@ class AKForm(forms.ModelForm):
             required=False,
             label=AK.tags.field.verbose_name,
             help_text=f"{AK.tags.field.help_text} ({help_tags_addition})")
+
+        self.fields['category'].queryset = AKCategory.objects.filter(event=self.initial.get('event'))
+        self.fields['requirements'].queryset = AKRequirement.objects.filter(event=self.initial.get('event'))
 
     @staticmethod
     def _clean_duration(duration):
