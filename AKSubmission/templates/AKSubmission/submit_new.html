@@ -13,11 +13,11 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-    <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
-    <li class="breadcrumb-item"><a href="#">{{ event.slug }}</a></li>
+    <li class="breadcrumb-item">AKPlanning</li>
+    <li class="breadcrumb-item">{{ event.slug }}</li>
     <li class="breadcrumb-item"><a
             href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
-    <li class="breadcrumb-item"><a href="#">{{ owner.slug }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'submit:akowner_edit' event_slug=event.slug slug=owner.slug %}">{{ owner.slug }}</a></li>
     <li class="breadcrumb-item active">{% trans "New AK" %}</li>
 {% endblock %}
 
