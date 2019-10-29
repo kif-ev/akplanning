@@ -8,8 +8,8 @@
 {% block title %}{% trans "AKs" %}: {{ ak.event.name }} - {% trans "AK" %}: {{ ak.name }}{% endblock %}
 
 {% block breadcrumbs %}
-    <li class="breadcrumb-item"><a href="#">AKPlanning</a></li>
-    <li class="breadcrumb-item"><a href="#">{{ ak.event.slug }}</a></li>
+    <li class="breadcrumb-item">AKPlanning</li>
+    <li class="breadcrumb-item">{{ ak.event.slug }}</li>
     <li class="breadcrumb-item"><a href="{% url 'submit:submission_overview' event_slug=ak.event.slug %}">{% trans "AK Submission" %}</a></li>
     <li class="breadcrumb-item active">{{ ak.name }}</li>
 {% endblock %}
@@ -53,6 +53,8 @@
     </table>
 
     <p style="margin-top: 30px;margin-bottom: 30px;">{{ ak.description }}</p>
+
+
 
     <table class="table">
         <thead>
