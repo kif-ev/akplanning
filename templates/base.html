@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load bootstrap4 %}
 {% load fontawesome %}
+{% load tags_AKModel %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -61,6 +62,23 @@
     <div class="container">
         {% block content %}
         {% endblock %}
+    </div>
+
+    <div class="container" style="margin-top: 20px">
+        <div id="footer" style="padding-top:10px;padding-bottom:10px;border-top:1px solid grey;">
+            {% block footer_custom %}
+            {% endblock %}
+            {% footer_info as FI %}
+            {% if FI.impress_text %}
+                {{ FI.impress_text }} &middot;
+            {% endif %}
+            {% if FI.impress_url %}
+                <a href="{{ FI.impress_url }}">{% trans "Impress" %}</a> &middot;
+            {% endif %}
+            {% if FI.repo_url %}
+                <a href="{{ FI.repo_url }}">{% trans "This software is open source" %}</a>
+            {% endif %}
+        </div>
     </div>
 
 {% block bottom_script %}{% endblock %}
