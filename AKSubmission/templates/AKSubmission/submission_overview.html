@@ -5,6 +5,15 @@
 
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Submission" %}{% endblock %}
 
+{% block imports %}
+<style>
+/* Prevent wrapping of buttons in AK table */
+.table td:nth-child(5) {
+    white-space: nowrap;
+}
+</style>
+{% endblock %}
+
 {% block breadcrumbs %}
     <li class="breadcrumb-item">AKPlanning</li>
     <li class="breadcrumb-item">{{ event.slug }}</li>
