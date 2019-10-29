@@ -6,6 +6,8 @@ Secrets are stored in and imported from an additional file, not set under versio
 
 import AKPlanning.settings_secrets as secrets
 
+# noinspection PyUnresolvedReferences
+from AKPlanning.settings import *
 
 ### SECURITY ###
 
