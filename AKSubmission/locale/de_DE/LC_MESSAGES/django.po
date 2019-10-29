@@ -187,7 +187,7 @@ msgstr "Bestätigen"
 
 #: templates/AKSubmission/base_submission.html:8
 msgid "Write to organizers of this event for questions and comments"
-msgstr ""
+msgstr "Fragen oder Kommentare? Schreib den Orgas dieses Events eine Mail"
 
 #: templates/AKSubmission/submission_overview.html:19
 msgid ""
