@@ -15,6 +15,8 @@ from django.utils.translation import gettext_lazy as _
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from split_settings.tools import optional, include
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
@@ -147,3 +149,11 @@ FONTAWESOME_CSS_URL = "//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/
 
 # Treat wishes as seperate category in submission views?
 WISHES_AS_CATEGORY = True
+
+FOOTER_INFO = {
+    "repo_url": "https://gitlab.fachschaften.org/kif/akplanning",
+    "impress_text": "",
+    "impress_url": ""
+}
+
+include(optional("settings/*.py"))
