@@ -23,6 +23,9 @@ class Event(models.Model):
     default_slot = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name='Default Slot Length',
                                        help_text='Default length in hours that is assumed for AKs in this event.')
 
+    contact_email = models.EmailField(verbose_name=_("Contact email address"), blank=True,
+            help_text=_("An email address that is displayed on every page and can be used for all kinds of questions"))
+
     class Meta:
         verbose_name = _('Event')
         verbose_name_plural = _('Events')

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-29 14:50+0000\n"
+"POT-Creation-Date: 2019-10-29 15:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,20 +17,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKSubmission/forms.py:43
+#: forms.py:43
 msgid "Separate multiple tags with semicolon"
 msgstr "Mehrere Tags mit Semikolon trennen"
 
-#: AKSubmission/forms.py:67
+#: forms.py:67
 #, python-format
 msgid "\"%(duration)s\" is not a valid duration"
 msgstr "\"%(duration)s\" ist keine gültige Dauer"
 
-#: AKSubmission/forms.py:110
+#: forms.py:110
 msgid "Duration(s)"
 msgstr "Dauer(n)"
 
-#: AKSubmission/forms.py:112
+#: forms.py:112
 msgid ""
 "Enter at least one planned duration (in hours). If your AK should have "
 "multiple slots, use multiple lines"
@@ -38,243 +38,245 @@ msgstr ""
 "Mindestens eine geplante Dauer (in Stunden) angeben. Wenn der AK mehrere "
 "Slots haben soll, mehrere Zeilen verwenden"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:8
-#: AKSubmission/templates/AKSubmission/ak_edit.html:8
-#: AKSubmission/templates/AKSubmission/ak_list.html:8
-#: AKSubmission/templates/AKSubmission/ak_list.html:14
-#: AKSubmission/templates/AKSubmission/akowner_create_update.html:7
-#: AKSubmission/templates/AKSubmission/akslot_add_update.html:7
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:7
-#: AKSubmission/templates/AKSubmission/submission_overview.html:6
-#: AKSubmission/templates/AKSubmission/submission_overview.html:15
-#: AKSubmission/templates/AKSubmission/submit_new.html:8
-#: AKSubmission/templates/AKSubmission/submit_new_wish.html:5
+#: templates/AKSubmission/ak_detail.html:8
+#: templates/AKSubmission/ak_edit.html:8 templates/AKSubmission/ak_list.html:8
+#: templates/AKSubmission/ak_list.html:14
+#: templates/AKSubmission/akowner_create_update.html:7
+#: templates/AKSubmission/akslot_add_update.html:7
+#: templates/AKSubmission/akslot_delete.html:7
+#: templates/AKSubmission/submission_overview.html:6
+#: templates/AKSubmission/submission_overview.html:15
+#: templates/AKSubmission/submit_new.html:8
+#: templates/AKSubmission/submit_new_wish.html:5
 msgid "AKs"
 msgstr "AKs"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:8
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:30
+#: templates/AKSubmission/ak_detail.html:8
+#: templates/AKSubmission/akslot_delete.html:30
 #, fuzzy
 #| msgid "AKs"
 msgid "AK"
 msgstr "AKs"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:13
-#: AKSubmission/templates/AKSubmission/ak_edit.html:14
-#: AKSubmission/templates/AKSubmission/ak_list.html:13
-#: AKSubmission/templates/AKSubmission/ak_list.html:18
-#: AKSubmission/templates/AKSubmission/akowner_create_update.html:13
-#: AKSubmission/templates/AKSubmission/akslot_add_update.html:13
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:13
-#: AKSubmission/templates/AKSubmission/submission_overview.html:6
-#: AKSubmission/templates/AKSubmission/submission_overview.html:11
-#: AKSubmission/templates/AKSubmission/submit_new.html:19
-#: AKSubmission/templates/AKSubmission/submit_new_wish.html:10
+#: templates/AKSubmission/ak_detail.html:13
+#: templates/AKSubmission/ak_edit.html:14
+#: templates/AKSubmission/ak_list.html:13
+#: templates/AKSubmission/ak_list.html:18
+#: templates/AKSubmission/akowner_create_update.html:13
+#: templates/AKSubmission/akslot_add_update.html:13
+#: templates/AKSubmission/akslot_delete.html:13
+#: templates/AKSubmission/submission_overview.html:6
+#: templates/AKSubmission/submission_overview.html:11
+#: templates/AKSubmission/submit_new.html:19
+#: templates/AKSubmission/submit_new_wish.html:10
 msgid "AK Submission"
 msgstr "AK-Eintragung"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:27
-#: AKSubmission/templates/AKSubmission/ak_list_table.html:30
+#: templates/AKSubmission/ak_detail.html:27
+#: templates/AKSubmission/ak_list_table.html:30
 msgid "AK Wish"
 msgstr "AK-Wunsch"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:30
-#: AKSubmission/templates/AKSubmission/ak_list_table.html:10
+#: templates/AKSubmission/ak_detail.html:30
+#: templates/AKSubmission/ak_list_table.html:10
 msgid "Who?"
 msgstr "Wer?"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:32
-#: AKSubmission/templates/AKSubmission/ak_list_table.html:11
+#: templates/AKSubmission/ak_detail.html:32
+#: templates/AKSubmission/ak_list_table.html:11
 msgid "Category"
 msgstr "Kategorie"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:38
+#: templates/AKSubmission/ak_detail.html:38
 msgid "Present this AK"
 msgstr "Diesen AK vorstellen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:42
-#: AKSubmission/templates/AKSubmission/ak_list.html:26
-#: AKSubmission/templates/AKSubmission/ak_list_table.html:12
+#: templates/AKSubmission/ak_detail.html:42
+#: templates/AKSubmission/ak_list.html:26
+#: templates/AKSubmission/ak_list_table.html:12
 msgid "Tags"
 msgstr "Tags"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:48
+#: templates/AKSubmission/ak_detail.html:48
 msgid "Reso?"
 msgstr "Reso?"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:62
+#: templates/AKSubmission/ak_detail.html:62
 msgid "When?"
 msgstr "Wann?"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:63
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:31
+#: templates/AKSubmission/ak_detail.html:63
+#: templates/AKSubmission/akslot_delete.html:31
 msgid "Duration"
 msgstr "Dauer"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:64
+#: templates/AKSubmission/ak_detail.html:64
 msgid "Room"
 msgstr "Raum"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:86
+#: templates/AKSubmission/ak_detail.html:86
 msgid "Add another slot"
 msgstr "Einen neuen AK-Slot hinzufügen"
 
-#: AKSubmission/templates/AKSubmission/ak_edit.html:8
-#: AKSubmission/templates/AKSubmission/ak_edit.html:21
+#: templates/AKSubmission/ak_edit.html:8 templates/AKSubmission/ak_edit.html:21
 msgid "Edit AK"
 msgstr "AK bearbeiten"
 
-#: AKSubmission/templates/AKSubmission/ak_edit.html:16
+#: templates/AKSubmission/ak_edit.html:16
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: AKSubmission/templates/AKSubmission/ak_list.html:20
+#: templates/AKSubmission/ak_list.html:20
 msgid "Categories"
 msgstr "Kategorie"
 
-#: AKSubmission/templates/AKSubmission/ak_list_table.html:9
+#: templates/AKSubmission/ak_list_table.html:9
 msgid "Name"
 msgstr "Name"
 
-#: AKSubmission/templates/AKSubmission/ak_list_table.html:22
+#: templates/AKSubmission/ak_list_table.html:22
 msgid "present this AK"
 msgstr "Diesen AK vorstellen"
 
-#: AKSubmission/templates/AKSubmission/ak_list_table.html:25
+#: templates/AKSubmission/ak_list_table.html:25
 msgid "Reso"
 msgstr "Reso"
 
-#: AKSubmission/templates/AKSubmission/akowner_create_update.html:7
-#: AKSubmission/templates/AKSubmission/akowner_create_update.html:14
-#: AKSubmission/templates/AKSubmission/akowner_create_update.html:19
+#: templates/AKSubmission/akowner_create_update.html:7
+#: templates/AKSubmission/akowner_create_update.html:14
+#: templates/AKSubmission/akowner_create_update.html:19
 msgid "AK Owner"
 msgstr "AK-Leitung"
 
-#: AKSubmission/templates/AKSubmission/akowner_create_update.html:25
-#: AKSubmission/templates/AKSubmission/akslot_add_update.html:26
-#: AKSubmission/templates/AKSubmission/submit_new.html:34
+#: templates/AKSubmission/akowner_create_update.html:25
+#: templates/AKSubmission/akslot_add_update.html:26
+#: templates/AKSubmission/submit_new.html:34
 msgid "Reset"
 msgstr "Zurücksetzen"
 
-#: AKSubmission/templates/AKSubmission/akowner_create_update.html:29
-#: AKSubmission/templates/AKSubmission/akslot_add_update.html:30
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:36
-#: AKSubmission/templates/AKSubmission/submit_new.html:38
+#: templates/AKSubmission/akowner_create_update.html:29
+#: templates/AKSubmission/akslot_add_update.html:30
+#: templates/AKSubmission/akslot_delete.html:36
+#: templates/AKSubmission/submit_new.html:38
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: AKSubmission/templates/AKSubmission/akowner_create_update.html:32
-#: AKSubmission/templates/AKSubmission/akslot_add_update.html:33
+#: templates/AKSubmission/akowner_create_update.html:32
+#: templates/AKSubmission/akslot_add_update.html:33
 msgid "Continue"
 msgstr "Weiter"
 
-#: AKSubmission/templates/AKSubmission/akslot_add_update.html:7
-#: AKSubmission/templates/AKSubmission/akslot_add_update.html:15
-#: AKSubmission/templates/AKSubmission/akslot_add_update.html:20
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:7
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:15
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:20
+#: templates/AKSubmission/akslot_add_update.html:7
+#: templates/AKSubmission/akslot_add_update.html:15
+#: templates/AKSubmission/akslot_add_update.html:20
+#: templates/AKSubmission/akslot_delete.html:7
+#: templates/AKSubmission/akslot_delete.html:15
+#: templates/AKSubmission/akslot_delete.html:20
 #, fuzzy
 #| msgid "Duration(s)"
 msgid "AK Duration(s)"
 msgstr "Dauer(n)"
 
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:25
+#: templates/AKSubmission/akslot_delete.html:25
 msgid "Do you really want to delete this AK Slot?"
 msgstr ""
 
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:39
+#: templates/AKSubmission/akslot_delete.html:39
 msgid "Confirm"
 msgstr "Bestätigen"
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:19
+#: templates/AKSubmission/base_submission.html:8
+msgid "Write to organizers of this event for questions and comments"
+msgstr ""
+
+#: templates/AKSubmission/submission_overview.html:19
 msgid ""
 "On this page you can see a list of current AKs, change them and add new ones."
 msgstr ""
 "Auf dieser Seite kannst du eine Liste von aktuellen AKs sehen, diese "
 "bearbeiten und neue hinzufügen."
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:25
-#: AKSubmission/templates/AKSubmission/submit_new_wish.html:5
-#: AKSubmission/templates/AKSubmission/submit_new_wish.html:11
-#: AKSubmission/templates/AKSubmission/submit_new_wish.html:15
+#: templates/AKSubmission/submission_overview.html:25
+#: templates/AKSubmission/submit_new_wish.html:5
+#: templates/AKSubmission/submit_new_wish.html:11
+#: templates/AKSubmission/submit_new_wish.html:15
 msgid "New AK Wish"
 msgstr "Neuer AK-Wunsch"
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:29
+#: templates/AKSubmission/submission_overview.html:29
 msgid "Who"
 msgstr "Wer"
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:32
+#: templates/AKSubmission/submission_overview.html:32
 msgid "I do not own AKs yet"
 msgstr "Ich leite bisher keine AKs"
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:40
-#: AKSubmission/templates/AKSubmission/submit_new.html:8
-#: AKSubmission/templates/AKSubmission/submit_new.html:21
-#: AKSubmission/templates/AKSubmission/submit_new.html:28
+#: templates/AKSubmission/submission_overview.html:40
+#: templates/AKSubmission/submit_new.html:8
+#: templates/AKSubmission/submit_new.html:21
+#: templates/AKSubmission/submit_new.html:28
 msgid "New AK"
 msgstr "Neuer AK"
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:46
+#: templates/AKSubmission/submission_overview.html:46
 msgid "Edit Person Info"
 msgstr "Personen-Info bearbeiten"
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:53
+#: templates/AKSubmission/submission_overview.html:53
 msgid "Current AKs"
 msgstr "Aktuelle AKs"
 
-#: AKSubmission/templates/AKSubmission/submit_new.html:41
+#: templates/AKSubmission/submit_new.html:41
 msgid "Submit"
 msgstr "Eintragen"
 
-#: AKSubmission/views.py:43
+#: views.py:43
 msgid "Wishes"
 msgstr "Wünsche"
 
-#: AKSubmission/views.py:43
+#: views.py:43
 msgid "AKs one would like to have"
 msgstr ""
 "AKs die sich gewünscht wurden, aber bei denen noch nicht klar ist, wer sie "
 "macht. Falls du dir das vorstellen kannst, trag dich einfach ein"
 
-#: AKSubmission/views.py:104
+#: views.py:104
 msgid "AK successfully created"
 msgstr "AK erfolgreich angelegt"
 
-#: AKSubmission/views.py:157
+#: views.py:157
 msgid "AK successfully updated"
 msgstr "AK erfolgreich bearbeitet"
 
-#: AKSubmission/views.py:215
+#: views.py:215
 msgid "Person Info successfully updated"
 msgstr "Personen-Info erfolgreich bearbeitet"
 
-#: AKSubmission/views.py:228
+#: views.py:228
 msgid "No user selected"
 msgstr "Keine Person ausgewählt"
 
-#: AKSubmission/views.py:254
+#: views.py:254
 #, fuzzy
 #| msgid "AK successfully created"
 msgid "AK Slot successfully added"
 msgstr "AK erfolgreich angelegt"
 
-#: AKSubmission/views.py:266
+#: views.py:266
 msgid "You cannot edit a slot that has already been scheduled"
 msgstr "Bereits geplante AK-Slots können nicht mehr bearbeitet werden"
 
-#: AKSubmission/views.py:276
+#: views.py:276
 #, fuzzy
 #| msgid "AK successfully updated"
 msgid "AK Slot successfully updated"
 msgstr "AK erfolgreich bearbeitet"
 
-#: AKSubmission/views.py:287
+#: views.py:287
 msgid "You cannot delete a slot that has already been scheduled"
 msgstr "Bereits geplante AK-Slots können nicht mehr gelöscht werden"
 
-#: AKSubmission/views.py:297
+#: views.py:297
 #, fuzzy
 #| msgid "AK successfully created"
 msgid "AK Slot successfully deleted"

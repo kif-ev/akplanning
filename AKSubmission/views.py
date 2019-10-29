@@ -49,7 +49,7 @@ class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
         return context
 
 
-class AKDetailView(DetailView):
+class AKDetailView(EventSlugMixin, DetailView):
     model = AK
     context_object_name = "ak"
     template_name = "AKSubmission/ak_detail.html"
