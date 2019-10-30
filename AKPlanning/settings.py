@@ -11,9 +11,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+
 from django.utils.translation import gettext_lazy as _
-
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from split_settings.tools import optional, include
 
@@ -46,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap4',
     'fontawesome',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

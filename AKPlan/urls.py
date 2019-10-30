@@ -10,7 +10,7 @@ urlpatterns = [
         '<slug:event_slug>/plan/',
         include([
             path('', views.PlanView.as_view(), name='ak_plan'),
-            path('api', include(api_router.urls)),
+            path('api/', include(api_router.urls)),
 
         ])
     ),
