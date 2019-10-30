@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block toolbar %}
+    <style>
+        .toolbar label {
+            padding-right: 10px;
+        }
+
+        #content > br {
+            display: none
+        }
+    </style>
+    <input type="radio" name="modus" id="mode_slots"><label for="mode_slots"> Slots</label>
+    <input type="radio" name="modus" id="mode_availability"><label for="mode_availability"> Verfügbarkeit</label>
+    <input type="radio" name="modus" id="mode_aktermin"><label for="mode_aktermin"> AKs / Termine</label>
+    <input type="radio" name="modus" id="mode_akreadonly"><label for="mode_akreadonly"> AKs readonly</label>
+
+    <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url 'oplan:ak_wall_beamer' %}">Zur Beamer-Version</a>
+        &nbsp;&nbsp;<a href="{% url 'admin:oplan_ak_changelist' %}">Zur Liste</a></h3>
+{% endblock %}
+
+
+{% block header %}{% if not beamer %} {{ block.super }} {% endif %}{% endblock %}
+{% block breadcrumbs %}{% if not beamer %} {{ block.super }} {% endif %}{% endblock %}
+
+{% block content %}
+    <div id="oplan">
+
+        {% if beamer %}
+            <div class="beamer"> {% endif %}
+        <div id="unsched_aktermine"></div>
+        <div class="calendar_content">
+            <div id='calendar'></div>
+        </div>
+        {% if beamer %} </div> {% endif %}
+
+    </div>
+
+    <script>
+
+
+        $("[name=modus]").click(function () {
+            setMode($(this).attr("id").substr(5));
+        });
+
+        function setMode(mode) {
+            oplan.mode = mode;
+            localStorage.calendarMode = mode;
+            $("#mode_" + mode).attr("checked", true);
+            $("#calendar").fullCalendar('refetchEvents');
+            $("#oplan").attr("class", "mode_" + mode);
+            if (mode == "aktermin") {
+                oplan.api.loadUnschedAkTermine();
+            }
+
+        }
+
+        $(document).ready(function () {
+
+            // page is now ready, initialize the calendar...
+
+            $('#calendar').fullCalendar(calendarDefaultOptions({
+                defaultView: localStorage.calendarAkView ? localStorage.calendarAkView : 'timelineDay',
+                header: {
+                    left: 'timelineWeek,agendaDay,timelineDay',
+                    center: 'title',
+                    right: 'today prev,next'
+                },
+
+                eventDrop: oplan.api.onCalendarEventChange,
+                eventResize: oplan.api.onCalendarEventChange,
+                eventReceive: oplan.api.saveAkTermin,
+
+                select: function (start, end, jsEvent, view, resource) {
+                    oplan.api.createRoomAvailability(start, end, resource.id);
+                },
+
+                height: window.innerHeight - $('#calendar').offset().top - 10,
+                resourceAreaWidth: 120,
+
+                viewRender: function (view, el) {
+                    localStorage.calendarDate = view.start.toISOString();
+                    localStorage.calendarAkView = view.name;
+                },
+                resources: function (callback) {
+                    $.get("/plan/api/room/", function (rooms) {
+                        callback(rooms.map(function (x) {
+                            return {id: x.id, title: x.number};
+                        }));
+                    });
+                },
+                events: function (start, end, timezone, callback) {
+                    oplan.api.loadCalendarEvents(start, end, undefined, callback);
+                },
+
+                eventRender: function (event, element) {
+                    element.bind('contextmenu', function (jsEvent) {
+                        var menu = getEventContextMenu(event, jsEvent);
+
+                        ShowContextMenu(jsEvent, menu);
+                        return false;
+                    });
+                }
+
+
+            }));
+
+
+            setMode(localStorage.calendarMode ? localStorage.calendarMode : "akreadonly");
+
+        });
+    </script>
+
+{% endblock %}
