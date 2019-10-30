@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-29 15:27+0000\n"
+"POT-Creation-Date: 2019-10-30 17:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,20 +17,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: forms.py:43
+#: forms.py:53
 msgid "Separate multiple tags with semicolon"
 msgstr "Mehrere Tags mit Semikolon trennen"
 
-#: forms.py:67
+#: forms.py:79
 #, python-format
 msgid "\"%(duration)s\" is not a valid duration"
 msgstr "\"%(duration)s\" ist keine gültige Dauer"
 
-#: forms.py:110
+#: forms.py:122
 msgid "Duration(s)"
 msgstr "Dauer(n)"
 
-#: forms.py:112
+#: forms.py:124
 msgid ""
 "Enter at least one planned duration (in hours). If your AK should have "
 "multiple slots, use multiple lines"
@@ -40,12 +40,12 @@ msgstr ""
 
 #: templates/AKSubmission/ak_detail.html:8
 #: templates/AKSubmission/ak_edit.html:8 templates/AKSubmission/ak_list.html:8
-#: templates/AKSubmission/ak_list.html:14
+#: templates/AKSubmission/ak_list.html:23
 #: templates/AKSubmission/akowner_create_update.html:7
 #: templates/AKSubmission/akslot_add_update.html:7
 #: templates/AKSubmission/akslot_delete.html:7
 #: templates/AKSubmission/submission_overview.html:6
-#: templates/AKSubmission/submission_overview.html:15
+#: templates/AKSubmission/submission_overview.html:24
 #: templates/AKSubmission/submit_new.html:8
 #: templates/AKSubmission/submit_new_wish.html:5
 msgid "AKs"
@@ -60,13 +60,13 @@ msgstr "AKs"
 
 #: templates/AKSubmission/ak_detail.html:13
 #: templates/AKSubmission/ak_edit.html:14
-#: templates/AKSubmission/ak_list.html:13
-#: templates/AKSubmission/ak_list.html:18
+#: templates/AKSubmission/ak_list.html:22
+#: templates/AKSubmission/ak_list.html:27
 #: templates/AKSubmission/akowner_create_update.html:13
 #: templates/AKSubmission/akslot_add_update.html:13
 #: templates/AKSubmission/akslot_delete.html:13
 #: templates/AKSubmission/submission_overview.html:6
-#: templates/AKSubmission/submission_overview.html:11
+#: templates/AKSubmission/submission_overview.html:20
 #: templates/AKSubmission/submit_new.html:19
 #: templates/AKSubmission/submit_new_wish.html:10
 msgid "AK Submission"
@@ -92,7 +92,7 @@ msgid "Present this AK"
 msgstr "Diesen AK vorstellen"
 
 #: templates/AKSubmission/ak_detail.html:42
-#: templates/AKSubmission/ak_list.html:26
+#: templates/AKSubmission/ak_list.html:35
 #: templates/AKSubmission/ak_list_table.html:12
 msgid "Tags"
 msgstr "Tags"
@@ -101,22 +101,42 @@ msgstr "Tags"
 msgid "Reso?"
 msgstr "Reso?"
 
-#: templates/AKSubmission/ak_detail.html:62
+#: templates/AKSubmission/ak_detail.html:54
+msgid "Requirements"
+msgstr ""
+
+#: templates/AKSubmission/ak_detail.html:60
+msgid "Conflicting AKs"
+msgstr ""
+
+#: templates/AKSubmission/ak_detail.html:66
+msgid "Prerequisite AKs"
+msgstr ""
+
+#: templates/AKSubmission/ak_detail.html:80
 msgid "When?"
 msgstr "Wann?"
 
-#: templates/AKSubmission/ak_detail.html:63
+#: templates/AKSubmission/ak_detail.html:81
 #: templates/AKSubmission/akslot_delete.html:31
 msgid "Duration"
 msgstr "Dauer"
 
-#: templates/AKSubmission/ak_detail.html:64
+#: templates/AKSubmission/ak_detail.html:82
 msgid "Room"
 msgstr "Raum"
 
-#: templates/AKSubmission/ak_detail.html:86
+#: templates/AKSubmission/ak_detail.html:104
 msgid "Add another slot"
 msgstr "Einen neuen AK-Slot hinzufügen"
+
+#: templates/AKSubmission/ak_detail.html:108
+msgid "Notes"
+msgstr "Notizen"
+
+#: templates/AKSubmission/ak_detail.html:109
+msgid "Track"
+msgstr "Track"
 
 #: templates/AKSubmission/ak_edit.html:8 templates/AKSubmission/ak_edit.html:21
 msgid "Edit AK"
@@ -126,7 +146,7 @@ msgstr "AK bearbeiten"
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: templates/AKSubmission/ak_list.html:20
+#: templates/AKSubmission/ak_list.html:29
 msgid "Categories"
 msgstr "Kategorie"
 
@@ -189,40 +209,40 @@ msgstr "Bestätigen"
 msgid "Write to organizers of this event for questions and comments"
 msgstr "Fragen oder Kommentare? Schreib den Orgas dieses Events eine Mail"
 
-#: templates/AKSubmission/submission_overview.html:19
+#: templates/AKSubmission/submission_overview.html:28
 msgid ""
 "On this page you can see a list of current AKs, change them and add new ones."
 msgstr ""
 "Auf dieser Seite kannst du eine Liste von aktuellen AKs sehen, diese "
 "bearbeiten und neue hinzufügen."
 
-#: templates/AKSubmission/submission_overview.html:25
+#: templates/AKSubmission/submission_overview.html:34
 #: templates/AKSubmission/submit_new_wish.html:5
 #: templates/AKSubmission/submit_new_wish.html:11
 #: templates/AKSubmission/submit_new_wish.html:15
 msgid "New AK Wish"
 msgstr "Neuer AK-Wunsch"
 
-#: templates/AKSubmission/submission_overview.html:29
+#: templates/AKSubmission/submission_overview.html:38
 msgid "Who"
 msgstr "Wer"
 
-#: templates/AKSubmission/submission_overview.html:32
+#: templates/AKSubmission/submission_overview.html:41
 msgid "I do not own AKs yet"
 msgstr "Ich leite bisher keine AKs"
 
-#: templates/AKSubmission/submission_overview.html:40
+#: templates/AKSubmission/submission_overview.html:49
 #: templates/AKSubmission/submit_new.html:8
 #: templates/AKSubmission/submit_new.html:21
 #: templates/AKSubmission/submit_new.html:28
 msgid "New AK"
 msgstr "Neuer AK"
 
-#: templates/AKSubmission/submission_overview.html:46
+#: templates/AKSubmission/submission_overview.html:55
 msgid "Edit Person Info"
 msgstr "Personen-Info bearbeiten"
 
-#: templates/AKSubmission/submission_overview.html:53
+#: templates/AKSubmission/submission_overview.html:62
 msgid "Current AKs"
 msgstr "Aktuelle AKs"
 

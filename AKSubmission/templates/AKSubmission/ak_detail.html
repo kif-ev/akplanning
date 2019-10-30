@@ -50,6 +50,24 @@
                 {{ ak.reso | bool_symbol }}
             </td>
         </tr>
+        <tr>
+            <td>{% trans "Requirements" %}</td>
+            <td>
+                {{ ak.requirements_list }}
+            </td>
+        </tr>
+        <tr>
+            <td>{% trans "Conflicting AKs" %}</td>
+            <td>
+                {{ ak.conflicts_list }}
+            </td>
+        </tr>
+        <tr>
+            <td>{% trans "Prerequisite AKs" %}</td>
+            <td>
+                {{ ak.prerequisites_list }}
+            </td>
+        </tr>
     </table>
 
     <p style="margin-top: 30px;margin-bottom: 30px;">{{ ak.description }}</p>
@@ -86,4 +104,8 @@
         <a href="{% url 'submit:akslot_add' event_slug=ak.event.slug pk=ak.pk %}" class="btn btn-success">{%  fontawesome_icon 'plus' %} {% trans "Add another slot" %}</a>
     </div>
 
+    {% if user.is_authenticated %}
+        <p style="margin-top: 20px;"><b>{% trans "Notes" %}:</b> {{ ak.notes }}</p>
+        <p><b>{% trans "Track" %}:</b> {{ ak.track }}</p>
+    {% endif %}
 {% endblock %}

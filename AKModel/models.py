@@ -223,6 +223,18 @@ class AK(models.Model):
     def wish(self):
         return self.owners.count() == 0
 
+    @property
+    def requirements_list(self):
+        return ", ".join(str(r) for r in self.requirements.all())
+
+    @property
+    def prerequisites_list(self):
+        return ", ".join(str(p) for p in self.prerequisites.all())
+
+    @property
+    def conflicts_list(self):
+        return ", ".join(str(c) for c in self.conflicts.all())
+
 
 class Room(models.Model):
     """ A room describes where an AK can be held.
