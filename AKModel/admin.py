@@ -29,7 +29,7 @@ class WishFilter(SimpleListFilter):
     ]
 
   def queryset(self, request, queryset):
-      annotated_queryset = AK.objects.annotate(owner_count=Count(F('owners')))
+      annotated_queryset = queryset.annotate(owner_count=Count(F('owners')))
       if self.value() == 'NO_WISH':
           return annotated_queryset.filter(owner_count__gt=0)
       if self.value() == 'WISH':

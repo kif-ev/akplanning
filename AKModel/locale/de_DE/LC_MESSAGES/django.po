@@ -17,7 +17,7 @@ msgstr "AK-Wunsch"
 
 #: admin.py:27
 msgid "Is wish"
-msgstr "Is ein Wunsch"
+msgstr "Ist ein Wunsch"
 
 #: admin.py:28
 msgid "Is not a wish"
