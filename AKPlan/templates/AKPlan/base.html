@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block imports %}
+
+    <link rel=stylesheet href="{% static 'AKPlan/vendor/fullcalendar/dist/fullcalendar.css' %}">
+    <link rel=stylesheet href="{% static 'AKPlan/vendor/fullcalendar-scheduler/dist/scheduler.css' %}">
+
+    <script src="{% static 'AKPlan/AKPlan.js' %}"></script>
+    <link rel=stylesheet href="{% static 'AKPlan/styles.css' %}">
+
+    <script src="{% static 'AKPlan/vendor/moment/moment.js' %}"></script>
+    <script src="{% static 'AKPlan/vendor/fullcalendar/dist/fullcalendar.js' %}"></script>
+    <script src="{% static 'AKPlan/vendor/fullcalendar/dist/lang/de.js' %}"></script>
+    <script src="{% static 'AKPlan/vendor/fullcalendar-scheduler/dist/scheduler.js' %}"></script>
+
+
+{% endblock %}
