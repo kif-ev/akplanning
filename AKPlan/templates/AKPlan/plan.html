@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'AKPlan/base.html' %}
 {% block toolbar %}
     <style>
         .toolbar label {
@@ -9,21 +9,17 @@
             display: none
         }
     </style>
+<!--
     <input type="radio" name="modus" id="mode_slots"><label for="mode_slots"> Slots</label>
     <input type="radio" name="modus" id="mode_availability"><label for="mode_availability"> Verfügbarkeit</label>
     <input type="radio" name="modus" id="mode_aktermin"><label for="mode_aktermin"> AKs / Termine</label>
     <input type="radio" name="modus" id="mode_akreadonly"><label for="mode_akreadonly"> AKs readonly</label>
-
-    <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url 'oplan:ak_wall_beamer' %}">Zur Beamer-Version</a>
-        &nbsp;&nbsp;<a href="{% url 'admin:oplan_ak_changelist' %}">Zur Liste</a></h3>
+-->
 {% endblock %}
 
 
-{% block header %}{% if not beamer %} {{ block.super }} {% endif %}{% endblock %}
-{% block breadcrumbs %}{% if not beamer %} {{ block.super }} {% endif %}{% endblock %}
-
 {% block content %}
-    <div id="oplan">
+    <div id="akplan">
 
         {% if beamer %}
             <div class="beamer"> {% endif %}
@@ -43,13 +39,13 @@
         });
 
         function setMode(mode) {
-            oplan.mode = mode;
+            akplan.mode = mode;
             localStorage.calendarMode = mode;
             $("#mode_" + mode).attr("checked", true);
             $("#calendar").fullCalendar('refetchEvents');
-            $("#oplan").attr("class", "mode_" + mode);
+            $("#akplan").attr("class", "mode_" + mode);
             if (mode == "aktermin") {
-                oplan.api.loadUnschedAkTermine();
+                akplan.api.loadUnschedAkTermine();
             }
 
         }
@@ -66,12 +62,12 @@
                     right: 'today prev,next'
                 },
 
-                eventDrop: oplan.api.onCalendarEventChange,
-                eventResize: oplan.api.onCalendarEventChange,
-                eventReceive: oplan.api.saveAkTermin,
+                eventDrop: akplan.api.onCalendarEventChange,
+                eventResize: akplan.api.onCalendarEventChange,
+                eventReceive: akplan.api.saveAkTermin,
 
                 select: function (start, end, jsEvent, view, resource) {
-                    oplan.api.createRoomAvailability(start, end, resource.id);
+                    akplan.api.createRoomAvailability(start, end, resource.id);
                 },
 
                 height: window.innerHeight - $('#calendar').offset().top - 10,
@@ -89,7 +85,7 @@
                     });
                 },
                 events: function (start, end, timezone, callback) {
-                    oplan.api.loadCalendarEvents(start, end, undefined, callback);
+                    akplan.api.loadCalendarEvents(start, end, undefined, callback);
                 },
 
                 eventRender: function (event, element) {
