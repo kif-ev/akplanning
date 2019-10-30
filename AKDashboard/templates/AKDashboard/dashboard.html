@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block imports %}
+
+    <style>
+
+        ul.buttons {
+            padding: 0;
+        }
+
+        ul.buttons li {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul.buttons li a {
+            display: block;
+            float: left;
+            width: 150px;
+            height: 100px;
+            padding: 30px 10px 10px;
+            margin: 0 20px 20px 0;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+        }
+
+        ul.buttons li a:hover {
+            background-color: #777;
+        }
+
+        ul.buttons li a .fa {
+            font-size: 26pt;
+        }
+
+        ul.buttons li a span.text {
+            display: block;
+            padding-top: 10px;
+            font-size: 12pt;
+        }
+
+        @media screen and (min-width: 500px) {
+            .col-md-6 {
+                width: 50%;
+                float: left;
+            }
+
+            .col-md-big {
+                width: 63%;
+                float: left;
+            }
+
+            .col-md-small {
+                width: 36%;
+                float: left;
+                margin-left: 0.5%;
+            }
+
+            .row::after {
+                display: block;
+                clear: left;
+            }
+        }
+
+        @media screen and (max-width: 400px) {
+            ul.buttons li a {
+                width: 140px;
+                margin: 0 5px 5px 0;
+            }
+
+            #content {
+                padding: 10px 5px;
+            }
+        }
+
+        ul.buttons li a.Color-Default {
+            background: #008299
+        }
+
+        ul.buttons li a.Color-Default:hover {
+            background: #00A0B1
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-big">
+
+                <ul class="buttons">
+                    <li><a class="Color-Default" href="{% url 'plan:ak_plan' event_slug='kif475' %}"><span
+                            class="fa fa-calendar"></span> <span
+                            class='text'>AK-Wall</span></a></li>
+                    <li><a class="Color-Default" href="https://wiki.kif.rocks/wiki/KIF475:Arbeitskreise"><span
+                            class="fa fa-coffee"></span> <span class='text'>KIF-Wiki</span></a></li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

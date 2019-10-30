@@ -14,8 +14,8 @@ class TopLevelRedirectView(RedirectView):
                             kwargs={'event_slug': Event.objects.filter(active=True).last().slug})
 
 
-class Index(TemplateView):
-    template_name = 'AKDashboard/index.html'
+class DashboardView(TemplateView):
+    template_name = 'AKDashboard/dashboard.html'
 
     @method_decorator(ensure_csrf_cookie)
     def dispatch(self, *args, **kwargs):
