@@ -97,11 +97,14 @@
             <div class="col-md-big">
                 <h2> KIF 47,5 </h2>
                 <ul class="buttons">
+                    <li><a class="Color-Default" href="https://wiki.kif.rocks/wiki/KIF475:Arbeitskreise"><span
+                            class="fa fa-book"></span> <span class='text'>KIF-Wiki</span></a></li>
                     <li><a class="Color-Default" href="{% url 'plan:ak_plan' event_slug='kif475' %}"><span
                             class="fa fa-calendar"></span> <span
                             class='text'>AK-Wall</span></a></li>
-                    <li><a class="Color-Default" href="https://wiki.kif.rocks/wiki/KIF475:Arbeitskreise"><span
-                            class="fa fa-book"></span> <span class='text'>KIF-Wiki</span></a></li>
+                    <li><a class="Color-Default" href="{% url 'submit:submission_overview' event_slug='kif475' %}"><span
+                            class="fa fa-pencil-alt"></span> <span class='text'>{% trans 'AK Submission' %}</span></a>
+                    </li>
                 </ul>
 
             </div>
