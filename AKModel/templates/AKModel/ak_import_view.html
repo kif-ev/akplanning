@@ -1,0 +1,19 @@
+{% extends 'oplan/header.html' %}
+{% block content %}
+
+    <form action='' method='post'>
+        <textarea name='content' style='width:90%;height:200px;background:#ffeeaa'>{{ content|default:'' }}</textarea>
+
+        {% csrf_token %}
+        <p><input type=submit></p>
+
+    </form>
+
+    <pre>
+{% autoescape off %}
+    {{ output }}
+{% endautoescape %}
+
+</pre>
+
+{% endblock %}

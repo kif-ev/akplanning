@@ -1,6 +1,11 @@
-from django.shortcuts import get_object_or_404
+import csv
 
-from AKModel.models import Event
+from django.core.exceptions import PermissionDenied
+from django.db import IntegrityError
+from django.shortcuts import get_object_or_404, render
+from django.views import View
+
+from AKModel.models import Event, Room
 
 
 class EventSlugMixin:
@@ -36,3 +41,29 @@ class FilterByEventSlugMixin(EventSlugMixin):
     def get_queryset(self):
         # Filter current queryset based on url event slug or return 404 if event slug is invalid
         return super().get_queryset().filter(event=self.event)
+
+
+class ImportRooms(View):
+    def get(self, request, *args, **kwargs):
+        if not request.user.has_perm('AKModel.add_room'): raise PermissionDenied
+        foo = ""
+        return render(request, "AKModel/ak_import_view.html",
+                      {'title': 'Import Rooms (Format: "Room Number,Capacity")', 'output': ''})
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.has_perm('AKModel.add_room'): raise PermissionDenied
+
+        the_csv = request.POST["content"]
+        reader = csv.reader(the_csv.splitlines())
+
+        out = ""
+        for line in reader:
+            out += '<li>Room "' + line[0] + '" ...'
+            try:
+                Room.objects.create(number=line[0],
+                                    type='SR', capacity=line[1])
+                out += "ok"
+            except IntegrityError as ex:
+                out += str(ex)
+
+        return render(request, "AKModel/ak_import_view.html", {'title': 'Import Rooms', 'output': out})
