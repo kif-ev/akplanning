@@ -20,3 +20,9 @@ class DashboardView(TemplateView):
     @method_decorator(ensure_csrf_cookie)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['events'] = Event.objects.all()
+        context['event'] = Event.objects.filter(active=True).last()
+        return context

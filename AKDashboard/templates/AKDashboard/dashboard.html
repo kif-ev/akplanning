@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 
+{% load fontawesome %}
+{% load i18n %}
+
 {% block imports %}
 
     <style>
@@ -84,21 +87,33 @@
     </style>
 {% endblock %}
 
+{% block breadcrumbs %}
+    <li class="breadcrumb-item">AKPlanning</li>
+{% endblock %}
+
 {% block content %}
     <div class="container">
         <div class="row">
             <div class="col-md-big">
-
+                <h2> KIF 47,5 </h2>
                 <ul class="buttons">
                     <li><a class="Color-Default" href="{% url 'plan:ak_plan' event_slug='kif475' %}"><span
                             class="fa fa-calendar"></span> <span
                             class='text'>AK-Wall</span></a></li>
                     <li><a class="Color-Default" href="https://wiki.kif.rocks/wiki/KIF475:Arbeitskreise"><span
-                            class="fa fa-coffee"></span> <span class='text'>KIF-Wiki</span></a></li>
+                            class="fa fa-book"></span> <span class='text'>KIF-Wiki</span></a></li>
                 </ul>
 
             </div>
         </div>
     </div>
 
+{% endblock %}
+
+{% block footer_custom %}
+    {% if event.contact_email %}
+        <h4>
+            <a href="mailto://{{ event.contact_email }}">{% fontawesome_icon "envelope" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
+        </h4>
+    {% endif %}
 {% endblock %}
