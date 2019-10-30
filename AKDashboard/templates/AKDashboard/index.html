@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block customstyle %}
+
+    <style>
+        h2 {
+            font-size: 2em;
+            margin-top: .5rem;
+        }
+
+        .clearfix {
+            display: block;
+            clear: both;
+        }
+
+        ul.buttons {
+            padding: 0;
+        }
+
+        ul.buttons li {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul.buttons li a {
+            display: block;
+            float: left;
+            width: 150px;
+            height: 100px;
+            padding: 30px 10px 10px;
+            margin: 0 20px 20px 0;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+        }
+
+        ul.buttons li a:hover {
+            background-color: #777;
+        }
+
+        ul.buttons li a .fa {
+            font-size: 26pt;
+        }
+
+        ul.buttons li a span.text {
+            display: block;
+            padding-top: 10px;
+            font-size: 12pt;
+        }
+
+        @media screen and (min-width: 500px) {
+            .col-md-6 {
+                width: 50%;
+                float: left;
+            }
+
+            .col-md-big {
+                width: 63%;
+                float: left;
+            }
+
+            .col-md-small {
+                width: 36%;
+                float: left;
+                margin-left: 0.5%;
+            }
+
+            .row::after {
+                display: block;
+                clear: left;
+            }
+        }
+
+        @media screen and (max-width: 400px) {
+            ul.buttons li a {
+                width: 140px;
+                margin: 0 5px 5px 0;
+            }
+
+            #content {
+                padding: 10px 5px;
+            }
+        }
+
+        article h4 {
+            font-size: 120%;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        article aside {
+            font-size: 90%;
+            margin-top: 0;
+            margin-bottom: 1em;
+            color: #666;
+        }
+
+        ul.buttons li a.Color-Purple {
+            background: #8C0095
+        }
+
+        ul.buttons li a.Color-Purple:hover {
+            background: #A700AE
+        }
+
+        ul.buttons li a.Color-DarkPurple {
+            background: #5133AB
+        }
+
+        ul.buttons li a.Color-DarkPurple:hover {
+            background: #643EBF
+        }
+
+        ul.buttons li a.Color-Teal, .Color-Default {
+            background: #008299
+        }
+
+        ul.buttons li a.Color-Teal:hover, .Color-Default:hover {
+            background: #00A0B1
+        }
+
+        ul.buttons li a.Color-Orange {
+            background: #D24726
+        }
+
+        ul.buttons li a.Color-Orange:hover {
+            background: #DC572E
+        }
+
+        ul.buttons li a.Color-Blue {
+            background: #2672EC
+        }
+
+        ul.buttons li a.Color-Blue:hover {
+            background: #2E8DEF
+        }
+
+        ul.buttons li a.Color-SkyBlue {
+            background: #094AB2
+        }
+
+        ul.buttons li a.Color-SkyBlue:hover {
+            background: #0A5BC4
+        }
+
+        ul.buttons li a.Color-Red {
+            background: #AC193D
+        }
+
+        ul.buttons li a.Color-Red:hover {
+            background: #BF1E4B
+        }
+
+        ul.buttons li a.Color-Green {
+            background: #008A00
+        }
+
+        ul.buttons li a.Color-Green:hover {
+            background: #00A600
+        }
+
+        ul.buttons li a.Color-Yellow {
+            background: #e8be1b
+        }
+
+        ul.buttons li a.Color-Yellow:hover {
+            background: #f7d240
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+<span class="mobile-only">
+
+    <button onclick='location="{% url 'dashboard:infoscreen' %}"'>Dashboard</button>
+    <button onclick='location="#news"'> News</button> 
+</span>
+
+        <button disabled class="js-push-button" style="display:none">Push-Nachrichten einschalten</button>
+
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-big">
+
+            <ul class="buttons">
+                <li><a class="Color-Green" href="{% url 'oplan:ak_wall' %}"><span class="fa fa-calendar"></span> <span
+                        class='text'>AK-Wall</span></a></li>
+                <li><a class="Color-Yellow" href="https://wiki.kif.rocks/wiki/KIF475:Arbeitskreise"><span
+                        class="fa fa-coffee"></span> <span class='text'>KIF-Wiki</span></a></li>
+                {% if user.is_staff %}
+                    <li><a class="Color-Red" href="{% url 'admin:oplan_ak_changelist' %}"><span
+                            class="fa fa-pencil"></span> <span class='text'>AKs bearbeiten</span></a></li>
+                {% else %}
+                    <li><a class="Color-Red" href="{% url 'mysite_login' %}"><span class="fa fa-sign-in"></span> <span
+                            class='text'>Einloggen</span></a></li>
+                {% endif %}
+            </ul>
+
+            <div class="clearfix"></div>
+            <h2>Infopoint</h2>
+            <ul class="buttons">
+                <li><a class="Color-Red" href="{% url 'admin:kiffel_person_changelist' %}"><span
+                        class="fa fa-child"></span> <span class='text'>Anmeldung</span></a></li>
+                <li><a class="Color-Red" href="{% url 'kiffel:mobi' %}"><span class="fa fa-tablet"></span> <span
+                        class='text'>mobile Anmeldung</span></a></li>
+                <li><a class="Color-Red" href="{% url 'admin:eduroam_guestaccount_changelist' %}"><span
+                        class="fa fa-wifi"></span> <span class='text'>eduroam-Gastaccounts</span></a></li>
+                <li><a class="Color-Red" href="https://caroline.d120.de/kdv/ui#admin/search"><span
+                        class="fa fa-money"></span> <span class='text'>KdV-Admin</span></a></li>
+                <li><a href="https://www.google.de/">Google (Suchmaschine)</a></li>
+            </ul>
+
+        </div>
+
+    </div>
+
+{% endblock %}
