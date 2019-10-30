@@ -20,5 +20,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('AKSubmission.urls', namespace='submit')),
     path('', include('AKDashboard.urls', namespace='dashboard')),
+    path('', include('AKPlan.urls', namespace='plan')),
+    path('', include('AKScheduling.urls', namespace='schedule')),
     path('i18n/', include('django.conf.urls.i18n')),
 ]
