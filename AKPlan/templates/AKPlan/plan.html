@@ -78,9 +78,12 @@
                     localStorage.calendarAkView = view.name;
                 },
                 resources: function (callback) {
-                    $.get("/plan/api/room/", function (rooms) {
+                    $.get("/kif475/plan/api/room/", function (rooms) {
                         callback(rooms.map(function (x) {
-                            return {id: x.id, title: x.number};
+                            var room_name = x.name;
+                            if(x.building != '')
+                                room_name = x.building + " " + room_name;
+                            return {id: x.id, title: room_name };
                         }));
                     });
                 },

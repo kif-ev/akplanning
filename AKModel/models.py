@@ -1,4 +1,5 @@
 # Create your models here.
+import datetime
 import itertools
 
 from django.db import models
@@ -293,3 +294,7 @@ class AKSlot(models.Model):
         if self.start is None:
             return _("Not scheduled yet")
         return self.start.strftime('%a %H:%M')
+
+    @property
+    def end(self):
+        return self.start + datetime.timedelta(hours=float(self.duration))

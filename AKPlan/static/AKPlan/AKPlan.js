@@ -130,7 +130,7 @@ $(function () {
         var targetSel = $(this).attr("data-target");
         if (targetSel == "#raumliste" && !$("#raumliste").length) {
             var $lst = $("<div id=raumliste class=ddmenu></div>").appendTo(this);
-            $.get("/plan/api/room/?visible=" + akplan.is_staff, function (rooms) {
+            $.get("/kif475/plan/api/room/?visible=" + akplan.is_staff, function (rooms) {
                 rooms.forEach(function (room) {
                     $lst.append(
                         (akplan.is_staff == "True" ? "<a class='right' href='/admin/AKPlan/room/" + escape(room.id) + "/change/'>(edit)</a> " : "") +
@@ -184,7 +184,7 @@ function calendarDefaultOptions(extendOptions) {
         },
         buttonText: {timelineDay: 'Tag quer', agendaDay: 'Tag längs'},
 
-        defaultDate: localStorage.calendarDate,
+        defaultDate: Date.now(),
 
         editable: true,
         droppable: true, // this allows things to be dropped onto the calendar
@@ -225,7 +225,7 @@ function getEventContextMenu(event, jsEvent) {
                 window.open(event.edit_ak_url + "?_popup=1", "", "width=800,height=600,scrollbars=yes");
             };
             menu["Auf Änderung hinweisen"] = function () {
-                $.post("/plan/api/akmodified/", {aktermin_id: event.termin_id},
+                $.post("/kif475/plan/api/akmodified/", {aktermin_id: event.termin_id},
                     function (data) {
                         messageBar.show("success", "Der AK wurde als verändert markiert. " + data.number + " Push-Benachrichtigungen wurden versandt.", 2000);
                     });
@@ -270,7 +270,7 @@ var STATUS = {
 akplan.api = {
     loadUnschedAkTermine: function () {
         var $out = $("#unsched_aktermine").html("");
-        $.get("/plan/api/aktermin/?only_unscheduled=True&ordering=ak", function (aktermins) {
+        $.get("/kif475/plan/api/aktermin/?only_unscheduled=True&ordering=ak", function (aktermins) {
             aktermins.forEach(function (akt) {
                 var title = akt.ak_titel;
                 if (akt.ak_track != null)
@@ -296,7 +296,7 @@ akplan.api = {
             var desc = prompt("Slot von " + start.format("HH:mm") + " bis " + end.format("HH:mm") + " eintragen?");
             if (desc !== null) {
 
-                $.post("/plan/roomevents/", {
+                $.post("/kif475/plan/api/roomevents/", {
                     start: start.toISOString(),
                     end: end.toISOString(),
                     room: room_id,
@@ -317,10 +317,10 @@ akplan.api = {
         } else if (akplan.mode == "aktermin") {
             var desc = prompt("Neuen AK mit Termin von " + start.format("HH:mm") + " bis " + end.format("HH:mm") + " eintragen?");
             if (desc !== null) {
-                $.post("/plan/api/ak/", {
+                $.post("/kif475/plan/api/ak/", {
                     'titel': desc, 'beschreibung': desc, 'leiter': '?',
                 }, function (ok) {
-                    $.post("/plan/api/aktermin/", {
+                    $.post("/kif475/plan/api/aktermin/", {
                         ak: ok.id,
                         room: room_id,
                         start_time: start.toISOString(),
@@ -339,7 +339,7 @@ akplan.api = {
     },
     onCalendarEventChange: function (event, delta, revertFunc, jsEvent, ui, view) {
         if (akplan.mode == "slots" || akplan.mode == "availability") {
-            $.post("/plan/roomevents/", {
+            $.post("/kif475/plan/roomevents/", {
                 event_id: event.avail_id,
                 start: event.start.toISOString(),
                 end: event.end.toISOString(),
@@ -359,7 +359,7 @@ akplan.api = {
     },
     loadCalendarEvents: function (start, end, room_id, callback) {
         $.ajax({
-            url: '/plan/roomevents/',
+            url: '/kif475/plan/roomevents/',
             dataType: 'json',
             cache: false,
             data: {
@@ -439,7 +439,7 @@ akplan.api = {
     },
     saveAkTerminRaw: function (terminId, postData) {
         $.ajax({
-            url: "/plan/api/aktermin/" + terminId + "/",
+            url: "/kif475/plan/api/aktermin/" + terminId + "/",
             data: postData,
             method: "PATCH",
             success: function (ok) {
@@ -454,7 +454,7 @@ akplan.api = {
     },
     checkConflicts: function (terminId) {
         messageBar.hide('warning');
-        $.get("/plan/api/aktermin/" + terminId + "/check_constraints", function (result) {
+        $.get("/kif475/plan/api/aktermin/" + terminId + "/check_constraints", function (result) {
             var out = [];
             if (result.constraints.fail.length > 0) {
                 out.push("Folgende Einschränkungen dieses Termins werden verletzt:");
@@ -478,7 +478,7 @@ akplan.api = {
     },
     deleteRoomAvailabilityItem: function (terminId) {
         $.ajax({
-            url: "/plan/api/slot/" + terminId + "/",
+            url: "/kif475/plan/api/slot/" + terminId + "/",
             data: {},
             method: "DELETE",
             success: function (ok) {
