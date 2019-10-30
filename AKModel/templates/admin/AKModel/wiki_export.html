@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<pre>
+{% for ak in AKs %}
+{% verbatim %}{{Ak Spalte 475{% endverbatim %}
+| name={{ ak.name }}
+| beschreibung= {{ ak.description }}
+| wieviele={{  ak.interest}}
+| wer= {{ ak.owners_list }}
+| wann= {{ ak.notes }}
+| dauer= {{ ak.durations_list }}
+| reso= {{ ak.reso }}
+{% verbatim %}}}{% endverbatim %}
+{% endfor %}
+</pre>
+{% endblock %}
