@@ -42,6 +42,7 @@ class AKAdmin(admin.ModelAdmin):
     list_display = ['name', 'short_name', 'category', 'is_wish']
     actions = ['wiki_export']
     list_filter = ['category', WishFilter]
+    ordering = ['pk']
 
     def is_wish(self, obj):
         return obj.wish
