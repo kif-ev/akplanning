@@ -9,8 +9,8 @@ app_name = 'schedule'
 api_router = DefaultRouter()
 api_router.register(r'ak', views.AKViewSet)
 api_router.register(r'room', views.RoomViewSet)
-api_router.register(r'slot', views.AvailabilityViewSet)
-api_router.register(r'aktermin', views.AKSlotViewSet)
+api_router.register(r'availability', views.AvailabilityViewSet)
+api_router.register(r'akslot', views.AKSlotViewSet)
 
 urlpatterns = [
     # url(r'^$', views.oplan_home, name="oplan_home"),
