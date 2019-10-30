@@ -18,9 +18,10 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('AKSubmission.urls', namespace='submit')),
     path('', include('AKDashboard.urls', namespace='dashboard')),
+    path('', include('AKModel.urls', namespace='model')),
     path('', include('AKPlan.urls', namespace='plan')),
     path('', include('AKScheduling.urls', namespace='schedule')),
+    path('', include('AKSubmission.urls', namespace='submit')),
     path('i18n/', include('django.conf.urls.i18n')),
 ]
