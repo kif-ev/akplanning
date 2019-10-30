@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
+from django.db.models import Count, F
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 
@@ -15,10 +17,31 @@ admin.site.register(AKTag)
 admin.site.register(AKRequirement)
 
 
+class WishFilter(SimpleListFilter):
+  title = _("Wish") # a label for our filter
+  parameter_name = 'wishes' # you can put anything here
+
+  def lookups(self, request, model_admin):
+    # This is where you create filter options; we have two:
+    return [
+        ('WISH', _("Is wish")),
+        ('NO_WISH', _("Is not a wish")),
+    ]
+
+  def queryset(self, request, queryset):
+      annotated_queryset = AK.objects.annotate(owner_count=Count(F('owners')))
+      if self.value() == 'NO_WISH':
+          return annotated_queryset.filter(owner_count__gt=0)
+      if self.value() == 'WISH':
+          return annotated_queryset.filter(owner_count=0)
+      return queryset
+
+
 class AKAdmin(admin.ModelAdmin):
     model = AK
     list_display = ['name', 'short_name', 'category', 'is_wish']
     actions = ['wiki_export']
+    list_filter = ['category', WishFilter]
 
     def is_wish(self, obj):
         return obj.wish

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-30 11:56+0000\n"
+"POT-Creation-Date: 2019-10-30 13:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,17 +11,29 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: admin.py:33
+#: admin.py:21
+msgid "Wish"
+msgstr "AK-Wunsch"
+
+#: admin.py:27
+msgid "Is wish"
+msgstr "Is ein Wunsch"
+
+#: admin.py:28
+msgid "Is not a wish"
+msgstr "Ist kein Wunsch"
+
+#: admin.py:53
 msgid "Export to wiki syntax"
 msgstr "In Wiki-Syntax exportieren"
 
 #: availability.py:38 models.py:30 models.py:51 models.py:103 models.py:121
-#: models.py:152 models.py:201 models.py:233 models.py:259
+#: models.py:152 models.py:201 models.py:237 models.py:263
 msgid "Event"
 msgstr "Event"
 
 #: availability.py:39 models.py:52 models.py:104 models.py:122 models.py:153
-#: models.py:202 models.py:234 models.py:260
+#: models.py:202 models.py:238 models.py:264
 msgid "Associated event"
 msgstr "Zugehöriges Event"
 
@@ -33,7 +45,7 @@ msgstr "Person"
 msgid "Person whose availability this is"
 msgstr "Person deren Verfügbarkeit hier abgebildet wird"
 
-#: availability.py:56 models.py:237 models.py:252
+#: availability.py:56 models.py:241 models.py:256
 msgid "Room"
 msgstr "Raum"
 
@@ -41,7 +53,7 @@ msgstr "Raum"
 msgid "Room whose availability this is"
 msgstr "Raum dessen Verfügbarkeit hier abgebildet wird"
 
-#: availability.py:65 models.py:205 models.py:251
+#: availability.py:65 models.py:205 models.py:255
 msgid "AK"
 msgstr "AK"
 
@@ -68,7 +80,7 @@ msgid "Availabilities"
 msgstr "Verfügbarkeiten"
 
 #: models.py:12 models.py:98 models.py:118 models.py:136 models.py:150
-#: models.py:167 models.py:226
+#: models.py:167 models.py:230
 msgid "Name"
 msgstr "Name"
 
@@ -355,71 +367,71 @@ msgstr "Erwartete Personenzahl"
 msgid "AKs"
 msgstr "AKs"
 
-#: models.py:226
+#: models.py:230
 msgid "Name or number of the room"
 msgstr "Name oder Nummer des Raums"
 
-#: models.py:227
+#: models.py:231
 msgid "Building"
 msgstr "Gebäude"
 
-#: models.py:228
+#: models.py:232
 msgid "Name or number of the building"
 msgstr "Name oder Nummer des Gebäudes"
 
-#: models.py:229
+#: models.py:233
 msgid "Capacity"
 msgstr "Kapazität"
 
-#: models.py:229
+#: models.py:233
 msgid "Maximum number of people"
 msgstr "Maximale Personenzahl"
 
-#: models.py:230
+#: models.py:234
 msgid "Properties"
 msgstr "Eigenschaften"
 
-#: models.py:231
+#: models.py:235
 msgid "AK requirements fulfilled by the room"
 msgstr "AK Anforderungen, die dieser Raum erfüllt"
 
-#: models.py:238
+#: models.py:242
 msgid "Rooms"
 msgstr "Räume"
 
-#: models.py:251
+#: models.py:255
 msgid "AK being mapped"
 msgstr "AK, der zugeordnet wird"
 
-#: models.py:253
+#: models.py:257
 msgid "Room the AK will take place in"
 msgstr "Raum in dem der AK stattfindet"
 
-#: models.py:254
+#: models.py:258
 msgid "Slot Begin"
 msgstr "Beginn des Slots"
 
-#: models.py:254
+#: models.py:258
 msgid "Time and date the slot begins"
 msgstr "Zeit und Datum zu der der AK beginnt"
 
-#: models.py:256
+#: models.py:260
 msgid "Duration"
 msgstr "Dauer"
 
-#: models.py:257
+#: models.py:261
 msgid "Length in hours"
 msgstr "Länge in Stunden"
 
-#: models.py:263
+#: models.py:267
 msgid "AK Slot"
 msgstr "AK Slot"
 
-#: models.py:264
+#: models.py:268
 msgid "AK Slots"
 msgstr "AK Slot"
 
-#: models.py:278
+#: models.py:282
 msgid "Not scheduled yet"
 msgstr "Noch nicht geplant"
 
