@@ -216,6 +216,10 @@ class AK(models.Model):
         return ", ".join(str(owner) for owner in self.owners.all())
 
     @property
+    def durations_list(self):
+        return ", ".join(str(slot.duration) for slot in self.akslot_set.all())
+
+    @property
     def wish(self):
         return self.owners.count() == 0
 
