@@ -24,6 +24,7 @@ background: linear-gradient(to right, rgba(100,255,255,0.0) 0%,rgba(100,255,255,
 {% if is_white %}
 div.event a{color:black;}
 body{background:#ddd!important;color:#555;}
+h4 {color: white;}
 .dateheader h4 {color: white;}
 table tr:nth-child(even) { background:#e7e7e7; }
 {% endif %}
@@ -55,7 +56,7 @@ table tr:nth-child(even) { background:#e7e7e7; }
         <div class="event"
             style="margin-left:{{slot.leftpixels|unlocalize}}px;width:{{slot.widthpixels|unlocalize}}px;
                 border-top: 5px solid {{slot.ak.color}}; background-color: {{slot.red}};">
-        <a href="">{{ slot.ak.short_name }}</a></div>
+        <a href="{% url "submit:ak_detail" event_slug="kif475" pk=slot.ak.pk %}">{{ slot.ak.short_name }}</a></div>
     {% endif %}{% endfor %}
 </td>
 {% endfor %}

@@ -65,7 +65,7 @@ def plan_beamer(request, *args, **kwargs):
             # TODO Hide instead (and make ak wall wider?)
             nowsliderpos += daywidth
         elif now.date() == daydate:
-            nowsliderpos += max(0, min(daywidth, ((timezone.localtime(now) - daystart).total_seconds() * pixpersec)))
+            nowsliderpos += max(0, min(daywidth, ((timezone.localtime(now) + datetime.timedelta(hours=1) - daystart).total_seconds() * pixpersec)))
         for slot in slots:
             if slot.start.date() == daydate:
                 secsfromstart = (slot.start - daystart).total_seconds()
