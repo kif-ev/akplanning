@@ -276,6 +276,8 @@ class AKSlot(models.Model):
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
+    updated = models.DateTimeField(auto_now=True, verbose_name=_("Last update"))
+
     class Meta:
         verbose_name = _('AK Slot')
         verbose_name_plural = _('AK Slots')
