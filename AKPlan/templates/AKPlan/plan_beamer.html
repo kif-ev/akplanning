@@ -48,7 +48,7 @@ table tr:nth-child(even) { background:#e7e7e7; }
 {% endfor %}
 </tr>
 {% for room in rooms %}
-<tr class=roomrow><td class=roomnumber>{{ room.name }}</td>
+<tr class=roomrow><td class=roomnumber><h4>{{ room.name }}</h4></td>
 {% for day,slots, hours in days %}
 <td class=events>
     {% for slot in slots %}{% if slot.room.pk == room.pk %}
