@@ -9,7 +9,7 @@ urlpatterns = [
     path(
         '<slug:event_slug>/plan/',
         include([
-            path('', views.PlanView.as_view(), name='ak_plan'),
+            path('', views.plan_beamer, name='ak_plan'),
             path('api/', include(api_router.urls)),
 
         ])
