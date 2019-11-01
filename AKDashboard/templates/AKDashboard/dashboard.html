@@ -99,9 +99,10 @@
                 <ul class="buttons">
                     <li><a class="Color-Default" href="https://wiki.kif.rocks/wiki/KIF475:Arbeitskreise"><span
                             class="fa fa-book"></span> <span class='text'>KIF-Wiki</span></a></li>
-                    <li><a class="Color-Default" href="{% url 'plan:ak_plan' event_slug='kif475' %}"><span
-                            class="fa fa-calendar"></span> <span
-                            class='text'>AK-Wall</span></a></li>
+                    <li><a class="Color-Default" href="{% url 'plan:ak_plan_current_next' event_slug='kif475' %}"><span
+                            class="fa fa-list-ul"></span> <span class='text'>Aktuelle AKs</span></a></li>
+                    <li><a class="Color-Default" href="{% url 'plan:ak_plan_timeline' event_slug='kif475' %}"><span
+                            class="fa fa-calendar"></span> <span class='text'>AK-Wall</span></a></li>
                     <li><a class="Color-Default" href="{% url 'submit:submission_overview' event_slug='kif475' %}"><span
                             class="fa fa-pencil-alt"></span> <span class='text'>{% trans 'AK Submission' %}</span></a>
                     </li>
