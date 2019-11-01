@@ -32,7 +32,7 @@ class CurrentNextAKsView(EventSlugMixin, ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
 
-        current_timestamp = datetime.datetime.now(pytz.utc) - datetime.timedelta(hours=1)
+        current_timestamp = datetime.datetime.now(pytz.utc) + datetime.timedelta(hours=1)
 
         context["akslots_now"] = []
         context["akslots_next"] = []
