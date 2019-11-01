@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-01 01:04+0000\n"
+"POT-Creation-Date: 2019-11-01 01:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,10 +31,16 @@ msgid "Current AKs"
 msgstr "Aktuelle AKs"
 
 #: templates/AKPlan/current_next_aks.html:29
+#: templates/AKPlan/current_next_aks_beamer.html:24
 msgid "No current AKs"
 msgstr "Keine aktuellen AKs"
 
 #: templates/AKPlan/current_next_aks.html:33
-#: templates/AKPlan/current_next_aks_beamer.html:28
+#: templates/AKPlan/current_next_aks_beamer.html:30
 msgid "Next AKs"
 msgstr "Nächste AKs"
+
+#: templates/AKPlan/current_next_aks.html:42
+#: templates/AKPlan/current_next_aks_beamer.html:39
+msgid "No future AKs :-("
+msgstr "Keine zukünftigen AKs"

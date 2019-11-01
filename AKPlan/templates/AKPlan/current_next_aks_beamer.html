@@ -20,6 +20,8 @@
                         <td>{{ akslot.start | time:"H:i" }} - {{ akslot.end | time:"H:i" }}</td>
                         <td>{{ akslot.room }}</td>
                     </tr>
+                    {% empty %}
+                        {% trans "No current AKs" %}
                     {% endfor %}
                 </table>
             </div>
@@ -33,6 +35,8 @@
                         <td>{{ akslot.start | time:"H:i" }} - {{ akslot.end | time:"H:i" }}</td>
                         <td>{{ akslot.room }}</td>
                     </tr>
+                    {% empty %}
+                        {% trans "No future AKs :-(" %}
                     {% endfor %}
                 </table>
             </div>
