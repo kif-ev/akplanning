@@ -8,8 +8,7 @@
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "Edit AK" %}: {{ ak.name }}{% endblock %}
 
 {% block breadcrumbs %}
-    <li class="breadcrumb-item">AKPlanning</li>
-    <li class="breadcrumb-item">{{ event.slug }}</li>
+    {{ block.super}}
     <li class="breadcrumb-item"><a
             href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
     <li class="breadcrumb-item"><a href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}">{{ ak.short_name }}</a></li>

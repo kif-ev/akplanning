@@ -15,8 +15,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-    <li class="breadcrumb-item">AKPlanning</li>
-    <li class="breadcrumb-item">{{ event.slug }}</li>
+    {{ block.super }}
     <li class="breadcrumb-item active">{% trans "AK Submission" %}</li>
 {% endblock %}
 
