@@ -1,0 +1,41 @@
+{% load bootstrap4 %}
+{% load i18n %}
+
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="refresh" content="60">
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery='full' %}
+</head>
+<body>
+    <div class="container" style="margin-top: 3vh;">
+        <div class="row">
+            <div class="col-6">
+                <h2>{% trans "Current AKs" %}:</h2>
+                <table class="table table-striped">
+                    {% for akslot in akslots_now %}
+                    <tr>
+                        <td><b>{{ akslot.ak.name }}</b></td>
+                        <td>{{ akslot.start | time:"H:i" }} - {{ akslot.end | time:"H:i" }}</td>
+                        <td>{{ akslot.room }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <div class="col-6">
+                <h2>{% trans "Next AKs" %}:</h2>
+                <table class="table table-striped">
+                    {% for akslot in akslots_next %}
+                    <tr>
+                        <td><b>{{ akslot.ak.name }}</b></td>
+                        <td>{{ akslot.start | time:"H:i" }} - {{ akslot.end | time:"H:i" }}</td>
+                        <td>{{ akslot.room }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</body>

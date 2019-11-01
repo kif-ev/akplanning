@@ -1,9 +1,10 @@
 import datetime
 
+import pytz
 from django.shortcuts import render
 from django.utils import timezone
 from django.views.decorators.clickjacking import xframe_options_exempt
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 
 from AKModel.models import Event, Room, AKSlot
 from AKModel.views import EventSlugMixin
@@ -11,6 +12,49 @@ from AKModel.views import EventSlugMixin
 
 class PlanView(EventSlugMixin, TemplateView):
     template_name = 'AKPlan/plan.html'
+
+
+class NextAKsView(EventSlugMixin, ListView):
+    model = AKSlot
+    context_object_name = "akslots"
+
+    def get_queryset(self):
+        current_timestamp = datetime.datetime.now() - datetime.timedelta(minutes=30)
+        return super().get_queryset().filter(start__gt=current_timestamp)
+
+
+class CurrentNextAKsView(EventSlugMixin, ListView):
+    model = AKSlot
+    context_object_name = "akslots"
+    template_name = "AKPlan/current_next_aks.html"
+    ordering = ['start']
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+
+        current_timestamp = datetime.datetime.now(pytz.utc) - datetime.timedelta(hours=1)
+
+        context["akslots_now"] = []
+        context["akslots_next"] = []
+
+        for akslot in context["akslots"]:
+            if akslot.start is None:
+                continue
+
+            if akslot.start <= current_timestamp <= akslot.end:
+                context["akslots_now"].append(akslot)
+            elif akslot.start > current_timestamp:
+                context["akslots_next"].append(akslot)
+
+            if len(context["akslots_next"]) == 10:
+                break
+
+        return context
+
+
+class CurrentNextAKsBeamerView(CurrentNextAKsView):
+    template_name = "AKPlan/current_next_aks_beamer.html"
+
 
 
 def clamp(n, smallest, largest):

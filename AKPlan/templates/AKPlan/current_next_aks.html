@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load fontawesome %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item">AKPlanning</li>
+    <li class="breadcrumb-item"><a href="{% url 'dashboard:dashboard' %}">{{ event.slug }}</a></li>
+    <li class="breadcrumb-item active">{% trans "Plan" %}</li>
+{% endblock %}
+
+{% block content %}
+    <div class="container" style="margin-top: 3vh;">
+        <div class="float-right">
+            <a href="{% url 'plan:ak_plan_timeline' event_slug=event.slug %}" class="btn btn-success">
+                {% fontawesome_icon 'calendar' %} {% trans "Timeline" %}
+            </a>
+        </div>
+
+        <h2><a name="currentAKs">{% trans "Current AKs" %}:</a></h2>
+            <table class="table table-striped">
+                {% for akslot in akslots_now %}
+                <tr>
+                    <td><b><a href="{% url 'submit:ak_detail' event_slug=event.slug pk=akslot.ak.pk %}">{{ akslot.ak.name }}</a></b></td>
+                    <td>{{ akslot.start | time:"H:i" }} - {{ akslot.end | time:"H:i" }}</td>
+                    <td>{{ akslot.room }}</td>
+                </tr>
+                {% empty %}
+                    {% trans "No current AKs" %}
+                {% endfor %}
+            </table>
+
+        <h2><a name="nextAKs">{% trans "Next AKs" %}:</a></h2>
+            <table class="table table-striped">
+                {% for akslot in akslots_next %}
+                <tr>
+                    <td><b><a href="{% url 'submit:ak_detail' event_slug=event.slug pk=akslot.ak.pk %}">{{ akslot.ak.name }}</a></b></td>
+                    <td>{{ akslot.start | time:"H:i" }} - {{ akslot.end | time:"H:i" }}</td>
+                    <td>{{ akslot.room }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+{% endblock %}
