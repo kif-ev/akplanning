@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-    {{ block.super}}
+    {% include "AKSubmission/breadcrumbs_submission.html" %}
     <li class="breadcrumb-item"><a href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
     <li class="breadcrumb-item active">{% trans "AKs" %}</li>
 {% endblock %}

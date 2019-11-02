@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-    {{ block.super }}
+    {% include "AKSubmission/breadcrumbs_submission.html" %}
     <li class="breadcrumb-item active">{% trans "AK Submission" %}</li>
 {% endblock %}
 

@@ -4,8 +4,7 @@
 {% load i18n %}
 
 {% block breadcrumbs %}
-    <li class="breadcrumb-item">AKPlanning</li>
-    <li class="breadcrumb-item"><a href="{% url 'dashboard:dashboard' %}">{{ event.slug }}</a></li>
+    {% include "AKSubmission/breadcrumbs_submission.html" %}
 {% endblock %}
 
 {% block footer_custom %}
