@@ -9,6 +9,6 @@
 
 {% block footer_custom %}
     {% if event.contact_email %}
-        <h4><a href="mailto://{{ event.contact_email }}">{% fontawesome_icon "envelope" %} {% trans "Write to organizers of this event for questions and comments" %}</a></h4>
+        <h4><a href="mailto:{{ event.contact_email }}">{% fontawesome_icon "envelope" %} {% trans "Write to organizers of this event for questions and comments" %}</a></h4>
     {% endif %}
 {% endblock %}
