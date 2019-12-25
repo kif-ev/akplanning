@@ -43,15 +43,16 @@ class FilterByEventSlugMixin(EventSlugMixin):
         return super().get_queryset().filter(event=self.event)
 
 
-class ImportRooms(View):
+class ImportRoomsCSVView(EventSlugMixin, View):
     def get(self, request, *args, **kwargs):
         if not request.user.has_perm('AKModel.add_room'): raise PermissionDenied
         foo = ""
         return render(request, "AKModel/ak_import_view.html",
-                      {'title': 'Import Rooms (Format: "Room Number,Capacity")', 'output': ''})
+                      {'title': 'Import Rooms (Format: "Room, Number, Capacity")', 'output': ''})
 
     def post(self, request, *args, **kwargs):
-        if not request.user.has_perm('AKModel.add_room'): raise PermissionDenied
+        if not request.user.has_perm('AKModel.add_room'):
+            raise PermissionDenied
 
         the_csv = request.POST["content"]
         reader = csv.reader(the_csv.splitlines())
@@ -60,8 +61,8 @@ class ImportRooms(View):
         for line in reader:
             out += '<li>Room "' + line[0] + '" ...'
             try:
-                Room.objects.create(number=line[0],
-                                    type='SR', capacity=line[1])
+                Room.objects.create(name=line[0],
+                                    building=line[1], capacity=line[2], event=Event.get_by_slug('kif475'))
                 out += "ok"
             except IntegrityError as ex:
                 out += str(ex)
