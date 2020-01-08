@@ -6,17 +6,16 @@
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Submission" %}{% endblock %}
 
 {% block imports %}
-<style>
-/* Prevent wrapping of buttons in AK table */
-.table td:nth-child(5) {
-    white-space: nowrap;
-}
-</style>
+    <style>
+        /* Prevent wrapping of buttons in AK table */
+        .table td:nth-child(5) {
+            white-space: nowrap;
+        }
+    </style>
 {% endblock %}
 
 {% block breadcrumbs %}
-    <li class="breadcrumb-item">AKPlanning</li>
-    <li class="breadcrumb-item">{{ event.slug }}</li>
+    {% include "AKSubmission/submission_breadcrumbs.html" %}
     <li class="breadcrumb-item active">{% trans "AK Submission" %}</li>
 {% endblock %}
 
@@ -30,7 +29,7 @@
     <div class="jumbotron" style="margin-top:20px;">
         <form method="POST" action="#" class="form-row">
             {% csrf_token %}
-            <a href="{% url 'submit:submit_ak_wish' event_slug=event.slug  %}" class="btn btn-info">
+            <a href="{% url 'submit:submit_ak_wish' event_slug=event.slug %}" class="btn btn-info">
                 {% trans "New AK Wish" %}
             </a>
             <span style="font-size: 1.5em">
@@ -67,9 +66,10 @@
 
     <ul class="nav nav-tabs" style="margin-bottom:15px">
         {% for category, _ in categories %}
-          <li class="nav-item">
-            <a class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab" href="#category_{{ category.pk }}">{{ category.name }}</a>
-          </li>
+            <li class="nav-item">
+                <a class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab"
+                   href="#category_{{ category.pk }}">{{ category.name }}</a>
+            </li>
         {% endfor %}
     </ul>
 

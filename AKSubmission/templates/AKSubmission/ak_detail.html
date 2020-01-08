@@ -8,9 +8,9 @@
 {% block title %}{% trans "AKs" %}: {{ ak.event.name }} - {% trans "AK" %}: {{ ak.name }}{% endblock %}
 
 {% block breadcrumbs %}
-    <li class="breadcrumb-item">AKPlanning</li>
-    <li class="breadcrumb-item">{{ ak.event.slug }}</li>
-    <li class="breadcrumb-item"><a href="{% url 'submit:submission_overview' event_slug=ak.event.slug %}">{% trans "AK Submission" %}</a></li>
+    {% include "AKSubmission/submission_breadcrumbs.html" %}
+    <li class="breadcrumb-item"><a
+            href="{% url 'submit:submission_overview' event_slug=ak.event.slug %}">{% trans "AK Submission" %}</a></li>
     <li class="breadcrumb-item active">{{ ak.name }}</li>
 {% endblock %}
 
@@ -19,15 +19,19 @@
 
     <div class="float-right">
         {% if ak.link != "" %}
-            <a href="{{ ak.link }}" class="btn btn-info">{%  fontawesome_icon 'external-link-alt' %}</a>
+            <a href="{{ ak.link }}" class="btn btn-info">{% fontawesome_icon 'external-link-alt' %}</a>
         {% endif %}
-        <a href="{% url 'submit:ak_edit' event_slug=ak.event.slug pk=ak.pk %}" class="btn btn-success">{%  fontawesome_icon 'pencil-alt' %}</a>
+        <a href="{% url 'submit:ak_edit' event_slug=ak.event.slug pk=ak.pk %}"
+           class="btn btn-success">{% fontawesome_icon 'pencil-alt' %}</a>
     </div>
 
     <h2>{% if ak.wish %}{% trans "AK Wish" %}: {% endif %}{{ ak.name }}</h2>
 
     <table class="table table-borderless">
-        <tr><td>{% trans "Who?" %}</td><td>{{ ak.owners_list }}</td></tr>
+        <tr>
+            <td>{% trans "Who?" %}</td>
+            <td>{{ ak.owners_list }}</td>
+        </tr>
         <tr>
             <td>{% trans 'Category' %}</td>
             <td>
@@ -58,32 +62,35 @@
 
     <table class="table">
         <thead>
-            <tr>
-                <th>{% trans "When?" %}</th>
-                <th>{% trans "Duration" %}</th>
-                <th>{% trans "Room" %}</th>
-                <th></th>
-            </tr>
+        <tr>
+            <th>{% trans "When?" %}</th>
+            <th>{% trans "Duration" %}</th>
+            <th>{% trans "Room" %}</th>
+            <th></th>
+        </tr>
         </thead>
         <tbody>
-            {% for slot in ak.akslot_set.all %}
-                <tr>
-                    <td>{{ slot.start_simplified }}</td>
-                    <td>{{ slot.duration }}</td>
-                    <td>{{ slot.room }}</td>
-                    <td>
-                        {% if not slot.start %}
-                            <a href="{% url 'submit:akslot_edit' event_slug=ak.event.slug pk=slot.pk %}" class="btn btn-success">{%  fontawesome_icon 'pencil-alt' %}</a>
-                            <a href="{% url 'submit:akslot_delete' event_slug=ak.event.slug pk=slot.pk %}" class="btn btn-danger">{%  fontawesome_icon 'times' %}</a>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
+        {% for slot in ak.akslot_set.all %}
+            <tr>
+                <td>{{ slot.start_simplified }}</td>
+                <td>{{ slot.duration }}</td>
+                <td>{{ slot.room }}</td>
+                <td>
+                    {% if not slot.start %}
+                        <a href="{% url 'submit:akslot_edit' event_slug=ak.event.slug pk=slot.pk %}"
+                           class="btn btn-success">{% fontawesome_icon 'pencil-alt' %}</a>
+                        <a href="{% url 'submit:akslot_delete' event_slug=ak.event.slug pk=slot.pk %}"
+                           class="btn btn-danger">{% fontawesome_icon 'times' %}</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
 
     <div class="">
-        <a href="{% url 'submit:akslot_add' event_slug=ak.event.slug pk=ak.pk %}" class="btn btn-success">{%  fontawesome_icon 'plus' %} {% trans "Add another slot" %}</a>
+        <a href="{% url 'submit:akslot_add' event_slug=ak.event.slug pk=ak.pk %}"
+           class="btn btn-success">{% fontawesome_icon 'plus' %} {% trans "Add another slot" %}</a>
     </div>
 
 {% endblock %}
