@@ -222,6 +222,10 @@ msgstr "Neuer AK"
 msgid "Edit Person Info"
 msgstr "Personen-Info bearbeiten"
 
+#: templates/AKSubmission/submission_overview.html:62
+msgid "This event is not active. You cannot add or change AKs"
+msgstr "Dieses Event is nicht aktiv. Es können keine AKs hinzugefügt oder bearbeitet werden"
+
 #: templates/AKSubmission/submission_overview.html:53
 msgid "Current AKs"
 msgstr "Aktuelle AKs"

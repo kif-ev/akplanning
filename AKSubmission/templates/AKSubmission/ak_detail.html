@@ -21,9 +21,10 @@
         {% if ak.link != "" %}
             <a href="{{ ak.link }}" class="btn btn-info">{% fontawesome_icon 'external-link-alt' %}</a>
         {% endif %}
-        <a href="{% url 'submit:ak_edit' event_slug=ak.event.slug pk=ak.pk %}"
-           class="btn btn-success">{% fontawesome_icon 'pencil-alt' %}</a>
-    </div>
+        {% if ak.event.active %}
+            <a href="{% url 'submit:ak_edit' event_slug=ak.event.slug pk=ak.pk %}"
+               class="btn btn-success">{% fontawesome_icon 'pencil-alt' %}</a>
+        {% endif %}    </div>
 
     <h2>{% if ak.wish %}{% trans "AK Wish" %}: {% endif %}{{ ak.name }}</h2>
 
@@ -88,9 +89,11 @@
         </tbody>
     </table>
 
-    <div class="">
-        <a href="{% url 'submit:akslot_add' event_slug=ak.event.slug pk=ak.pk %}"
-           class="btn btn-success">{% fontawesome_icon 'plus' %} {% trans "Add another slot" %}</a>
-    </div>
+    {% if ak.event.active %}
+        <div class="">
+            <a href="{% url 'submit:akslot_add' event_slug=ak.event.slug pk=ak.pk %}"
+               class="btn btn-success">{% fontawesome_icon 'plus' %} {% trans "Add another slot" %}</a>
+        </div>
+    {% endif %}
 
 {% endblock %}

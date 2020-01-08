@@ -4,47 +4,53 @@
 {% load tags_AKSubmission %}
 
 <table id="akTable" class="table table-striped">
-  <thead>
-  <tr>
-      <th>{% trans "Name" %}</th>
-      <th>{% trans "Who?" %}</th>
-      <th>{% trans 'Category' %}</th>
-      <th>{% trans "Tags" %}</th>
-      <th></th>
-  </tr>
-  </thead>
-  <tbody>
-    {% for ak in AKs %}
-        <tr>
-            <td>
-                <b>{{ ak.name }}</b>
-                {% if ak.present %}
-                    <span class="badge badge-dark badge-pill" title="{% trans 'present this AK' %}">{% fontawesome_icon "bullhorn" %}</span>
-                {% endif %}
-                {% if ak.reso %}
-                    <span class="badge badge-dark badge-pill" title="{% trans 'Reso' %}">{% fontawesome_icon "scroll" %}</span>
-                {% endif %}
-            </td>
-            <td>
-                {% if ak.wish %}
-                    <span class="badge badge-dark badge-pill">{% trans "AK Wish" %}</span>
-                {% else %}
-                    {{ ak.owners_list }}
-                {% endif %}
-            </td>
-            <td>{% category_linked_badge ak.category event.slug %}</td>
-            <td>{% tag_list ak.tags.all event.slug %}</td>
-            <td class="text-right">
-                <a href="{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}" class="btn btn-primary">{%  fontawesome_icon 'info' %}</a>
-                {% if ak.link %}
-                    <a href="{{ ak.link }}" class="btn btn-info">{%  fontawesome_icon 'external-link-alt' %}</a>
-                {% endif %}
-                <a href="{% url 'submit:ak_edit' event_slug=event.slug pk=ak.pk %}" class="btn btn-success">{%  fontawesome_icon 'pencil-alt' %}</a>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="5" class="small">{{ ak.description }}</td>
-        </tr>
-    {% endfor %}
-  </tbody>
+	<thead>
+	<tr>
+		<th>{% trans "Name" %}</th>
+		<th>{% trans "Who?" %}</th>
+		<th>{% trans 'Category' %}</th>
+		<th>{% trans "Tags" %}</th>
+		<th></th>
+	</tr>
+	</thead>
+	<tbody>
+   {% for ak in AKs %}
+		<tr>
+			<td>
+				<b>{{ ak.name }}</b>
+             {% if ak.present %}
+					 <span class="badge badge-dark badge-pill"
+					       title="{% trans 'present this AK' %}">{% fontawesome_icon "bullhorn" %}</span>
+             {% endif %}
+             {% if ak.reso %}
+					 <span class="badge badge-dark badge-pill"
+					       title="{% trans 'Reso' %}">{% fontawesome_icon "scroll" %}</span>
+             {% endif %}
+			</td>
+			<td>
+             {% if ak.wish %}
+					 <span class="badge badge-dark badge-pill">{% trans "AK Wish" %}</span>
+             {% else %}
+                 {{ ak.owners_list }}
+             {% endif %}
+			</td>
+			<td>{% category_linked_badge ak.category event.slug %}</td>
+			<td>{% tag_list ak.tags.all event.slug %}</td>
+			<td class="text-right">
+				<a href="{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}"
+				   class="btn btn-primary">{% fontawesome_icon 'info' %}</a>
+             {% if ak.link %}
+					 <a href="{{ ak.link }}" class="btn btn-info">{% fontawesome_icon 'external-link-alt' %}</a>
+             {% endif %}
+             {% if event.active %}
+					 <a href="{% url 'submit:ak_edit' event_slug=event.slug pk=ak.pk %}"
+					    class="btn btn-success">{% fontawesome_icon 'pencil-alt' %}</a>
+             {% endif %}
+			</td>
+		</tr>
+		<tr>
+			<td colspan="5" class="small">{{ ak.description }}</td>
+		</tr>
+   {% endfor %}
+	</tbody>
 </table>
