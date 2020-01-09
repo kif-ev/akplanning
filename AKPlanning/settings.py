@@ -11,9 +11,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+
 from django.utils.translation import gettext_lazy as _
-
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from split_settings.tools import optional, include
 
@@ -37,7 +36,7 @@ INSTALLED_APPS = [
     'AKDashboard.apps.AkdashboardConfig',
     'AKSubmission.apps.AksubmissionConfig',
     'AKScheduling.apps.AkschedulingConfig',
-    'AKPlan.apps.AkplanConfig',
+    # 'AKPlan.apps.AkplanConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

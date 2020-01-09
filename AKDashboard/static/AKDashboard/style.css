@@ -1,0 +1,29 @@
+.dashboard-row {
+    margin-bottom: 5em;
+}
+
+.dashboard-row > .row {
+    margin-left: 0;
+    padding-bottom: 1em;
+}
+
+.dashboard-box .fa {
+    font-size: 26pt;
+}
+
+.dashboard-box span.text {
+    display: block;
+    padding-top: 10px;
+    font-size: 12pt;
+}
+
+.dashboard-box {
+    display: block;
+    padding: 2em;
+
+}
+
+.dashboard-button {
+    display: inline;
+    padding: 0;
+}

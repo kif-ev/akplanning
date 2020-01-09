@@ -1,4 +1,4 @@
-{% extends 'AKSubmission/base_submission.html' %}
+{% extends 'AKSubmission/submission_base.html' %}
 
 {% load i18n %}
 {% load bootstrap4 %}
@@ -7,11 +7,11 @@
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Duration(s)" %}{% endblock %}
 
 {% block breadcrumbs %}
-    <li class="breadcrumb-item">AKPlanning</li>
-    <li class="breadcrumb-item">{{ event.slug }}</li>
+    {% include "AKSubmission/submission_breadcrumbs.html" %}
     <li class="breadcrumb-item"><a
             href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}">{{ ak.short_name }}</a></li>
+    <li class="breadcrumb-item"><a
+            href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}">{{ ak.short_name }}</a></li>
     <li class="breadcrumb-item active">{% trans "AK Duration(s)" %}</li>
 {% endblock %}
 
@@ -27,8 +27,14 @@
 
         <table class="table">
             <tbody>
-            <tr><td>{% trans "AK" %}</td><td>{{ akslot.ak }}</td></tr>
-            <tr><td>{% trans "Duration" %}</td><td>{{ akslot.duration }}</td></tr>
+            <tr>
+                <td>{% trans "AK" %}</td>
+                <td>{{ akslot.ak }}</td>
+            </tr>
+            <tr>
+                <td>{% trans "Duration" %}</td>
+                <td>{{ akslot.duration }}</td>
+            </tr>
             </tbody>
         </table>
         {% buttons %}

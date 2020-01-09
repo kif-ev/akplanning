@@ -1,4 +1,4 @@
-{% extends 'AKSubmission/base_submission.html' %}
+{% extends 'AKSubmission/submission_base.html' %}
 
 {% load i18n %}
 {% load bootstrap4 %}
@@ -13,11 +13,11 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-    <li class="breadcrumb-item">AKPlanning</li>
-    <li class="breadcrumb-item">{{ event.slug }}</li>
+    {% include "AKSubmission/submission_breadcrumbs.html" %}
     <li class="breadcrumb-item"><a
             href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'submit:akowner_edit' event_slug=event.slug slug=owner.slug %}">{{ owner.slug }}</a></li>
+    <li class="breadcrumb-item"><a
+            href="{% url 'submit:akowner_edit' event_slug=event.slug slug=owner.slug %}">{{ owner.slug }}</a></li>
     <li class="breadcrumb-item active">{% trans "New AK" %}</li>
 {% endblock %}
 
@@ -47,8 +47,8 @@
 {% block bottom_script %}
     <script src="{% static 'common/vendor/chosen-js/chosen.jquery.js' %}"></script>
     <script>
-    $(function() {
-        $('.chosen-select').chosen();
-      });
+        $(function () {
+            $('.chosen-select').chosen();
+        });
     </script>
 {% endblock %}

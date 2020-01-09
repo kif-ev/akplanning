@@ -1,0 +1,10 @@
+{% load tags_AKModel %}
+
+<li class="breadcrumb-item">
+    {% if 'AKDashboard'|check_app_installed %}
+        <a href="{% url 'dashboard:dashboard' %}">AKPlanning</a>
+    {% else %}
+        AKPlanning
+    {% endif %}
+</li>
+<li class="breadcrumb-item">{{ event.slug }}</li>

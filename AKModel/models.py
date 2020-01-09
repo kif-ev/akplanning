@@ -1,4 +1,5 @@
 # Create your models here.
+import datetime
 import itertools
 
 from django.db import models
@@ -24,7 +25,8 @@ class Event(models.Model):
                                        help_text='Default length in hours that is assumed for AKs in this event.')
 
     contact_email = models.EmailField(verbose_name=_("Contact email address"), blank=True,
-            help_text=_("An email address that is displayed on every page and can be used for all kinds of questions"))
+                                      help_text=_(
+                                          "An email address that is displayed on every page and can be used for all kinds of questions"))
 
     class Meta:
         verbose_name = _('Event')
@@ -263,6 +265,8 @@ class AKSlot(models.Model):
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
+    updated = models.DateTimeField(auto_now=True, verbose_name=_("Last update"))
+
     class Meta:
         verbose_name = _('AK Slot')
         verbose_name_plural = _('AK Slots')
@@ -281,3 +285,10 @@ class AKSlot(models.Model):
         if self.start is None:
             return _("Not scheduled yet")
         return self.start.strftime('%a %H:%M')
+
+    @property
+    def end(self):
+        """
+        Retrieve end time of the AK slot
+        """
+        return self.start + datetime.timedelta(hours=float(self.duration))
