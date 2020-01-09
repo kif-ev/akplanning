@@ -24,13 +24,13 @@
             <div class="row">
                 {% if 'AKPlan'|check_app_installed %}
 
-                    <a class="Color-Default"
+                    <a class="dashboard-box btn btn-primary"
                        href="{% url 'plan:ak_plan_current_next' event_slug=event.slug %}">
                         <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button"><span
                                 class="fa fa-list-ul"></span> <span
                                 class='text'>{% trans 'Current AKs' %}</span></div>
                     </a>
-                    <a class="Color-Default"
+                    <a class="dashboard-box btn btn-primary"
                        href="{% url 'plan:ak_plan_timeline' event_slug=event.slug %}">
                         <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button"><span
                                 class="fa fa-calendar"></span> <span class='text'>{% trans "AK Wall" %}</span></div>
