@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% load fontawesome %}
+{% load i18n %}
+{% load static %}
+{% load tags_AKModel %}
+
+{% block imports %}
+
+    {{ block.super }}
+
+    <link rel="stylesheet" href="{% static 'AKDashboard/style.css' %}">
+
+{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item">AKPlanning</li>
+{% endblock %}
+
+{% block content %}
+    {% for event in events %}
+        <div class="dashboard-row">
+            <h2> {{ event.name }} </h2>
+            <div class="row">
+                {% if 'AKPlan'|check_app_installed %}
+
+                    <a class="Color-Default"
+                       href="{% url 'plan:ak_plan_current_next' event_slug=event.slug %}">
+                        <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button"><span
+                                class="fa fa-list-ul"></span> <span
+                                class='text'>{% trans 'Current AKs' %}</span></div>
+                    </a>
+                    <a class="Color-Default"
+                       href="{% url 'plan:ak_plan_timeline' event_slug=event.slug %}">
+                        <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button"><span
+                                class="fa fa-calendar"></span> <span class='text'>{% trans "AK Wall" %}</span></div>
+                    </a>
+                {% endif %}
+                {% if 'AKSubmission'|check_app_installed %}
+                    <a class="dashboard-box btn btn-primary"
+                       href="{% url 'submit:submission_overview' event_slug=event.slug %}">
+                        <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button"><span
+                                class="fa fa-pencil-alt"></span> <span
+                                class='text'>{% trans 'AK Submission' %}</span></div>
+                    </a>
+
+                {% endif %}
+            </div>
+            {% if event.contact_email %}
+                <p>
+                    <a href="mailto:{{ event.contact_email }}">{% fontawesome_icon "envelope" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
+                </p>
+            {% endif %}
+        </div>
+    {% empty %}
+        <div class="jumbotron">
+            <h2 class="display-4">
+                {% trans 'Currently, there are no Events!' %}
+            </h2>
+            <p class="lead">
+                {% trans 'Please contact an administrator if you want to use AKPlanning.' %}
+            </p>
+        </div>
+    {% endfor %}
+{% endblock %}
