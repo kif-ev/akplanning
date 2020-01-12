@@ -48,6 +48,15 @@
                         </div>
                     </a>
                 {% endif %}
+                {% for button in event.dashboardbutton_set.all %}
+                    <a class="dashboard-box btn btn-{{ button.get_color_display }}"
+                       href="{{ button.url }}">
+                        <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button">
+                            {% if button.icon %}<span class="fa">{{ button.icon.as_html }}</span>{% endif %}
+                            <span class='text'>{{ button.text }}</span>
+                        </div>
+                    </a>
+                {% endfor %}
             </div>
             {% if event.contact_email %}
                 <p>
