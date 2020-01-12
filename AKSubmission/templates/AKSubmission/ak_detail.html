@@ -1,7 +1,7 @@
 {% extends 'AKSubmission/submission_base.html' %}
 
 {% load i18n %}
-{% load fontawesome %}
+{% load fontawesome_5 %}
 
 {% load tags_AKSubmission %}
 
@@ -19,11 +19,11 @@
 
     <div class="float-right">
         {% if ak.link != "" %}
-            <a href="{{ ak.link }}" class="btn btn-info">{% fontawesome_icon 'external-link-alt' %}</a>
+            <a href="{{ ak.link }}" class="btn btn-info">{% fa5_icon 'external-link-alt' 'fas' %}</a>
         {% endif %}
         {% if ak.event.active %}
             <a href="{% url 'submit:ak_edit' event_slug=ak.event.slug pk=ak.pk %}"
-               class="btn btn-success">{% fontawesome_icon 'pencil-alt' %}</a>
+               class="btn btn-success">{% fa5_icon 'pencil-alt' 'fas' %}</a>
         {% endif %}    </div>
 
     <h2>{% if ak.wish %}{% trans "AK Wish" %}: {% endif %}{{ ak.name }}</h2>
@@ -79,9 +79,9 @@
                 <td>
                     {% if not slot.start %}
                         <a href="{% url 'submit:akslot_edit' event_slug=ak.event.slug pk=slot.pk %}"
-                           class="btn btn-success">{% fontawesome_icon 'pencil-alt' %}</a>
+                           class="btn btn-success">{% fa5_icon 'pencil-alt'  'fas' %}</a>
                         <a href="{% url 'submit:akslot_delete' event_slug=ak.event.slug pk=slot.pk %}"
-                           class="btn btn-danger">{% fontawesome_icon 'times' %}</a>
+                           class="btn btn-danger">{% fa5_icon 'times' 'fas' %}</a>
                     {% endif %}
                 </td>
             </tr>
@@ -92,7 +92,7 @@
     {% if ak.event.active %}
         <div class="">
             <a href="{% url 'submit:akslot_add' event_slug=ak.event.slug pk=ak.pk %}"
-               class="btn btn-success">{% fontawesome_icon 'plus' %} {% trans "Add another slot" %}</a>
+               class="btn btn-success">{% fa5_icon 'plus' 'fas' %} {% trans "Add another slot" %}</a>
         </div>
     {% endif %}
 
