@@ -19,7 +19,7 @@ msgstr ""
 
 #: models.py:10
 msgid "Dashboard Button"
-msgstr "Dasbhoard-Button"
+msgstr "Dashboard-Button"
 
 #: models.py:11
 msgid "Dashboard Buttons"
