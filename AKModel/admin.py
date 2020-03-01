@@ -2,12 +2,23 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, F
 from django.shortcuts import render
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, Room, AKSlot
 
-admin.site.register(Event)
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        # Use timezone of event
+        if obj is not None and obj.timezone:
+            timezone.activate(obj.timezone)
+        # No timezone available? Use UTC
+        else:
+            timezone.activate("UTC")
+        return super().get_form(request, obj, change, **kwargs)
 
 admin.site.register(AKOwner)
 
@@ -60,6 +71,26 @@ admin.site.register(AK, AKAdmin)
 
 admin.site.register(Room)
 
-admin.site.register(AKSlot)
 
-admin.site.register(Availability)
+@admin.register(AKSlot)
+class AKSlotAdmin(admin.ModelAdmin):
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        # Use timezone of associated event
+        if obj is not None and obj.event.timezone:
+            timezone.activate(obj.event.timezone)
+        # No timezone available? Use UTC
+        else:
+            timezone.activate("UTC")
+        return super().get_form(request, obj, change, **kwargs)
+
+
+@admin.register(Availability)
+class AvailabilityAdmin(admin.ModelAdmin):
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        # Use timezone of associated event
+        if obj is not None and obj.event.timezone:
+            timezone.activate(obj.event.timezone)
+        # No timezone available? Use UTC
+        else:
+            timezone.activate("UTC")
+        return super().get_form(request, obj, change, **kwargs)

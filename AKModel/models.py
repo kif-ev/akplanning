@@ -293,7 +293,7 @@ class AKSlot(models.Model):
         """
         if self.start is None:
             return _("Not scheduled yet")
-        return self.start.strftime('%a %H:%M')
+        return self.start.astimezone(self.event.timezone).strftime('%a %H:%M')
 
     @property
     def end(self):
