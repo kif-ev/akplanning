@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap4',
     'fontawesome',
+    'timezone_field',
 ]
 
 MIDDLEWARE = [
