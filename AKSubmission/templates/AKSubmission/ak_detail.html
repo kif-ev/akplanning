@@ -4,6 +4,8 @@
 {% load fontawesome %}
 
 {% load tags_AKSubmission %}
+{% load tags_AKModel %}
+
 
 {% block title %}{% trans "AKs" %}: {{ ak.event.name }} - {% trans "AK" %}: {{ ak.name }}{% endblock %}
 
@@ -13,6 +15,12 @@
             href="{% url 'submit:submission_overview' event_slug=ak.event.slug %}">{% trans "AK Submission" %}</a></li>
     <li class="breadcrumb-item active">{{ ak.name }}</li>
 {% endblock %}
+
+{% if 'AKPlan'|check_app_installed %}
+    {% block imports %}
+        {% include "AKPlan/plan_akslot.html" %}
+    {% endblock %}
+{% endif %}
 
 {% block content %}
     {% include "AKSubmission/messages.html" %}
@@ -59,6 +67,10 @@
 
     <p style="margin-top: 30px;margin-bottom: 30px;">{{ ak.description }}</p>
 
+
+    {% if 'AKPlan'|check_app_installed %}
+        <div id='akSlotCalendar' style="margin-bottom: 50px;"></div>
+    {% endif %}
 
 
     <table class="table">
