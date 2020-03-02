@@ -160,7 +160,7 @@ FOOTER_INFO = {
 # How many AKs should be visible as next AKs
 PLAN_MAX_NEXT_AKS = 10
 # Specify range of plan for screen/projector view
-PLAN_SCREEN_HOURS_RETROSPECT = 3
-PLAN_SCREEN_HOURS_FUTURE = 18
+PLAN_WALL_HOURS_RETROSPECT = 3
+PLAN_WALL_HOURS_FUTURE = 18
 
 include(optional("settings/*.py"))

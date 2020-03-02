@@ -109,7 +109,7 @@
 
 {% block content %}
     <div class="float-right">
-        <a href="{% url 'plan:plan_screen' event_slug=event.slug %}" class="btn btn-success">{% fontawesome_icon 'desktop' %}&nbsp;&nbsp;{% trans "screen view" %}</a>
+        <a href="{% url 'plan:plan_wall' event_slug=event.slug %}" class="btn btn-success">{% fontawesome_icon 'desktop' %}&nbsp;&nbsp;{% trans "AK Wall" %}</a>
     </div>
 
     <h1>Plan: {{ event }}</h1>

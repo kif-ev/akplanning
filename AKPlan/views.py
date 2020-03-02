@@ -50,12 +50,12 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
 
 
 class PlanScreenView(PlanIndexView):
-    template_name = "AKPlan/plan_screen.html"
+    template_name = "AKPlan/plan_wall.html"
 
     def get_queryset(self):
         # Determine interesting range (some hours ago until some hours in the future as specified in the settings)
-        self.start = datetime.now().astimezone(self.event.timezone) - timedelta(hours=settings.PLAN_BEAMER_HOURS_RETROSPECT)
-        self.end = self.start + timedelta(hours=(settings.PLAN_BEAMER_HOURS_RETROSPECT + settings.PLAN_BEAMER_HOURS_FUTURE))
+        self.start = datetime.now().astimezone(self.event.timezone) - timedelta(hours=settings.PLAN_WALL_HOURS_RETROSPECT)
+        self.end = self.start + timedelta(hours=(settings.PLAN_WALL_HOURS_RETROSPECT + settings.PLAN_WALL_HOURS_FUTURE))
 
         # Restrict AK slots to relevant ones
         # This will automatically filter all rooms not needed for the selected range in the orginal get_context method

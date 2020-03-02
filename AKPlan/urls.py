@@ -8,7 +8,7 @@ urlpatterns = [
         '<slug:event_slug>/plan/',
         include([
             path('', views.PlanIndexView.as_view(), name='plan_overview'),
-            path('screen/', views.PlanScreenView.as_view(), name='plan_screen'),
+            path('wall/', views.PlanScreenView.as_view(), name='plan_wall'),
         ])
     ),
 ]

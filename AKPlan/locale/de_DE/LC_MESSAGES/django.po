@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-02 01:08+0000\n"
+"POT-Creation-Date: 2020-03-02 22:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr "Tag"
 msgid "Event"
 msgstr "Veranstaltung"
 
-#: templates/AKPlan/plan_index.html:66 templates/AKPlan/plan_screen.html:64
+#: templates/AKPlan/plan_index.html:66 templates/AKPlan/plan_wall.html:64
 msgid "Room"
 msgstr "Raum"
 
@@ -34,14 +34,14 @@ msgid "AK Plan"
 msgstr "AK-Plan"
 
 #: templates/AKPlan/plan_index.html:112
-msgid "screen view"
-msgstr "Anzeigeansicht"
+msgid "AK Wall"
+msgstr "AK-Wall"
 
-#: templates/AKPlan/plan_index.html:120 templates/AKPlan/plan_screen.html:99
+#: templates/AKPlan/plan_index.html:120 templates/AKPlan/plan_wall.html:99
 msgid "Current AKs"
 msgstr "Aktuelle AKs"
 
-#: templates/AKPlan/plan_index.html:127 templates/AKPlan/plan_screen.html:104
+#: templates/AKPlan/plan_index.html:127 templates/AKPlan/plan_wall.html:104
 msgid "Next AKs"
 msgstr "Nächste AKs"
 
