@@ -1,0 +1,54 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-03-02 01:08+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/AKPlan/plan_index.html:47
+msgid "Day"
+msgstr "Tag"
+
+#: templates/AKPlan/plan_index.html:57
+msgid "Event"
+msgstr "Veranstaltung"
+
+#: templates/AKPlan/plan_index.html:66 templates/AKPlan/plan_screen.html:64
+msgid "Room"
+msgstr "Raum"
+
+#: templates/AKPlan/plan_index.html:106
+msgid "AK Plan"
+msgstr "AK-Plan"
+
+#: templates/AKPlan/plan_index.html:112
+msgid "screen view"
+msgstr "Anzeigeansicht"
+
+#: templates/AKPlan/plan_index.html:120 templates/AKPlan/plan_screen.html:99
+msgid "Current AKs"
+msgstr "Aktuelle AKs"
+
+#: templates/AKPlan/plan_index.html:127 templates/AKPlan/plan_screen.html:104
+msgid "Next AKs"
+msgstr "Nächste AKs"
+
+#: templates/AKPlan/plan_index.html:144
+msgid "Write to organizers of this event for questions and comments"
+msgstr "Fragen oder Kommentare? Schreib den Orgas dieses Events eine Mail"
+
+#: templates/AKPlan/slots_table.html:12
+msgid "No AKs"
+msgstr "Keine AKs"

@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'AKDashboard.apps.AkdashboardConfig',
     'AKSubmission.apps.AksubmissionConfig',
     'AKScheduling.apps.AkschedulingConfig',
-    # 'AKPlan.apps.AkplanConfig',
+    'AKPlan.apps.AkplanConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'fontawesome',
     'timezone_field',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -155,5 +156,11 @@ FOOTER_INFO = {
     "impress_text": "",
     "impress_url": ""
 }
+
+# How many AKs should be visible as next AKs
+PLAN_MAX_NEXT_AKS = 10
+# Specify range of plan for screen/projector view
+PLAN_SCREEN_HOURS_RETROSPECT = 3
+PLAN_SCREEN_HOURS_FUTURE = 18
 
 include(optional("settings/*.py"))

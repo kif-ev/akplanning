@@ -1,0 +1,14 @@
+{% load i18n %}
+
+
+<table class="table table-striped">
+    {% for akslot in slots %}
+    <tr>
+        <td><b><a href="{% url 'submit:ak_detail' event_slug=event.slug pk=akslot.ak.pk %}">{{ akslot.ak.name }}</a></b></td>
+        <td>{{ akslot.start | time:"H:i" }} - {{ akslot.end | time:"H:i" }}</td>
+        <td>{{ akslot.room }}</td>
+    </tr>
+    {% empty %}
+        {% trans "No AKs" %}
+    {% endfor %}
+</table>

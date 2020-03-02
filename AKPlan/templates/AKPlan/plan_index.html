@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% load fontawesome %}
+{% load i18n %}
+{% load tags_AKModel %}
+{% load static %}
+{% load tz %}
+
+
+{% block imports %}
+    {% get_current_language as LANGUAGE_CODE %}
+
+    <link href='{% static 'AKPlan/fullcalendar/core/main.css' %}' rel='stylesheet' />
+    <link href='{% static 'AKPlan/fullcalendar/timeline/main.css' %}' rel='stylesheet' />
+    <link href='{% static 'AKPlan/fullcalendar/resource-timeline/main.css' %}' rel='stylesheet' />
+    <link href='{% static 'AKPlan/fullcalendar/resource-timeline/main.min.css' %}' rel='stylesheet' />
+
+    <script src='{% static 'AKPlan/fullcalendar/core/main.js' %}'></script>
+    {% with 'AKPlan/fullcalendar/core/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
+    <script src="{% static locale_file %}"></script>
+    {% endwith %}
+    <script src='{% static 'AKPlan/fullcalendar/timeline/main.js' %}'></script>
+    <script src='{% static 'AKPlan/fullcalendar/resource-common/main.js' %}'></script>
+    <script src='{% static 'AKPlan/fullcalendar/resource-timeline/main.js' %}'></script>
+    <script src='{% static 'AKPlan/fullcalendar/bootstrap/main.js' %}'></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var planEl = document.getElementById('planCalendar');
+
+            var plan = new FullCalendar.Calendar(planEl, {
+                plugins: ['resourceTimeline', 'bootstrap'],
+                timeZone: '{{ event.timezone }}',
+                header: {
+                    left: 'today prev,next',
+                    center: 'title',
+                    right: 'resourceTimelineDay,resourceTimelineEvent'
+                },
+                aspectRatio: 2,
+                themeSystem: 'bootstrap',
+                // Adapt to user selected locale
+                locale: '{{ LANGUAGE_CODE }}',
+                defaultView: 'resourceTimelineEvent',
+                views: {
+                    resourceTimelineDay: {
+                        type: 'resourceTimeline',
+                        buttonText: '{% trans "Day" %}',
+                        slotDuration: '01:00',
+                        scrollTime: '08:00',
+                    },
+                    resourceTimelineEvent: {
+                        type: 'resourceTimeline',
+                        visibleRange: {
+                            start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                            end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
+                        },
+                        buttonText: '{% trans "Event" %}',
+                    }
+                },
+                editable: false,
+                allDaySlot: false,
+                nowIndicator: true,
+                eventTextColor: '#fff',
+                eventColor: '#127ba3',
+                resourceAreaWidth: '15%',
+                resourceLabelText: '{% trans "Room" %}',
+                resources: [
+                    {% for room in rooms %}
+                        {
+                            'id': '{{ room.title }}',
+                            'title': '{{ room.title }}'
+                        },
+                    {% endfor %}
+                ],
+                events: [
+                    {% for slot in akslots %}
+                        {% if slot.room and slot.start %}
+                            {
+                                'title': '{{ slot.ak.name }}',
+                                'start': '{{ slot.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                                'end': '{{ slot.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                                'resourceId': '{{ slot.room.title }}',
+                            },
+                        {% endif %}
+                    {% endfor %}
+                ],
+                schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+            });
+
+            plan.render();
+        });
+    </script>
+{% endblock imports %}
+
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item">
+    {% if 'AKDashboard'|check_app_installed %}
+        <a href="{% url 'dashboard:dashboard' %}">AKPlanning</a>
+    {% else %}
+        AKPlanning
+    {% endif %}
+</li>
+<li class="breadcrumb-item">{{ event.slug }}</li>
+    <li class="breadcrumb-item"><a
+        href="{% url 'plan:plan_overview' event_slug=event.slug %}">{% trans "AK Plan" %}</a></li>
+{% endblock %}
+
+
+{% block content %}
+    <div class="float-right">
+        <a href="{% url 'plan:plan_screen' event_slug=event.slug %}" class="btn btn-success">{% fontawesome_icon 'desktop' %}&nbsp;&nbsp;{% trans "screen view" %}</a>
+    </div>
+
+    <h1>Plan: {{ event }}</h1>
+
+    {% timezone event.timezone %}
+        <div class="row" style="margin-top:30px;">
+            <div class="col-md-6">
+                <h2><a name="currentAKs">{% trans "Current AKs" %}:</a></h2>
+                {% with akslots_now as slots %}
+                    {% include "AKPlan/slots_table.html" %}
+                {% endwith %}
+            </div>
+
+            <div class="col-md-6">
+                <h2><a name="currentAKs">{% trans "Next AKs" %}:</a></h2>
+                {% with akslots_next as slots %}
+                    {% include "AKPlan/slots_table.html" %}
+                {% endwith %}
+            </div>
+
+            <div class="col-md-12">
+                <div id="planCalendar" style="margin-top:30px;"></div>
+            </div>
+        </div>
+    {% endtimezone %}
+{% endblock %}
+
+
+{% block footer_custom %}
+    {% if event.contact_email %}
+        <h4>
+            <a href="mailto:{{ event.contact_email }}">{% fontawesome_icon "envelope" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
+        </h4>
+    {% endif %}
+{% endblock %}
