@@ -70,18 +70,7 @@
                         },
                     {% endfor %}
                 ],
-                events: [
-                    {% for slot in akslots %}
-                        {% if slot.room and slot.start %}
-                            {
-                                'title': '{{ slot.ak.name }}',
-                                'start': '{{ slot.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-                                'end': '{{ slot.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-                                'resourceId': '{{ slot.room.title }}',
-                            },
-                        {% endif %}
-                    {% endfor %}
-                ],
+                events: {% with akslots as slots %}{% include "AKPlan/encode_events.html" %}{% endwith %},
                 schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
             });
 

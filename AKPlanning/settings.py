@@ -162,5 +162,7 @@ PLAN_MAX_NEXT_AKS = 10
 # Specify range of plan for screen/projector view
 PLAN_WALL_HOURS_RETROSPECT = 3
 PLAN_WALL_HOURS_FUTURE = 18
+# Should the plan use a hierarchy of buildings and rooms?
+PLAN_SHOW_HIERARCHY = True
 
 include(optional("settings/*.py"))

@@ -28,12 +28,16 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
         context["akslots_now"] = []
         context["akslots_next"] = []
         rooms = set()
+        buildings = set()
 
         # Get list of current and next slots
         for akslot in context["akslots"]:
             # Construct a list of all rooms used by these slots on the fly
             if akslot.room is not None:
                 rooms.add(akslot.room)
+                # Store buildings for hierarchical view
+                if akslot.room.building != '':
+                    buildings.add(akslot.room.building)
 
             # Recent AKs: Started but not ended yet
             if akslot.start <= current_timestamp <= akslot.end:
@@ -45,6 +49,8 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
 
         # Sort list of rooms by title
         context["rooms"] = sorted(rooms, key=lambda x: x.title)
+        if settings.PLAN_SHOW_HIERARCHY:
+            context["buildings"] = sorted(buildings)
 
         return context
 

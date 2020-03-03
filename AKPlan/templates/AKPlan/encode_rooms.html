@@ -1,0 +1,15 @@
+[
+    {% for room in rooms %}
+        {
+            'id': '{{ room.title }}',
+            'title': '{{ room.title }}',
+            'parentId': '{{ room.building }}',
+        },
+    {% endfor %}
+    {% for building in buildings %}
+        {
+            'id': '{{ building }}',
+            'title': '{{ building }}',
+        },
+    {% endfor %}
+]

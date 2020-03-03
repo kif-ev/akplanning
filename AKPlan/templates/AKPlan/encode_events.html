@@ -1,0 +1,17 @@
+{% load tz %}
+
+[
+    {% for slot in slots %}
+        {% if slot.start %}
+            {
+                'title': '{{ slot.ak.name }}',
+                'start': '{{ slot.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                'end': '{{ slot.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                'resourceId': '{{ slot.room.title }}',
+                'backgroundColor': '{{ slot.ak.category.color }}',
+                'borderColor': '{{ slot.ak.track.color }}',
+                'url': '{% url 'submit:ak_detail' event_slug=event.slug pk=slot.ak.pk %}'
+            },
+        {% endif %}
+    {% endfor %}
+]
