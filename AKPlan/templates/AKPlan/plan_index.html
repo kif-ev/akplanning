@@ -1,28 +1,21 @@
-{% extends "base.html" %}
+{% extends "AKPlan/plan_base.html" %}
 
 {% load fontawesome_5 %}
 {% load i18n %}
-{% load tags_AKModel %}
 {% load static %}
 {% load tz %}
 
 
-{% block imports %}
+{% block fullcalendar %}
     {% get_current_language as LANGUAGE_CODE %}
 
-    <link href='{% static 'AKPlan/fullcalendar/core/main.css' %}' rel='stylesheet' />
     <link href='{% static 'AKPlan/fullcalendar/timeline/main.css' %}' rel='stylesheet' />
     <link href='{% static 'AKPlan/fullcalendar/resource-timeline/main.css' %}' rel='stylesheet' />
     <link href='{% static 'AKPlan/fullcalendar/resource-timeline/main.min.css' %}' rel='stylesheet' />
 
-    <script src='{% static 'AKPlan/fullcalendar/core/main.js' %}'></script>
-    {% with 'AKPlan/fullcalendar/core/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
-    <script src="{% static locale_file %}"></script>
-    {% endwith %}
     <script src='{% static 'AKPlan/fullcalendar/timeline/main.js' %}'></script>
     <script src='{% static 'AKPlan/fullcalendar/resource-common/main.js' %}'></script>
     <script src='{% static 'AKPlan/fullcalendar/resource-timeline/main.js' %}'></script>
-    <script src='{% static 'AKPlan/fullcalendar/bootstrap/main.js' %}'></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -90,20 +83,11 @@
             plan.render();
         });
     </script>
-{% endblock imports %}
+{% endblock %}
 
 
 {% block breadcrumbs %}
-    <li class="breadcrumb-item">
-    {% if 'AKDashboard'|check_app_installed %}
-        <a href="{% url 'dashboard:dashboard' %}">AKPlanning</a>
-    {% else %}
-        AKPlanning
-    {% endif %}
-</li>
-<li class="breadcrumb-item">{{ event.slug }}</li>
-    <li class="breadcrumb-item"><a
-        href="{% url 'plan:plan_overview' event_slug=event.slug %}">{% trans "AK Plan" %}</a></li>
+    {% include "AKPlan/plan_breadcrumbs.html" %}
 {% endblock %}
 
 
@@ -135,13 +119,4 @@
             </div>
         </div>
     {% endtimezone %}
-{% endblock %}
-
-
-{% block footer_custom %}
-    {% if event.contact_email %}
-        <h4>
-            <a href="mailto:{{ event.contact_email }}">{% fa5_icon "envelope" "far" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
-        </h4>
-    {% endif %}
 {% endblock %}
