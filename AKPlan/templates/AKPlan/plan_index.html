@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load fontawesome %}
+{% load fontawesome_5 %}
 {% load i18n %}
 {% load tags_AKModel %}
 {% load static %}
@@ -109,7 +109,7 @@
 
 {% block content %}
     <div class="float-right">
-        <a href="{% url 'plan:plan_wall' event_slug=event.slug %}" class="btn btn-success">{% fontawesome_icon 'desktop' %}&nbsp;&nbsp;{% trans "AK Wall" %}</a>
+        <a href="{% url 'plan:plan_wall' event_slug=event.slug %}" class="btn btn-success">{% fa5_icon 'desktop' 'fas' %}&nbsp;&nbsp;{% trans "AK Wall" %}</a>
     </div>
 
     <h1>Plan: {{ event }}</h1>
@@ -141,7 +141,7 @@
 {% block footer_custom %}
     {% if event.contact_email %}
         <h4>
-            <a href="mailto:{{ event.contact_email }}">{% fontawesome_icon "envelope" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
+            <a href="mailto:{{ event.contact_email }}">{% fa5_icon "envelope" "far" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
         </h4>
     {% endif %}
 {% endblock %}
