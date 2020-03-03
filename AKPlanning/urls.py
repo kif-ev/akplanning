@@ -13,12 +13,19 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.apps import apps
 from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('AKSubmission.urls', namespace='submit')),
-    path('', include('AKDashboard.urls', namespace='dashboard')),
-    path('i18n/', include('django.conf.urls.i18n')),
+    path('i18n/', include('django.conf.urls.i18n'))
 ]
+
+# Load URLs dynamically (only if components are active)
+if apps.is_installed("AKSubmission"):
+    urlpatterns.append(path('', include('AKSubmission.urls', namespace='submit')))
+if apps.is_installed("AKDashboard"):
+    urlpatterns.append(path('', include('AKDashboard.urls', namespace='dashboard')))
+if apps.is_installed("AKPlan"):
+    urlpatterns.append(path('', include('AKPlan.urls', namespace='plan')))
