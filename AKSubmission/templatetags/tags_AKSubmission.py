@@ -1,5 +1,5 @@
 from django import template
-from fontawesome.templatetags.fontawesome import fontawesome_icon
+from fontawesome_5.templatetags.fontawesome import fa5_icon
 
 register = template.Library()
 
@@ -7,8 +7,8 @@ register = template.Library()
 @register.filter
 def bool_symbol(bool_val):
     if bool_val:
-        return fontawesome_icon("check")
-    return fontawesome_icon("times")
+        return fa5_icon("check", "fas")
+    return fa5_icon("times", "fas")
 
 
 @register.inclusion_tag("AKSubmission/tags_list.html")

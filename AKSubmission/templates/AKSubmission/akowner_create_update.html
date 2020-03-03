@@ -2,7 +2,7 @@
 
 {% load i18n %}
 {% load bootstrap4 %}
-{% load fontawesome %}
+{% load fontawesome_5 %}
 
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Owner" %}{% endblock %}
 
@@ -21,14 +21,14 @@
         {% bootstrap_form form %}
         {% buttons %}
             <button type="reset" class="btn btn-danger">
-                {% fontawesome_icon "undo-alt" %} {% trans "Reset" %}
+                {% fa5_icon "undo-alt" 'fas' %} {% trans "Reset" %}
             </button>
 
             <a href="{% url 'submit:submission_overview' event_slug=event.slug %}" class="btn btn-secondary">
-                {% fontawesome_icon "times" %} {% trans "Cancel" %}
+                {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
             </a>
             <button type="submit" class="save btn btn-primary float-right">
-                {% fontawesome_icon "check" %} {% trans "Continue" %}
+                {% fa5_icon "check" 'fas' %} {% trans "Continue" %}
             </button>
         {% endbuttons %}
     </form>

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% load fontawesome %}
+{% load fontawesome_5 %}
 {% load i18n %}
 {% load static %}
 {% load tags_AKModel %}
@@ -26,29 +26,41 @@
 
                     <a class="dashboard-box btn btn-primary"
                        href="{% url 'plan:ak_plan_current_next' event_slug=event.slug %}">
-                        <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button"><span
-                                class="fa fa-list-ul"></span> <span
-                                class='text'>{% trans 'Current AKs' %}</span></div>
+                        <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button">
+                            <span class="fa fa-list-ul"></span>
+                            <span class='text'>{% trans 'Current AKs' %}</span>
+                        </div>
                     </a>
                     <a class="dashboard-box btn btn-primary"
                        href="{% url 'plan:ak_plan_timeline' event_slug=event.slug %}">
-                        <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button"><span
-                                class="fa fa-calendar"></span> <span class='text'>{% trans "AK Wall" %}</span></div>
+                        <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button">
+                            <span class="fa fa-calendar"></span>
+                            <span class='text'>{% trans "AK Wall" %}</span>
+                        </div>
                     </a>
                 {% endif %}
                 {% if 'AKSubmission'|check_app_installed %}
                     <a class="dashboard-box btn btn-primary"
                        href="{% url 'submit:submission_overview' event_slug=event.slug %}">
-                        <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button"><span
-                                class="fa fa-pencil-alt"></span> <span
-                                class='text'>{% trans 'AK Submission' %}</span></div>
+                        <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button">
+                            <span class="fa fa-pencil-alt"></span>
+                            <span class='text'>{% trans 'AK Submission' %}</span>
+                        </div>
                     </a>
-
                 {% endif %}
+                {% for button in event.dashboardbutton_set.all %}
+                    <a class="dashboard-box btn btn-{{ button.get_color_display }}"
+                       href="{{ button.url }}">
+                        <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button">
+                            {% if button.icon %}<span class="fa">{{ button.icon.as_html }}</span>{% endif %}
+                            <span class='text'>{{ button.text }}</span>
+                        </div>
+                    </a>
+                {% endfor %}
             </div>
             {% if event.contact_email %}
                 <p>
-                    <a href="mailto:{{ event.contact_email }}">{% fontawesome_icon "envelope" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
+                    <a href="mailto:{{ event.contact_email }}">{% fa5_icon "envelope" "fas" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
                 </p>
             {% endif %}
         </div>

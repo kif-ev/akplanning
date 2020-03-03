@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'AKDashboard.apps.AkdashboardConfig',
     'AKSubmission.apps.AksubmissionConfig',
     'AKScheduling.apps.AkschedulingConfig',
-    'AKPlan.apps.AkplanConfig',
+    # 'AKPlan.apps.AkplanConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,9 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bootstrap4',
-    'fontawesome',
+    'fontawesome_5',
     'timezone_field',
-    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -146,7 +145,8 @@ BOOTSTRAP4 = {
 }
 
 # Settings for FontAwesome
-FONTAWESOME_CSS_URL = "//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css"
+FONTAWESOME_5_CSS_URL = "//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css"
+FONTAWESOME_5_PREFIX = "fa"
 
 # Treat wishes as seperate category in submission views?
 WISHES_AS_CATEGORY = True
