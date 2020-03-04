@@ -2,9 +2,9 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.utils.datetime_safe import datetime
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 
-from AKModel.models import AKSlot
+from AKModel.models import AKSlot, Room, AKTrack
 from AKModel.views import FilterByEventSlugMixin
 
 
@@ -71,4 +71,25 @@ class PlanScreenView(PlanIndexView):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context["start"] = self.start
         context["end"] = self.end
+        return context
+
+
+class PlanRoomView(FilterByEventSlugMixin, DetailView):
+    template_name = "AKPlan/plan_room.html"
+    model = Room
+    context_object_name = "room"
+
+
+class PlanTrackView(FilterByEventSlugMixin, DetailView):
+    template_name = "AKPlan/plan_track.html"
+    model = AKTrack
+    context_object_name = "track"
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+
+        context["slots"] = []
+        for ak in context["track"].ak_set.all():
+            context["slots"].extend(ak.akslot_set.all())
+
         return context

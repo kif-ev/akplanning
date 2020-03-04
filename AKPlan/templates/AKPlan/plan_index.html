@@ -75,7 +75,27 @@
 
 {% block content %}
     <div class="float-right">
-        <a href="{% url 'plan:plan_wall' event_slug=event.slug %}" class="btn btn-success">{% fa5_icon 'desktop' 'fas' %}&nbsp;&nbsp;{% trans "AK Wall" %}</a>
+        <ul class="nav nav-pills">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Rooms" %}</a>
+            <div class="dropdown-menu" style="">
+                {% for r in event.room_set.all %}
+                    <a class="dropdown-item" href="{% url "plan:plan_room" event_slug=event.slug pk=r.pk %}">{{ r }}</a>
+                {% endfor %}
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Tracks" %}</a>
+            <div class="dropdown-menu">
+                {% for t in event.aktrack_set.all %}
+                    <a class="dropdown-item" href="{% url "plan:plan_track" event_slug=event.slug pk=t.pk %}">{{ t }}</a>
+                {% endfor %}
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="{% url 'plan:plan_wall' event_slug=event.slug %}">{% fa5_icon 'desktop' 'fas' %}&nbsp;&nbsp;{% trans "AK Wall" %}</a>
+          </li>
+        </ul>
     </div>
 
     <h1>Plan: {{ event }}</h1>
