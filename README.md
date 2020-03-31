@@ -99,7 +99,7 @@ Remember to use a secret key that is not stored in any repository or similar, an
     or create a new config (.conf) file (similar to ``apache-akplanning.conf``) replacing $SUBDOMAIN with the subdomain the system should be available under, and $MAILADDRESS with the e-mail address of your administrator and $PATHTO with the appropriate paths. Copy or symlink it to ``/etc/apache2/sites-available``. Then symlink it to ``sites-enabled`` e.g. by using ``ln -s /etc/apache2/sites-available/akplanning.conf /etc/apache2/sites-enabled/akplanning.conf``.
 1. restart Apache ``sudo systemctl restart apache2.service``
 1. create a dedicated user, e.g. ``adduser django``
-1. transfer ownership of the folder to the new user ``chown -R django:django /srv/WannaDB``
+1. transfer ownership of the folder to the new user ``chown -R django:django /srv/AKPlanning``
 1. Copy or symlink the uwsgi config in ``uwsgi-akplanning.ini`` to ``/etc/uwsgi/apps-available/`` and then symlink it to ``/etc/uwsgi/apps-enabled/`` using e.g., ``ln -s /srv/AKPlanning/uwsgi-akplanning.ini /etc/uwsgi/apps-available/akplanning.ini`` and ``ln -s /etc/uwsgi/apps-available/akplanning.ini /etc/uwsgi/apps-enabled/akplanning.ini``
 start uwsgi using the configuration file ``uwsgi --ini uwsgi-akplanning.ini``
 1. restart uwsgi ``sudo systemctl restart uwsgi``
