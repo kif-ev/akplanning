@@ -20,7 +20,7 @@
 .dashboard-box {
     display: block;
     padding: 2em;
-
+    margin-right: 1em;
 }
 
 .dashboard-button {
