@@ -1,4 +1,5 @@
 {% load tz %}
+{% load tags_AKPlan %}
 
 [
     {% for slot in slots %}
@@ -8,8 +9,8 @@
                 'start': '{{ slot.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
                 'end': '{{ slot.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
                 'resourceId': '{{ slot.room.title }}',
-                'backgroundColor': '{{ slot.ak.category.color }}',
-                'borderColor': '{{ slot.ak.track.color }}',
+                'backgroundColor': '{{ slot|highlight_change_colors }}',
+                'borderColor': '{{ slot.ak.category.color }}',
                 'url': '{% url 'submit:ak_detail' event_slug=event.slug pk=slot.ak.pk %}'
             },
         {% endif %}

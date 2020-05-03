@@ -164,5 +164,7 @@ PLAN_WALL_HOURS_RETROSPECT = 3
 PLAN_WALL_HOURS_FUTURE = 18
 # Should the plan use a hierarchy of buildings and rooms?
 PLAN_SHOW_HIERARCHY = True
+# For which time (in seconds) should changes of akslots be highlighted in plan?
+PLAN_MAX_HIGHLIGHT_UPDATE_SECONDS = 2 * 60 * 60
 
 include(optional("settings/*.py"))

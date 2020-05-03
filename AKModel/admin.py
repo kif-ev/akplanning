@@ -74,6 +74,8 @@ admin.site.register(Room)
 
 @admin.register(AKSlot)
 class AKSlotAdmin(admin.ModelAdmin):
+    readonly_fields = ['updated']
+
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of associated event
         if obj is not None and obj.event.timezone:

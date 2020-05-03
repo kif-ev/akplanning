@@ -1,8 +1,8 @@
-# Create your models here.
 import datetime
 import itertools
 
 from django.db import models
+from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from timezone_field import TimeZoneField
@@ -301,3 +301,12 @@ class AKSlot(models.Model):
         Retrieve end time of the AK slot
         """
         return self.start + datetime.timedelta(hours=float(self.duration))
+
+    @property
+    def seconds_since_last_update(self):
+        """
+        Return minutes since last update
+        :return: minutes since last update
+        :rtype: float
+        """
+        return (timezone.now() - self.updated).total_seconds()
