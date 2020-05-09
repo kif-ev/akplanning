@@ -1,0 +1,67 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-03-04 00:53+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/AKPlan/plan_base.html:24
+msgid "Write to organizers of this event for questions and comments"
+msgstr "Fragen oder Kommentare? Schreib den Orgas dieses Events eine Mail"
+
+#: templates/AKPlan/plan_breadcrumbs.html:13
+msgid "AK Plan"
+msgstr "AK-Plan"
+
+#: templates/AKPlan/plan_index.html:40
+msgid "Day"
+msgstr "Tag"
+
+#: templates/AKPlan/plan_index.html:50
+msgid "Event"
+msgstr "Veranstaltung"
+
+#: templates/AKPlan/plan_index.html:59 templates/AKPlan/plan_room.html:8
+#: templates/AKPlan/plan_room.html:44 templates/AKPlan/plan_wall.html:64
+msgid "Room"
+msgstr "Raum"
+
+#: templates/AKPlan/plan_index.html:80 templates/AKPlan/plan_room.html:34
+msgid "Rooms"
+msgstr "Räume"
+
+#: templates/AKPlan/plan_index.html:88 templates/AKPlan/plan_track.html:34
+msgid "Tracks"
+msgstr "Tracks"
+
+#: templates/AKPlan/plan_index.html:96
+msgid "AK Wall"
+msgstr "AK-Wall"
+
+#: templates/AKPlan/plan_index.html:106 templates/AKPlan/plan_wall.html:88
+msgid "Current AKs"
+msgstr "Aktuelle AKs"
+
+#: templates/AKPlan/plan_index.html:113 templates/AKPlan/plan_wall.html:93
+msgid "Next AKs"
+msgstr "Nächste AKs"
+
+#: templates/AKPlan/plan_track.html:8 templates/AKPlan/plan_track.html:44
+msgid "Track"
+msgstr "Track"
+
+#: templates/AKPlan/slots_table.html:12
+msgid "No AKs"
+msgstr "Keine AKs"

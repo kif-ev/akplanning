@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% load fontawesome_5 %}
+{% load i18n %}
+{% load static %}
+
+{% block imports %}
+    {% get_current_language as LANGUAGE_CODE %}
+
+    <link href='{% static 'AKPlan/fullcalendar/core/main.css' %}' rel='stylesheet' />
+
+    <script src='{% static 'AKPlan/fullcalendar/core/main.js' %}'></script>
+    {% with 'AKPlan/fullcalendar/core/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
+    <script src="{% static locale_file %}"></script>
+    {% endwith %}
+    <script src='{% static 'AKPlan/fullcalendar/bootstrap/main.js' %}'></script>
+
+    {% block fullcalendar %}{% endblock %}
+{% endblock imports %}
+
+{% block footer_custom %}
+    {% if event.contact_email %}
+        <h4>
+            <a href="mailto:{{ event.contact_email }}">{% fa5_icon "envelope" "far" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
+        </h4>
+    {% endif %}
+{% endblock %}

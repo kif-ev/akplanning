@@ -1,10 +1,11 @@
-# Create your models here.
 import datetime
 import itertools
 
 from django.db import models
+from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from timezone_field import TimeZoneField
 
 
 class Event(models.Model):
@@ -14,15 +15,19 @@ class Event(models.Model):
                             help_text=_('Name or iteration of the event'))
     slug = models.SlugField(max_length=32, unique=True, verbose_name=_('Short Form'),
                             help_text=_('Short name of letters/numbers/dots/dashes/underscores used in URLs.'))
-    start = models.DateTimeField(verbose_name=_('Start'), help_text=_('Time the event begins'))
-    end = models.DateTimeField(verbose_name=_('End'), help_text=_('Time the event ends'))
+
     place = models.CharField(max_length=128, blank=True, verbose_name=_('Place'),
                              help_text=_('City etc. the event takes place in'))
+    timezone = TimeZoneField(default='Europe/Berlin', display_GMT_offset=True, blank=False,
+                             verbose_name=_('Time Zone'), help_text=_('Time Zone where this event takes place in'))
+    start = models.DateTimeField(verbose_name=_('Start'), help_text=_('Time the event begins'))
+    end = models.DateTimeField(verbose_name=_('End'), help_text=_('Time the event ends'))
+
     active = models.BooleanField(verbose_name=_('Active State'), help_text=_('Marks currently active events'))
 
     base_url = models.URLField(verbose_name=_("Base URL"), help_text=_("Prefix for wiki link construction"), blank=True)
-    default_slot = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name='Default Slot Length',
-                                       help_text='Default length in hours that is assumed for AKs in this event.')
+    default_slot = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Default Slot Length'),
+                                       help_text=_('Default length in hours that is assumed for AKs in this event.'))
 
     contact_email = models.EmailField(verbose_name=_("Contact email address"), blank=True,
                                       help_text=_(
@@ -245,10 +250,14 @@ class Room(models.Model):
         ordering = ['building', 'name']
         unique_together = [['name', 'building']]
 
-    def __str__(self):
+    @property
+    def title(self):
         if self.building:
             return f"{self.building} {self.name}"
         return self.name
+
+    def __str__(self):
+        return self.title
 
 
 class AKSlot(models.Model):
@@ -284,7 +293,7 @@ class AKSlot(models.Model):
         """
         if self.start is None:
             return _("Not scheduled yet")
-        return self.start.strftime('%a %H:%M')
+        return self.start.astimezone(self.event.timezone).strftime('%a %H:%M')
 
     @property
     def end(self):
@@ -292,3 +301,12 @@ class AKSlot(models.Model):
         Retrieve end time of the AK slot
         """
         return self.start + datetime.timedelta(hours=float(self.duration))
+
+    @property
+    def seconds_since_last_update(self):
+        """
+        Return minutes since last update
+        :return: minutes since last update
+        :rtype: float
+        """
+        return (timezone.now() - self.updated).total_seconds()

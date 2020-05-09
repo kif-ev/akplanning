@@ -1,0 +1,53 @@
+{% extends "AKPlan/plan_detail.html" %}
+
+{% load tz %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+    {% include "AKPlan/plan_breadcrumbs.html" %}
+    <li class="breadcrumb-item">{% trans "Room" %}</li>
+    <li class="breadcrumb-item">{{ room.title }}</li>
+{% endblock %}
+
+
+{% block encode %}
+[
+    {% for slot in room.akslot_set.all %}
+        {% if slot.start %}
+            {'title': '{{ slot.ak }}',
+            'start': '{{ slot.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+            'end': '{{ slot.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+            'url': '{% url 'submit:ak_detail' event_slug=event.slug pk=slot.ak.pk %}',
+            'borderColor': '{{ slot.ak.track.color }}',
+            'color': '{{ slot.ak.category.color }}',
+            },
+        {% endif %}
+    {% endfor %}
+]
+{% endblock %}
+
+
+{% block content %}
+    <div class="float-right">
+        <ul class="nav nav-pills">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Rooms" %}</a>
+            <div class="dropdown-menu" style="">
+                {% for r in event.room_set.all %}
+                    <a class="dropdown-item" href="{% url "plan:plan_room" event_slug=event.slug pk=r.pk %}">{{ r }}</a>
+                {% endfor %}
+            </div>
+          </li>
+        </ul>
+    </div>
+
+    <h1>Plan: {{ event }} -- {% trans "Room" %}: {{ room }}</h1>
+
+    {% timezone event.timezone %}
+        <div class="row" style="margin-top:30px;clear:both;">
+            <div class="col-md-12">
+                <div id="planCalendar"></div>
+            </div>
+        </div>
+    {% endtimezone %}
+{% endblock %}

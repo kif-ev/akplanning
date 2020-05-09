@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'AKDashboard.apps.AkdashboardConfig',
     'AKSubmission.apps.AksubmissionConfig',
     'AKScheduling.apps.AkschedulingConfig',
-    # 'AKPlan.apps.AkplanConfig',
+    'AKPlan.apps.AkplanConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap4',
     'fontawesome_5',
+    'timezone_field',
 ]
 
 MIDDLEWARE = [
@@ -155,5 +156,15 @@ FOOTER_INFO = {
     "impress_text": "",
     "impress_url": ""
 }
+
+# How many AKs should be visible as next AKs
+PLAN_MAX_NEXT_AKS = 10
+# Specify range of plan for screen/projector view
+PLAN_WALL_HOURS_RETROSPECT = 3
+PLAN_WALL_HOURS_FUTURE = 18
+# Should the plan use a hierarchy of buildings and rooms?
+PLAN_SHOW_HIERARCHY = True
+# For which time (in seconds) should changes of akslots be highlighted in plan?
+PLAN_MAX_HIGHLIGHT_UPDATE_SECONDS = 2 * 60 * 60
 
 include(optional("settings/*.py"))

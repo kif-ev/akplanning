@@ -1,0 +1,124 @@
+{% extends "AKPlan/plan_base.html" %}
+
+{% load fontawesome_5 %}
+{% load i18n %}
+{% load static %}
+{% load tz %}
+
+
+{% block fullcalendar %}
+    {% get_current_language as LANGUAGE_CODE %}
+
+    <link href='{% static 'AKPlan/fullcalendar/timeline/main.css' %}' rel='stylesheet' />
+    <link href='{% static 'AKPlan/fullcalendar/resource-timeline/main.css' %}' rel='stylesheet' />
+    <link href='{% static 'AKPlan/fullcalendar/resource-timeline/main.min.css' %}' rel='stylesheet' />
+
+    <script src='{% static 'AKPlan/fullcalendar/timeline/main.js' %}'></script>
+    <script src='{% static 'AKPlan/fullcalendar/resource-common/main.js' %}'></script>
+    <script src='{% static 'AKPlan/fullcalendar/resource-timeline/main.js' %}'></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var planEl = document.getElementById('planCalendar');
+
+            var plan = new FullCalendar.Calendar(planEl, {
+                plugins: ['resourceTimeline', 'bootstrap'],
+                timeZone: '{{ event.timezone }}',
+                header: {
+                    left: 'today prev,next',
+                    center: 'title',
+                    right: 'resourceTimelineDay,resourceTimelineEvent'
+                },
+                aspectRatio: 2,
+                themeSystem: 'bootstrap',
+                // Adapt to user selected locale
+                locale: '{{ LANGUAGE_CODE }}',
+                defaultView: 'resourceTimelineEvent',
+                views: {
+                    resourceTimelineDay: {
+                        type: 'resourceTimeline',
+                        buttonText: '{% trans "Day" %}',
+                        slotDuration: '01:00',
+                        scrollTime: '08:00',
+                    },
+                    resourceTimelineEvent: {
+                        type: 'resourceTimeline',
+                        visibleRange: {
+                            start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                            end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
+                        },
+                        buttonText: '{% trans "Event" %}',
+                    }
+                },
+                editable: false,
+                allDaySlot: false,
+                nowIndicator: true,
+                eventTextColor: '#fff',
+                eventColor: '#127ba3',
+                resourceAreaWidth: '15%',
+                resourceLabelText: '{% trans "Room" %}',
+                resources: {% include "AKPlan/encode_rooms.html" %},
+                events: {% with akslots as slots %}{% include "AKPlan/encode_events.html" %}{% endwith %},
+                schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+            });
+
+            plan.render();
+        });
+    </script>
+{% endblock %}
+
+
+{% block breadcrumbs %}
+    {% include "AKPlan/plan_breadcrumbs.html" %}
+{% endblock %}
+
+
+{% block content %}
+    <div class="float-right">
+        <ul class="nav nav-pills">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Rooms" %}</a>
+            <div class="dropdown-menu" style="">
+                {% for r in event.room_set.all %}
+                    <a class="dropdown-item" href="{% url "plan:plan_room" event_slug=event.slug pk=r.pk %}">{{ r }}</a>
+                {% endfor %}
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Tracks" %}</a>
+            <div class="dropdown-menu">
+                {% for t in event.aktrack_set.all %}
+                    <a class="dropdown-item" href="{% url "plan:plan_track" event_slug=event.slug pk=t.pk %}">{{ t }}</a>
+                {% endfor %}
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="{% url 'plan:plan_wall' event_slug=event.slug %}">{% fa5_icon 'desktop' 'fas' %}&nbsp;&nbsp;{% trans "AK Wall" %}</a>
+          </li>
+        </ul>
+    </div>
+
+    <h1>Plan: {{ event }}</h1>
+
+    {% timezone event.timezone %}
+        <div class="row" style="margin-top:30px;">
+            <div class="col-md-6">
+                <h2><a name="currentAKs">{% trans "Current AKs" %}:</a></h2>
+                {% with akslots_now as slots %}
+                    {% include "AKPlan/slots_table.html" %}
+                {% endwith %}
+            </div>
+
+            <div class="col-md-6">
+                <h2><a name="currentAKs">{% trans "Next AKs" %}:</a></h2>
+                {% with akslots_next as slots %}
+                    {% include "AKPlan/slots_table.html" %}
+                {% endwith %}
+            </div>
+
+            <div class="col-md-12">
+                <div id="planCalendar" style="margin-top:30px;"></div>
+            </div>
+        </div>
+    {% endtimezone %}
+{% endblock %}
