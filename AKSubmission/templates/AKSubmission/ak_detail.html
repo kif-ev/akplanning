@@ -63,6 +63,35 @@
                 {{ ak.reso | bool_symbol }}
             </td>
         </tr>
+        {% if ak.requirements.count > 0 %}
+            <tr>
+                <td>{% trans "Requirements" %}</td>
+                <td>
+                    {% for requirement in ak.requirements.all %}
+                        {% if forloop.counter0 > 0 %}
+                            ,&nbsp;
+                        {% endif %}
+                        {{ requirement }}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endif %}
+        {% if ak.conflicts.count > 0 %}
+            <tr>
+                <td>{% trans "Conflicting AKs" %}</td>
+                <td>
+                    {% include "AKSubmission/ak_linked_list_inline.html" with aks=ak.conflicts slug=ak.event.slug %}
+                </td>
+            </tr>
+        {% endif %}
+        {% if ak.prerequisites.count > 0 %}
+            <tr>
+                <td>{% trans "Prerequisite AKs" %}</td>
+                <td>
+                    {% include "AKSubmission/ak_linked_list_inline.html" with aks=ak.prerequisites slug=ak.event.slug %}
+                </td>
+            </tr>
+        {% endif %}
     </table>
 
     <p style="margin-top: 30px;margin-bottom: 30px;">{{ ak.description }}</p>
