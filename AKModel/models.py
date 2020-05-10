@@ -50,8 +50,7 @@ class AKOwner(models.Model):
     """ An AKOwner describes the person organizing/holding an AK.
     """
     name = models.CharField(max_length=64, verbose_name=_('Nickname'), help_text=_('Name to identify an AK owner by'))
-    slug = models.SlugField(max_length=64, blank=True, unique=True, verbose_name=_('Slug'),
-                            help_text=_('Slug for URL generation'))
+    slug = models.SlugField(max_length=64, blank=True, verbose_name=_('Slug'), help_text=_('Slug for URL generation'))
     institution = models.CharField(max_length=128, blank=True, verbose_name=_('Institution'), help_text=_('Uni etc.'))
     link = models.URLField(blank=True, verbose_name=_('Web Link'), help_text=_('Link to Homepage'))
 
@@ -62,7 +61,7 @@ class AKOwner(models.Model):
         verbose_name = _('AK Owner')
         verbose_name_plural = _('AK Owners')
         ordering = ['name']
-        unique_together = [['name', 'institution']]
+        unique_together = [['event', 'name', 'institution'], ['event', 'slug']]
 
     def __str__(self):
         if self.institution:
@@ -73,15 +72,15 @@ class AKOwner(models.Model):
         max_length = self._meta.get_field('slug').max_length
 
         slug_candidate = slugify(self.name)[:max_length]
-        if not AKOwner.objects.filter(slug=slug_candidate).exists():
+        if not AKOwner.objects.filter(event=self.event, slug=slug_candidate).exists():
             self.slug = slug_candidate
             return
         slug_candidate = slugify(slug_candidate + '_' + self.institution)[:max_length]
-        if not AKOwner.objects.filter(slug=slug_candidate).exists():
+        if not AKOwner.objects.filter(event=self.event, slug=slug_candidate).exists():
             self.slug = slug_candidate
             return
         for i in itertools.count(1):
-            if not AKOwner.objects.filter(slug=slug_candidate).exists():
+            if not AKOwner.objects.filter(event=self.event, slug=slug_candidate).exists():
                 break
             digits = len(str(i))
             slug_candidate = '{}-{}'.format(slug_candidate[:-(digits + 1)], i)
@@ -95,14 +94,14 @@ class AKOwner(models.Model):
         super().save(*args, **kwargs)
 
     @staticmethod
-    def get_by_slug(slug):
-        return AKOwner.objects.get(slug=slug)
+    def get_by_slug(event, slug):
+        return AKOwner.objects.get(event=event, slug=slug)
 
 
 class AKCategory(models.Model):
     """ An AKCategory describes the characteristics of an AK, e.g. content vs. recreational.
     """
-    name = models.CharField(max_length=64, unique=True, verbose_name=_('Name'), help_text=_('Name of the AK Category'))
+    name = models.CharField(max_length=64, verbose_name=_('Name'), help_text=_('Name of the AK Category'))
     color = models.CharField(max_length=7, blank=True, verbose_name=_('Color'), help_text=_('Color for displaying'))
     description = models.TextField(blank=True, verbose_name=_("Description"),
                                    help_text=_("Short description of this AK Category"))
@@ -114,6 +113,7 @@ class AKCategory(models.Model):
         verbose_name = _('AK Category')
         verbose_name_plural = _('AK Categories')
         ordering = ['name']
+        unique_together = ['event', 'name']
 
     def __str__(self):
         return self.name
@@ -122,7 +122,7 @@ class AKCategory(models.Model):
 class AKTrack(models.Model):
     """ An AKTrack describes a set of semantically related AKs.
     """
-    name = models.CharField(max_length=64, unique=True, verbose_name=_('Name'), help_text=_('Name of the AK Track'))
+    name = models.CharField(max_length=64, verbose_name=_('Name'), help_text=_('Name of the AK Track'))
     color = models.CharField(max_length=7, blank=True, verbose_name=_('Color'), help_text=_('Color for displaying'))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
@@ -132,6 +132,7 @@ class AKTrack(models.Model):
         verbose_name = _('AK Track')
         verbose_name_plural = _('AK Tracks')
         ordering = ['name']
+        unique_together = ['event', 'name']
 
     def __str__(self):
         return self.name
@@ -154,7 +155,7 @@ class AKTag(models.Model):
 class AKRequirement(models.Model):
     """ An AKRequirement describes something needed to hold an AK, e.g. infrastructure.
     """
-    name = models.CharField(max_length=128, unique=True, verbose_name=_('Name'), help_text=_('Name of the Requirement'))
+    name = models.CharField(max_length=128, verbose_name=_('Name'), help_text=_('Name of the Requirement'))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
@@ -163,6 +164,7 @@ class AKRequirement(models.Model):
         verbose_name = _('AK Requirement')
         verbose_name_plural = _('AK Requirements')
         ordering = ['name']
+        unique_together = ['event', 'name']
 
     def __str__(self):
         return self.name
@@ -211,7 +213,7 @@ class AK(models.Model):
     class Meta:
         verbose_name = _('AK')
         verbose_name_plural = _('AKs')
-        unique_together = [('name', 'event'), ('short_name', 'event')]
+        unique_together = [['event', 'name'], ['event', 'short_name']]
 
     def __str__(self):
         if self.short_name:
@@ -248,7 +250,7 @@ class Room(models.Model):
         verbose_name = _('Room')
         verbose_name_plural = _('Rooms')
         ordering = ['building', 'name']
-        unique_together = [['name', 'building']]
+        unique_together = ['event', 'name', 'building']
 
     @property
     def title(self):

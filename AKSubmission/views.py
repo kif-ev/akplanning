@@ -128,13 +128,13 @@ class AKAndAKWishSubmissionView(EventSlugMixin, CreateView):
 class AKSubmissionView(AKAndAKWishSubmissionView):
     def get_initial(self):
         initials = super(AKAndAKWishSubmissionView, self).get_initial()
-        initials['owners'] = [AKOwner.get_by_slug(self.kwargs['owner_slug'])]
+        initials['owners'] = [AKOwner.get_by_slug(self.event, self.kwargs['owner_slug'])]
         initials['event'] = self.event
         return initials
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
-        context['owner'] = get_object_or_404(AKOwner, slug=self.kwargs['owner_slug'])
+        context['owner'] = get_object_or_404(AKOwner, event=self.event, slug=self.kwargs['owner_slug'])
         return context
 
 
@@ -206,7 +206,7 @@ class AKOwnerSelectDispatchView(EventSlugMixin, View):
             reverse_lazy('submit:submit_ak', kwargs={'event_slug': kwargs['event_slug'], 'owner_slug': owner.slug}))
 
 
-class AKOwnerEditView(EventSlugMixin, UpdateView):
+class AKOwnerEditView(FilterByEventSlugMixin, UpdateView):
     model = AKOwner
     template_name = "AKSubmission/akowner_create_update.html"
     form_class = AKOwnerForm
@@ -252,7 +252,8 @@ class AKSlotAddView(EventSlugMixin, CreateView):
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully added"))
-        return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
+        return reverse_lazy('submit:ak_detail',
+                            kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
 
 
 class AKSlotEditView(EventSlugMixin, UpdateView):
@@ -263,7 +264,8 @@ class AKSlotEditView(EventSlugMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         akslot = get_object_or_404(AKSlot, pk=kwargs["pk"])
         if akslot.start is not None:
-            messages.add_message(self.request, messages.WARNING, _("You cannot edit a slot that has already been scheduled"))
+            messages.add_message(self.request, messages.WARNING,
+                                 _("You cannot edit a slot that has already been scheduled"))
             return redirect('submit:ak_detail', event_slug=self.kwargs['event_slug'], pk=akslot.ak.pk)
         return super().get(request, *args, **kwargs)
 
@@ -274,7 +276,8 @@ class AKSlotEditView(EventSlugMixin, UpdateView):
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully updated"))
-        return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
+        return reverse_lazy('submit:ak_detail',
+                            kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
 
 
 class AKSlotDeleteView(EventSlugMixin, DeleteView):
@@ -284,7 +287,8 @@ class AKSlotDeleteView(EventSlugMixin, DeleteView):
     def get(self, request, *args, **kwargs):
         akslot = get_object_or_404(AKSlot, pk=kwargs["pk"])
         if akslot.start is not None:
-            messages.add_message(self.request, messages.WARNING, _("You cannot delete a slot that has already been scheduled"))
+            messages.add_message(self.request, messages.WARNING,
+                                 _("You cannot delete a slot that has already been scheduled"))
             return redirect('submit:ak_detail', event_slug=self.kwargs['event_slug'], pk=akslot.ak.pk)
         return super().get(request, *args, **kwargs)
 
@@ -295,4 +299,5 @@ class AKSlotDeleteView(EventSlugMixin, DeleteView):
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully deleted"))
-        return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
+        return reverse_lazy('submit:ak_detail',
+                            kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
