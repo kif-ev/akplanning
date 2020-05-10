@@ -60,8 +60,9 @@ class PlanScreenView(PlanIndexView):
 
     def get_queryset(self):
         # Determine interesting range (some hours ago until some hours in the future as specified in the settings)
-        if self.event.start < datetime.now().astimezone(self.event.timezone) < self.event.end:
-            self.start = datetime.now().astimezone(self.event.timezone) - timedelta(hours=settings.PLAN_WALL_HOURS_RETROSPECT)
+        now = datetime.now().astimezone(self.event.timezone)
+        if self.event.start < now < self.event.end:
+            self.start = now - timedelta(hours=settings.PLAN_WALL_HOURS_RETROSPECT)
         else:
             self.start = self.event.start
         self.end = self.event.end
