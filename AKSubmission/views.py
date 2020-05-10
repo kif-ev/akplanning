@@ -8,7 +8,6 @@ from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot
-from AKModel.models import Event
 from AKModel.views import EventSlugMixin
 from AKModel.views import FilterByEventSlugMixin
 from AKSubmission.forms import AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm, AKDurationForm
@@ -180,13 +179,10 @@ class AKOwnerCreateView(EventSlugMixin, CreateView):
         return reverse_lazy('submit:submit_ak',
                             kwargs={'event_slug': self.kwargs['event_slug'], 'owner_slug': self.object.slug})
 
-    def form_valid(self, form):
-        instance = form.save(commit=False)
-
-        # Set event
-        instance.event = Event.get_by_slug(self.kwargs["event_slug"])
-
-        return super().form_valid(form)
+    def get_initial(self):
+        initials = super(AKOwnerCreateView, self).get_initial()
+        initials['event'] = self.event
+        return initials
 
 
 class AKOwnerSelectDispatchView(EventSlugMixin, View):
