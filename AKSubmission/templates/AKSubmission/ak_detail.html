@@ -92,6 +92,12 @@
                 </td>
             </tr>
         {% endif %}
+        {% if ak.notes %}
+            <tr>
+                <td>{% trans "Notes" %}</td>
+                <td>{{ ak.notes }}</td>
+            </tr>
+        {% endif %}
     </table>
 
     <p style="margin-top: 30px;margin-bottom: 30px;">{{ ak.description }}</p>
