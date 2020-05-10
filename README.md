@@ -122,3 +122,8 @@ This repository contains a Django project called AKPlanning. The functionality i
 1. **AKSubmission**: This app provides forms to submit all kinds of AKs, edit or delete them, as well as a list of all submitted AKs for an event.
 1. **AKScheduling**: This app allows organizers to schedule AKs, i.e. assigning rooms, slots, etc. It marks conflicts of all modeled constraints and assists in creating a suitable schedule.
 1. **AKPlan**: This app displays AKs and where/when they will take place for each event. Views are optimised according to usage/purpose.
+
+
+## Developer Notes
+* to regenerate translations use ````python manage.py makemessages -l de_DE --ignore venv````
+* to create a data backup use ````python manage.py dumpdata --indent=2 > db.json --traceback````
