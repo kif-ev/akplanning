@@ -203,7 +203,8 @@ class AK(models.Model):
     prerequisites = models.ManyToManyField(to='AK', blank=True, verbose_name=_('Prerequisite AKs'),
                                            help_text=_('AKs that should precede this AK in the schedule'))
 
-    notes = models.TextField(blank=True, verbose_name=_('Internal Notes'), help_text=_('Notes to organizers'))
+    notes = models.TextField(blank=True, verbose_name=_('Organizational Notes'), help_text=_(
+        'Notes to organizers. These are public. For private notes, please send an e-mail.'))
 
     interest = models.IntegerField(default=-1, verbose_name=_('Interest'), help_text=_('Expected number of people'))
 
