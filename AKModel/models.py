@@ -211,6 +211,8 @@ class AK(models.Model):
         'Notes to organizers. These are public. For private notes, please send an e-mail.'))
 
     interest = models.IntegerField(default=-1, verbose_name=_('Interest'), help_text=_('Expected number of people'))
+    interest_counter = models.IntegerField(default=0, verbose_name=_('Interest Counter'),
+                                           help_text=_('People who have indicated interest online'))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
@@ -236,6 +238,10 @@ class AK(models.Model):
     @property
     def wish(self):
         return self.owners.count() == 0
+
+    def increment_interest(self):
+        self.interest_counter += 1
+        self.save()
 
 
 class Room(models.Model):

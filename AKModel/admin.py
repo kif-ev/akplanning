@@ -38,9 +38,7 @@ class AKOwnerAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'event':
             kwargs['initial'] = Event.get_next_active()
-        return super(AKOwnerAdmin, self).formfield_for_foreignkey(
-            db_field, request, **kwargs
-        )
+        return super(AKOwnerAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(AKCategory)
@@ -54,9 +52,7 @@ class AKCategoryAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'event':
             kwargs['initial'] = Event.get_next_active()
-        return super(AKCategoryAdmin, self).formfield_for_foreignkey(
-            db_field, request, **kwargs
-        )
+        return super(AKCategoryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(AKTrack)
@@ -70,9 +66,7 @@ class AKTrackAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'event':
             kwargs['initial'] = Event.get_next_active()
-        return super(AKTrackAdmin, self).formfield_for_foreignkey(
-            db_field, request, **kwargs
-        )
+        return super(AKTrackAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(AKTag)
@@ -95,9 +89,7 @@ class AKRequirementAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'event':
             kwargs['initial'] = Event.get_next_active()
-        return super(AKRequirementAdmin, self).formfield_for_foreignkey(
-            db_field, request, **kwargs
-        )
+        return super(AKRequirementAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class WishFilter(SimpleListFilter):
@@ -133,9 +125,7 @@ class AKAdmin(admin.ModelAdmin):
         return obj.wish
 
     def wiki_export(self, request, queryset):
-        return render(request,
-                      'admin/AKModel/wiki_export.html',
-                      context={"AKs": queryset})
+        return render(request, 'admin/AKModel/wiki_export.html', context={"AKs": queryset})
 
     wiki_export.short_description = _("Export to wiki syntax")
 
@@ -144,9 +134,7 @@ class AKAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'event':
             kwargs['initial'] = Event.get_next_active()
-        return super(AKAdmin, self).formfield_for_foreignkey(
-            db_field, request, **kwargs
-        )
+        return super(AKAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(Room)
@@ -187,9 +175,7 @@ class AKSlotAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'event':
             kwargs['initial'] = Event.get_next_active()
-        return super(AKSlotAdmin, self).formfield_for_foreignkey(
-            db_field, request, **kwargs
-        )
+        return super(AKSlotAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(Availability)
