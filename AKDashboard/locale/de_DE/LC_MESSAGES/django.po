@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-13 11:43+0000\n"
+"POT-Creation-Date: 2020-05-10 16:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,72 +17,76 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: models.py:10
+#: AKDashboard/models.py:10
 msgid "Dashboard Button"
 msgstr "Dashboard-Button"
 
-#: models.py:11
+#: AKDashboard/models.py:11
 msgid "Dashboard Buttons"
 msgstr "Dashboard-Buttons"
 
-#: models.py:21
+#: AKDashboard/models.py:21
 msgid "Text"
 msgstr "Text"
 
-#: models.py:22
+#: AKDashboard/models.py:22
 msgid "Text that will be shown on the button"
 msgstr "Text, der auf dem Button angezeigt wird"
 
-#: models.py:23
+#: AKDashboard/models.py:23
 msgid "Link URL"
 msgstr "Link URL"
 
-#: models.py:23
+#: AKDashboard/models.py:23
 msgid "URL this button links to"
 msgstr "URL auf die der Button verweist"
 
-#: models.py:24
+#: AKDashboard/models.py:24
 msgid "Icon"
 msgstr "Symbol"
 
-#: models.py:26
+#: AKDashboard/models.py:26
 msgid "Button Style"
 msgstr "Stil des Buttons"
 
-#: models.py:26
+#: AKDashboard/models.py:26
 msgid "Style (Color) of this button (bootstrap class)"
 msgstr "Stiel (Farbe) des Buttons (Bootstrap-Klasse)"
 
-#: models.py:28
+#: AKDashboard/models.py:28
 msgid "Event"
 msgstr "Veranstaltung"
 
-#: models.py:28
+#: AKDashboard/models.py:28
 msgid "Event this button belongs to"
 msgstr "Veranstaltung, zu der dieser Button gehört"
 
-#: templates/AKDashboard/dashboard.html:31
+#: AKDashboard/templates/AKDashboard/dashboard.html:30
+msgid "AK List"
+msgstr "AK Liste"
+
+#: AKDashboard/templates/AKDashboard/dashboard.html:40
 msgid "Current AKs"
 msgstr "Aktuelle AKs"
 
-#: templates/AKDashboard/dashboard.html:38
+#: AKDashboard/templates/AKDashboard/dashboard.html:47
 msgid "AK Wall"
 msgstr "AK-Wall"
 
-#: templates/AKDashboard/dashboard.html:47
+#: AKDashboard/templates/AKDashboard/dashboard.html:56
 msgid "AK Submission"
 msgstr "AK-Submission"
 
-#: templates/AKDashboard/dashboard.html:63
+#: AKDashboard/templates/AKDashboard/dashboard.html:72
 msgid "Write to organizers of this event for questions and comments"
 msgstr ""
 "Kontaktiere die Organisator*innen des Events bei Fragen oder Kommentaren"
 
-#: templates/AKDashboard/dashboard.html:70
+#: AKDashboard/templates/AKDashboard/dashboard.html:79
 msgid "Currently, there are no Events!"
 msgstr "Aktuell gibt es keine Events!"
 
-#: templates/AKDashboard/dashboard.html:73
+#: AKDashboard/templates/AKDashboard/dashboard.html:82
 msgid "Please contact an administrator if you want to use AKPlanning."
 msgstr ""
 "Bitte kontaktiere eine*n Administrator*in, falls du AKPlanning verwenden "

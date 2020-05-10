@@ -20,11 +20,11 @@
     {% include "AKSubmission/submission_breadcrumbs.html" %}
     <li class="breadcrumb-item"><a
             href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
-    <li class="breadcrumb-item active">{% trans "AKs" %}</li>
+    <li class="breadcrumb-item active">{% trans "AK List" %}</li>
 {% endblock %}
 
 {% block content %}
-    <h1>{{ event.name }}: {% trans "AK Submission" %}</h1>
+    <h1>{{ event.name }}: {% trans "AK List" %}</h1>
 
     <b>{% trans 'Categories' %}:</b>
     {% category_list categories event.slug %}
