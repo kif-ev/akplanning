@@ -45,6 +45,10 @@ class Event(models.Model):
     def get_by_slug(slug):
         return Event.objects.get(slug=slug)
 
+    @staticmethod
+    def get_next_active():
+        return Event.objects.filter(active=True).order_by('start').first()
+
 
 class AKOwner(models.Model):
     """ An AKOwner describes the person organizing/holding an AK.
