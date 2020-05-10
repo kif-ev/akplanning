@@ -47,11 +47,7 @@ class Event(models.Model):
 
     @staticmethod
     def get_next_active():
-        active_events = Event.objects.filter(active=True).order_by('start')
-        if not active_events:
-            return None
-        else:
-            return active_events[0]
+        return Event.objects.filter(active=True).order_by('start').first()
 
 
 class AKOwner(models.Model):
