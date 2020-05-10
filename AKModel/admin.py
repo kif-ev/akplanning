@@ -6,11 +6,17 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability import Availability
-from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, Room, AKSlot
+from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room
 
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
+    model = Event
+    list_display = ['name', 'place', 'start', 'end', 'active']
+    list_filter = ['active']
+    list_editable = ['active']
+    ordering = ['start']
+
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of event
         if obj is not None and obj.timezone:
@@ -20,40 +26,80 @@ class EventAdmin(admin.ModelAdmin):
             timezone.activate("UTC")
         return super().get_form(request, obj, change, **kwargs)
 
-admin.site.register(AKOwner)
 
-admin.site.register(AKCategory)
-admin.site.register(AKTrack)
-admin.site.register(AKTag)
-admin.site.register(AKRequirement)
+@admin.register(AKOwner)
+class AKOwnerAdmin(admin.ModelAdmin):
+    model = AKOwner
+    list_display = ['name', 'institution', 'event']
+    list_filter = ['institution', 'event']
+    list_editable = []
+    ordering = ['name']
+
+
+@admin.register(AKCategory)
+class AKCategoryAdmin(admin.ModelAdmin):
+    model = AKCategory
+    list_display = ['name', 'color', 'event']
+    list_filter = ['event']
+    list_editable = ['color']
+    ordering = ['name']
+
+
+@admin.register(AKTrack)
+class AKTrackAdmin(admin.ModelAdmin):
+    model = AKTrack
+    list_display = ['name', 'color', 'event']
+    list_filter = ['event']
+    list_editable = ['color']
+    ordering = ['name']
+
+
+@admin.register(AKTag)
+class AKTagAdmin(admin.ModelAdmin):
+    model = AKTag
+    list_display = ['name']
+    list_filter = []
+    list_editable = []
+    ordering = ['name']
+
+
+@admin.register(AKRequirement)
+class AKRequirementAdmin(admin.ModelAdmin):
+    model = AKRequirement
+    list_display = ['name', 'event']
+    list_filter = ['event']
+    list_editable = []
+    ordering = ['name']
 
 
 class WishFilter(SimpleListFilter):
-  title = _("Wish") # a label for our filter
-  parameter_name = 'wishes' # you can put anything here
+    title = _("Wish")  # a label for our filter
+    parameter_name = 'wishes'  # you can put anything here
 
-  def lookups(self, request, model_admin):
-    # This is where you create filter options; we have two:
-    return [
-        ('WISH', _("Is wish")),
-        ('NO_WISH', _("Is not a wish")),
-    ]
+    def lookups(self, request, model_admin):
+        # This is where you create filter options; we have two:
+        return [
+            ('WISH', _("Is wish")),
+            ('NO_WISH', _("Is not a wish")),
+        ]
 
-  def queryset(self, request, queryset):
-      annotated_queryset = queryset.annotate(owner_count=Count(F('owners')))
-      if self.value() == 'NO_WISH':
-          return annotated_queryset.filter(owner_count__gt=0)
-      if self.value() == 'WISH':
-          return annotated_queryset.filter(owner_count=0)
-      return queryset
+    def queryset(self, request, queryset):
+        annotated_queryset = queryset.annotate(owner_count=Count(F('owners')))
+        if self.value() == 'NO_WISH':
+            return annotated_queryset.filter(owner_count__gt=0)
+        if self.value() == 'WISH':
+            return annotated_queryset.filter(owner_count=0)
+        return queryset
 
 
+@admin.register(AK)
 class AKAdmin(admin.ModelAdmin):
     model = AK
-    list_display = ['name', 'short_name', 'category', 'is_wish']
-    actions = ['wiki_export']
-    list_filter = ['category', WishFilter]
+    list_display = ['name', 'short_name', 'category', 'track', 'is_wish', 'interest', 'event']
+    list_filter = ['category', WishFilter, 'event']
+    list_editable = ['short_name', 'track', 'interest']
     ordering = ['pk']
+    actions = ['wiki_export']
 
     def is_wish(self, obj):
         return obj.wish
@@ -62,18 +108,29 @@ class AKAdmin(admin.ModelAdmin):
         return render(request,
                       'admin/AKModel/wiki_export.html',
                       context={"AKs": queryset})
+
     wiki_export.short_description = _("Export to wiki syntax")
 
     is_wish.boolean = True
 
 
-admin.site.register(AK, AKAdmin)
-
-admin.site.register(Room)
+@admin.register(Room)
+class RoomAdmin(admin.ModelAdmin):
+    model = Room
+    list_display = ['name', 'building', 'capacity', 'event']
+    list_filter = ['building', 'properties', 'event']
+    list_editable = []
+    ordering = ['building', 'name']
 
 
 @admin.register(AKSlot)
 class AKSlotAdmin(admin.ModelAdmin):
+    model = AKSlot
+    list_display = ['id', 'ak', 'room', 'start', 'duration', 'event']
+    list_filter = ['room', 'event']
+    list_editable = ['ak', 'room', 'start', 'duration']
+    ordering = ['start']
+
     readonly_fields = ['updated']
 
     def get_form(self, request, obj=None, change=False, **kwargs):
