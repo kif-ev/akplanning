@@ -15,7 +15,7 @@ class EventAdmin(admin.ModelAdmin):
     list_display = ['name', 'place', 'start', 'end', 'active']
     list_filter = ['active']
     list_editable = ['active']
-    ordering = ['start']
+    ordering = ['-start']
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of event

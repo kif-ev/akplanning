@@ -36,7 +36,7 @@ class Event(models.Model):
     class Meta:
         verbose_name = _('Event')
         verbose_name_plural = _('Events')
-        ordering = ['name']
+        ordering = ['-start']
 
     def __str__(self):
         return self.name
