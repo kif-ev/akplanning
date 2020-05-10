@@ -16,6 +16,11 @@ def tag_list(tags, event_slug):
     return {"tags": tags, "event_slug": event_slug}
 
 
+@register.inclusion_tag("AKSubmission/tracks_list.html")
+def track_list(tracks, event_slug):
+    return {"tracks": tracks, "event_slug": event_slug}
+
+
 @register.inclusion_tag("AKSubmission/category_list.html")
 def category_list(categories, event_slug):
     return {"categories": categories, "event_slug": event_slug}

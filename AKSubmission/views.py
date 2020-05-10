@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, RedirectView
 
-from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot
+from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot, AKTrack
 from AKModel.views import EventSlugMixin
 from AKModel.views import FilterByEventSlugMixin
 from AKSubmission.forms import AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm, AKDurationForm
@@ -62,9 +62,9 @@ class AKListView(FilterByEventSlugMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
-        context['categories'] = AKCategory.objects.all()
-        context["tags"] = AKTag.objects.all()
-        context["filter_condition_string"] = self.filter_condition_string
+        context['categories'] = AKCategory.objects.filter(event=self.event)
+        context['tracks'] = AKTrack.objects.filter(event=self.event)
+        context['filter_condition_string'] = self.filter_condition_string
         return context
 
 
@@ -85,13 +85,26 @@ class AKListByTagView(AKListView):
     tag = None
 
     def get_queryset(self):
-        # Find category based on event slug
+        # Find tag based on event slug
         try:
             self.tag = AKTag.objects.get(pk=self.kwargs['tag_pk'])
             self.filter_condition_string = f"{_('Tag')} = {self.tag.name}"
         except AKTag.DoesNotExist:
             raise Http404
         return super().get_queryset().filter(tags=self.tag)
+
+
+class AKListByTrackView(AKListView):
+    track = None
+
+    def get_queryset(self):
+        # Find track based on event slug
+        try:
+            self.track = AKTrack.objects.get(pk=self.kwargs['track_pk'])
+            self.filter_condition_string = f"{_('Track')} = {self.track.name}"
+        except AKTrack.DoesNotExist:
+            raise Http404
+        return super().get_queryset().filter(track=self.track)
 
 
 class AKAndAKWishSubmissionView(EventSlugMixin, CreateView):

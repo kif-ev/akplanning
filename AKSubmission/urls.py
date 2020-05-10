@@ -18,6 +18,7 @@ urlpatterns = [
             path('aks/', views.AKListView.as_view(), name='ak_list'),
             path('aks/category/<int:category_pk>/', views.AKListByCategoryView.as_view(), name='ak_list_by_category'),
             path('aks/tag/<int:tag_pk>/', views.AKListByTagView.as_view(), name='ak_list_by_tag'),
+            path('aks/track/<int:track_pk>/', views.AKListByTrackView.as_view(), name='ak_list_by_track'),
             path('owner/', views.AKOwnerCreateView.as_view(), name='akowner_create'),
             path('new/', views.AKOwnerSelectDispatchView.as_view(), name='akowner_select'),
             path('owner/edit/', views.AKOwnerEditDispatchView.as_view(), name='akowner_edit_dispatch'),
