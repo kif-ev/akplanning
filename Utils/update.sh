@@ -21,6 +21,6 @@ pip install --upgrade -r requirements.txt
 
 ./manage.py migrate
 ./manage.py collectstatic --noinput
-./manage.py compilemessages
+./manage.py compilemessages -l de_DE
 
 touch AKPlanning/wsgi.py
