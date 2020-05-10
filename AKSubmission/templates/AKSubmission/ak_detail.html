@@ -26,13 +26,19 @@
     {% include "AKSubmission/messages.html" %}
 
     <div class="float-right">
+        {% if ak.interest_counter >= 0 %}
+            {% trans 'Interest' %}: <b class='mx-1 text-muted'>{{ ak.interest_counter }}</b>
+            <a href="{% url 'submit:inc_interest' event_slug=ak.event.slug pk=ak.pk %}"
+               class="btn btn-primary">{% fa5_icon 'thumbs-up' 'fas' %}</a>
+        {% endif %}
         {% if ak.link != "" %}
             <a href="{{ ak.link }}" class="btn btn-info">{% fa5_icon 'external-link-alt' 'fas' %}</a>
         {% endif %}
         {% if ak.event.active %}
             <a href="{% url 'submit:ak_edit' event_slug=ak.event.slug pk=ak.pk %}"
                class="btn btn-success">{% fa5_icon 'pencil-alt' 'fas' %}</a>
-        {% endif %}    </div>
+        {% endif %}
+    </div>
 
     <h2>{% if ak.wish %}{% trans "AK Wish" %}: {% endif %}{{ ak.name }}</h2>
 
@@ -126,7 +132,7 @@
                 <td>
                     {% if not slot.start %}
                         <a href="{% url 'submit:akslot_edit' event_slug=ak.event.slug pk=slot.pk %}"
-                           class="btn btn-success">{% fa5_icon 'pencil-alt'  'fas' %}</a>
+                           class="btn btn-success">{% fa5_icon 'pencil-alt' 'fas' %}</a>
                         <a href="{% url 'submit:akslot_delete' event_slug=ak.event.slug pk=slot.pk %}"
                            class="btn btn-danger">{% fa5_icon 'times' 'fas' %}</a>
                     {% endif %}

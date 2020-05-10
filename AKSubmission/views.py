@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, RedirectView
 
 from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot
 from AKModel.views import EventSlugMixin
@@ -168,6 +168,18 @@ class AKEditView(EventSlugMixin, UpdateView):
             self.object.tags.add(tag)
 
         return super_form_valid
+
+
+class AKInterestView(RedirectView):
+    permanent = False
+    pattern_name = 'submit:ak_detail'
+
+    def get_redirect_url(self, *args, **kwargs):
+        ak = get_object_or_404(AK, pk=kwargs['pk'])
+        ak.increment_interest()
+        return super().get_redirect_url(*args, **kwargs)
+
+    pass
 
 
 class AKOwnerCreateView(EventSlugMixin, CreateView):
