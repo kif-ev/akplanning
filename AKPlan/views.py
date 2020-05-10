@@ -60,8 +60,12 @@ class PlanScreenView(PlanIndexView):
 
     def get_queryset(self):
         # Determine interesting range (some hours ago until some hours in the future as specified in the settings)
-        self.start = datetime.now().astimezone(self.event.timezone) - timedelta(hours=settings.PLAN_WALL_HOURS_RETROSPECT)
-        self.end = self.start + timedelta(hours=(settings.PLAN_WALL_HOURS_RETROSPECT + settings.PLAN_WALL_HOURS_FUTURE))
+        now = datetime.now().astimezone(self.event.timezone)
+        if self.event.start < now < self.event.end:
+            self.start = now - timedelta(hours=settings.PLAN_WALL_HOURS_RETROSPECT)
+        else:
+            self.start = self.event.start
+        self.end = self.event.end
 
         # Restrict AK slots to relevant ones
         # This will automatically filter all rooms not needed for the selected range in the orginal get_context method
