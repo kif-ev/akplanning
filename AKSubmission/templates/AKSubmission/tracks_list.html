@@ -1,0 +1,4 @@
+{% for track in tracks.all %}
+    <a href="{% url 'submit:ak_list_by_track' event_slug=event_slug track_pk=track.pk %}"><span
+            class="badge badge-info">{{ track }}</span></a>
+{% endfor %}

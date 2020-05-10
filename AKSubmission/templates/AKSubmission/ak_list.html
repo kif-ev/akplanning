@@ -26,14 +26,17 @@
 {% block content %}
     <h1>{{ event.name }}: {% trans "AK List" %}</h1>
 
-    <b>{% trans 'Categories' %}:</b>
-    {% category_list categories event.slug %}
-
+    {% if categories.count > 0 %}
+        <b>{% trans 'Categories' %}:</b>
+        {% category_list categories event.slug %}
+    {% endif %}
 
     <br><br>
 
-    <b>{% trans 'Tags' %}:</b>
-    {% tag_list tags.all event.slug %}
+    {% if tracks.count > 0 %}
+        <b>{% trans 'Tracks' %}:</b>
+        {% track_list tracks event.slug %}
+    {% endif %}
 
     <br><br>
 
