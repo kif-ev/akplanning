@@ -136,7 +136,10 @@ class AKOwnerForm(forms.ModelForm):
 
     class Meta:
         model = AKOwner
-        fields = ['name', 'institution', 'link']
+        fields = ['name', 'institution', 'link', 'event']
+        widgets = {
+            'event': forms.HiddenInput
+        }
 
 
 class AKDurationForm(forms.ModelForm):
