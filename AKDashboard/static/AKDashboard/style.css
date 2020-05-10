@@ -21,6 +21,7 @@
     display: block;
     padding: 2em;
     margin-right: 1em;
+    min-width: 15em;
 }
 
 .dashboard-button {
