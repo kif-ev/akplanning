@@ -28,8 +28,10 @@
     <div class="float-right">
         {% if ak.interest_counter >= 0 %}
             {% trans 'Interest' %}: <b class='mx-1 text-muted'>{{ ak.interest_counter }}</b>
-            <a href="{% url 'submit:inc_interest' event_slug=ak.event.slug pk=ak.pk %}"
-               class="btn btn-primary">{% fa5_icon 'thumbs-up' 'fas' %}</a>
+            {% if ak.event.active %}
+                <a href="{% url 'submit:inc_interest' event_slug=ak.event.slug pk=ak.pk %}"
+                   class="btn btn-primary">{% fa5_icon 'thumbs-up' 'fas' %}</a>
+            {% endif %}
         {% endif %}
         {% if ak.link != "" %}
             <a href="{{ ak.link }}" class="btn btn-info">{% fa5_icon 'external-link-alt' 'fas' %}</a>

@@ -104,7 +104,19 @@ class AKListByTrackView(AKListView):
         return super().get_queryset().filter(track=self.track)
 
 
-class AKAndAKWishSubmissionView(EventSlugMixin, CreateView):
+class EventInactiveRedirectMixin:
+    def get_error_message(self):
+        return _("Event inactive. Cannot create or update.")
+
+    def get(self, request, *args, **kwargs):
+        s = super().get(request, *args, **kwargs)
+        if not self.event.active:
+            messages.add_message(self.request, messages.ERROR, self.get_error_message())
+            return redirect(reverse_lazy('submit:submission_overview', kwargs={'event_slug': self.event.slug}))
+        return s
+
+
+class AKAndAKWishSubmissionView(EventSlugMixin, EventInactiveRedirectMixin, CreateView):
     model = AK
     template_name = 'AKSubmission/submit_new.html'
     form_class = AKSubmissionForm
@@ -114,6 +126,11 @@ class AKAndAKWishSubmissionView(EventSlugMixin, CreateView):
         return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.pk})
 
     def form_valid(self, form):
+        if not form.cleaned_data["event"].active:
+            messages.add_message(self.request, messages.ERROR, self.get_error_message())
+            return redirect(reverse_lazy('submit:submission_overview',
+                                         kwargs={'event_slug': form.cleaned_data["event"].slug}))
+
         super_form_valid = super().form_valid(form)
 
         # Generate wiki link
@@ -157,7 +174,7 @@ class AKWishSubmissionView(AKAndAKWishSubmissionView):
         return initials
 
 
-class AKEditView(EventSlugMixin, UpdateView):
+class AKEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
     model = AK
     template_name = 'AKSubmission/ak_edit.html'
     form_class = AKEditForm
@@ -167,6 +184,11 @@ class AKEditView(EventSlugMixin, UpdateView):
         return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.pk})
 
     def form_valid(self, form):
+        if not form.cleaned_data["event"].active:
+            messages.add_message(self.request, messages.ERROR, self.get_error_message())
+            return redirect(reverse_lazy('submit:submission_overview',
+                                         kwargs={'event_slug': form.cleaned_data["event"].slug}))
+
         super_form_valid = super().form_valid(form)
 
         # Detach existing tags
@@ -186,13 +208,12 @@ class AKInterestView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         ak = get_object_or_404(AK, pk=kwargs['pk'])
-        ak.increment_interest()
+        if ak.event.active:
+            ak.increment_interest()
         return super().get_redirect_url(*args, **kwargs)
 
-    pass
 
-
-class AKOwnerCreateView(EventSlugMixin, CreateView):
+class AKOwnerCreateView(EventSlugMixin, EventInactiveRedirectMixin, CreateView):
     model = AKOwner
     template_name = 'AKSubmission/akowner_create_update.html'
     form_class = AKOwnerForm
@@ -205,6 +226,13 @@ class AKOwnerCreateView(EventSlugMixin, CreateView):
         initials = super(AKOwnerCreateView, self).get_initial()
         initials['event'] = self.event
         return initials
+
+    def form_valid(self, form):
+        if not form.cleaned_data["event"].active:
+            messages.add_message(self.request, messages.ERROR, self.get_error_message())
+            return redirect(reverse_lazy('submit:submission_overview',
+                                         kwargs={'event_slug': form.cleaned_data["event"].slug}))
+        return super().form_valid(form)
 
 
 class AKOwnerSelectDispatchView(EventSlugMixin, View):
@@ -224,7 +252,7 @@ class AKOwnerSelectDispatchView(EventSlugMixin, View):
             reverse_lazy('submit:submit_ak', kwargs={'event_slug': kwargs['event_slug'], 'owner_slug': owner.slug}))
 
 
-class AKOwnerEditView(FilterByEventSlugMixin, UpdateView):
+class AKOwnerEditView(FilterByEventSlugMixin, EventSlugMixin, UpdateView):
     model = AKOwner
     template_name = "AKSubmission/akowner_create_update.html"
     form_class = AKOwnerForm
@@ -232,6 +260,13 @@ class AKOwnerEditView(FilterByEventSlugMixin, UpdateView):
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("Person Info successfully updated"))
         return reverse_lazy('submit:submission_overview', kwargs={'event_slug': self.kwargs['event_slug']})
+
+    def form_valid(self, form):
+        if not form.cleaned_data["event"].active:
+            messages.add_message(self.request, messages.ERROR, self.get_error_message())
+            return redirect(reverse_lazy('submit:submission_overview',
+                                         kwargs={'event_slug': form.cleaned_data["event"].slug}))
+        return super().form_valid(form)
 
 
 class AKOwnerEditDispatchView(EventSlugMixin, View):
@@ -252,7 +287,7 @@ class AKOwnerEditDispatchView(EventSlugMixin, View):
             reverse_lazy('submit:akowner_edit', kwargs={'event_slug': kwargs['event_slug'], 'slug': owner.slug}))
 
 
-class AKSlotAddView(EventSlugMixin, CreateView):
+class AKSlotAddView(EventSlugMixin, EventInactiveRedirectMixin, CreateView):
     model = AKSlot
     form_class = AKDurationForm
     template_name = "AKSubmission/akslot_add_update.html"
@@ -274,7 +309,7 @@ class AKSlotAddView(EventSlugMixin, CreateView):
                             kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
 
 
-class AKSlotEditView(EventSlugMixin, UpdateView):
+class AKSlotEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
     model = AKSlot
     form_class = AKDurationForm
     template_name = "AKSubmission/akslot_add_update.html"
@@ -298,7 +333,7 @@ class AKSlotEditView(EventSlugMixin, UpdateView):
                             kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
 
 
-class AKSlotDeleteView(EventSlugMixin, DeleteView):
+class AKSlotDeleteView(EventSlugMixin, EventInactiveRedirectMixin, DeleteView):
     model = AKSlot
     template_name = "AKSubmission/akslot_delete.html"
 
