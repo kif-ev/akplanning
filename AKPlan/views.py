@@ -1,6 +1,8 @@
 from datetime import timedelta
 
 from django.conf import settings
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
 from django.utils.datetime_safe import datetime
 from django.views.generic import ListView, DetailView
 
@@ -57,6 +59,13 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
 
 class PlanScreenView(PlanIndexView):
     template_name = "AKPlan/plan_wall.html"
+
+    def get(self, request, *args, **kwargs):
+        s = super().get(request, *args, **kwargs)
+        # Don't show wall when event is not active -> redirect to normal schedule
+        if not self.event.active:
+            return redirect(reverse_lazy("plan:plan_overview", kwargs={"event_slug": self.event.slug}))
+        return s
 
     def get_queryset(self):
         # Determine interesting range (some hours ago until some hours in the future as specified in the settings)
