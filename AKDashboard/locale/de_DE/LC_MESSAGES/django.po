@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-10 16:22+0000\n"
+"POT-Creation-Date: 2020-05-11 20:45+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,20 +73,24 @@ msgstr "Aktuelle AKs"
 msgid "AK Wall"
 msgstr "AK-Wall"
 
-#: AKDashboard/templates/AKDashboard/dashboard.html:56
+#: AKDashboard/templates/AKDashboard/dashboard.html:55
+msgid "Schedule"
+msgstr "AK-Plan"
+
+#: AKDashboard/templates/AKDashboard/dashboard.html:65
 msgid "AK Submission"
 msgstr "AK-Submission"
 
-#: AKDashboard/templates/AKDashboard/dashboard.html:72
+#: AKDashboard/templates/AKDashboard/dashboard.html:81
 msgid "Write to organizers of this event for questions and comments"
 msgstr ""
 "Kontaktiere die Organisator*innen des Events bei Fragen oder Kommentaren"
 
-#: AKDashboard/templates/AKDashboard/dashboard.html:79
+#: AKDashboard/templates/AKDashboard/dashboard.html:88
 msgid "Currently, there are no Events!"
 msgstr "Aktuell gibt es keine Events!"
 
-#: AKDashboard/templates/AKDashboard/dashboard.html:82
+#: AKDashboard/templates/AKDashboard/dashboard.html:91
 msgid "Please contact an administrator if you want to use AKPlanning."
 msgstr ""
 "Bitte kontaktiere eine*n Administrator*in, falls du AKPlanning verwenden "
