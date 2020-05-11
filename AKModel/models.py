@@ -1,4 +1,6 @@
-import datetime
+from datetime import timedelta
+
+from django.utils.datetime_safe import datetime
 import itertools
 
 from django.db import models
@@ -47,7 +49,12 @@ class Event(models.Model):
 
     @staticmethod
     def get_next_active():
-        return Event.objects.filter(active=True).order_by('start').first()
+        # Get first active event taking place
+        event = Event.objects.filter(active=True).order_by('start').first()
+        # No active event? Return the next event taking place
+        if event is None:
+            event = Event.objects.order_by('start').filter(start__gt=datetime.now()).first()
+        return event
 
 
 class AKOwner(models.Model):
@@ -313,7 +320,7 @@ class AKSlot(models.Model):
         """
         Retrieve end time of the AK slot
         """
-        return self.start + datetime.timedelta(hours=float(self.duration))
+        return self.start + timedelta(hours=float(self.duration))
 
     @property
     def seconds_since_last_update(self):
