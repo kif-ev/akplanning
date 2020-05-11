@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-11 20:45+0000\n"
+"POT-Creation-Date: 2020-05-11 22:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,64 +73,64 @@ msgstr "AK-Eintragung"
 msgid "Interest"
 msgstr "Interesse"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:43
+#: AKSubmission/templates/AKSubmission/ak_detail.html:45
 #: AKSubmission/templates/AKSubmission/ak_list_table.html:32
 msgid "AK Wish"
 msgstr "AK-Wunsch"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:47
+#: AKSubmission/templates/AKSubmission/ak_detail.html:49
 #: AKSubmission/templates/AKSubmission/ak_list_table.html:10
 msgid "Who?"
 msgstr "Wer?"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:51
+#: AKSubmission/templates/AKSubmission/ak_detail.html:53
 #: AKSubmission/templates/AKSubmission/ak_list_table.html:11
 msgid "Category"
 msgstr "Kategorie"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:57
+#: AKSubmission/templates/AKSubmission/ak_detail.html:59
 msgid "Present this AK"
 msgstr "Diesen AK vorstellen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:61
+#: AKSubmission/templates/AKSubmission/ak_detail.html:63
 #: AKSubmission/templates/AKSubmission/ak_list_table.html:12
 msgid "Tags"
 msgstr "Tags"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:67
+#: AKSubmission/templates/AKSubmission/ak_detail.html:69
 msgid "Reso?"
 msgstr "Reso?"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:74
+#: AKSubmission/templates/AKSubmission/ak_detail.html:76
 msgid "Requirements"
 msgstr "Anforderungen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:87
+#: AKSubmission/templates/AKSubmission/ak_detail.html:89
 msgid "Conflicting AKs"
 msgstr "AK Konflikte"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:95
+#: AKSubmission/templates/AKSubmission/ak_detail.html:97
 msgid "Prerequisite AKs"
 msgstr "AK Voraussetzungen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:103
+#: AKSubmission/templates/AKSubmission/ak_detail.html:105
 msgid "Notes"
 msgstr "Notizen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:120
+#: AKSubmission/templates/AKSubmission/ak_detail.html:122
 msgid "When?"
 msgstr "Wann?"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:121
+#: AKSubmission/templates/AKSubmission/ak_detail.html:123
 #: AKSubmission/templates/AKSubmission/akslot_delete.html:35
 msgid "Duration"
 msgstr "Dauer"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:122
+#: AKSubmission/templates/AKSubmission/ak_detail.html:124
 msgid "Room"
 msgstr "Raum"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:148
+#: AKSubmission/templates/AKSubmission/ak_detail.html:150
 msgid "Add another slot"
 msgstr "Einen neuen AK-Slot hinzufügen"
 
@@ -270,38 +270,42 @@ msgstr ""
 "AKs die sich gewünscht wurden, aber bei denen noch nicht klar ist, wer sie "
 "macht. Falls du dir das vorstellen kannst, trag dich einfach ein"
 
-#: AKSubmission/views.py:113
+#: AKSubmission/views.py:109
+msgid "Event inactive. Cannot create or update."
+msgstr "Event inaktiv. Hinzufügen/Bearbeiten nicht möglich."
+
+#: AKSubmission/views.py:125
 msgid "AK successfully created"
 msgstr "AK erfolgreich angelegt"
 
-#: AKSubmission/views.py:166
+#: AKSubmission/views.py:183
 msgid "AK successfully updated"
 msgstr "AK erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:233
+#: AKSubmission/views.py:261
 msgid "Person Info successfully updated"
 msgstr "Personen-Info erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:246
+#: AKSubmission/views.py:281
 msgid "No user selected"
 msgstr "Keine Person ausgewählt"
 
-#: AKSubmission/views.py:272
+#: AKSubmission/views.py:307
 msgid "AK Slot successfully added"
 msgstr "AK-Slot erfolgreich angelegt"
 
-#: AKSubmission/views.py:286
+#: AKSubmission/views.py:321
 msgid "You cannot edit a slot that has already been scheduled"
 msgstr "Bereits geplante AK-Slots können nicht mehr bearbeitet werden"
 
-#: AKSubmission/views.py:296
+#: AKSubmission/views.py:331
 msgid "AK Slot successfully updated"
 msgstr "AK-Slot erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:309
+#: AKSubmission/views.py:344
 msgid "You cannot delete a slot that has already been scheduled"
 msgstr "Bereits geplante AK-Slots können nicht mehr gelöscht werden"
 
-#: AKSubmission/views.py:319
+#: AKSubmission/views.py:354
 msgid "AK Slot successfully deleted"
 msgstr "AK-Slot erfolgreich angelegt"
