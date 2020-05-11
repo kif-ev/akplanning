@@ -14,33 +14,30 @@ from AKSubmission.forms import AKWishForm, AKOwnerForm, AKEditForm, AKSubmission
 
 
 class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
-    model = AK
-    context_object_name = "AKs"
+    model = AKCategory
+    context_object_name = "categories"
     template_name = "AKSubmission/submission_overview.html"
-    ordering = ['category']
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
 
         # Sort AKs into different lists (by their category)
-        categories = []
-        aks_for_category = []
         ak_wishes = []
-        current_category = None
-        for ak in context["AKs"]:
-            if ak.category != current_category:
-                current_category = ak.category
-                aks_for_category = []
-                categories.append((current_category, aks_for_category))
-            if settings.WISHES_AS_CATEGORY and ak.wish:
-                ak_wishes.append(ak)
-            else:
-                aks_for_category.append(ak)
+        categories_with_aks = []
+
+        for category in context["categories"]:
+            aks_for_category = []
+            for ak in category.ak_set.all():
+                if settings.WISHES_AS_CATEGORY and ak.wish:
+                    ak_wishes.append(ak)
+                else:
+                    aks_for_category.append(ak)
+            categories_with_aks.append((category, aks_for_category))
 
         if settings.WISHES_AS_CATEGORY:
-            categories.append(
+            categories_with_aks.append(
                 ({"name": _("Wishes"), "pk": "wish", "description": _("AKs one would like to have")}, ak_wishes))
-        context["categories"] = categories
+        context["categories_with_aks"] = categories_with_aks
 
         # Get list of existing owners for event (for AK submission start)
         context["existingOwners"] = AKOwner.objects.filter(event=self.event)

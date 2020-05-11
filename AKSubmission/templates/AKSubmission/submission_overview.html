@@ -70,7 +70,7 @@
     </noscript>
 
     <ul class="nav nav-tabs" style="margin-bottom:15px">
-        {% for category, _ in categories %}
+        {% for category, _ in categories_with_aks %}
             <li class="nav-item">
                 <a class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab"
                    href="#category_{{ category.pk }}">{{ category.name }}</a>
@@ -79,7 +79,7 @@
     </ul>
 
     <div id="akListTabbed" class="tab-content">
-        {% for category, AKs in categories %}
+        {% for category, AKs in categories_with_aks %}
             <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="category_{{ category.pk }}">
                 <p><b>{{ category.name }}:</b> {{ category.description }}</p>
                 {% include "AKSubmission/ak_list_table.html" %}
