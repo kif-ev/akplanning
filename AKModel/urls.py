@@ -4,12 +4,12 @@ from rest_framework.routers import DefaultRouter
 from AKModel import views
 
 api_router = DefaultRouter()
-api_router.register('akowner', views.AKViewSet, basename='AKOwner')
-api_router.register('akcategory', views.AKViewSet, basename='AKCategory')
-api_router.register('aktrack', views.AKViewSet, basename='AKTrack')
+api_router.register('akowner', views.AKOwnerViewSet, basename='AKOwner')
+api_router.register('akcategory', views.AKCategoryViewSet, basename='AKCategory')
+api_router.register('aktrack', views.AKTrackViewSet, basename='AKTrack')
 api_router.register('ak', views.AKViewSet, basename='AK')
-api_router.register('room', views.AKViewSet, basename='Room')
-api_router.register('akslot', views.AKViewSet, basename='AKSlot')
+api_router.register('room', views.RoomViewSet, basename='Room')
+api_router.register('akslot', views.AKSlotViewSet, basename='AKSlot')
 
 app_name = 'model'
 
