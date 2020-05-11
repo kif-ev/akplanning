@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'fontawesome_5',
     'timezone_field',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

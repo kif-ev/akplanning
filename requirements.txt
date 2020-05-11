@@ -3,3 +3,4 @@ django-bootstrap4==1.1.1
 django-fontawesome-5==1.0.16
 django-split-settings==1.0.1
 django-timezone-field==4.0
+djangorestframework==3.11.0
