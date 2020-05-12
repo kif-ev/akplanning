@@ -1,0 +1,1 @@
+{% for owner in owners.all %}{% if not forloop.first %}, {% endif %}{% if owner.link %}<a href="{{ owner.link }}">{{ owner }}</a>{% else %}{{ owner }}{% endif %}{% endfor %}

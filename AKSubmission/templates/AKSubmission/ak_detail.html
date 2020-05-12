@@ -54,7 +54,9 @@
     <table class="table table-borderless">
         <tr>
             <td>{% trans "Who?" %}</td>
-            <td>{{ ak.owners_list }}</td>
+            <td>
+                {% include "AKSubmission/owners_list.html" with owners=ak.owners %}
+            </td>
         </tr>
         <tr>
             <td>{% trans 'Category' %}</td>
