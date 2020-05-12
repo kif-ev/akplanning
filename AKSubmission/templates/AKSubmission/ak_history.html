@@ -23,7 +23,8 @@
     {% include "AKSubmission/messages.html" %}
 
     <div class="float-right">
-        <a href='{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}'
+        <a href='{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}' data-toggle="tooltip"
+           title="{% trans 'Back' %}"
            class="btn btn-info">{% fa5_icon 'arrow-circle-left' 'fas' %}</a>
     </div>
 
