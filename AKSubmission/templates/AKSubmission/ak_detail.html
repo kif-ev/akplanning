@@ -25,21 +25,26 @@
 {% block content %}
     {% include "AKSubmission/messages.html" %}
 
-    <div class="float-right">
+    <div class="text-right">
         {% if ak.interest_counter >= 0 %}
             {% trans 'Interest' %}: <b class='mx-1 text-muted'>{{ ak.interest_counter }}</b>
             {% if ak.event.active %}
-                <a href="{% url 'submit:inc_interest' event_slug=ak.event.slug pk=ak.pk %}"
+                <a href="{% url 'submit:inc_interest' event_slug=ak.event.slug pk=ak.pk %}" data-toggle="tooltip"
+                   title="{% trans 'Show Interest' %}"
                    class="btn btn-primary">{% fa5_icon 'thumbs-up' 'fas' %}</a>
             {% endif %}
         {% endif %}
         {% if ak.link != "" %}
-            <a href="{{ ak.link }}" class="btn btn-info">{% fa5_icon 'external-link-alt' 'fas' %}</a>
+            <a href="{{ ak.link }}" data-toggle="tooltip"
+               title="{% trans 'Open external link' %}"
+               class="btn btn-info">{% fa5_icon 'external-link-alt' 'fas' %}</a>
         {% endif %}
         <a href="{% url 'submit:ak_history' event_slug=ak.event.slug pk=ak.pk %}"
-           class="btn btn-light">{% fa5_icon 'clock' 'fas' %}</a>
+           data-toggle="tooltip"
+           title="{% trans 'History' %}" class="btn btn-light">{% fa5_icon 'clock' 'fas' %}</a>
         {% if ak.event.active %}
-            <a href="{% url 'submit:ak_edit' event_slug=ak.event.slug pk=ak.pk %}"
+            <a href="{% url 'submit:ak_edit' event_slug=ak.event.slug pk=ak.pk %}" data-toggle="tooltip"
+               title="{% trans 'Edit' %}"
                class="btn btn-success">{% fa5_icon 'pencil-alt' 'fas' %}</a>
         {% endif %}
     </div>
@@ -136,8 +141,10 @@
                 <td>
                     {% if not slot.start %}
                         <a href="{% url 'submit:akslot_edit' event_slug=ak.event.slug pk=slot.pk %}"
+                           data-toggle="tooltip" title="{% trans 'Edit' %}"
                            class="btn btn-success">{% fa5_icon 'pencil-alt' 'fas' %}</a>
                         <a href="{% url 'submit:akslot_delete' event_slug=ak.event.slug pk=slot.pk %}"
+                           data-toggle="tooltip" title="{% trans 'Delete' %}"
                            class="btn btn-danger">{% fa5_icon 'times' 'fas' %}</a>
                     {% endif %}
                 </td>
