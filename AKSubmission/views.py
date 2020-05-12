@@ -13,10 +13,20 @@ from AKModel.views import FilterByEventSlugMixin
 from AKSubmission.forms import AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm, AKDurationForm
 
 
-class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
+class AKOverviewView(FilterByEventSlugMixin, ListView):
     model = AKCategory
     context_object_name = "categories"
-    template_name = "AKSubmission/submission_overview.html"
+    template_name = "AKSubmission/ak_overview.html"
+    wishes_as_category = False
+
+    def filter_aks(self, context, category):
+        return category.ak_set.all()
+
+    def get_active_category_name(self, context):
+        return context["categories_with_aks"][0][0].name
+
+    def get_table_title(self, context):
+        return _("All AKs")
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
@@ -27,22 +37,73 @@ class SubmissionOverviewView(FilterByEventSlugMixin, ListView):
 
         for category in context["categories"]:
             aks_for_category = []
-            for ak in category.ak_set.all():
-                if settings.WISHES_AS_CATEGORY and ak.wish:
+            for ak in self.filter_aks(context, category):
+                if self.wishes_as_category and ak.wish:
                     ak_wishes.append(ak)
                 else:
                     aks_for_category.append(ak)
             categories_with_aks.append((category, aks_for_category))
 
-        if settings.WISHES_AS_CATEGORY:
+        if self.wishes_as_category:
             categories_with_aks.append(
                 ({"name": _("Wishes"), "pk": "wish", "description": _("AKs one would like to have")}, ak_wishes))
+
         context["categories_with_aks"] = categories_with_aks
+        context["active_category"] = self.get_active_category_name(context)
+        context['table_title'] = self.get_table_title(context)
+
+        return context
+
+
+class SubmissionOverviewView(AKOverviewView):
+    model = AKCategory
+    context_object_name = "categories"
+    template_name = "AKSubmission/submission_overview.html"
+    wishes_as_category = settings.WISHES_AS_CATEGORY
+
+    def get_table_title(self, context):
+        return _("Currently planned AKs")
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
 
         # Get list of existing owners for event (for AK submission start)
         context["existingOwners"] = AKOwner.objects.filter(event=self.event)
 
         return context
+
+
+class AKListByCategoryView(AKOverviewView):
+    def dispatch(self, request, *args, **kwargs):
+        self.category = get_object_or_404(AKCategory, pk=kwargs['category_pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_active_category_name(self, context):
+        return self.category.name
+
+
+class AKListByTagView(AKOverviewView):
+    def dispatch(self, request, *args, **kwargs):
+        self.tag = get_object_or_404(AKTag, pk=kwargs['tag_pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def filter_aks(self, context, category):
+        return self.tag.ak_set.filter(event=self.event, category=category)
+
+    def get_table_title(self, context):
+        return f"{_('AKs with Tag')} = {self.tag.name}"
+
+
+class AKListByTrackView(AKOverviewView):
+    def dispatch(self, request, *args, **kwargs):
+        self.track = get_object_or_404(AKTrack, pk=kwargs['track_pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def filter_aks(self, context, category):
+        return category.ak_set.filter(track=self.track)
+
+    def get_table_title(self, context):
+        return f"{_('AKs with Track')} = {self.track.name}"
 
 
 class AKDetailView(EventSlugMixin, DetailView):
@@ -60,54 +121,14 @@ class AKHistoryView(EventSlugMixin, DetailView):
 class AKListView(FilterByEventSlugMixin, ListView):
     model = AK
     context_object_name = "AKs"
-    template_name = "AKSubmission/ak_list.html"
-    filter_condition_string = ""
+    template_name = "AKSubmission/ak_overview.html"
+    table_title = ""
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context['categories'] = AKCategory.objects.filter(event=self.event)
         context['tracks'] = AKTrack.objects.filter(event=self.event)
-        context['filter_condition_string'] = self.filter_condition_string
         return context
-
-
-class AKListByCategoryView(AKListView):
-    category = None
-
-    def get_queryset(self):
-        # Find category based on event slug
-        try:
-            self.category = AKCategory.objects.get(pk=self.kwargs['category_pk'])
-            self.filter_condition_string = f"{_('Category')} = {self.category.name}"
-        except AKCategory.DoesNotExist:
-            raise Http404
-        return super().get_queryset().filter(category=self.category)
-
-
-class AKListByTagView(AKListView):
-    tag = None
-
-    def get_queryset(self):
-        # Find tag based on event slug
-        try:
-            self.tag = AKTag.objects.get(pk=self.kwargs['tag_pk'])
-            self.filter_condition_string = f"{_('Tag')} = {self.tag.name}"
-        except AKTag.DoesNotExist:
-            raise Http404
-        return super().get_queryset().filter(tags=self.tag)
-
-
-class AKListByTrackView(AKListView):
-    track = None
-
-    def get_queryset(self):
-        # Find track based on event slug
-        try:
-            self.track = AKTrack.objects.get(pk=self.kwargs['track_pk'])
-            self.filter_condition_string = f"{_('Track')} = {self.track.name}"
-        except AKTrack.DoesNotExist:
-            raise Http404
-        return super().get_queryset().filter(track=self.track)
 
 
 class EventInactiveRedirectMixin:

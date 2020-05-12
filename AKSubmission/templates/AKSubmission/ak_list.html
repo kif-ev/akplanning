@@ -1,49 +1,46 @@
-{% extends 'AKSubmission/submission_base.html' %}
-
 {% load i18n %}
-{% load fontawesome_5 %}
 
-{% load tags_AKSubmission %}
+<div class="float-right">
+    <ul class="nav nav-pills">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'submit:ak_list' event_slug=event.slug %}">{% trans "All AKs" %}</a>
+        </li>
+        {% if event.aktrack_set.count > 0 %}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                   aria-expanded="false">{% trans "Tracks" %}</a>
+                <div class="dropdown-menu" style="">
+                    {% for track in event.aktrack_set.all %}
+                        <a class="dropdown-item"
+                           href="{% url 'submit:ak_list_by_track' event_slug=event.slug track_pk=track.pk %}">
+                            {{ track }}</a>
+                    {% endfor %}
+                </div>
+            </li>
+        {% endif %}
+    </ul>
+</div>
 
-{% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AKs" %}{% endblock %}
+<h2>{{ table_title }}</h2>
 
-{% block imports %}
-    <style>
-        /* Prevent wrapping of buttons in AK table */
-        .table td:nth-child(5) {
-            white-space: nowrap;
-        }
-    </style>
-{% endblock %}
+<noscript>
+    {% include "AKSubmission/ak_table.html" %}
+</noscript>
 
-{% block breadcrumbs %}
-    {% include "AKSubmission/submission_breadcrumbs.html" %}
-    <li class="breadcrumb-item"><a
-            href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
-    <li class="breadcrumb-item active">{% trans "AK List" %}</li>
-{% endblock %}
+<ul class="nav nav-tabs" style="margin-bottom:15px">
+    {% for category, _ in categories_with_aks %}
+        <li class="nav-item">
+            <a class="nav-link {% if category.name == active_category %}active{% endif %}" data-toggle="tab"
+               href="#category_{{ category.pk }}">{{ category.name }}</a>
+        </li>
+    {% endfor %}
+</ul>
 
-{% block content %}
-    <h1>{{ event.name }}: {% trans "AK List" %}</h1>
-
-    {% if categories.count > 0 %}
-        <b>{% trans 'Categories' %}:</b>
-        {% category_list categories event.slug %}
-    {% endif %}
-
-    <br><br>
-
-    {% if tracks.count > 0 %}
-        <b>{% trans 'Tracks' %}:</b>
-        {% track_list tracks event.slug %}
-    {% endif %}
-
-    <br><br>
-
-    {% if filter_condition_string != "" %}
-        <h2 class="text-secondary">{{ filter_condition_string }}</h2>
-    {% endif %}
-
-    {% include "AKSubmission/ak_list_table.html" %}
-
-{% endblock %}
+<div id="akListTabbed" class="tab-content">
+    {% for category, AKs in categories_with_aks %}
+        <div class="tab-pane fade {% if category.name == active_category %}show active{% endif %}" id="category_{{ category.pk }}">
+            <p><b>{{ category.name }}:</b> {{ category.description }}</p>
+            {% include "AKSubmission/ak_table.html" %}
+        </div>
+    {% endfor %}
+</div>

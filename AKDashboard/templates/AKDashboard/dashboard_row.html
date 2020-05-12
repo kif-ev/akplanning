@@ -40,7 +40,7 @@
                 </a>
             {% endif %}
         {% endif %}
-        {% if 'AKSubmission'|check_app_installed %}
+        {% if 'AKSubmission'|check_app_installed and event.active %}
             <a class="dashboard-box btn btn-primary"
                href="{% url 'submit:submission_overview' event_slug=event.slug %}">
                 <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button">

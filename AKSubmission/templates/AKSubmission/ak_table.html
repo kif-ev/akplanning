@@ -58,6 +58,10 @@
         <tr>
             <td colspan="5" class="small">{{ ak.description }}</td>
         </tr>
+    {% empty %}
+        <tr>
+            <td colspan="5" class="small">{% trans "There are no AKs in this category yet" %}</td>
+        </tr>
     {% endfor %}
     </tbody>
 </table>

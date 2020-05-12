@@ -1,0 +1,30 @@
+{% extends 'AKSubmission/submission_base.html' %}
+
+{% load i18n %}
+{% load fontawesome_5 %}
+
+{% load tags_AKSubmission %}
+
+{% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AKs" %}{% endblock %}
+
+{% block imports %}
+    <style>
+        /* Prevent wrapping of buttons in AK table */
+        .table td:nth-child(5) {
+            white-space: nowrap;
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+    {% include "AKSubmission/submission_breadcrumbs.html" %}
+    <li class="breadcrumb-item"><a
+            href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
+    <li class="breadcrumb-item active">{% trans "AK List" %}</li>
+{% endblock %}
+
+{% block content %}
+    <h1>{% trans "AKs" %}: {{ event.name }}</h1>
+
+    {% include "AKSubmission/ak_list.html" %}
+{% endblock %}
