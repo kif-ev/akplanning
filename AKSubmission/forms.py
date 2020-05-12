@@ -50,8 +50,8 @@ class AKForm(forms.ModelForm):
 
         self.fields['category'].queryset = AKCategory.objects.filter(event=self.initial.get('event'))
         self.fields['requirements'].queryset = AKRequirement.objects.filter(event=self.initial.get('event'))
-        self.fields['prerequisites'].queryset = AK.objects.filter(event=self.initial.get('event'))
-        self.fields['conflicts'].queryset = AK.objects.filter(event=self.initial.get('event'))
+        self.fields['prerequisites'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(pk=self.instance.pk)
+        self.fields['conflicts'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(pk=self.instance.pk)
         if "owners" in self.fields:
             self.fields['owners'].queryset = AKOwner.objects.filter(event=self.initial.get('event'))
 
