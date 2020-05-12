@@ -10,6 +10,7 @@ urlpatterns = [
         include([
             path('', views.SubmissionOverviewView.as_view(), name='submission_overview'),
             path('ak/<int:pk>/', views.AKDetailView.as_view(), name='ak_detail'),
+            path('ak/<int:pk>/history/', views.AKHistoryView.as_view(), name='ak_history'),
             path('ak/<int:pk>/edit/', views.AKEditView.as_view(), name='ak_edit'),
             path('ak/<int:pk>/interest/', views.AKInterestView.as_view(), name='inc_interest'),
             path('ak/<int:pk>/add_slot/', views.AKSlotAddView.as_view(), name='akslot_add'),
