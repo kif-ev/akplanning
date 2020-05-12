@@ -7,4 +7,10 @@
         AKPlanning
     {% endif %}
 </li>
-<li class="breadcrumb-item">{{ event.slug }}</li>
+<li class="breadcrumb-item">
+    {% if 'AKDashboard'|check_app_installed %}
+        <a href="{% url 'dashboard:dashboard_event' slug=event.slug %}">{{ event }}</a>
+    {% else %}
+        {{ event }}
+    {% endif %}
+</li>
