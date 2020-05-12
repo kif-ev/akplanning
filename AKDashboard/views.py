@@ -1,6 +1,6 @@
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 
 from AKModel.models import Event
 
@@ -16,3 +16,8 @@ class DashboardView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['events'] = Event.objects.all()
         return context
+
+class DashboardEventView(DetailView):
+    template_name = 'AKDashboard/dashboard_event.html'
+    context_object_name = 'event'
+    model = Event

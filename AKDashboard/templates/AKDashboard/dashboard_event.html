@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% load fontawesome_5 %}
+{% load i18n %}
+{% load static %}
+{% load tags_AKModel %}
+
+{% block imports %}
+
+    {{ block.super }}
+
+    <link rel="stylesheet" href="{% static 'AKDashboard/style.css' %}">
+
+{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard:dashboard' %}">AKPlanning</a></li>
+    <li class="breadcrumb-item active">{{ event.slug }}</li>
+{% endblock %}
+
+{% block content %}
+    {% include "AKDashboard/dashboard_row.html" %}
+{% endblock %}
