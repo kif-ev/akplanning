@@ -4,6 +4,7 @@ from django.db.models import Count, F
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from simple_history.admin import SimpleHistoryAdmin
 
 from AKModel.availability import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room
@@ -113,7 +114,7 @@ class WishFilter(SimpleListFilter):
 
 
 @admin.register(AK)
-class AKAdmin(admin.ModelAdmin):
+class AKAdmin(SimpleHistoryAdmin):
     model = AK
     list_display = ['name', 'short_name', 'category', 'track', 'is_wish', 'interest', 'event']
     list_filter = ['category', WishFilter, 'event']
