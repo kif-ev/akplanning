@@ -5,6 +5,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from simple_history.models import HistoricalRecords
 from timezone_field import TimeZoneField
 
 
@@ -216,6 +217,8 @@ class AK(models.Model):
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
+
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = _('AK')

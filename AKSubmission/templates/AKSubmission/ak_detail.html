@@ -34,6 +34,8 @@
         {% if ak.link != "" %}
             <a href="{{ ak.link }}" class="btn btn-info">{% fa5_icon 'external-link-alt' 'fas' %}</a>
         {% endif %}
+        <a href="{% url 'submit:ak_history' event_slug=ak.event.slug pk=ak.pk %}"
+           class="btn btn-light">{% fa5_icon 'clock' 'fas' %}</a>
         {% if ak.event.active %}
             <a href="{% url 'submit:ak_edit' event_slug=ak.event.slug pk=ak.pk %}"
                class="btn btn-success">{% fa5_icon 'pencil-alt' 'fas' %}</a>

@@ -51,6 +51,12 @@ class AKDetailView(EventSlugMixin, DetailView):
     template_name = "AKSubmission/ak_detail.html"
 
 
+class AKHistoryView(EventSlugMixin, DetailView):
+    model = AK
+    context_object_name = "ak"
+    template_name = "AKSubmission/ak_history.html"
+
+
 class AKListView(FilterByEventSlugMixin, ListView):
     model = AK
     context_object_name = "AKs"
