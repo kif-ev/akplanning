@@ -26,6 +26,7 @@ urlpatterns = [
             path('<slug:slug>/edit/', views.AKOwnerEditView.as_view(), name='akowner_edit'),
             path('<slug:owner_slug>/new/', views.AKSubmissionView.as_view(), name='submit_ak'),
             path('new_wish/', views.AKWishSubmissionView.as_view(), name='submit_ak_wish'),
+            path('error/', views.SubmissionErrorNotConfiguredView.as_view(), name='error_not_configured'),
         ])
     ),
 ]
