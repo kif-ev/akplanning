@@ -5,8 +5,10 @@
 
 {% block breadcrumbs %}
     {% include "AKPlan/plan_breadcrumbs.html" %}
-    <li class="breadcrumb-item">{% trans "Track" %}</li>
-    <li class="breadcrumb-item">{{ track }}</li>
+    <li class="breadcrumb-item">
+        <a href="{% url 'plan:plan_overview' event_slug=event.slug %}">{% trans "AK Plan" %}</a>
+    </li>
+    <li class="breadcrumb-item">{% trans "Track" %}: {{ track }}</li>
 {% endblock %}
 
 
@@ -41,7 +43,7 @@
         </ul>
     </div>
 
-    <h1>Plan: {{ event }} -- {% trans "Track" %}: {{ track }}</h1>
+    <h1>Plan: {{ event }} ({% trans "Track" %}: {{ track }})</h1>
 
     {% timezone event.timezone %}
         <div class="row" style="margin-top:30px;clear: both;">

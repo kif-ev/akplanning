@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load fontawesome_5 %}
+{% load static %}
 
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Submission" %}{% endblock %}
 
@@ -11,7 +12,21 @@
         .table td:nth-child(5) {
             white-space: nowrap;
         }
+
+        /* Make Select2 boxes match Bootstrap heights: */
+        .select2-selection__rendered {
+          line-height: 32px !important;
+        }
+
+        .select2-selection {
+          height: 34px !important;
+        }
     </style>
+
+    {% if event.active %}
+        <link href="{% static 'common/vendor/select2/select2.min.css' %}" rel="stylesheet" />
+        <script src="{% static 'common/vendor/select2/select2.min.js' %}"></script>
+    {% endif %}
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -63,28 +78,13 @@
         </div>
     {% endif %}
 
-    <h2>{% trans "Current AKs" %}</h2>
+    {% include "AKSubmission/ak_list.html" %}
+{% endblock %}
 
-    <noscript>
-        {% include "AKSubmission/ak_list_table.html" %}
-    </noscript>
-
-    <ul class="nav nav-tabs" style="margin-bottom:15px">
-        {% for category, _ in categories_with_aks %}
-            <li class="nav-item">
-                <a class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab"
-                   href="#category_{{ category.pk }}">{{ category.name }}</a>
-            </li>
-        {% endfor %}
-    </ul>
-
-    <div id="akListTabbed" class="tab-content">
-        {% for category, AKs in categories_with_aks %}
-            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="category_{{ category.pk }}">
-                <p><b>{{ category.name }}:</b> {{ category.description }}</p>
-                {% include "AKSubmission/ak_list_table.html" %}
-            </div>
-        {% endfor %}
-    </div>
-
+{% block bottom_script %}
+    {% if event.active %}
+        <script>
+            $("#selectOwnerId").select2();
+        </script>
+    {% endif %}
 {% endblock %}

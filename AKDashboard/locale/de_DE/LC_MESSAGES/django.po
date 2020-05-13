@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-11 20:45+0000\n"
+"POT-Creation-Date: 2020-05-12 22:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,37 +61,37 @@ msgstr "Veranstaltung"
 msgid "Event this button belongs to"
 msgstr "Veranstaltung, zu der dieser Button gehört"
 
-#: AKDashboard/templates/AKDashboard/dashboard.html:30
-msgid "AK List"
-msgstr "AK Liste"
-
-#: AKDashboard/templates/AKDashboard/dashboard.html:40
-msgid "Current AKs"
-msgstr "Aktuelle AKs"
-
-#: AKDashboard/templates/AKDashboard/dashboard.html:47
-msgid "AK Wall"
-msgstr "AK-Wall"
-
-#: AKDashboard/templates/AKDashboard/dashboard.html:55
-msgid "Schedule"
-msgstr "AK-Plan"
-
-#: AKDashboard/templates/AKDashboard/dashboard.html:65
-msgid "AK Submission"
-msgstr "AK-Submission"
-
-#: AKDashboard/templates/AKDashboard/dashboard.html:81
-msgid "Write to organizers of this event for questions and comments"
-msgstr ""
-"Kontaktiere die Organisator*innen des Events bei Fragen oder Kommentaren"
-
-#: AKDashboard/templates/AKDashboard/dashboard.html:88
+#: AKDashboard/templates/AKDashboard/dashboard.html:25
 msgid "Currently, there are no Events!"
 msgstr "Aktuell gibt es keine Events!"
 
-#: AKDashboard/templates/AKDashboard/dashboard.html:91
+#: AKDashboard/templates/AKDashboard/dashboard.html:28
 msgid "Please contact an administrator if you want to use AKPlanning."
 msgstr ""
 "Bitte kontaktiere eine*n Administrator*in, falls du AKPlanning verwenden "
 "möchtest."
+
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:13
+msgid "AK List"
+msgstr "AK Liste"
+
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:23
+msgid "Current AKs"
+msgstr "Aktuelle AKs"
+
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:30
+msgid "AK Wall"
+msgstr "AK-Wall"
+
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:38
+msgid "Schedule"
+msgstr "AK-Plan"
+
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:48
+msgid "AK Submission"
+msgstr "AK-Submission"
+
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:64
+msgid "Write to organizers of this event for questions and comments"
+msgstr ""
+"Kontaktiere die Organisator*innen des Events bei Fragen oder Kommentaren"
