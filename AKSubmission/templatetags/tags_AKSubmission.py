@@ -1,5 +1,5 @@
 from django import template
-from fontawesome_5.templatetags.fontawesome import fa5_icon
+from fontawesome_5.templatetags.fontawesome_5 import fa5_icon
 
 register = template.Library()
 
