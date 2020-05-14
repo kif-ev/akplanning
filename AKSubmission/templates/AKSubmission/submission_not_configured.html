@@ -1,0 +1,22 @@
+{% extends 'AKSubmission/submission_base.html' %}
+
+{% load i18n %}
+{% load fontawesome_5 %}
+{% load static %}
+
+{% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Submission" %}{% endblock %}
+
+{% block breadcrumbs %}
+    {% include "AKSubmission/submission_breadcrumbs.html" %}
+    <li class="breadcrumb-item active">{% trans "AK Submission" %}</li>
+{% endblock %}
+
+{% block content %}
+    <h1>{{ event.name }}</h1>
+
+    {% include "AKSubmission/messages.html" %}
+
+    <div class="alert alert-warning" style="margin-top:20px;margin-bottom: 20px;">
+            {% trans "System is not yet configured for AK submission and listing. Please try again later." %}
+        </div>
+{% endblock %}

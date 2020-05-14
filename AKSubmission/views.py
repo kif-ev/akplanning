@@ -1,16 +1,20 @@
 from django.conf import settings
 from django.contrib import messages
-from django.http import Http404, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, RedirectView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, RedirectView, TemplateView
 
 from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot, AKTrack
 from AKModel.views import EventSlugMixin
 from AKModel.views import FilterByEventSlugMixin
 from AKSubmission.forms import AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm, AKDurationForm
+
+
+class SubmissionErrorNotConfiguredView(EventSlugMixin, TemplateView):
+    template_name = "AKSubmission/submission_not_configured.html"
 
 
 class AKOverviewView(FilterByEventSlugMixin, ListView):
@@ -27,6 +31,17 @@ class AKOverviewView(FilterByEventSlugMixin, ListView):
 
     def get_table_title(self, context):
         return _("All AKs")
+
+    def get(self, request, *args, **kwargs):
+        self._load_event()
+        self.object_list = self.get_queryset()
+
+        # No categories yet? Redirect to configuration error page
+        if self.object_list.count() == 0:
+            return redirect(reverse_lazy("submit:error_not_configured", kwargs={'event_slug': self.event.slug}))
+
+        context = self.get_context_data()
+        return self.render_to_response(context)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
@@ -46,7 +61,7 @@ class AKOverviewView(FilterByEventSlugMixin, ListView):
 
         if self.wishes_as_category:
             categories_with_aks.append(
-                ({"name": _("Wishes"), "pk": "wish", "description": _("AKs one would like to have")}, ak_wishes))
+                (AKCategory(name=_("Wishes"), pk=0, description=_("AKs one would like to have")), ak_wishes))
 
         context["categories_with_aks"] = categories_with_aks
         context["active_category"] = self.get_active_category_name(context)
