@@ -55,6 +55,15 @@
                         },
                     {% endif %}
                 {% endfor %}
+                {% for a in availabilities %}
+                    {
+                        title: '{{ Verfuegbarkeit }}',
+                        start: '{{ a.start | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',
+                        end: '{{ a.end | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',
+                        backgroundColor: '#28B62C',
+                        rendering: 'background'
+                    },
+                {% endfor %}
             ]
         });
 

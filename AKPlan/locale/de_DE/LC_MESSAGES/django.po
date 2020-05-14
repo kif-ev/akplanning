@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-11 22:27+0000\n"
+"POT-Creation-Date: 2020-05-14 22:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,10 +21,6 @@ msgstr ""
 msgid "Write to organizers of this event for questions and comments"
 msgstr "Fragen oder Kommentare? Schreib den Orgas dieses Events eine Mail"
 
-#: AKPlan/templates/AKPlan/plan_breadcrumbs.html:13
-msgid "AK Plan"
-msgstr "AK-Plan"
-
 #: AKPlan/templates/AKPlan/plan_index.html:40
 msgid "Day"
 msgstr "Tag"
@@ -34,42 +30,48 @@ msgid "Event"
 msgstr "Veranstaltung"
 
 #: AKPlan/templates/AKPlan/plan_index.html:59
-#: AKPlan/templates/AKPlan/plan_room.html:8
-#: AKPlan/templates/AKPlan/plan_room.html:44
+#: AKPlan/templates/AKPlan/plan_room.html:11
+#: AKPlan/templates/AKPlan/plan_room.html:46
 #: AKPlan/templates/AKPlan/plan_wall.html:64
 msgid "Room"
 msgstr "Raum"
 
-#: AKPlan/templates/AKPlan/plan_index.html:82
-#: AKPlan/templates/AKPlan/plan_room.html:34
+#: AKPlan/templates/AKPlan/plan_index.html:74
+#: AKPlan/templates/AKPlan/plan_room.html:9
+#: AKPlan/templates/AKPlan/plan_track.html:9
+msgid "AK Plan"
+msgstr "AK-Plan"
+
+#: AKPlan/templates/AKPlan/plan_index.html:86
+#: AKPlan/templates/AKPlan/plan_room.html:36
 msgid "Rooms"
 msgstr "Räume"
 
-#: AKPlan/templates/AKPlan/plan_index.html:94
-#: AKPlan/templates/AKPlan/plan_track.html:34
+#: AKPlan/templates/AKPlan/plan_index.html:99
+#: AKPlan/templates/AKPlan/plan_track.html:36
 msgid "Tracks"
 msgstr "Tracks"
 
-#: AKPlan/templates/AKPlan/plan_index.html:106
+#: AKPlan/templates/AKPlan/plan_index.html:111
 msgid "AK Wall"
 msgstr "AK-Wall"
 
-#: AKPlan/templates/AKPlan/plan_index.html:118
+#: AKPlan/templates/AKPlan/plan_index.html:123
 #: AKPlan/templates/AKPlan/plan_wall.html:88
 msgid "Current AKs"
 msgstr "Aktuelle AKs"
 
-#: AKPlan/templates/AKPlan/plan_index.html:125
+#: AKPlan/templates/AKPlan/plan_index.html:130
 #: AKPlan/templates/AKPlan/plan_wall.html:93
 msgid "Next AKs"
 msgstr "Nächste AKs"
 
-#: AKPlan/templates/AKPlan/plan_index.html:133
+#: AKPlan/templates/AKPlan/plan_index.html:138
 msgid "This event is not active."
 msgstr "Dieses Event ist nicht aktiv."
 
-#: AKPlan/templates/AKPlan/plan_track.html:8
-#: AKPlan/templates/AKPlan/plan_track.html:44
+#: AKPlan/templates/AKPlan/plan_track.html:11
+#: AKPlan/templates/AKPlan/plan_track.html:46
 msgid "Track"
 msgstr "Track"
 
