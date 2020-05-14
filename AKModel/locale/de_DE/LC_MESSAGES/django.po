@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-12 22:53+0000\n"
+"POT-Creation-Date: 2020-05-14 22:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,55 +27,73 @@ msgstr "Ist kein Wunsch"
 msgid "Export to wiki syntax"
 msgstr "In Wiki-Syntax exportieren"
 
-#: AKModel/availability.py:38 AKModel/models.py:40 AKModel/models.py:69
+#: AKModel/availability/forms.py:20 AKModel/availability/models.py:235
+msgid "Availability"
+msgstr "Verfügbarkeit"
+
+#: AKModel/availability/forms.py:22
+msgid "Please click and drag to mark the availability during the event."
+msgstr "Bitte klicken und ziehen um die Verfügbarkeiten während des Events zu markieren."
+
+#: AKModel/availability/forms.py:86
+msgid "The submitted availability does not comply with the required format."
+msgstr "Die eingetragenen Verfügbarkeit haben nicht das notwendige Format."
+
+#: AKModel/availability/forms.py:99
+msgid "The submitted availability contains an invalid date."
+msgstr "Die eingegebene Verfügbarkeit enthält ein ungültiges Datum."
+
+#: AKModel/availability/forms.py:122 AKModel/availability/forms.py:132
+msgid "Please fill in your availabilities!"
+msgstr "Bitte Verfügbarkeiten eintragen!"
+
+#: AKModel/availability/models.py:38 AKModel/models.py:40 AKModel/models.py:69
 #: AKModel/models.py:121 AKModel/models.py:140 AKModel/models.py:172
 #: AKModel/models.py:225 AKModel/models.py:267 AKModel/models.py:297
 msgid "Event"
 msgstr "Event"
 
-#: AKModel/availability.py:39 AKModel/models.py:70 AKModel/models.py:122
+#: AKModel/availability/models.py:39 AKModel/models.py:70 AKModel/models.py:122
 #: AKModel/models.py:141 AKModel/models.py:173 AKModel/models.py:226
 #: AKModel/models.py:268 AKModel/models.py:298
 msgid "Associated event"
 msgstr "Zugehöriges Event"
 
-#: AKModel/availability.py:47
+#: AKModel/availability/models.py:47
 msgid "Person"
 msgstr "Person"
 
-#: AKModel/availability.py:48
+#: AKModel/availability/models.py:48
 msgid "Person whose availability this is"
 msgstr "Person deren Verfügbarkeit hier abgebildet wird"
 
-#: AKModel/availability.py:56 AKModel/models.py:271 AKModel/models.py:290
+#: AKModel/availability/models.py:56 AKModel/models.py:271
+#: AKModel/models.py:290
 msgid "Room"
 msgstr "Raum"
 
-#: AKModel/availability.py:57
+#: AKModel/availability/models.py:57
 msgid "Room whose availability this is"
 msgstr "Raum dessen Verfügbarkeit hier abgebildet wird"
 
-#: AKModel/availability.py:65 AKModel/models.py:231 AKModel/models.py:289
+#: AKModel/availability/models.py:65 AKModel/models.py:231
+#: AKModel/models.py:289
 msgid "AK"
 msgstr "AK"
 
-#: AKModel/availability.py:66
+#: AKModel/availability/models.py:66
 msgid "AK whose availability this is"
 msgstr "Verfügbarkeiten"
 
-#: AKModel/availability.py:74 AKModel/models.py:125
+#: AKModel/availability/models.py:74 AKModel/models.py:125
 msgid "AK Category"
 msgstr "AK Kategorie"
 
-#: AKModel/availability.py:75
+#: AKModel/availability/models.py:75
 msgid "AK Category whose availability this is"
 msgstr "AK Kategorie dessen Verfügbarkeit hier abgebildet wird"
 
-#: AKModel/availability.py:235
-msgid "Availability"
-msgstr "Verfügbarkeit"
-
-#: AKModel/availability.py:236
+#: AKModel/availability/models.py:236
 msgid "Availabilities"
 msgstr "Verfügbarkeiten"
 

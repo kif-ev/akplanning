@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load fontawesome_5 %}
+{% load tz %}
 
 {% load tags_AKSubmission %}
 {% load tags_AKModel %}
@@ -161,5 +162,23 @@
                class="btn btn-success">{% fa5_icon 'plus' 'fas' %} {% trans "Add another slot" %}</a>
         </div>
     {% endif %}
+
+    <h4 style="margin-top: 30px;">{% trans "Possible Times" %}</h4>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>{% trans "Start" %}</th>
+            <th>{% trans "End" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for a in availabilities %}
+            <tr>
+                <td>{{ a.start | timezone:event.timezone | date:"l H:i"  }}</td>
+                <td>{{ a.end | timezone:event.timezone | date:"l H:i" }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
 {% endblock %}
