@@ -35,7 +35,7 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.initial = kwargs['initial']
+        self.initial = {**self.initial, **kwargs['initial']}
         # Use better multiple select input for owners, conflicts and prerequisites
         if "owners" in self.fields:
             self.fields["owners"].widget.attrs = {'class': 'chosen-select'}

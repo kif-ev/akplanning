@@ -228,11 +228,6 @@ class AKEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
 
         return super_form_valid
 
-    def get_initial(self):
-        initials = super().get_initial()
-        initials['event'] = self.event
-        return initials
-
 
 class AKInterestView(RedirectView):
     permanent = False

@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.models import Availability
 from AKModel.availability.serializers import AvailabilitySerializer
+from AKModel.models import Event
 
 
 class AvailabilitiesFormMixin(forms.Form):
@@ -46,6 +47,8 @@ class AvailabilitiesFormMixin(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.event = self.initial.get('event')
+        if isinstance(self.event, int):
+            self.event = Event.objects.get(pk=self.event)
         initial = kwargs.pop('initial', dict())
         initial['availabilities'] = self._serialize(self.event, kwargs['instance'])
         if not isinstance(self, forms.BaseModelForm):
