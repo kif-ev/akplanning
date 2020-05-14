@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, RedirectView, TemplateView
 
+from AKModel.availability.models import Availability
 from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot, AKTrack
 from AKModel.views import EventSlugMixin
 from AKModel.views import FilterByEventSlugMixin
@@ -125,6 +126,11 @@ class AKDetailView(EventSlugMixin, DetailView):
     model = AK
     context_object_name = "ak"
     template_name = "AKSubmission/ak_detail.html"
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context["availabilities"] = Availability.objects.filter(ak=context["ak"])
+        return context
 
 
 class AKHistoryView(EventSlugMixin, DetailView):

@@ -4,10 +4,11 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
+from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.models import AK, AKOwner, AKCategory, AKRequirement, AKSlot
 
 
-class AKForm(forms.ModelForm):
+class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
     required_css_class = 'required'
 
     class Meta:
@@ -34,6 +35,7 @@ class AKForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.initial = {**self.initial, **kwargs['initial']}
         # Use better multiple select input for owners, conflicts and prerequisites
         if "owners" in self.fields:
             self.fields["owners"].widget.attrs = {'class': 'chosen-select'}
@@ -50,8 +52,10 @@ class AKForm(forms.ModelForm):
 
         self.fields['category'].queryset = AKCategory.objects.filter(event=self.initial.get('event'))
         self.fields['requirements'].queryset = AKRequirement.objects.filter(event=self.initial.get('event'))
-        self.fields['prerequisites'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(pk=self.instance.pk)
-        self.fields['conflicts'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(pk=self.instance.pk)
+        self.fields['prerequisites'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(
+            pk=self.instance.pk)
+        self.fields['conflicts'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(
+            pk=self.instance.pk)
         if "owners" in self.fields:
             self.fields['owners'].queryset = AKOwner.objects.filter(event=self.initial.get('event'))
 
