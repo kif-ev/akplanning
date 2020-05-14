@@ -3,60 +3,62 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 
-<link href='{% static 'AKPlan/fullcalendar/core/main.min.css' %}' rel='stylesheet' />
-<link href='{% static 'AKPlan/fullcalendar/daygrid/main.min.css' %}' rel='stylesheet' />
-<link href='{% static 'AKPlan/fullcalendar/timegrid/main.min.css' %}' rel='stylesheet' />
+<link href='{% static 'AKPlan/vendor/fullcalendar/core/main.min.css' %}' rel='stylesheet'/>
+<link href='{% static 'AKPlan/vendor/fullcalendar/daygrid/main.min.css' %}' rel='stylesheet'/>
+<link href='{% static 'AKPlan/vendor/fullcalendar/timegrid/main.min.css' %}' rel='stylesheet'/>
 
-<script src='{% static 'AKPlan/fullcalendar/core/main.min.js' %}'></script>
-{% with 'AKPlan/fullcalendar/core/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
-<script src="{% static locale_file %}"></script>
+<script src='{% static 'AKPlan/vendor/fullcalendar/core/main.min.js' %}'></script>
+{% with 'AKPlan/vendor/fullcalendar/core/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
+    <script src="{% static locale_file %}"></script>
 {% endwith %}
-<script src='{% static 'AKPlan/fullcalendar/daygrid/main.min.js' %}'></script>
-<script src='{% static 'AKPlan/fullcalendar/timegrid/main.min.js' %}'></script>
-<script src='{% static 'AKPlan/fullcalendar/bootstrap/main.min.js' %}'></script>
+<script src='{% static 'AKPlan/vendor/fullcalendar/daygrid/main.min.js' %}'></script>
+<script src='{% static 'AKPlan/vendor/fullcalendar/timegrid/main.min.js' %}'></script>
+<script src='{% static 'AKPlan/vendor/fullcalendar/bootstrap/main.min.js' %}'></script>
 
 <script>
 
-document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('akSlotCalendar');
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('akSlotCalendar');
 
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        plugins: [ 'timeGrid', 'bootstrap' ],
-        // Adapt to timezone of the connected event
-        timeZone: '{{ ak.event.timezone }}',
-        defaultView: 'timeGrid',
-        // Adapt to user selected locale
-        locale: '{{ LANGUAGE_CODE }}',
-        // No header, not buttons
-        header: {
-            left: '',
-            center: '',
-            right: ''
-        },
-        aspectRatio: 2.5,
-        themeSystem: 'bootstrap',
-        // Only show calendar view for the dates of the connected event
-        visibleRange: {
-            start: '{{ ak.event.start | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',
-            end: '{{ ak.event.end | timezone:ak.event.timezone  | date:"Y-m-d H:i:s"}}',
-        },
-        allDaySlot: false,
-        nowIndicator: true,
-        eventTextColor: '#fff',
-        eventColor: '#127ba3',
-        // Create entries for all scheduled slots
-        events: [
-            {% for slot in ak.akslot_set.all %}
-                {% if slot.start %}
-                    {'title': '{{ slot.room }}',
-                    'start': '{{ slot.start | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',
-                    'end': '{{ slot.end | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}'},
-                {% endif %}
-            {% endfor %}
-        ]
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: ['timeGrid', 'bootstrap'],
+            // Adapt to timezone of the connected event
+            timeZone: '{{ ak.event.timezone }}',
+            defaultView: 'timeGrid',
+            // Adapt to user selected locale
+            locale: '{{ LANGUAGE_CODE }}',
+            // No header, not buttons
+            header: {
+                left: '',
+                center: '',
+                right: ''
+            },
+            aspectRatio: 2.5,
+            themeSystem: 'bootstrap',
+            // Only show calendar view for the dates of the connected event
+            visibleRange: {
+                start: '{{ ak.event.start | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',
+                end: '{{ ak.event.end | timezone:ak.event.timezone  | date:"Y-m-d H:i:s"}}',
+            },
+            allDaySlot: false,
+            nowIndicator: true,
+            eventTextColor: '#fff',
+            eventColor: '#127ba3',
+            // Create entries for all scheduled slots
+            events: [
+                {% for slot in ak.akslot_set.all %}
+                    {% if slot.start %}
+                        {
+                            'title': '{{ slot.room }}',
+                            'start': '{{ slot.start | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',
+                            'end': '{{ slot.end | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}'
+                        },
+                    {% endif %}
+                {% endfor %}
+            ]
+        });
+
+        calendar.render();
     });
-
-    calendar.render();
-});
 
 </script>

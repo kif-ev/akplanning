@@ -9,23 +9,23 @@
 {% block fullcalendar %}
     {% get_current_language as LANGUAGE_CODE %}
 
-    <link href='{% static 'AKPlan/fullcalendar/timeline/main.css' %}' rel='stylesheet' />
-    <link href='{% static 'AKPlan/fullcalendar/resource-timeline/main.css' %}' rel='stylesheet' />
-    <link href='{% static 'AKPlan/fullcalendar/resource-timeline/main.min.css' %}' rel='stylesheet' />
+    <link href='{% static 'AKPlan/vendor/fullcalendar/timeline/main.css' %}' rel='stylesheet'/>
+    <link href='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.css' %}' rel='stylesheet'/>
+    <link href='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.min.css' %}' rel='stylesheet'/>
 
-    <script src='{% static 'AKPlan/fullcalendar/timeline/main.js' %}'></script>
-    <script src='{% static 'AKPlan/fullcalendar/resource-common/main.js' %}'></script>
-    <script src='{% static 'AKPlan/fullcalendar/resource-timeline/main.js' %}'></script>
+    <script src='{% static 'AKPlan/vendor/fullcalendar/timeline/main.js' %}'></script>
+    <script src='{% static 'AKPlan/vendor/fullcalendar/resource-common/main.js' %}'></script>
+    <script src='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.js' %}'></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var planEl = document.getElementById('planCalendar');
 
             var plan = new FullCalendar.Calendar(planEl, {
                 plugins: ['resourceTimeline', 'bootstrap'],
                 timeZone: '{{ event.timezone }}',
                 header: {
-                    left: 'today prev,next',
+                    left: 'today prev,next', S
                     center: 'title',
                     right: 'resourceTimelineDay,resourceTimelineEvent'
                 },
@@ -81,7 +81,8 @@
         <ul class="nav nav-pills">
             {% if event.room_set.count > 0 %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+                       aria-haspopup="true"
                        aria-expanded="false">{% trans "Rooms" %}</a>
                     <div class="dropdown-menu" style="">
                         {% for r in event.room_set.all %}
@@ -93,7 +94,8 @@
             {% endif %}
             {% if event.aktrack_set.count > 0 %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+                       aria-haspopup="true"
                        aria-expanded="false">{% trans "Tracks" %}</a>
                     <div class="dropdown-menu">
                         {% for t in event.aktrack_set.all %}
@@ -133,7 +135,7 @@
             {% else %}
                 <div class="col-md-12">
                     <div class="alert alert-warning">
-                      <p class="mb-0">{% trans "This event is not active." %}</p>
+                        <p class="mb-0">{% trans "This event is not active." %}</p>
                     </div>
                 </div>
             {% endif %}

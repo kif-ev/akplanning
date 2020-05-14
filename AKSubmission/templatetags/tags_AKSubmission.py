@@ -33,7 +33,6 @@ def category_linked_badge(category, event_slug):
 
 @register.filter
 def message_bootstrap_class(tag):
-    print(tag)
     if tag == "error":
         return "alert-danger"
     elif tag == "success":

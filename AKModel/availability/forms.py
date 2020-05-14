@@ -5,7 +5,6 @@
 import datetime
 import json
 
-import pytz
 from django import forms
 from django.db import transaction
 from django.utils.dateparse import parse_datetime
@@ -70,7 +69,7 @@ class AvailabilitiesFormMixin(forms.Form):
         return availabilities
 
     def _parse_datetime(self, strdate):
-        tz = pytz.timezone(self.event.timezone)
+        tz = self.event.timezone  # adapt to our event model
 
         obj = parse_datetime(strdate)
         if not obj:
@@ -97,18 +96,15 @@ class AvailabilitiesFormMixin(forms.Form):
                 _("The submitted availability contains an invalid date.")
             )
 
-        tz = pytz.timezone(self.event.timezone)
+        tz = self.event.timezone  # adapt to our event model
 
-        timeframe_start = tz.localize(
-            datetime.datetime.combine(self.event.date_from, datetime.time())
-        )
+        timeframe_start = self.event.start  # adapt to our event model
         if rawavail['start'] < timeframe_start:
             rawavail['start'] = timeframe_start
 
         # add 1 day, not 24 hours, https://stackoverflow.com/a/25427822/2486196
-        timeframe_end = datetime.datetime.combine(self.event.date_to, datetime.time())
+        timeframe_end = self.event.end  # adapt to our event model
         timeframe_end = timeframe_end + datetime.timedelta(days=1)
-        timeframe_end = tz.localize(timeframe_end, is_dst=None)
         if rawavail['end'] > timeframe_end:
             # If the submitted availability ended outside the event timeframe, fix it silently
             rawavail['end'] = timeframe_end
@@ -157,4 +153,4 @@ class AvailabilitiesFormMixin(forms.Form):
             self._set_foreignkeys(instance, availabilities)
             self._replace_availabilities(instance, availabilities)
 
-        return availabilities
+        return instance  # adapt to our forms

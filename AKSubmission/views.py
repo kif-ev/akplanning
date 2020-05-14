@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
-from django.http import Http404, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -227,6 +227,11 @@ class AKEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
             self.object.tags.add(tag)
 
         return super_form_valid
+
+    def get_initial(self):
+        initials = super().get_initial()
+        initials['event'] = self.event
+        return initials
 
 
 class AKInterestView(RedirectView):
