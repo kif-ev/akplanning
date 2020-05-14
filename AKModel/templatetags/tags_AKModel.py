@@ -14,3 +14,15 @@ def footer_info():
 @register.filter
 def check_app_installed(name):
     return apps.is_installed(name)
+
+
+@register.filter
+def message_bootstrap_class(tag):
+    print(tag)
+    if tag == "error":
+        return "alert-danger"
+    elif tag == "success":
+        return "alert-success"
+    elif tag == "warning":
+        return "alert-warning"
+    return "alert-info"

@@ -20,7 +20,7 @@
 {% endblock %}
 
 {% block content %}
-    {% include "AKSubmission/messages.html" %}
+    {% include "messages.html" %}
 
     <div class="float-right">
         <a href='{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}' data-toggle="tooltip"
