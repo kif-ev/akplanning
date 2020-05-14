@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.views.generic import TemplateView
 from rest_framework import viewsets, permissions, mixins
 
 from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner
@@ -95,3 +96,7 @@ class AKSlotViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelM
 
     def get_queryset(self):
         return AKSlot.objects.filter(event=self.event)
+
+
+class UserView(TemplateView):
+    template_name = "AKModel/user.html"

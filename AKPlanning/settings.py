@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'timezone_field',
     'rest_framework',
     'simple_history',
+    'registration',
 ]
 
 MIDDLEWARE = [
@@ -168,5 +169,9 @@ PLAN_WALL_HOURS_RETROSPECT = 3
 PLAN_SHOW_HIERARCHY = True
 # For which time (in seconds) should changes of akslots be highlighted in plan?
 PLAN_MAX_HIGHLIGHT_UPDATE_SECONDS = 2 * 60 * 60
+
+# Registration/login behavior
+SIMPLE_BACKEND_REDIRECT_URL = "/user/"
+LOGIN_REDIRECT_URL = SIMPLE_BACKEND_REDIRECT_URL
 
 include(optional("settings/*.py"))

@@ -19,8 +19,10 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('registration.backends.simple.urls')),
     path('', include('AKModel.urls', namespace='model')),
-    path('i18n/', include('django.conf.urls.i18n'))
+    path('i18n/', include('django.conf.urls.i18n')),
 ]
 
 # Load URLs dynamically (only if components are active)

@@ -20,4 +20,5 @@ urlpatterns = [
             path('api/', include(api_router.urls), name='api'),
         ])
     ),
+    path('user/', views.UserView.as_view(), name="user"),
 ]
