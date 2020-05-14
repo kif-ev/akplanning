@@ -34,8 +34,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         var data = JSON.parse(data_field.attr("value"))
         var events = data.availabilities.map(function (e) {
-            e.start = moment(e.start).tz(data.event.timezone)
-            e.end = moment(e.end).tz(data.event.timezone)
+            e.start = moment(e.start)//.tz(data.event.timezone)
+            e.end = moment(e.end)//.tz(data.event.timezone)
 
             if (e.start.format("HHmmss") == 0 && e.end.format("HHmmss") == 0) {
                 e.allDay = true
