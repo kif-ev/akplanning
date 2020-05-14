@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% load fontawesome_5 %}
+{% load i18n %}
+{% load static %}
+
+{% load tags_AKModel %}
+
+{% block imports %}
+
+    {{ block.super }}
+
+    <link rel="stylesheet" href="{% static 'AKDashboard/style.css' %}">
+
+{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item">
+        {% if 'AKDashboard'|check_app_installed %}
+            <a href="{% url 'dashboard:dashboard' %}">AKPlanning</a>
+        {% else %}
+            AKPlanning
+        {% endif %}
+    </li>
+    <li class="breadcrumb-item">User: {{ user.get_username }}</li>
+{% endblock %}
+
+{% block content %}
+    {% include "messages.html" %}
+
+    <h1>{% trans "Hello" %} {{ user }}!</h1>
+
+    {% if user.is_staff %}
+        <a class="btn btn-primary" href="{% url "admin:index" %}">{% trans "Go to backend" %}</a>
+    {% else %}
+        <div class="alert alert-warning" style="margin-top:20px;margin-bottom: 20px;">
+            {% trans "Please wait for an administrator to confirm your account" %}
+        </div>
+    {% endif %}
+    <a class="btn btn-danger" href="{% url "logout" %}">{% trans "Logout" %}</a>
+
+{% endblock %}

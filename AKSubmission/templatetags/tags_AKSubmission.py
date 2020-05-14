@@ -29,15 +29,3 @@ def category_list(categories, event_slug):
 @register.inclusion_tag("AKSubmission/category_linked_badge.html")
 def category_linked_badge(category, event_slug):
     return {"category": category, "event_slug": event_slug}
-
-
-@register.filter
-def message_bootstrap_class(tag):
-    print(tag)
-    if tag == "error":
-        return "alert-danger"
-    elif tag == "success":
-        return "alert-success"
-    elif tag == "warning":
-        return "alert-warning"
-    return "alert-info"
