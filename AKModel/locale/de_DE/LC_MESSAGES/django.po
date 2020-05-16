@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-14 22:48+0000\n"
+"POT-Creation-Date: 2020-05-16 20:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,7 +33,9 @@ msgstr "Verfügbarkeit"
 
 #: AKModel/availability/forms.py:22
 msgid "Please click and drag to mark the availability during the event."
-msgstr "Bitte klicken und ziehen um die Verfügbarkeiten während des Events zu markieren."
+msgstr ""
+"Bitte klicken und ziehen um die Verfügbarkeiten während des Events zu "
+"markieren."
 
 #: AKModel/availability/forms.py:86
 msgid "The submitted availability does not comply with the required format."
@@ -486,8 +488,19 @@ msgstr "AK Slot"
 msgid "Not scheduled yet"
 msgstr "Noch nicht geplant"
 
-#~ msgid "Notes to organizers"
-#~ msgstr "Notizen an die Organisator*innen"
+#: AKModel/templates/AKModel/user.html:31
+msgid "Hello"
+msgstr "Hallo"
 
-#~ msgid "E-Mail Address"
-#~ msgstr "E-Mail Adresse"
+#: AKModel/templates/AKModel/user.html:34
+msgid "Go to backend"
+msgstr "Zum Backend"
+
+#: AKModel/templates/AKModel/user.html:37
+msgid "Please wait for an administrator to confirm your account"
+msgstr ""
+"Bitte warte darauf, dass ein*e Administrator*in deinen Account bestätigt"
+
+#: AKModel/templates/AKModel/user.html:40
+msgid "Logout"
+msgstr "Ausloggen"
