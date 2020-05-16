@@ -33,9 +33,8 @@ class Migration(migrations.Migration):
             migrate_data_forward,
             migrations.RunPython.noop,
         ),
-        migrations.AlterField(
-            model_name='akowner',
-            name='slug',
-            field=models.SlugField(blank=True, help_text='Slug for URL generation', unique=True, max_length=64, verbose_name='Slug')
+        migrations.AlterUniqueTogether(
+            name='akowner',
+            unique_together={('event', 'name', 'institution'), ('event', 'slug')},
         )
     ]
