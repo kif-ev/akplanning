@@ -20,7 +20,7 @@ python manage.py migrate
 
 # Prepare static files and translations
 python manage.py collectstatic --noinput
-python manage.py compilemessages
+python manage.py compilemessages -l de_DE
 
 # Create superuser
 # Credentials are entered interactively on CLI
