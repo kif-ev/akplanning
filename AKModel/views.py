@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 from rest_framework import viewsets, permissions, mixins
@@ -48,6 +49,13 @@ class FilterByEventSlugMixin(EventSlugMixin):
     def get_queryset(self):
         # Filter current queryset based on url event slug or return 404 if event slug is invalid
         return super().get_queryset().filter(event=self.event)
+
+
+class AdminViewMixin:
+    def get_context_data(self, **kwargs):
+        extra = admin.site.each_context(self.request)
+        extra.update(super().get_context_data(**kwargs))
+        return extra
 
 
 class AKOwnerViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
