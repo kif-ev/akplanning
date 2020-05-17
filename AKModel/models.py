@@ -1,10 +1,9 @@
-from datetime import timedelta
-
-from django.utils.datetime_safe import datetime
 import itertools
+from datetime import timedelta
 
 from django.db import models
 from django.utils import timezone
+from django.utils.datetime_safe import datetime
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
@@ -258,8 +257,8 @@ class Room(models.Model):
     """ A room describes where an AK can be held.
     """
     name = models.CharField(max_length=64, verbose_name=_('Name'), help_text=_('Name or number of the room'))
-    building = models.CharField(max_length=256, blank=True, verbose_name=_('Building'),
-                                help_text=_('Name or number of the building'))
+    location = models.CharField(max_length=256, blank=True, verbose_name=_('Location'),
+                                help_text=_('Name or number of the location'))
     capacity = models.IntegerField(verbose_name=_('Capacity'), help_text=_('Maximum number of people'))
     properties = models.ManyToManyField(to=AKRequirement, blank=True, verbose_name=_('Properties'),
                                         help_text=_('AK requirements fulfilled by the room'))
@@ -270,13 +269,13 @@ class Room(models.Model):
     class Meta:
         verbose_name = _('Room')
         verbose_name_plural = _('Rooms')
-        ordering = ['building', 'name']
-        unique_together = ['event', 'name', 'building']
+        ordering = ['location', 'name']
+        unique_together = ['event', 'name', 'location']
 
     @property
     def title(self):
-        if self.building:
-            return f"{self.building} {self.name}"
+        if self.location:
+            return f"{self.location} {self.name}"
         return self.name
 
     def __str__(self):

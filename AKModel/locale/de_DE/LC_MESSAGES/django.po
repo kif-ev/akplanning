@@ -425,8 +425,8 @@ msgid "Building"
 msgstr "Gebäude"
 
 #: AKModel/models.py:262
-msgid "Name or number of the building"
-msgstr "Name oder Nummer des Gebäudes"
+msgid "Name or number of the location"
+msgstr "Name oder Nummer des Ortes"
 
 #: AKModel/models.py:263
 msgid "Capacity"
