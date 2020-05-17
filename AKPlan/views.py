@@ -38,8 +38,8 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
             if akslot.room is not None:
                 rooms.add(akslot.room)
                 # Store buildings for hierarchical view
-                if akslot.room.building != '':
-                    buildings.add(akslot.room.building)
+                if akslot.room.location != '':
+                    buildings.add(akslot.room.location)
 
             # Recent AKs: Started but not ended yet
             if akslot.start <= current_timestamp <= akslot.end:
