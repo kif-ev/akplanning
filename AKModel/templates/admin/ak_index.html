@@ -9,7 +9,7 @@
         <ul>
             {% for event in active_events %}
                 <li>
-                    {{ event }}
+                    <a href="{% url 'admin:event_status' slug=event.slug %}">{{ event }}</a>
                     ({{ event.start|timezone:event.timezone|date:"d.m.y"}} -
                     {{ event.end|timezone:event.timezone|date:"d.m.y"}})
                 </li>

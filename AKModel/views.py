@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.shortcuts import get_object_or_404
-from django.views.generic import TemplateView
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+
+from django.views.generic import TemplateView, DetailView
 from rest_framework import viewsets, permissions, mixins
 
 from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner
@@ -108,3 +111,16 @@ class AKSlotViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelM
 
 class UserView(TemplateView):
     template_name = "AKModel/user.html"
+
+
+class EventStatusView(AdminViewMixin, DetailView):
+    template_name = "admin/AKModel/status.html"
+    model = Event
+    context_object_name = "event"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["site_url"] = reverse_lazy("dashboard:dashboard_event", kwargs={'slug': context["event"].slug})
+        context["title"] = _("Event Status")
+        context["unscheduled_slots_count"] = context["event"].akslot_set.filter(start=None).count
+        return context
