@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-10 16:22+0000\n"
+"POT-Creation-Date: 2020-05-17 21:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,10 +18,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: templates/base.html:76
+#: AKOnline/models.py:10
+msgid "URL"
+msgstr "URL"
+
+#: AKOnline/models.py:10
+msgid "URL to the room or server"
+msgstr "URL zum Raum/Server"
+
+#: AKOnline/models.py:13
+msgid "Virtual Room"
+msgstr "Virtueller Raum"
+
+#: AKOnline/models.py:14
+msgid "Virtual Rooms"
+msgstr "Virtuelle Räume"
+
+#: templates/base.html:78
 msgid "Impress"
 msgstr "Impressum"
 
-#: templates/base.html:79
+#: templates/base.html:81
 msgid "This software is open source"
 msgstr "Diese Software ist Open Source"
