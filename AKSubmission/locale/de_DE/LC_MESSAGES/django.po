@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-19 18:41+0000\n"
+"POT-Creation-Date: 2020-05-19 20:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -96,7 +96,7 @@ msgid "History"
 msgstr "Versionsgeschichte"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:48
-#: AKSubmission/templates/AKSubmission/ak_detail.html:153
+#: AKSubmission/templates/AKSubmission/ak_detail.html:157
 #: AKSubmission/templates/AKSubmission/ak_edit.html:16
 #: AKSubmission/templates/AKSubmission/ak_table.html:53
 msgid "Edit"
@@ -149,35 +149,35 @@ msgid "Notes"
 msgstr "Notizen"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:132
-msgid "When?"
-msgstr "Wann?"
-
-#: AKSubmission/templates/AKSubmission/ak_detail.html:133
 #: AKSubmission/templates/AKSubmission/akslot_delete.html:35
 msgid "Duration"
 msgstr "Dauer"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:134
+msgid "When?"
+msgstr "Wann?"
+
+#: AKSubmission/templates/AKSubmission/ak_detail.html:135
 msgid "Room"
 msgstr "Raum"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:156
+#: AKSubmission/templates/AKSubmission/ak_detail.html:160
 msgid "Delete"
 msgstr "Löschen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:168
+#: AKSubmission/templates/AKSubmission/ak_detail.html:172
 msgid "Add another slot"
 msgstr "Einen neuen AK-Slot hinzufügen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:172
+#: AKSubmission/templates/AKSubmission/ak_detail.html:176
 msgid "Possible Times"
 msgstr "Mögliche Zeiten"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:176
+#: AKSubmission/templates/AKSubmission/ak_detail.html:180
 msgid "Start"
 msgstr "Start"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:177
+#: AKSubmission/templates/AKSubmission/ak_detail.html:181
 msgid "End"
 msgstr "Ende"
 

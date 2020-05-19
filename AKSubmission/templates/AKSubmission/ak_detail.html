@@ -129,24 +129,28 @@
     <table class="table">
         <thead>
         <tr>
-            <th>{% trans "When?" %}</th>
             <th>{% trans "Duration" %}</th>
-            <th>{% trans "Room" %}</th>
+            {% if not ak.event.plan_hidden or user.is_staff %}
+                <th>{% trans "When?" %}</th>
+                <th>{% trans "Room" %}</th>
+            {% endif %}
             <th></th>
         </tr>
         </thead>
         <tbody>
         {% for slot in ak.akslot_set.all %}
             <tr>
-                <td>{{ slot.start_simplified }}</td>
                 <td>{{ slot.duration }}</td>
-                <td>
-                    {% if "AKPlan"|check_app_installed and slot.room %}
-                        <a href="{% url 'plan:plan_room' event_slug=ak.event.slug pk=slot.room.pk %}">{{ slot.room }}</a>
-                    {% else %}
-                        {{ slot.room }}
-                    {% endif %}
-                </td>
+                {% if not ak.event.plan_hidden or user.is_staff %}
+                    <td>{{ slot.start_simplified }}</td>
+                    <td>
+                        {% if "AKPlan"|check_app_installed and slot.room %}
+                            <a href="{% url 'plan:plan_room' event_slug=ak.event.slug pk=slot.room.pk %}">{{ slot.room }}</a>
+                        {% else %}
+                            {{ slot.room }}
+                        {% endif %}
+                    </td>
+                {% endif %}
                 <td>
                     {% if not slot.start %}
                         <a href="{% url 'submit:akslot_edit' event_slug=ak.event.slug pk=slot.pk %}"

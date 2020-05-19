@@ -45,11 +45,17 @@
 
     <h1>Plan: {{ event }} ({% trans "Track" %}: {{ track }})</h1>
 
-    {% timezone event.timezone %}
-        <div class="row" style="margin-top:30px;clear: both;">
-            <div class="col-md-12">
-                <div id="planCalendar"></div>
+    {% if not event.plan_hidden or user.is_staff %}
+        {% timezone event.timezone %}
+            <div class="row" style="margin-top:30px;clear:both;">
+                <div class="col-md-12">
+                    <div id="planCalendar"></div>
+                </div>
             </div>
+        {% endtimezone %}
+    {% else %}
+        <div class="alert alert-warning mt-3">
+            <p class="mb-0">{% trans "Plan is not visible (yet)." %}</p>
         </div>
-    {% endtimezone %}
+    {% endif %}
 {% endblock %}

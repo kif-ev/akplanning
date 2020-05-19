@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-16 20:26+0000\n"
+"POT-Creation-Date: 2020-05-19 20:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -75,23 +75,23 @@ msgstr ""
 msgid "AK List"
 msgstr "AK Liste"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:23
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:24
 msgid "Current AKs"
 msgstr "Aktuelle AKs"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:30
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:31
 msgid "AK Wall"
 msgstr "AK-Wall"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:38
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:39
 msgid "Schedule"
 msgstr "AK-Plan"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:48
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:50
 msgid "AK Submission"
 msgstr "AK-Submission"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:64
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:66
 msgid "Write to organizers of this event for questions and comments"
 msgstr ""
 "Kontaktiere die Organisator*innen des Events bei Fragen oder Kommentaren"

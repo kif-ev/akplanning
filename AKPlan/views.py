@@ -63,7 +63,7 @@ class PlanScreenView(PlanIndexView):
     def get(self, request, *args, **kwargs):
         s = super().get(request, *args, **kwargs)
         # Don't show wall when event is not active -> redirect to normal schedule
-        if not self.event.active:
+        if not self.event.active or (self.event.plan_hidden and not request.user.is_staff):
             return redirect(reverse_lazy("plan:plan_overview", kwargs={"event_slug": self.event.slug}))
         return s
 
