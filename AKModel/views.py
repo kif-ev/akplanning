@@ -55,9 +55,18 @@ class FilterByEventSlugMixin(EventSlugMixin):
 
 
 class AdminViewMixin:
+    site_url = ''
+    title = ''
+
     def get_context_data(self, **kwargs):
         extra = admin.site.each_context(self.request)
         extra.update(super().get_context_data(**kwargs))
+
+        if self.site_url != '':
+            extra["site_url"] = self.site_url
+        if self.title != '':
+            extra["title"] = self.title
+
         return extra
 
 
@@ -117,10 +126,10 @@ class EventStatusView(AdminViewMixin, DetailView):
     template_name = "admin/AKModel/status.html"
     model = Event
     context_object_name = "event"
+    title = _("Event Status")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["site_url"] = reverse_lazy("dashboard:dashboard_event", kwargs={'slug': context["event"].slug})
-        context["title"] = _("Event Status")
         context["unscheduled_slots_count"] = context["event"].akslot_set.filter(start=None).count
+        context["site_url"] = reverse_lazy("dashboard:dashboard_event", kwargs={'slug': context["event"].slug})
         return context
