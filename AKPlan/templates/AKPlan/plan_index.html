@@ -7,64 +7,66 @@
 
 
 {% block fullcalendar %}
-    {% get_current_language as LANGUAGE_CODE %}
+    {% if not event.plan_hidden or user.is_staff %}
+        {% get_current_language as LANGUAGE_CODE %}
 
-    <link href='{% static 'AKPlan/vendor/fullcalendar/timeline/main.css' %}' rel='stylesheet'/>
-    <link href='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.css' %}' rel='stylesheet'/>
-    <link href='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.min.css' %}' rel='stylesheet'/>
+        <link href='{% static 'AKPlan/vendor/fullcalendar/timeline/main.css' %}' rel='stylesheet'/>
+        <link href='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.css' %}' rel='stylesheet'/>
+        <link href='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.min.css' %}' rel='stylesheet'/>
 
-    <script src='{% static 'AKPlan/vendor/fullcalendar/timeline/main.js' %}'></script>
-    <script src='{% static 'AKPlan/vendor/fullcalendar/resource-common/main.js' %}'></script>
-    <script src='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.js' %}'></script>
+        <script src='{% static 'AKPlan/vendor/fullcalendar/timeline/main.js' %}'></script>
+        <script src='{% static 'AKPlan/vendor/fullcalendar/resource-common/main.js' %}'></script>
+        <script src='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.js' %}'></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var planEl = document.getElementById('planCalendar');
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var planEl = document.getElementById('planCalendar');
 
-            var plan = new FullCalendar.Calendar(planEl, {
-                plugins: ['resourceTimeline', 'bootstrap'],
-                timeZone: '{{ event.timezone }}',
-                header: {
-                    left: 'today prev,next',
-                    center: 'title',
-                    right: 'resourceTimelineDay,resourceTimelineEvent'
-                },
-                aspectRatio: 2,
-                themeSystem: 'bootstrap',
-                // Adapt to user selected locale
-                locale: '{{ LANGUAGE_CODE }}',
-                defaultView: 'resourceTimelineEvent',
-                views: {
-                    resourceTimelineDay: {
-                        type: 'resourceTimeline',
-                        buttonText: '{% trans "Day" %}',
-                        slotDuration: '01:00',
-                        scrollTime: '08:00',
+                var plan = new FullCalendar.Calendar(planEl, {
+                    plugins: ['resourceTimeline', 'bootstrap'],
+                    timeZone: '{{ event.timezone }}',
+                    header: {
+                        left: 'today prev,next',
+                        center: 'title',
+                        right: 'resourceTimelineDay,resourceTimelineEvent'
                     },
-                    resourceTimelineEvent: {
-                        type: 'resourceTimeline',
-                        visibleRange: {
-                            start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-                            end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
+                    aspectRatio: 2,
+                    themeSystem: 'bootstrap',
+                    // Adapt to user selected locale
+                    locale: '{{ LANGUAGE_CODE }}',
+                    defaultView: 'resourceTimelineEvent',
+                    views: {
+                        resourceTimelineDay: {
+                            type: 'resourceTimeline',
+                            buttonText: '{% trans "Day" %}',
+                            slotDuration: '01:00',
+                            scrollTime: '08:00',
                         },
-                        buttonText: '{% trans "Event" %}',
-                    }
-                },
-                editable: false,
-                allDaySlot: false,
-                nowIndicator: true,
-                eventTextColor: '#fff',
-                eventColor: '#127ba3',
-                resourceAreaWidth: '15%',
-                resourceLabelText: '{% trans "Room" %}',
-                resources: {% include "AKPlan/encode_rooms.html" %},
-                events: {% with akslots as slots %}{% include "AKPlan/encode_events.html" %}{% endwith %},
-                schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
-            });
+                        resourceTimelineEvent: {
+                            type: 'resourceTimeline',
+                            visibleRange: {
+                                start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                                end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
+                            },
+                            buttonText: '{% trans "Event" %}',
+                        }
+                    },
+                    editable: false,
+                    allDaySlot: false,
+                    nowIndicator: true,
+                    eventTextColor: '#fff',
+                    eventColor: '#127ba3',
+                    resourceAreaWidth: '15%',
+                    resourceLabelText: '{% trans "Room" %}',
+                    resources: {% include "AKPlan/encode_rooms.html" %},
+                    events: {% with akslots as slots %}{% include "AKPlan/encode_events.html" %}{% endwith %},
+                    schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+                });
 
-            plan.render();
-        });
-    </script>
+                plan.render();
+            });
+        </script>
+    {% endif %}
 {% endblock %}
 
 
@@ -118,31 +120,39 @@
 
     {% timezone event.timezone %}
         <div class="row" style="margin-top:30px;">
-            {% if event.active %}
-                <div class="col-md-6">
-                    <h2><a name="currentAKs">{% trans "Current AKs" %}:</a></h2>
-                    {% with akslots_now as slots %}
-                        {% include "AKPlan/slots_table.html" %}
-                    {% endwith %}
-                </div>
+            {% if not event.plan_hidden or user.is_staff %}
+                {% if event.active %}
+                    <div class="col-md-6">
+                        <h2><a name="currentAKs">{% trans "Current AKs" %}:</a></h2>
+                        {% with akslots_now as slots %}
+                            {% include "AKPlan/slots_table.html" %}
+                        {% endwith %}
+                    </div>
 
-                <div class="col-md-6">
-                    <h2><a name="currentAKs">{% trans "Next AKs" %}:</a></h2>
-                    {% with akslots_next as slots %}
-                        {% include "AKPlan/slots_table.html" %}
-                    {% endwith %}
+                    <div class="col-md-6">
+                        <h2><a name="currentAKs">{% trans "Next AKs" %}:</a></h2>
+                        {% with akslots_next as slots %}
+                            {% include "AKPlan/slots_table.html" %}
+                        {% endwith %}
+                    </div>
+                {% else %}
+                    <div class="col-md-12">
+                        <div class="alert alert-warning">
+                            <p class="mb-0">{% trans "This event is not active." %}</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="col-md-12">
+                    <div id="planCalendar" style="margin-top:30px;"></div>
                 </div>
             {% else %}
                 <div class="col-md-12">
                     <div class="alert alert-warning">
-                        <p class="mb-0">{% trans "This event is not active." %}</p>
+                        <p class="mb-0">{% trans "Plan is not visible (yet)." %}</p>
                     </div>
                 </div>
             {% endif %}
-
-            <div class="col-md-12">
-                <div id="planCalendar" style="margin-top:30px;"></div>
-            </div>
         </div>
     {% endtimezone %}
 {% endblock %}

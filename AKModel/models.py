@@ -26,6 +26,8 @@ class Event(models.Model):
     end = models.DateTimeField(verbose_name=_('End'), help_text=_('Time the event ends'))
 
     active = models.BooleanField(verbose_name=_('Active State'), help_text=_('Marks currently active events'))
+    plan_hidden = models.BooleanField(verbose_name=_('Plan Hidden'), help_text=_('Hides plan for non-staff users'),
+                                      default=True)
 
     base_url = models.URLField(verbose_name=_("Base URL"), help_text=_("Prefix for wiki link construction"), blank=True)
     default_slot = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Default Slot Length'),
