@@ -141,7 +141,7 @@
                 <td>{{ slot.start_simplified }}</td>
                 <td>{{ slot.duration }}</td>
                 <td>
-                    {% if "AKPlan"|check_app_installed %}
+                    {% if "AKPlan"|check_app_installed and slot.room %}
                         <a href="{% url 'plan:plan_room' event_slug=ak.event.slug pk=slot.room.pk %}">{{ slot.room }}</a>
                     {% else %}
                         {{ slot.room }}
