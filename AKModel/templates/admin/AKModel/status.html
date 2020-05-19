@@ -1,4 +1,5 @@
 {% extends "admin_base.html" %}
+{% load tags_AKModel %}
 
 {% load i18n %}
 {% load tz %}
@@ -56,7 +57,15 @@
                     <td>{% trans "Slots" %}</td><td>{{ event.akslot_set.count }}</td>
                 </tr>
                 <tr>
-                  <td>{% trans "Unscheduled Slots" %}</td><td>{{ unscheduled_slots_count }}</td>
+                  <td>{% trans "Unscheduled Slots" %}</td><td>
+                    {% if "AKScheduling"|check_app_installed %}
+                        <a href="{% url 'admin:slots_unscheduled' event_slug=event.slug %}">
+                            {{ unscheduled_slots_count }}
+                        </a>
+                    {% else %}
+                        {{ unscheduled_slots_count }}
+                    {% endif %}
+                </td>
                 </tr>
             </tbody>
         </table>

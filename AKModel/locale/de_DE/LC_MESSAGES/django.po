@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-18 09:42+0000\n"
+"POT-Creation-Date: 2020-05-19 06:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,24 +11,24 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKModel/admin.py:33 AKModel/admin.py:34
-#: AKModel/templates/admin/AKModel/status.html:6
+#: AKModel/admin.py:34 AKModel/admin.py:35
+#: AKModel/templates/admin/AKModel/status.html:7
 msgid "Status"
 msgstr "Status"
 
-#: AKModel/admin.py:112
+#: AKModel/admin.py:113
 msgid "Wish"
 msgstr "AK-Wunsch"
 
-#: AKModel/admin.py:118
+#: AKModel/admin.py:119
 msgid "Is wish"
 msgstr "Ist ein Wunsch"
 
-#: AKModel/admin.py:119
+#: AKModel/admin.py:120
 msgid "Is not a wish"
 msgstr "Ist kein Wunsch"
 
-#: AKModel/admin.py:146
+#: AKModel/admin.py:147
 msgid "Export to wiki syntax"
 msgstr "In Wiki-Syntax exportieren"
 
@@ -54,9 +54,9 @@ msgstr "Die eingegebene Verfügbarkeit enthält ein ungültiges Datum."
 msgid "Please fill in your availabilities!"
 msgstr "Bitte Verfügbarkeiten eintragen!"
 
-#: AKModel/availability/models.py:38 AKModel/models.py:40 AKModel/models.py:69
-#: AKModel/models.py:121 AKModel/models.py:140 AKModel/models.py:172
-#: AKModel/models.py:225 AKModel/models.py:267 AKModel/models.py:297
+#: AKModel/availability/models.py:38 AKModel/models.py:39 AKModel/models.py:68
+#: AKModel/models.py:120 AKModel/models.py:139 AKModel/models.py:171
+#: AKModel/models.py:224 AKModel/models.py:266 AKModel/models.py:296
 msgid "Event"
 msgstr "Event"
 
@@ -224,176 +224,176 @@ msgstr "Universität o.ä."
 msgid "Web Link"
 msgstr "Internet Link"
 
-#: AKModel/models.py:67
+#: AKModel/models.py:66
 msgid "Link to Homepage"
 msgstr "Link zu Homepage oder Webseite"
 
-#: AKModel/models.py:73
+#: AKModel/models.py:72
 msgid "AK Owner"
 msgstr "AK Leitung"
 
-#: AKModel/models.py:74
+#: AKModel/models.py:73
 msgid "AK Owners"
 msgstr "AK Leitungen"
 
-#: AKModel/models.py:116
+#: AKModel/models.py:115
 msgid "Name of the AK Category"
 msgstr "Name des AK Kategorie"
 
-#: AKModel/models.py:117 AKModel/models.py:138
+#: AKModel/models.py:116 AKModel/models.py:137
 msgid "Color"
 msgstr "Farbe"
 
-#: AKModel/models.py:117 AKModel/models.py:138
+#: AKModel/models.py:116 AKModel/models.py:137
 msgid "Color for displaying"
 msgstr "Farbe für die Anzeige"
 
-#: AKModel/models.py:118 AKModel/models.py:191
+#: AKModel/models.py:117 AKModel/models.py:190
 msgid "Description"
 msgstr "Beschreibung"
 
-#: AKModel/models.py:119
+#: AKModel/models.py:118
 msgid "Short description of this AK Category"
 msgstr "Beschreibung der AK-Kategorie"
 
-#: AKModel/models.py:126
+#: AKModel/models.py:125
 msgid "AK Categories"
 msgstr "AK Kategorien"
 
-#: AKModel/models.py:137
+#: AKModel/models.py:136
 msgid "Name of the AK Track"
 msgstr "Name des AK Tracks"
 
-#: AKModel/models.py:144
+#: AKModel/models.py:143
 msgid "AK Track"
 msgstr "AK Track"
 
-#: AKModel/models.py:145
+#: AKModel/models.py:144
 msgid "AK Tracks"
 msgstr "AK Tracks"
 
-#: AKModel/models.py:156
+#: AKModel/models.py:155
 msgid "Name of the AK Tag"
 msgstr "Name das AK Tags"
 
-#: AKModel/models.py:159
+#: AKModel/models.py:158
 msgid "AK Tag"
 msgstr "AK Tag"
 
-#: AKModel/models.py:160
+#: AKModel/models.py:159
 msgid "AK Tags"
 msgstr "AK Tags"
 
-#: AKModel/models.py:170
+#: AKModel/models.py:169
 msgid "Name of the Requirement"
 msgstr "Name der Anforderung"
 
-#: AKModel/models.py:176
+#: AKModel/models.py:175
 msgid "AK Requirement"
 msgstr "AK Anforderung"
 
-#: AKModel/models.py:177
+#: AKModel/models.py:176
 msgid "AK Requirements"
 msgstr "AK Anforderungen"
 
-#: AKModel/models.py:188
+#: AKModel/models.py:187
 msgid "Name of the AK"
 msgstr "Name des AKs"
 
-#: AKModel/models.py:189
+#: AKModel/models.py:188
 msgid "Short Name"
 msgstr "Kurzer Name"
 
-#: AKModel/models.py:190
+#: AKModel/models.py:189
 msgid "Name displayed in the schedule"
 msgstr "Name zur Anzeige im AK Plan"
 
-#: AKModel/models.py:191
+#: AKModel/models.py:190
 msgid "Description of the AK"
 msgstr "Beschreibung des AKs"
 
-#: AKModel/models.py:193
+#: AKModel/models.py:192
 msgid "Owners"
 msgstr "Leitungen"
 
-#: AKModel/models.py:194
+#: AKModel/models.py:193
 msgid "Those organizing the AK"
 msgstr "Menschen, die den AK organisieren und halten"
 
-#: AKModel/models.py:197
+#: AKModel/models.py:196
 msgid "Link to wiki page"
 msgstr "Link zur Wiki Seite"
 
-#: AKModel/models.py:199
+#: AKModel/models.py:198
 msgid "Category"
 msgstr "Kategorie"
 
-#: AKModel/models.py:200
+#: AKModel/models.py:199
 msgid "Category of the AK"
 msgstr "Kategorie des AKs"
 
-#: AKModel/models.py:201
+#: AKModel/models.py:200
 msgid "Tags"
 msgstr "Tags"
 
-#: AKModel/models.py:201
+#: AKModel/models.py:200
 msgid "Tags provided by owners"
 msgstr "Tags, die durch die AK Leitung vergeben wurden"
 
-#: AKModel/models.py:202
+#: AKModel/models.py:201
 msgid "Track"
 msgstr "Track"
 
-#: AKModel/models.py:203
+#: AKModel/models.py:202
 msgid "Track the AK belongs to"
 msgstr "Track zu dem der AK gehört"
 
-#: AKModel/models.py:205
+#: AKModel/models.py:204
 msgid "Resolution Intention"
 msgstr "Resolutionsabsicht"
 
-#: AKModel/models.py:206
+#: AKModel/models.py:205
 msgid "Intends to submit a resolution"
 msgstr "Beabsichtigt eine Resolution einzureichen"
 
-#: AKModel/models.py:207
+#: AKModel/models.py:206
 msgid "Present this AK"
 msgstr "AK Präsentieren"
 
-#: AKModel/models.py:208
+#: AKModel/models.py:207
 msgid "Present results of this AK"
 msgstr "Die Ergebnisse dieses AKs vorstellen"
 
-#: AKModel/models.py:210
+#: AKModel/models.py:209
 msgid "Requirements"
 msgstr "Anforderungen"
 
-#: AKModel/models.py:211
+#: AKModel/models.py:210
 msgid "AK's Requirements"
 msgstr "Anforderungen des AKs"
 
-#: AKModel/models.py:213
+#: AKModel/models.py:212
 msgid "Conflicting AKs"
 msgstr "AK Konflikte"
 
-#: AKModel/models.py:214
+#: AKModel/models.py:213
 msgid "AKs that conflict and thus must not take place at the same time"
 msgstr ""
 "AKs, die Konflikte haben und deshalb nicht gleichzeitig stattfinden dürfen"
 
-#: AKModel/models.py:215
+#: AKModel/models.py:214
 msgid "Prerequisite AKs"
 msgstr "Vorausgesetzte AKs"
 
-#: AKModel/models.py:216
+#: AKModel/models.py:215
 msgid "AKs that should precede this AK in the schedule"
 msgstr "AKS die im AK Plan vor diesem AK stattfinden müssen"
 
-#: AKModel/models.py:218
+#: AKModel/models.py:217
 msgid "Organizational Notes"
 msgstr "Notizen zur Organisation"
 
-#: AKModel/models.py:219
+#: AKModel/models.py:218
 msgid ""
 "Notes to organizers. These are public. For private notes, please send an e-"
 "mail."
@@ -401,28 +401,28 @@ msgstr ""
 "Notizen an die Organisator*innen. Diese sind öffentlich, für private "
 "Anmerkungen bitte eine E-Mail schicken."
 
-#: AKModel/models.py:221
+#: AKModel/models.py:220
 msgid "Interest"
 msgstr "Interesse"
 
-#: AKModel/models.py:221
+#: AKModel/models.py:220
 msgid "Expected number of people"
 msgstr "Erwartete Personenzahl"
 
-#: AKModel/models.py:222
+#: AKModel/models.py:221
 msgid "Interest Counter"
 msgstr "Interessenszähler"
 
-#: AKModel/models.py:223
+#: AKModel/models.py:222
 msgid "People who have indicated interest online"
 msgstr "Anzahl Personen, die online Interesse bekundet haben"
 
-#: AKModel/models.py:232 AKModel/templates/admin/AKModel/status.html:46
-#: AKModel/templates/admin/AKModel/status.html:53
+#: AKModel/models.py:231 AKModel/templates/admin/AKModel/status.html:47
+#: AKModel/templates/admin/AKModel/status.html:54
 msgid "AKs"
 msgstr "AKs"
 
-#: AKModel/models.py:260
+#: AKModel/models.py:259
 msgid "Name or number of the room"
 msgstr "Name oder Nummer des Raums"
 
@@ -438,59 +438,59 @@ msgstr "Name oder Nummer des Ortes"
 msgid "Capacity"
 msgstr "Kapazität"
 
-#: AKModel/models.py:263
+#: AKModel/models.py:262
 msgid "Maximum number of people"
 msgstr "Maximale Personenzahl"
 
-#: AKModel/models.py:264
+#: AKModel/models.py:263
 msgid "Properties"
 msgstr "Eigenschaften"
 
-#: AKModel/models.py:265
+#: AKModel/models.py:264
 msgid "AK requirements fulfilled by the room"
 msgstr "AK Anforderungen, die dieser Raum erfüllt"
 
-#: AKModel/models.py:272 AKModel/templates/admin/AKModel/status.html:30
+#: AKModel/models.py:271 AKModel/templates/admin/AKModel/status.html:31
 msgid "Rooms"
 msgstr "Räume"
 
-#: AKModel/models.py:289
+#: AKModel/models.py:288
 msgid "AK being mapped"
 msgstr "AK, der zugeordnet wird"
 
-#: AKModel/models.py:291
+#: AKModel/models.py:290
 msgid "Room the AK will take place in"
 msgstr "Raum in dem der AK stattfindet"
 
-#: AKModel/models.py:292
+#: AKModel/models.py:291
 msgid "Slot Begin"
 msgstr "Beginn des Slots"
 
-#: AKModel/models.py:292
+#: AKModel/models.py:291
 msgid "Time and date the slot begins"
 msgstr "Zeit und Datum zu der der AK beginnt"
 
-#: AKModel/models.py:294
+#: AKModel/models.py:293
 msgid "Duration"
 msgstr "Dauer"
 
-#: AKModel/models.py:295
+#: AKModel/models.py:294
 msgid "Length in hours"
 msgstr "Länge in Stunden"
 
-#: AKModel/models.py:300
+#: AKModel/models.py:299
 msgid "Last update"
 msgstr "Letzte Aktualisierung"
 
-#: AKModel/models.py:303
+#: AKModel/models.py:302
 msgid "AK Slot"
 msgstr "AK Slot"
 
-#: AKModel/models.py:304
+#: AKModel/models.py:303
 msgid "AK Slots"
 msgstr "AK Slot"
 
-#: AKModel/models.py:318
+#: AKModel/models.py:317
 msgid "Not scheduled yet"
 msgstr "Noch nicht geplant"
 
@@ -498,56 +498,6 @@ msgstr "Noch nicht geplant"
 msgid "Administration"
 msgstr "Verwaltung"
 
-#: AKModel/templates/AKModel/user.html:40
-msgid "Logout"
-msgstr "Ausloggen"
-
-#: AKModel/templates/admin/AKModel/status.html:13
-#, fuzzy
-#| msgid "AK Categories"
-msgid "Categories"
-msgstr "AK Kategorien"
-
-#: AKModel/templates/admin/AKModel/status.html:15
-#, fuzzy
-#| msgid "No categories yet"
-msgid "No categroies yet"
-msgstr "Bisher keine Kategorien"
-
-#: AKModel/templates/admin/AKModel/status.html:28
-msgid "Add category"
-msgstr "Kategorie hinzufügen"
-
-#: AKModel/templates/admin/AKModel/status.html:32
-msgid "No rooms yet"
-msgstr "Bisher keine Räume"
-
-#: AKModel/templates/admin/AKModel/status.html:44
-msgid "Add Room"
-msgstr "Raum hinzufügen"
-
-#: AKModel/templates/admin/AKModel/status.html:48
-msgid "No AKs yet"
-msgstr "Bisher keine AKs"
-
-#: AKModel/templates/admin/AKModel/status.html:56
-msgid "Slots"
-msgstr "Slots"
-
-#: AKModel/templates/admin/AKModel/status.html:59
-msgid "Unscheduled Slots"
-msgstr "Ungeplante Slots"
-
-#: AKModel/templates/admin/ak_index.html:7
-msgid "Active Events"
-msgstr "Aktive Events"
-
-#: AKModel/views.py:124
-msgid "Event Status"
-msgstr "Eventstatus"
-
-#~ msgid "Notes to organizers"
-#~ msgstr "Notizen an die Organisator*innen"
 #: AKModel/templates/AKModel/user.html:31
 msgid "Hello"
 msgstr "Hallo"
@@ -561,3 +511,53 @@ msgid "Please wait for an administrator to confirm your account"
 msgstr ""
 "Bitte warte darauf, dass ein*e Administrator*in deinen Account bestätigt"
 
+#: AKModel/templates/AKModel/user.html:40
+msgid "Logout"
+msgstr "Ausloggen"
+
+#: AKModel/templates/admin/AKModel/status.html:14
+#, fuzzy
+#| msgid "AK Categories"
+msgid "Categories"
+msgstr "AK Kategorien"
+
+#: AKModel/templates/admin/AKModel/status.html:16
+#, fuzzy
+#| msgid "No categories yet"
+msgid "No categroies yet"
+msgstr "Bisher keine Kategorien"
+
+#: AKModel/templates/admin/AKModel/status.html:29
+msgid "Add category"
+msgstr "Kategorie hinzufügen"
+
+#: AKModel/templates/admin/AKModel/status.html:33
+msgid "No rooms yet"
+msgstr "Bisher keine Räume"
+
+#: AKModel/templates/admin/AKModel/status.html:45
+msgid "Add Room"
+msgstr "Raum hinzufügen"
+
+#: AKModel/templates/admin/AKModel/status.html:49
+msgid "No AKs yet"
+msgstr "Bisher keine AKs"
+
+#: AKModel/templates/admin/AKModel/status.html:57
+msgid "Slots"
+msgstr "Slots"
+
+#: AKModel/templates/admin/AKModel/status.html:60
+msgid "Unscheduled Slots"
+msgstr "Ungeplante Slots"
+
+#: AKModel/templates/admin/ak_index.html:7
+msgid "Active Events"
+msgstr "Aktive Events"
+
+#: AKModel/views.py:129
+msgid "Event Status"
+msgstr "Eventstatus"
+
+#~ msgid "Notes to organizers"
+#~ msgstr "Notizen an die Organisator*innen"

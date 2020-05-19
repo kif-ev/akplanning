@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, F
@@ -23,10 +24,10 @@ class EventAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super().get_urls()
-        my_urls = [
+        custom_urls = [
             path('<slug:slug>/status/', self.admin_site.admin_view(EventStatusView.as_view()), name="event_status")
         ]
-        return my_urls + urls
+        return custom_urls + urls
 
     def status_url(self, obj):
         return format_html("<a href='{url}'>{text}</a>",
@@ -178,6 +179,18 @@ class AKSlotAdmin(admin.ModelAdmin):
     ordering = ['start']
 
     readonly_fields = ['updated']
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = []
+        if apps.is_installed("AKScheduling"):
+            from AKScheduling.views import UnscheduledSlotsAdminView
+
+            custom_urls.extend([
+                path('<slug:event_slug>/unscheduled/', self.admin_site.admin_view(UnscheduledSlotsAdminView.as_view()),
+                     name="slots_unscheduled")
+            ])
+        return custom_urls + urls
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of associated event

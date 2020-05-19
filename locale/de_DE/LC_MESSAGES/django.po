@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-17 21:09+0000\n"
+"POT-Creation-Date: 2020-05-19 06:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,6 +33,18 @@ msgstr "Virtueller Raum"
 #: AKOnline/models.py:14
 msgid "Virtual Rooms"
 msgstr "Virtuelle Räume"
+
+#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:7
+msgid "Unscheduled AK Slots"
+msgstr "Noch nicht geschedulte AK-Slots"
+
+#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:11
+msgid "Count"
+msgstr "Anzahl"
+
+#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:34
+msgid "Event Status"
+msgstr "Event-Status"
 
 #: templates/base.html:78
 msgid "Impress"
