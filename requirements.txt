@@ -6,3 +6,4 @@ django-timezone-field==4.0
 djangorestframework==3.11.0
 django-simple-history==2.10.0
 django-registration-redux==2.8
+mysqlclient==1.4.6  # for production deployment

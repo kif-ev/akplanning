@@ -156,10 +156,10 @@ class AKAdmin(SimpleHistoryAdmin):
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
     model = Room
-    list_display = ['name', 'building', 'capacity', 'event']
-    list_filter = ['building', 'properties', 'event']
+    list_display = ['name', 'location', 'capacity', 'event']
+    list_filter = ['location', 'properties', 'event']
     list_editable = []
-    ordering = ['building', 'name']
+    ordering = ['location', 'name']
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'event':

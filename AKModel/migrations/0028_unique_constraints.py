@@ -39,10 +39,6 @@ class Migration(migrations.Migration):
             unique_together={('event', 'name')},
         ),
         migrations.AlterUniqueTogether(
-            name='akowner',
-            unique_together={('event', 'name', 'institution'), ('event', 'slug')},
-        ),
-        migrations.AlterUniqueTogether(
             name='akrequirement',
             unique_together={('event', 'name')},
         ),
