@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-17 21:09+0000\n"
+"POT-Creation-Date: 2020-05-19 06:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,19 +11,24 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKModel/admin.py:97
+#: AKModel/admin.py:34 AKModel/admin.py:35
+#: AKModel/templates/admin/AKModel/status.html:7
+msgid "Status"
+msgstr "Status"
+
+#: AKModel/admin.py:113
 msgid "Wish"
 msgstr "AK-Wunsch"
 
-#: AKModel/admin.py:103
+#: AKModel/admin.py:119
 msgid "Is wish"
 msgstr "Ist ein Wunsch"
 
-#: AKModel/admin.py:104
+#: AKModel/admin.py:120
 msgid "Is not a wish"
 msgstr "Ist kein Wunsch"
 
-#: AKModel/admin.py:131
+#: AKModel/admin.py:147
 msgid "Export to wiki syntax"
 msgstr "In Wiki-Syntax exportieren"
 
@@ -412,7 +417,8 @@ msgstr "Interessenszähler"
 msgid "People who have indicated interest online"
 msgstr "Anzahl Personen, die online Interesse bekundet haben"
 
-#: AKModel/models.py:231
+#: AKModel/models.py:231 AKModel/templates/admin/AKModel/status.html:47
+#: AKModel/templates/admin/AKModel/status.html:54
 msgid "AKs"
 msgstr "AKs"
 
@@ -444,7 +450,7 @@ msgstr "Eigenschaften"
 msgid "AK requirements fulfilled by the room"
 msgstr "AK Anforderungen, die dieser Raum erfüllt"
 
-#: AKModel/models.py:271
+#: AKModel/models.py:271 AKModel/templates/admin/AKModel/status.html:31
 msgid "Rooms"
 msgstr "Räume"
 
@@ -488,6 +494,10 @@ msgstr "AK Slot"
 msgid "Not scheduled yet"
 msgstr "Noch nicht geplant"
 
+#: AKModel/site.py:10
+msgid "Administration"
+msgstr "Verwaltung"
+
 #: AKModel/templates/AKModel/user.html:31
 msgid "Hello"
 msgstr "Hallo"
@@ -504,3 +514,50 @@ msgstr ""
 #: AKModel/templates/AKModel/user.html:40
 msgid "Logout"
 msgstr "Ausloggen"
+
+#: AKModel/templates/admin/AKModel/status.html:14
+#, fuzzy
+#| msgid "AK Categories"
+msgid "Categories"
+msgstr "AK Kategorien"
+
+#: AKModel/templates/admin/AKModel/status.html:16
+#, fuzzy
+#| msgid "No categories yet"
+msgid "No categroies yet"
+msgstr "Bisher keine Kategorien"
+
+#: AKModel/templates/admin/AKModel/status.html:29
+msgid "Add category"
+msgstr "Kategorie hinzufügen"
+
+#: AKModel/templates/admin/AKModel/status.html:33
+msgid "No rooms yet"
+msgstr "Bisher keine Räume"
+
+#: AKModel/templates/admin/AKModel/status.html:45
+msgid "Add Room"
+msgstr "Raum hinzufügen"
+
+#: AKModel/templates/admin/AKModel/status.html:49
+msgid "No AKs yet"
+msgstr "Bisher keine AKs"
+
+#: AKModel/templates/admin/AKModel/status.html:57
+msgid "Slots"
+msgstr "Slots"
+
+#: AKModel/templates/admin/AKModel/status.html:60
+msgid "Unscheduled Slots"
+msgstr "Ungeplante Slots"
+
+#: AKModel/templates/admin/ak_index.html:7
+msgid "Active Events"
+msgstr "Aktive Events"
+
+#: AKModel/views.py:129
+msgid "Event Status"
+msgstr "Eventstatus"
+
+#~ msgid "Notes to organizers"
+#~ msgstr "Notizen an die Organisator*innen"

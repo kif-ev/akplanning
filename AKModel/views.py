@@ -1,5 +1,9 @@
+from django.contrib import admin
 from django.shortcuts import get_object_or_404
-from django.views.generic import TemplateView
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+
+from django.views.generic import TemplateView, DetailView
 from rest_framework import viewsets, permissions, mixins
 
 from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner
@@ -48,6 +52,22 @@ class FilterByEventSlugMixin(EventSlugMixin):
     def get_queryset(self):
         # Filter current queryset based on url event slug or return 404 if event slug is invalid
         return super().get_queryset().filter(event=self.event)
+
+
+class AdminViewMixin:
+    site_url = ''
+    title = ''
+
+    def get_context_data(self, **kwargs):
+        extra = admin.site.each_context(self.request)
+        extra.update(super().get_context_data(**kwargs))
+
+        if self.site_url != '':
+            extra["site_url"] = self.site_url
+        if self.title != '':
+            extra["title"] = self.title
+
+        return extra
 
 
 class AKOwnerViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -100,3 +120,16 @@ class AKSlotViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelM
 
 class UserView(TemplateView):
     template_name = "AKModel/user.html"
+
+
+class EventStatusView(AdminViewMixin, DetailView):
+    template_name = "admin/AKModel/status.html"
+    model = Event
+    context_object_name = "event"
+    title = _("Event Status")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["unscheduled_slots_count"] = context["event"].akslot_set.filter(start=None).count
+        context["site_url"] = reverse_lazy("dashboard:dashboard_event", kwargs={'slug': context["event"].slug})
+        return context

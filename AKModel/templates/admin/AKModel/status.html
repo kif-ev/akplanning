@@ -1,0 +1,75 @@
+{% extends "admin_base.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load tz %}
+
+{% block title %}{% trans "Status" %}: {{event}}{% endblock %}
+
+{% block content %}
+    <h2><a href="{% url 'admin:AKModel_event_change' event.pk %}">{{event}}</a></h2>
+    {% timezone event.timezone %}
+    <h5>{{ event.start }} - {{ event.end }}</h5>
+
+    <h3 class="block-header">{% trans "Categories" %}</h3>
+    {% if event.akcategory_set.count == 0 %}
+        <p class="text-danger">{% trans "No categroies yet" %}</p>
+    {% else %}
+        <p>
+            {{ event.akcategory_set.count }}:
+            {% for category in event.akcategory_set.all %}
+                {% if forloop.counter0 > 0 %}
+                    &middot;
+                {% endif %}
+                <a href="{% url 'admin:AKModel_akcategory_change' category.pk %}">{{ category }}</a>
+                ({{ category.ak_set.count }})
+            {% endfor %}
+        </p>
+    {% endif %}
+    <a class="btn btn-success" href="{% url 'admin:AKModel_akcategory_add' %}">{% trans "Add category" %}</a>
+
+    <h3 class="block-header">{% trans "Rooms" %}</h3>
+    {% if event.room_set.count == 0 %}
+        <p class="text-danger">{% trans "No rooms yet" %}</p>
+    {% else %}
+        <p>
+            {{ event.room_set.count }}:
+            {% for room in event.room_set.all %}
+                {% if forloop.counter0 > 0 %}
+                    &middot;
+                {% endif %}
+                <a href="{% url 'admin:AKModel_room_change' room.pk %}">{{ room }}</a>
+            {% endfor %}
+        </p>
+    {% endif %}
+    <a class="btn btn-success" href="{% url 'admin:AKModel_room_add' %}">{% trans "Add Room" %}</a>
+
+    <h3 class="block-header">{% trans "AKs" %}</h3>
+    {% if event.ak_set.count == 0 %}
+        <p class="text-danger">{% trans "No AKs yet" %}</p>
+    {% else %}
+        <table>
+            <tbody>
+                <tr>
+                    <td>{% trans "AKs" %}</td><td>{{ event.ak_set.count }}</td>
+                </tr>
+                <tr>
+                    <td>{% trans "Slots" %}</td><td>{{ event.akslot_set.count }}</td>
+                </tr>
+                <tr>
+                  <td>{% trans "Unscheduled Slots" %}</td><td>
+                    {% if "AKScheduling"|check_app_installed %}
+                        <a href="{% url 'admin:slots_unscheduled' event_slug=event.slug %}">
+                            {{ unscheduled_slots_count }}
+                        </a>
+                    {% else %}
+                        {{ unscheduled_slots_count }}
+                    {% endif %}
+                </td>
+                </tr>
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% endtimezone %}
+{% endblock %}

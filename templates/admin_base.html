@@ -1,0 +1,20 @@
+{% extends "admin/base_site.html" %}
+
+{% load bootstrap4 %}
+{% load fontawesome_5 %}
+
+{% block extrahead %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery='slim' %}
+    {% fontawesome_5_static %}
+
+    <style>
+        a.btn {
+            color: #FFFFFF;
+        }
+
+        .block-header {
+            margin-top: 20px;
+        }
+    </style>
+{% endblock %}

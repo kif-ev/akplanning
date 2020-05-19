@@ -283,8 +283,8 @@ msgid ""
 "System is not yet configured for AK submission and listing. Please try again "
 "later."
 msgstr ""
-"Das System ist noch nicht fertig eingerichtet. Bitte versuch es später noch "
-"einmal."
+"Das System ist bisher nicht für Eintragen und Anzeige von AKs konfiguriert. "
+"Bitte versuche es später wieder."
 
 #: AKSubmission/templates/AKSubmission/submission_overview.html:42
 msgid ""

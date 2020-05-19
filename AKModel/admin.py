@@ -1,22 +1,38 @@
+from django.apps import apps
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, F
 from django.shortcuts import render
+from django.urls import path, reverse_lazy
 from django.utils import timezone
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from simple_history.admin import SimpleHistoryAdmin
 
 from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room
+from AKModel.views import EventStatusView
 
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     model = Event
-    list_display = ['name', 'place', 'start', 'end', 'active']
+    list_display = ['name', 'status_url', 'place', 'start', 'end', 'active']
     list_filter = ['active']
     list_editable = ['active']
     ordering = ['-start']
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('<slug:slug>/status/', self.admin_site.admin_view(EventStatusView.as_view()), name="event_status")
+        ]
+        return custom_urls + urls
+
+    def status_url(self, obj):
+        return format_html("<a href='{url}'>{text}</a>",
+                           url=reverse_lazy('admin:event_status', kwargs={'slug': obj.slug}), text=_("Status"))
+    status_url.short_description = text=_("Status")
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of event
@@ -163,6 +179,18 @@ class AKSlotAdmin(admin.ModelAdmin):
     ordering = ['start']
 
     readonly_fields = ['updated']
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = []
+        if apps.is_installed("AKScheduling"):
+            from AKScheduling.views import UnscheduledSlotsAdminView
+
+            custom_urls.extend([
+                path('<slug:event_slug>/unscheduled/', self.admin_site.admin_view(UnscheduledSlotsAdminView.as_view()),
+                     name="slots_unscheduled")
+            ])
+        return custom_urls + urls
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of associated event
