@@ -140,7 +140,13 @@
             <tr>
                 <td>{{ slot.start_simplified }}</td>
                 <td>{{ slot.duration }}</td>
-                <td>{{ slot.room }}</td>
+                <td>
+                    {% if "AKPlan"|check_app_installed %}
+                        <a href="{% url 'plan:plan_room' event_slug=ak.event.slug pk=slot.room.pk %}">{{ slot.room }}</a>
+                    {% else %}
+                        {{ slot.room }}
+                    {% endif %}
+                </td>
                 <td>
                     {% if not slot.start %}
                         <a href="{% url 'submit:akslot_edit' event_slug=ak.event.slug pk=slot.pk %}"
