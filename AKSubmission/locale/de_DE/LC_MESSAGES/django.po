@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-19 07:23+0000\n"
+"POT-Creation-Date: 2020-05-19 18:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,7 +42,7 @@ msgstr ""
 #: AKSubmission/templates/AKSubmission/ak_edit.html:8
 #: AKSubmission/templates/AKSubmission/ak_history.html:11
 #: AKSubmission/templates/AKSubmission/ak_overview.html:8
-#: AKSubmission/templates/AKSubmission/ak_overview.html:27
+#: AKSubmission/templates/AKSubmission/ak_overview.html:33
 #: AKSubmission/templates/AKSubmission/akowner_create_update.html:7
 #: AKSubmission/templates/AKSubmission/akslot_add_update.html:7
 #: AKSubmission/templates/AKSubmission/akslot_delete.html:7
@@ -225,6 +225,10 @@ msgstr "Tracks"
 msgid "AK List"
 msgstr "AK-Liste"
 
+#: AKSubmission/templates/AKSubmission/ak_overview.html:29
+msgid "Add AK"
+msgstr "AK hinzufügen"
+
 #: AKSubmission/templates/AKSubmission/ak_table.html:44
 msgid "Details"
 msgstr "Details"
@@ -241,21 +245,21 @@ msgstr "AK-Leitung"
 
 #: AKSubmission/templates/AKSubmission/akowner_create_update.html:24
 #: AKSubmission/templates/AKSubmission/akslot_add_update.html:26
-#: AKSubmission/templates/AKSubmission/submit_new.html:41
+msgid "Continue"
+msgstr "Weiter"
+
+#: AKSubmission/templates/AKSubmission/akowner_create_update.html:27
+#: AKSubmission/templates/AKSubmission/akslot_add_update.html:30
+#: AKSubmission/templates/AKSubmission/submit_new.html:45
 msgid "Reset Form"
 msgstr "Formular leeren"
 
-#: AKSubmission/templates/AKSubmission/akowner_create_update.html:28
-#: AKSubmission/templates/AKSubmission/akslot_add_update.html:30
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:42
-#: AKSubmission/templates/AKSubmission/submit_new.html:45
+#: AKSubmission/templates/AKSubmission/akowner_create_update.html:31
+#: AKSubmission/templates/AKSubmission/akslot_add_update.html:34
+#: AKSubmission/templates/AKSubmission/akslot_delete.html:46
+#: AKSubmission/templates/AKSubmission/submit_new.html:49
 msgid "Cancel"
 msgstr "Abbrechen"
-
-#: AKSubmission/templates/AKSubmission/akowner_create_update.html:31
-#: AKSubmission/templates/AKSubmission/akslot_add_update.html:33
-msgid "Continue"
-msgstr "Weiter"
 
 #: AKSubmission/templates/AKSubmission/akslot_add_update.html:7
 #: AKSubmission/templates/AKSubmission/akslot_add_update.html:15
@@ -270,7 +274,7 @@ msgstr "AK-Dauer(n)"
 msgid "Do you really want to delete this AK Slot?"
 msgstr "Willst du diesen AK-Slot wirklich löschen?"
 
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:45
+#: AKSubmission/templates/AKSubmission/akslot_delete.html:42
 msgid "Confirm"
 msgstr "Bestätigen"
 
@@ -325,7 +329,7 @@ msgstr ""
 "Dieses Event is nicht aktiv. Es können keine AKs hinzugefügt oder bearbeitet "
 "werden"
 
-#: AKSubmission/templates/AKSubmission/submit_new.html:48
+#: AKSubmission/templates/AKSubmission/submit_new.html:41
 msgid "Submit"
 msgstr "Eintragen"
 

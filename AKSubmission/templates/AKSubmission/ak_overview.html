@@ -24,6 +24,12 @@
 {% endblock %}
 
 {% block content %}
+    {% if event.active %}
+        <a class="btn btn-success float-right" href="{% url 'submit:submission_overview' event_slug=event.slug %}">
+            {% fa5_icon 'plus' 'fas' %} {% trans "Add AK" %}
+        </a>
+    {% endif %}
+
     <h1>{% trans "AKs" %}: {{ event.name }}</h1>
 
     {% include "AKSubmission/ak_list.html" %}
