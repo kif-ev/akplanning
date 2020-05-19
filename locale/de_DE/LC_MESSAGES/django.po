@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-19 06:38+0000\n"
+"POT-Creation-Date: 2020-05-19 21:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,10 +46,15 @@ msgstr "Anzahl"
 msgid "Event Status"
 msgstr "Event-Status"
 
-#: templates/base.html:78
+#: templates/base.html:28
+msgid ""
+"Are you sure you want to change the language now? This will clear the form!"
+msgstr "Wirklich jetzt die Sprache ändern? Das wird das Formular zurücksetzen!"
+
+#: templates/base.html:97
 msgid "Impress"
 msgstr "Impressum"
 
-#: templates/base.html:81
+#: templates/base.html:100
 msgid "This software is open source"
 msgstr "Diese Software ist Open Source"

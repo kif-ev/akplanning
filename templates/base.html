@@ -19,6 +19,26 @@
 
     <link rel="stylesheet" href="{% static 'common/css/custom.css' %}">
 
+    <script type='text/javascript'>
+        var changed_form = false;
+
+         $(document).ready(function() {
+            // Ask before changing language if user changed main form on page
+            $("#language-switcher").submit(function(e){
+                if(changed_form) {
+                    if(!confirm("{% trans 'Are you sure you want to change the language now? This will clear the form!' %}"))
+                        e.preventDefault(e);
+                }
+            });
+
+            // Remember any main form edits/changes
+            $("form.post-form :input").change(function(){
+                if($(this).val() != '')
+                    changed_form = true;
+            });
+        });
+    </script>
+
     {% block imports %}{% endblock %}
 </head>
 <body>
@@ -29,6 +49,7 @@
                     method="post"
                     class="form-inline"
                     name="language-form"
+                    id="language-switcher"
                     style="flex-direction: column;">
                 {% csrf_token %}
 
