@@ -1,4 +1,6 @@
 {% extends "AKPlan/plan_detail.html" %}
+{% load fontawesome_5 %}
+{% load tags_AKModel %}
 
 {% load tz %}
 {% load i18n %}
@@ -43,7 +45,13 @@
         </ul>
     </div>
 
-    <h1>Plan: {{ event }} ({% trans "Room" %}: {{ room }})</h1>
+    <h1>{% trans "Room" %}: {{ room.name }} {% if room.location != '' %}({{ room.location }}){% endif %}</h1>
+
+    {% if "AKOnline"|check_app_installed and room.virtualroom and room.virtualroom.url != '' %}
+        <a class="btn btn-success" href="{{ room.virtualroom.url }}">
+            {% fa5_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
+        </a>
+    {% endif %}
 
     {% timezone event.timezone %}
         <div class="row" style="margin-top:30px;clear:both;">
@@ -52,4 +60,25 @@
             </div>
         </div>
     {% endtimezone %}
+
+    <table class="table table-borderless" style="margin-top: 30px;">
+        <tbody>
+            <tr>
+                <td>{% trans "Capacity" %}:</td><td>{{ room.capacity }}</td>
+            </tr>
+            {% if room.properties.count > 0 %}
+                <tr>
+                    <td>{% trans "Properties" %}:</td>
+                    <td>
+                        {% for property in room.properties.all %}
+                            {% if forloop.counter0 > 0 %}
+                                ,&nbsp;
+                            {% endif %}
+                            {{ property }}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
 {% endblock %}

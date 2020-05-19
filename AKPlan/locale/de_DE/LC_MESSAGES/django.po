@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-16 20:26+0000\n"
+"POT-Creation-Date: 2020-05-19 07:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,20 +30,20 @@ msgid "Event"
 msgstr "Veranstaltung"
 
 #: AKPlan/templates/AKPlan/plan_index.html:59
-#: AKPlan/templates/AKPlan/plan_room.html:11
-#: AKPlan/templates/AKPlan/plan_room.html:46
+#: AKPlan/templates/AKPlan/plan_room.html:13
+#: AKPlan/templates/AKPlan/plan_room.html:48
 #: AKPlan/templates/AKPlan/plan_wall.html:64
 msgid "Room"
 msgstr "Raum"
 
 #: AKPlan/templates/AKPlan/plan_index.html:74
-#: AKPlan/templates/AKPlan/plan_room.html:9
+#: AKPlan/templates/AKPlan/plan_room.html:11
 #: AKPlan/templates/AKPlan/plan_track.html:9
 msgid "AK Plan"
 msgstr "AK-Plan"
 
 #: AKPlan/templates/AKPlan/plan_index.html:86
-#: AKPlan/templates/AKPlan/plan_room.html:36
+#: AKPlan/templates/AKPlan/plan_room.html:38
 msgid "Rooms"
 msgstr "Räume"
 
@@ -69,6 +69,18 @@ msgstr "Nächste AKs"
 #: AKPlan/templates/AKPlan/plan_index.html:138
 msgid "This event is not active."
 msgstr "Dieses Event ist nicht aktiv."
+
+#: AKPlan/templates/AKPlan/plan_room.html:52
+msgid "Go to virtual room"
+msgstr "Zum virtuellen Raum"
+
+#: AKPlan/templates/AKPlan/plan_room.html:67
+msgid "Capacity"
+msgstr "Kapazität"
+
+#: AKPlan/templates/AKPlan/plan_room.html:71
+msgid "Properties"
+msgstr "Eigenschaften"
 
 #: AKPlan/templates/AKPlan/plan_track.html:11
 #: AKPlan/templates/AKPlan/plan_track.html:46

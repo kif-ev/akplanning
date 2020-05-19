@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-19 06:38+0000\n"
+"POT-Creation-Date: 2020-05-19 07:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -96,7 +96,7 @@ msgid "History"
 msgstr "Versionsgeschichte"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:48
-#: AKSubmission/templates/AKSubmission/ak_detail.html:147
+#: AKSubmission/templates/AKSubmission/ak_detail.html:153
 #: AKSubmission/templates/AKSubmission/ak_edit.html:16
 #: AKSubmission/templates/AKSubmission/ak_table.html:53
 msgid "Edit"
@@ -161,23 +161,23 @@ msgstr "Dauer"
 msgid "Room"
 msgstr "Raum"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:150
+#: AKSubmission/templates/AKSubmission/ak_detail.html:156
 msgid "Delete"
 msgstr "Löschen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:162
+#: AKSubmission/templates/AKSubmission/ak_detail.html:168
 msgid "Add another slot"
 msgstr "Einen neuen AK-Slot hinzufügen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:166
+#: AKSubmission/templates/AKSubmission/ak_detail.html:172
 msgid "Possible Times"
 msgstr "Mögliche Zeiten"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:170
+#: AKSubmission/templates/AKSubmission/ak_detail.html:176
 msgid "Start"
 msgstr "Start"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:171
+#: AKSubmission/templates/AKSubmission/ak_detail.html:177
 msgid "End"
 msgstr "Ende"
 

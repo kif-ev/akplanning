@@ -51,7 +51,8 @@
                         {
                             'title': '{{ slot.room }}',
                             'start': '{{ slot.start | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',
-                            'end': '{{ slot.end | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}'
+                            'end': '{{ slot.end | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',
+                            'url' : '{% url "plan:plan_room" event_slug=ak.event.slug pk=slot.room.pk %}'
                         },
                     {% endif %}
                 {% endfor %}
