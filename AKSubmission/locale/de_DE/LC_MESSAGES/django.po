@@ -242,8 +242,8 @@ msgstr "AK-Leitung"
 #: AKSubmission/templates/AKSubmission/akowner_create_update.html:24
 #: AKSubmission/templates/AKSubmission/akslot_add_update.html:26
 #: AKSubmission/templates/AKSubmission/submit_new.html:41
-msgid "Reset"
-msgstr "Zurücksetzen"
+msgid "Reset Form"
+msgstr "Formular leeren"
 
 #: AKSubmission/templates/AKSubmission/akowner_create_update.html:28
 #: AKSubmission/templates/AKSubmission/akslot_add_update.html:30

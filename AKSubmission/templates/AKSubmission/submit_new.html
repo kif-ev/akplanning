@@ -38,7 +38,7 @@
         {% bootstrap_form form %}
         {% buttons %}
             <button type="reset" class="btn btn-danger">
-                {% fa5_icon "undo-alt" 'fas' %} {% trans "Reset" %}
+                {% fa5_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
             </button>
 
             <a href="{% url 'submit:submission_overview' event_slug=event.slug %}" class="btn btn-secondary">
