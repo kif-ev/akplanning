@@ -38,12 +38,13 @@
             </tbody>
         </table>
         {% buttons %}
-            <a href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}" class="btn btn-secondary">
-                {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
-            </a>
             <button type="submit" class="save btn btn-danger float-right" value="Confirm">
                 {% fa5_icon "check" 'fas' %} {% trans "Confirm" %}
             </button>
+
+            <a href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}" class="btn btn-secondary">
+                {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
+            </a>
         {% endbuttons %}
     </form>
 {% endblock %}

@@ -20,6 +20,9 @@
     <form method="POST" class="post-form">{% csrf_token %}
         {% bootstrap_form form %}
         {% buttons %}
+            <button type="submit" class="save btn btn-primary float-right">
+                {% fa5_icon "check" 'fas' %} {% trans "Continue" %}
+            </button>
             <button type="reset" class="btn btn-danger">
                 {% fa5_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
             </button>
@@ -27,9 +30,6 @@
             <a href="{% url 'submit:submission_overview' event_slug=event.slug %}" class="btn btn-secondary">
                 {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
             </a>
-            <button type="submit" class="save btn btn-primary float-right">
-                {% fa5_icon "check" 'fas' %} {% trans "Continue" %}
-            </button>
         {% endbuttons %}
     </form>
 {% endblock %}
