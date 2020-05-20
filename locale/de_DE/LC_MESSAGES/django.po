@@ -55,6 +55,6 @@ msgstr "Wirklich jetzt die Sprache ändern? Das wird das Formular zurücksetzen!
 msgid "Impress"
 msgstr "Impressum"
 
-#: templates/base.html:100
+#: templates/base.html:102
 msgid "This software is open source"
 msgstr "Diese Software ist Open Source"

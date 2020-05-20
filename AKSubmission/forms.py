@@ -1,4 +1,5 @@
 import itertools
+import re
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -10,6 +11,7 @@ from AKModel.models import AK, AKOwner, AKCategory, AKRequirement, AKSlot
 
 class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
     required_css_class = 'required'
+    split_string = re.compile('[,;]')
 
     class Meta:
         model = AK
@@ -42,7 +44,7 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
         self.fields["conflicts"].widget.attrs = {'class': 'chosen-select'}
         self.fields["prerequisites"].widget.attrs = {'class': 'chosen-select'}
 
-        help_tags_addition = _('Separate multiple tags with semicolon')
+        help_tags_addition = _('Separate multiple tags with comma or semicolon')
 
         # Add text fields for tags
         self.fields["tags_raw"] = forms.CharField(
@@ -98,7 +100,9 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
             cleaned_data["short_name"] = short_name
 
         # Get tag names from raw tags
-        cleaned_data["tag_names"] = [name.strip().lower() for name in cleaned_data["tags_raw"].split(";")]
+        cleaned_data["tag_names"] = [name.strip().lower() for name
+                                     in self.split_string.split(cleaned_data["tags_raw"])
+                                     if name.strip() != '']
 
         # Get durations from raw durations field
         if "durations" in cleaned_data:
