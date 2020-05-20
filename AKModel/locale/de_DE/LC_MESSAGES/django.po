@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-20 21:15+0000\n"
+"POT-Creation-Date: 2020-05-20 23:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,24 +11,24 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKModel/admin.py:34 AKModel/admin.py:35
+#: AKModel/admin.py:35 AKModel/admin.py:36
 #: AKModel/templates/admin/AKModel/status.html:7
 msgid "Status"
 msgstr "Status"
 
-#: AKModel/admin.py:113
+#: AKModel/admin.py:114
 msgid "Wish"
 msgstr "AK-Wunsch"
 
-#: AKModel/admin.py:119
+#: AKModel/admin.py:120
 msgid "Is wish"
 msgstr "Ist ein Wunsch"
 
-#: AKModel/admin.py:120
+#: AKModel/admin.py:121
 msgid "Is not a wish"
 msgstr "Ist kein Wunsch"
 
-#: AKModel/admin.py:147
+#: AKModel/admin.py:148
 msgid "Export to wiki syntax"
 msgstr "In Wiki-Syntax exportieren"
 
@@ -58,13 +58,13 @@ msgstr "Bitte Verfügbarkeiten eintragen!"
 
 #: AKModel/availability/models.py:38 AKModel/models.py:41 AKModel/models.py:70
 #: AKModel/models.py:122 AKModel/models.py:141 AKModel/models.py:173
-#: AKModel/models.py:226 AKModel/models.py:268 AKModel/models.py:298
+#: AKModel/models.py:226 AKModel/models.py:272 AKModel/models.py:302
 msgid "Event"
 msgstr "Event"
 
 #: AKModel/availability/models.py:39 AKModel/models.py:71 AKModel/models.py:123
 #: AKModel/models.py:142 AKModel/models.py:174 AKModel/models.py:227
-#: AKModel/models.py:269 AKModel/models.py:299
+#: AKModel/models.py:273 AKModel/models.py:303
 msgid "Associated event"
 msgstr "Zugehöriges Event"
 
@@ -76,8 +76,8 @@ msgstr "Person"
 msgid "Person whose availability this is"
 msgstr "Person deren Verfügbarkeit hier abgebildet wird"
 
-#: AKModel/availability/models.py:56 AKModel/models.py:272
-#: AKModel/models.py:291
+#: AKModel/availability/models.py:56 AKModel/models.py:276
+#: AKModel/models.py:295
 msgid "Room"
 msgstr "Raum"
 
@@ -86,7 +86,7 @@ msgid "Room whose availability this is"
 msgstr "Raum dessen Verfügbarkeit hier abgebildet wird"
 
 #: AKModel/availability/models.py:65 AKModel/models.py:232
-#: AKModel/models.py:290
+#: AKModel/models.py:294
 msgid "AK"
 msgstr "AK"
 
@@ -108,7 +108,7 @@ msgstr "Verfügbarkeiten"
 
 #: AKModel/models.py:16 AKModel/models.py:117 AKModel/models.py:138
 #: AKModel/models.py:157 AKModel/models.py:171 AKModel/models.py:189
-#: AKModel/models.py:261
+#: AKModel/models.py:265
 msgid "Name"
 msgstr "Name"
 
@@ -374,7 +374,7 @@ msgstr "AK Präsentieren"
 msgid "Present results of this AK"
 msgstr "Die Ergebnisse dieses AKs vorstellen"
 
-#: AKModel/models.py:211 AKModel/templates/admin/AKModel/status.html:74
+#: AKModel/models.py:211 AKModel/templates/admin/AKModel/status.html:76
 msgid "Requirements"
 msgstr "Anforderungen"
 
@@ -432,75 +432,75 @@ msgstr "Anzahl Personen, die online Interesse bekundet haben"
 msgid "AKs"
 msgstr "AKs"
 
-#: AKModel/models.py:261
+#: AKModel/models.py:265
 msgid "Name or number of the room"
 msgstr "Name oder Nummer des Raums"
 
-#: AKModel/models.py:262
+#: AKModel/models.py:266
 msgid "Location"
 msgstr "Ort"
 
-#: AKModel/models.py:263
+#: AKModel/models.py:267
 msgid "Name or number of the location"
 msgstr "Name oder Nummer des Ortes"
 
-#: AKModel/models.py:264
+#: AKModel/models.py:268
 msgid "Capacity"
 msgstr "Kapazität"
 
-#: AKModel/models.py:264
+#: AKModel/models.py:268
 msgid "Maximum number of people"
 msgstr "Maximale Personenzahl"
 
-#: AKModel/models.py:265
+#: AKModel/models.py:269
 msgid "Properties"
 msgstr "Eigenschaften"
 
-#: AKModel/models.py:266
+#: AKModel/models.py:270
 msgid "AK requirements fulfilled by the room"
 msgstr "AK Anforderungen, die dieser Raum erfüllt"
 
-#: AKModel/models.py:273 AKModel/templates/admin/AKModel/status.html:31
+#: AKModel/models.py:277 AKModel/templates/admin/AKModel/status.html:31
 msgid "Rooms"
 msgstr "Räume"
 
-#: AKModel/models.py:290
+#: AKModel/models.py:294
 msgid "AK being mapped"
 msgstr "AK, der zugeordnet wird"
 
-#: AKModel/models.py:292
+#: AKModel/models.py:296
 msgid "Room the AK will take place in"
 msgstr "Raum in dem der AK stattfindet"
 
-#: AKModel/models.py:293
+#: AKModel/models.py:297
 msgid "Slot Begin"
 msgstr "Beginn des Slots"
 
-#: AKModel/models.py:293
+#: AKModel/models.py:297
 msgid "Time and date the slot begins"
 msgstr "Zeit und Datum zu der der AK beginnt"
 
-#: AKModel/models.py:295
+#: AKModel/models.py:299
 msgid "Duration"
 msgstr "Dauer"
 
-#: AKModel/models.py:296
+#: AKModel/models.py:300
 msgid "Length in hours"
 msgstr "Länge in Stunden"
 
-#: AKModel/models.py:301
+#: AKModel/models.py:305
 msgid "Last update"
 msgstr "Letzte Aktualisierung"
 
-#: AKModel/models.py:304
+#: AKModel/models.py:308
 msgid "AK Slot"
 msgstr "AK Slot"
 
-#: AKModel/models.py:305
+#: AKModel/models.py:309
 msgid "AK Slots"
 msgstr "AK Slot"
 
-#: AKModel/models.py:319
+#: AKModel/models.py:323
 msgid "Not scheduled yet"
 msgstr "Noch nicht geplant"
 
@@ -561,11 +561,15 @@ msgstr "Slots"
 msgid "Unscheduled Slots"
 msgstr "Ungeplante Slots"
 
-#: AKModel/templates/admin/AKModel/status.html:76
+#: AKModel/templates/admin/AKModel/status.html:73
+msgid "Export AKs as CSV"
+msgstr "AKs als CSV exportieren"
+
+#: AKModel/templates/admin/AKModel/status.html:78
 msgid "No requirements yet"
 msgstr "Bisher keine Anforderungen"
 
-#: AKModel/templates/admin/AKModel/status.html:89
+#: AKModel/templates/admin/AKModel/status.html:91
 msgid "Add Requirement"
 msgstr "Anforderungen hinzufügen"
 
@@ -576,6 +580,10 @@ msgstr "Aktive Events"
 #: AKModel/views.py:129
 msgid "Event Status"
 msgstr "Eventstatus"
+
+#: AKModel/views.py:142
+msgid "AK CSV Export"
+msgstr "AK CSV Export"
 
 #~ msgid "Notes to organizers"
 #~ msgstr "Notizen an die Organisator*innen"

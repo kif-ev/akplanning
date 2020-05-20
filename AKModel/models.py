@@ -254,6 +254,10 @@ class AK(models.Model):
         self.interest_counter += 1
         self.save()
 
+    @property
+    def availabilities(self):
+        return "Availability".objects.filter(ak=self)
+
 
 class Room(models.Model):
     """ A room describes where an AK can be held.
