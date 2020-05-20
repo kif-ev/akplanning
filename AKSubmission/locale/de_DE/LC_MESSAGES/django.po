@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-19 20:46+0000\n"
+"POT-Creation-Date: 2020-05-20 12:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,20 +17,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKSubmission/forms.py:45
-msgid "Separate multiple tags with semicolon"
-msgstr "Mehrere Tags mit Semikolon trennen"
+#: AKSubmission/forms.py:47
+msgid "Separate multiple tags with comma or semicolon"
+msgstr "Mehrere Tags mit Komma oder Semikolon trennen"
 
-#: AKSubmission/forms.py:75
+#: AKSubmission/forms.py:77
 #, python-format
 msgid "\"%(duration)s\" is not a valid duration"
 msgstr "\"%(duration)s\" ist keine gültige Dauer"
 
-#: AKSubmission/forms.py:118
+#: AKSubmission/forms.py:122
 msgid "Duration(s)"
 msgstr "Dauer(n)"
 
-#: AKSubmission/forms.py:120
+#: AKSubmission/forms.py:124
 msgid ""
 "Enter at least one planned duration (in hours). If your AK should have "
 "multiple slots, use multiple lines"
