@@ -71,5 +71,22 @@
         </table>
     {% endif %}
 
+    <h3 class="block-header">{% trans "Requirements" %}</h3>
+    {% if event.akrequirement_set.count == 0 %}
+        <p class="text-danger">{% trans "No requirements yet" %}</p>
+    {% else %}
+        <p>
+            {{ event.akrequirement_set.count }}:
+            {% for requirement in event.akrequirement_set.all %}
+                {% if forloop.counter0 > 0 %}
+                    &middot;
+                {% endif %}
+                <a href="{% url 'admin:AKModel_akrequirement_change' requirement.pk %}">{{ requirement }}</a>
+                ({{ requirement.ak_set.count }})
+            {% endfor %}
+        </p>
+    {% endif %}
+    <a class="btn btn-success" href="{% url 'admin:AKModel_akrequirement_add' %}">{% trans "Add Requirement" %}</a>
+
     {% endtimezone %}
 {% endblock %}

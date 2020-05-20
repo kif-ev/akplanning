@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-19 20:46+0000\n"
+"POT-Creation-Date: 2020-05-20 21:15+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -374,7 +374,7 @@ msgstr "AK Präsentieren"
 msgid "Present results of this AK"
 msgstr "Die Ergebnisse dieses AKs vorstellen"
 
-#: AKModel/models.py:211
+#: AKModel/models.py:211 AKModel/templates/admin/AKModel/status.html:74
 msgid "Requirements"
 msgstr "Anforderungen"
 
@@ -560,6 +560,14 @@ msgstr "Slots"
 #: AKModel/templates/admin/AKModel/status.html:60
 msgid "Unscheduled Slots"
 msgstr "Ungeplante Slots"
+
+#: AKModel/templates/admin/AKModel/status.html:76
+msgid "No requirements yet"
+msgstr "Bisher keine Anforderungen"
+
+#: AKModel/templates/admin/AKModel/status.html:89
+msgid "Add Requirement"
+msgstr "Anforderungen hinzufügen"
 
 #: AKModel/templates/admin/ak_index.html:7
 msgid "Active Events"
