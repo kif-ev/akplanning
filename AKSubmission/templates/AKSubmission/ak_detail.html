@@ -160,6 +160,11 @@
                            data-toggle="tooltip" title="{% trans 'Delete' %}"
                            class="btn btn-danger">{% fa5_icon 'times' 'fas' %}</a>
                     {% endif %}
+                    {% if user.is_staff %}
+                        <a href="{% url 'admin:AKModel_akslot_change' slot.pk %}"
+                           data-toggle="tooltip" title="{% trans 'Schedule' %}"
+                           class="btn btn-outline-success">{% fa5_icon 'stream' 'fas' %}</a>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
