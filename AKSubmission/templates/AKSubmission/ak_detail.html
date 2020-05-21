@@ -40,6 +40,11 @@
                title="{% trans 'Open external link' %}"
                class="btn btn-info">{% fa5_icon 'external-link-alt' 'fas' %}</a>
         {% endif %}
+        {% if ak.protocol_link != "" %}
+            <a href="{{ ak.protocol_link }}" data-toggle="tooltip"
+               title="{% trans 'Open protocol link' %}"
+               class="btn btn-warning">{% fa5_icon 'file-alt' 'far' %}</a>
+        {% endif %}
         <a href="{% url 'submit:ak_history' event_slug=ak.event.slug pk=ak.pk %}"
            data-toggle="tooltip"
            title="{% trans 'History' %}" class="btn btn-light">{% fa5_icon 'clock' 'fas' %}</a>
@@ -65,6 +70,12 @@
                 {% category_linked_badge ak.category ak.event.slug %}
             </td>
         </tr>
+        {% if ak.track %}
+            <tr>
+                <td>{% trans 'Track' %}</td>
+                <td>{{ ak.track }}</td>
+            </tr>
+        {% endif %}
         <tr>
             <td>{% trans "Present this AK" %}</td>
             <td>{{ ak.present | bool_symbol }}</td>

@@ -18,6 +18,7 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
         fields = ['name',
                   'short_name',
                   'link',
+                  'protocol_link',
                   'owners',
                   'description',
                   'category',

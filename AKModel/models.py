@@ -196,6 +196,7 @@ class AK(models.Model):
 
     # TODO generate automatically
     link = models.URLField(blank=True, verbose_name=_('Web Link'), help_text=_('Link to wiki page'))
+    protocol_link = models.URLField(blank=True, verbose_name=_('Protocol Link'), help_text=_('Link to protocol'))
 
     category = models.ForeignKey(to=AKCategory, on_delete=models.PROTECT, verbose_name=_('Category'),
                                  help_text=_('Category of the AK'))
