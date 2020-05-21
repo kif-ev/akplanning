@@ -11,7 +11,7 @@ from simple_history.admin import SimpleHistoryAdmin
 
 from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room
-from AKModel.views import EventStatusView
+from AKModel.views import EventStatusView, AKCSVExportView
 
 
 @admin.register(Event)
@@ -25,7 +25,8 @@ class EventAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('<slug:slug>/status/', self.admin_site.admin_view(EventStatusView.as_view()), name="event_status")
+            path('<slug:slug>/status/', self.admin_site.admin_view(EventStatusView.as_view()), name="event_status"),
+            path('<slug:event_slug>/ak-csv-export/', self.admin_site.admin_view(AKCSVExportView.as_view()), name="ak_csv_export")
         ]
         return custom_urls + urls
 

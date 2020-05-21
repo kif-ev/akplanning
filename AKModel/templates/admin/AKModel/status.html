@@ -69,6 +69,8 @@
                 </tr>
             </tbody>
         </table>
+
+        <a class="btn btn-success" href="{% url 'admin:ak_csv_export' event_slug=event.slug %}">{% trans "Export AKs as CSV" %}</a>
     {% endif %}
 
     <h3 class="block-header">{% trans "Requirements" %}</h3>

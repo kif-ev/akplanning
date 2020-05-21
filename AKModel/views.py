@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import TemplateView, DetailView, ListView
 from rest_framework import viewsets, permissions, mixins
 
 from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner
@@ -132,4 +132,18 @@ class EventStatusView(AdminViewMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["unscheduled_slots_count"] = context["event"].akslot_set.filter(start=None).count
         context["site_url"] = reverse_lazy("dashboard:dashboard_event", kwargs={'slug': context["event"].slug})
+        return context
+
+
+class AKCSVExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
+    template_name = "admin/AKModel/ak_csv_export.html"
+    model = AKSlot
+    context_object_name = "slots"
+    title = _("AK CSV Export")
+
+    def get_queryset(self):
+        return super().get_queryset().order_by("ak__track")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         return context
