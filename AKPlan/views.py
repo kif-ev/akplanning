@@ -78,7 +78,7 @@ class PlanScreenView(PlanIndexView):
 
         # Restrict AK slots to relevant ones
         # This will automatically filter all rooms not needed for the selected range in the orginal get_context method
-        return super().get_queryset().filter(start__gt=self.start, start__lt=self.end)
+        return super().get_queryset().filter(start__gt=self.start)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
