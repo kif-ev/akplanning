@@ -67,6 +67,7 @@ class PlanScreenView(PlanIndexView):
             return redirect(reverse_lazy("plan:plan_overview", kwargs={"event_slug": self.event.slug}))
         return s
 
+    """
     def get_queryset(self):
         # Determine interesting range (some hours ago until some hours in the future as specified in the settings)
         now = datetime.now().astimezone(self.event.timezone)
@@ -79,11 +80,12 @@ class PlanScreenView(PlanIndexView):
         # Restrict AK slots to relevant ones
         # This will automatically filter all rooms not needed for the selected range in the orginal get_context method
         return super().get_queryset().filter(start__gt=self.start)
+    """
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
-        context["start"] = self.start
-        context["end"] = self.end
+        context["start"] = self.event.start
+        context["end"] = self.event.end
         return context
 
 
