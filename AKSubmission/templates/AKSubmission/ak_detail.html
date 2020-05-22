@@ -170,6 +170,12 @@
                         <a href="{% url 'submit:akslot_delete' event_slug=ak.event.slug pk=slot.pk %}"
                            data-toggle="tooltip" title="{% trans 'Delete' %}"
                            class="btn btn-danger">{% fa5_icon 'times' 'fas' %}</a>
+                    {% else %}
+                        {% if "AKOnline"|check_app_installed and slot.room and slot.room.virtualroom and slot.room.virtualroom.url != '' %}
+                            <a class="btn btn-success" href="{{ slot.room.virtualroom.url }}">
+                                {% fa5_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
+                            </a>
+                        {% endif %}
                     {% endif %}
                     {% if user.is_staff %}
                         <a href="{% url 'admin:AKModel_akslot_change' slot.pk %}"
