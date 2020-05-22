@@ -6,6 +6,7 @@
         {% if slot.start %}
             {
                 'title': '{{ slot.ak.short_name }}',
+                'description': '{{ slot.ak.name }}',
                 'start': '{{ slot.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
                 'end': '{{ slot.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
                 'resourceId': '{{ slot.room.title }}',

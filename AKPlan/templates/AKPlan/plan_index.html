@@ -17,7 +17,6 @@
         <script src='{% static 'AKPlan/vendor/fullcalendar/timeline/main.js' %}'></script>
         <script src='{% static 'AKPlan/vendor/fullcalendar/resource-common/main.js' %}'></script>
         <script src='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.js' %}'></script>
-
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 var planEl = document.getElementById('planCalendar');
@@ -51,6 +50,9 @@
                             buttonText: '{% trans "Event" %}',
                         }
                     },
+                    eventRender: function(info) {
+                        $(info.el).tooltip({title: info.event.extendedProps.description});
+                    },
                     editable: false,
                     allDaySlot: false,
                     nowIndicator: true,
@@ -64,6 +66,9 @@
                 });
 
                 plan.render();
+
+                // Scroll to current time
+                $('.fc-scroller').scrollLeft($('.fc-now-indicator').position().left);
             });
         </script>
     {% endif %}
