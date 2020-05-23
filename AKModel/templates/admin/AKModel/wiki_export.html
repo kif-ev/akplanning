@@ -3,14 +3,15 @@
 {% block content %}
 <pre>
 {% for ak in AKs %}
-{% verbatim %}{{Ak Spalte 475{% endverbatim %}
+{% verbatim %}{{Ak Spalte 480{% endverbatim %}
 | name={{ ak.name }}
 | beschreibung= {{ ak.description }}
-| wieviele={{  ak.interest}}
-| wer= {{ ak.owners_list }}
-| wann= {{ ak.notes }}
-| dauer= {{ ak.durations_list }}
-| reso= {{ ak.reso }}
+| wieviele={{ ak.interest_counter }}
+| wer={{ ak.owners_list }}
+| wann=
+| dauer={{ ak.durations_list }}
+| reso={{ ak.reso }}
+| vorstellung={{ ak.present }}
 {% verbatim %}}}{% endverbatim %}
 {% endfor %}
 </pre>
