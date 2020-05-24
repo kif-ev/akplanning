@@ -7,6 +7,8 @@
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "New AK Wish" %}{% endblock %}
 
 {% block imports %}
+    <link rel="stylesheet" href="{% static 'common/vendor/chosen-js/chosen.css' %}">
+    <link rel="stylesheet" href="{% static 'common/css/bootstrap-chosen.css' %}">
     <link href='{% static 'AKSubmission/vendor/fullcalendar3/fullcalendar.min.css' %}' rel='stylesheet'/>
     <link href='{% static 'AKSubmission/css/availabilities.css' %}' rel='stylesheet'/>
 

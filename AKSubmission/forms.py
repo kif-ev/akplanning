@@ -113,7 +113,7 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
 
 class AKSubmissionForm(AKForm):
     class Meta(AKForm.Meta):
-        exclude = ['link']
+        exclude = ['link', 'protocol_link']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -139,7 +139,7 @@ class AKEditForm(AKForm):
 
 class AKWishForm(AKSubmissionForm):
     class Meta(AKForm.Meta):
-        exclude = ['owners', 'link']
+        exclude = ['owners', 'link', 'protocol_link']
 
 
 class AKOwnerForm(forms.ModelForm):
