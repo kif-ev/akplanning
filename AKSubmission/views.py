@@ -258,6 +258,7 @@ class AKInterestView(RedirectView):
         ak = get_object_or_404(AK, pk=kwargs['pk'])
         if ak.event.active:
             ak.increment_interest()
+            messages.add_message(self.request, messages.SUCCESS, _("Interest saved"))
         return super().get_redirect_url(*args, **kwargs)
 
 

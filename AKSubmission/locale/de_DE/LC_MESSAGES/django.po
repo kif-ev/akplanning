@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-21 05:33+0000\n"
+"POT-Creation-Date: 2020-05-24 17:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -175,22 +175,26 @@ msgid "Delete"
 msgstr "Löschen"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:176
+msgid "Go to virtual room"
+msgstr "Zum virtuellen Raum"
+
+#: AKSubmission/templates/AKSubmission/ak_detail.html:182
 msgid "Schedule"
 msgstr "Schedule"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:188
+#: AKSubmission/templates/AKSubmission/ak_detail.html:194
 msgid "Add another slot"
 msgstr "Einen neuen AK-Slot hinzufügen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:192
+#: AKSubmission/templates/AKSubmission/ak_detail.html:198
 msgid "Possible Times"
 msgstr "Mögliche Zeiten"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:196
+#: AKSubmission/templates/AKSubmission/ak_detail.html:202
 msgid "Start"
 msgstr "Start"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:197
+#: AKSubmission/templates/AKSubmission/ak_detail.html:203
 msgid "End"
 msgstr "Ende"
 
@@ -368,30 +372,34 @@ msgstr "AK erfolgreich angelegt"
 msgid "AK successfully updated"
 msgstr "AK erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:309
+#: AKSubmission/views.py:261
+msgid "Interest saved"
+msgstr "Interesse gespeichert"
+
+#: AKSubmission/views.py:310
 msgid "Person Info successfully updated"
 msgstr "Personen-Info erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:329
+#: AKSubmission/views.py:330
 msgid "No user selected"
 msgstr "Keine Person ausgewählt"
 
-#: AKSubmission/views.py:355
+#: AKSubmission/views.py:356
 msgid "AK Slot successfully added"
 msgstr "AK-Slot erfolgreich angelegt"
 
-#: AKSubmission/views.py:369
+#: AKSubmission/views.py:370
 msgid "You cannot edit a slot that has already been scheduled"
 msgstr "Bereits geplante AK-Slots können nicht mehr bearbeitet werden"
 
-#: AKSubmission/views.py:379
+#: AKSubmission/views.py:380
 msgid "AK Slot successfully updated"
 msgstr "AK-Slot erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:392
+#: AKSubmission/views.py:393
 msgid "You cannot delete a slot that has already been scheduled"
 msgstr "Bereits geplante AK-Slots können nicht mehr gelöscht werden"
 
-#: AKSubmission/views.py:402
+#: AKSubmission/views.py:403
 msgid "AK Slot successfully deleted"
 msgstr "AK-Slot erfolgreich angelegt"
