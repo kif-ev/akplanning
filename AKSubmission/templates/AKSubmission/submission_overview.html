@@ -6,6 +6,11 @@
 
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Submission" %}{% endblock %}
 
+{% block meta %}
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="{{ event.name }} - {% trans "AK Submission" %}" />
+{% endblock %}
+
 {% block imports %}
     <style>
         /* Prevent wrapping of buttons in AK table */

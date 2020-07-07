@@ -4,6 +4,11 @@
 {% load i18n %}
 {% load static %}
 
+{% block meta %}
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="{{ event.name }} - {% trans "Plan" %}" />
+{% endblock %}
+
 {% block imports %}
     {% get_current_language as LANGUAGE_CODE %}
 
