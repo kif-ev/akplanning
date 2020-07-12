@@ -10,6 +10,12 @@
 
 {% block title %}{% trans "AKs" %}: {{ ak.event.name }} - {% trans "AK" %}: {{ ak.name }}{% endblock %}
 
+{% block meta %}
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="{{ak.name}} ({{ak.event.name }})" />
+    <meta name="twitter:description" content="{{ ak.description }}" />
+{% endblock %}
+
 {% block breadcrumbs %}
     {% include "AKSubmission/submission_breadcrumbs.html" %}
     <li class="breadcrumb-item"><a
