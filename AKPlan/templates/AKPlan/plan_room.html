@@ -27,6 +27,17 @@
             },
         {% endif %}
     {% endfor %}
+    {% for a in room.availabilities.all %}
+        {
+            title: '',
+            start: '{{ a.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+            end: '{{ a.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+            'resourceId': '{{ a.room.title }}',
+            backgroundColor: '#28B62C',
+            display: 'background',
+            groupId: 'roomAvailable',
+        },
+    {% endfor %}
 ]
 {% endblock %}
 
