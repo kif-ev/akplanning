@@ -217,11 +217,13 @@ class AKSlotAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         custom_urls = []
         if apps.is_installed("AKScheduling"):
-            from AKScheduling.views import UnscheduledSlotsAdminView
+            from AKScheduling.views import SchedulingAdminView, UnscheduledSlotsAdminView
 
             custom_urls.extend([
+                path('<slug:event_slug>/schedule/', self.admin_site.admin_view(SchedulingAdminView.as_view()),
+                     name="schedule"),
                 path('<slug:event_slug>/unscheduled/', self.admin_site.admin_view(UnscheduledSlotsAdminView.as_view()),
-                     name="slots_unscheduled")
+                     name="slots_unscheduled"),
             ])
         return custom_urls + urls
 

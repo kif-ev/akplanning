@@ -1,0 +1,139 @@
+{% extends "admin_base.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load tz %}
+{% load static %}
+{% load tags_AKPlan %}
+
+{% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {% get_current_language as LANGUAGE_CODE %}
+
+    <script src='{% static 'AKPlan/vendor/fullcalendar-scheduler/main.js' %}'></script>
+    <link href='{% static 'AKPlan/vendor/fullcalendar-scheduler/main.css' %}' rel='stylesheet'/>
+
+    {% with 'AKPlan/vendor/fullcalendar-scheduler/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
+        <script src="{% static locale_file %}"></script>
+    {% endwith %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var planEl = document.getElementById('planCalendar');
+
+            var plan = new FullCalendar.Calendar(planEl, {
+                timeZone: '{{ event.timezone }}',
+                headerToolbar : {
+                    left: 'today prev,next',
+                    center: 'title',
+                    right: 'resourceTimelineDayVert,resourceTimelineDayHoriz,resourceTimelineEventVert,resourceTimelineEventHoriz'
+                },
+                //aspectRatio: 2,
+                themeSystem: 'bootstrap',
+                // Adapt to user selected locale
+                locale: '{{ LANGUAGE_CODE }}',
+                initialView: 'resourceTimelineEventVert',
+                views: {
+                    resourceTimelineDayHoriz: {
+                        type: 'resourceTimelineDay',
+                        buttonText: '{% trans "Day (Horizontal)" %}',
+                        slotDuration: '00:15',
+                        scrollTime: '08:00',
+                    },
+                    resourceTimelineDayVert: {
+                        type: 'resourceTimeGridDay',
+                        buttonText: '{% trans "Day (Vertical)" %}',
+                        slotDuration: '00:30',
+                        scrollTime: '08:00',
+                    },
+                    resourceTimelineEventHoriz: {
+                        type: 'resourceTimeline',
+                        visibleRange: {
+                            start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                            end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
+                        },
+                        buttonText: '{% trans "Event (Horizontal)" %}',
+                        slotDuration: '00:15',
+                    },
+                    resourceTimelineEventVert: {
+                        type: 'resourceTimeGrid',
+                        visibleRange: {
+                            start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                            end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
+                        },
+                        buttonText: '{% trans "Event (Vertical)" %}',
+                        slotDuration: '00:30',
+                    }
+                },
+                eventDidMount : function(info) {
+                    if(info.event.extendedProps.description !== undefined) {
+                        $(info.el).tooltip({title: info.event.extendedProps.description, trigger: 'hover'});
+                    }
+                },
+                eventWillUnmount : function(info) {
+                    $(info.el).tooltip('dispose');
+                },
+
+                editable: true,
+                allDaySlot: false,
+                nowIndicator: true,
+                eventTextColor: '#fff',
+                eventColor: '#127ba3',
+                datesAboveResources: true,
+                resourceAreaHeaderContent: '{% trans "Room" %}',
+                resources: [
+                            {% for room in rooms %}
+                                {
+                                    'id': '{{ room.title }}',
+                                    'title': '{{ room.title }}',
+                                },
+                            {% endfor %}
+                        ],
+                events: [
+                        {% for slot in akslots %}
+                            {% if slot.start %}
+                                {
+                                    'title': '{{ slot.ak.short_name }}',
+                                    'description': '{{ slot.ak.name }}',
+                                    'start': '{{ slot.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                                    'end': '{{ slot.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                                    'resourceId': '{{ slot.room.title }}',
+                                    'backgroundColor': '{{ slot|highlight_change_colors }}',
+                                    'borderColor': '{{ slot.ak.category.color }}',
+                                    'url': '{% url 'submit:ak_detail' event_slug=event.slug pk=slot.ak.pk %}',
+                                    constraint: 'roomAvailable',
+                                },
+                            {% endif %}
+                        {% endfor %}
+                        {% for a in availabilities %}
+                            {% if a.room != None %}
+                                {
+                                    title: '',
+                                    start: '{{ a.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                                    end: '{{ a.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                                    resourceId: '{{ a.room.title }}',
+                                    backgroundColor: '#28B62C',
+                                    display: 'background',
+                                    groupId: 'roomAvailable',
+                                },
+                            {% endif %}
+                        {% endfor %}
+                    ],
+                schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+                dayMinWidth: 100,
+            });
+
+            plan.setOption('contentHeight', $(window).height() - $('#header').height() * 11);
+            plan.render();
+        });
+    </script>
+{% endblock extrahead %}
+
+{% block content %}
+
+    <div id="planCalendar" style="margin-bottom: 50px;"></div>
+
+    <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %}</a>
+{% endblock %}
