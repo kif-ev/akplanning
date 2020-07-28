@@ -2,6 +2,7 @@ from django.apps import apps
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, F
+from django import forms
 from django.shortcuts import render
 from django.urls import path, reverse_lazy
 from django.utils import timezone
@@ -9,6 +10,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from simple_history.admin import SimpleHistoryAdmin
 
+from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage
 from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView, AKMessageDeleteView
@@ -158,6 +160,27 @@ class AKAdmin(SimpleHistoryAdmin):
         return super(AKAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+class RoomForm(AvailabilitiesFormMixin, forms.ModelForm):
+    class Meta:
+        model = Room
+        fields = ['name',
+                  'location',
+                  'capacity',
+                  'properties',
+                  'event',
+                  ]
+
+        widgets = {
+            'properties': forms.CheckboxSelectMultiple,
+        }
+
+    def __init__(self, *args, **kwargs):
+        # Init availability mixin
+        kwargs['initial'] = dict()
+        super().__init__(*args, **kwargs)
+        self.initial = {**self.initial, **kwargs['initial']}
+
+
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
     model = Room
@@ -165,6 +188,12 @@ class RoomAdmin(admin.ModelAdmin):
     list_filter = ['location', 'properties', 'event']
     list_editable = []
     ordering = ['location', 'name']
+    change_form_template = "admin/AKModel/room_change_form.html"
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        if obj is not None:
+            return RoomForm
+        return super().get_form(request, obj, change, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'event':
