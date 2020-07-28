@@ -10,30 +10,21 @@
     {% if not event.plan_hidden or user.is_staff %}
         {% get_current_language as LANGUAGE_CODE %}
 
-        <link href='{% static 'AKPlan/vendor/fullcalendar/timeline/main.css' %}' rel='stylesheet'/>
-        <link href='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.css' %}' rel='stylesheet'/>
-        <link href='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.min.css' %}' rel='stylesheet'/>
-
-        <script src='{% static 'AKPlan/vendor/fullcalendar/timeline/main.js' %}'></script>
-        <script src='{% static 'AKPlan/vendor/fullcalendar/resource-common/main.js' %}'></script>
-        <script src='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.js' %}'></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 var planEl = document.getElementById('planCalendar');
 
                 var plan = new FullCalendar.Calendar(planEl, {
-                    plugins: ['resourceTimeline', 'bootstrap'],
                     timeZone: '{{ event.timezone }}',
-                    header: {
+                    headerToolbar: {
                         left: 'today prev,next',
                         center: 'title',
                         right: 'resourceTimelineDay,resourceTimelineEvent'
                     },
-                    aspectRatio: 2,
                     themeSystem: 'bootstrap',
                     // Adapt to user selected locale
                     locale: '{{ LANGUAGE_CODE }}',
-                    defaultView: 'resourceTimelineEvent',
+                    initialView: 'resourceTimelineEvent',
                     views: {
                         resourceTimelineDay: {
                             type: 'resourceTimeline',
@@ -50,7 +41,7 @@
                             buttonText: '{% trans "Event" %}',
                         }
                     },
-                    eventRender: function(info) {
+                    eventDidMount: function(info) {
                         $(info.el).tooltip({title: info.event.extendedProps.description});
                     },
                     editable: false,
@@ -59,7 +50,7 @@
                     eventTextColor: '#fff',
                     eventColor: '#127ba3',
                     resourceAreaWidth: '15%',
-                    resourceLabelText: '{% trans "Room" %}',
+                    resourceAreaHeaderContent: '{% trans "Room" %}',
                     resources: {% include "AKPlan/encode_rooms.html" %},
                     events: {% with akslots as slots %}{% include "AKPlan/encode_events.html" %}{% endwith %},
                     schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
@@ -68,7 +59,9 @@
                 plan.render();
 
                 // Scroll to current time
-                $('.fc-scroller').scrollLeft($('.fc-now-indicator').position().left);
+                if($(".fc-timeline-now-indicator-line").length) {
+                    $('.fc-scroller').scrollLeft($('.fc-timeline-now-indicator-line').position().left);
+                }
             });
         </script>
     {% endif %}
@@ -149,7 +142,9 @@
                 {% endif %}
 
                 <div class="col-md-12">
-                    <div id="planCalendar" style="margin-top:30px;"></div>
+                    <div style="margin-top:30px;margin-bottom: 70px;">
+                        <div id="planCalendar"></div>
+                    </div>
                 </div>
             {% else %}
                 <div class="col-md-12">

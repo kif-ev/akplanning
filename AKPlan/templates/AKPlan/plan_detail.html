@@ -10,25 +10,18 @@
     {% if not event.plan_hidden or user.is_staff %}
         {% get_current_language as LANGUAGE_CODE %}
 
-        <link href='{% static 'AKPlan/vendor/fullcalendar/daygrid/main.min.css' %}' rel='stylesheet'/>
-        <link href='{% static 'AKPlan/vendor/fullcalendar/timegrid/main.min.css' %}' rel='stylesheet'/>
-
-        <script src='{% static 'AKPlan/vendor/fullcalendar/daygrid/main.min.js' %}'></script>
-        <script src='{% static 'AKPlan/vendor/fullcalendar/timegrid/main.min.js' %}'></script>
-
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 var calendarEl = document.getElementById('planCalendar');
 
                 var calendar = new FullCalendar.Calendar(calendarEl, {
-                    plugins: ['timeGrid', 'bootstrap'],
                     // Adapt to timezone of the connected event
                     timeZone: '{{ event.timezone }}',
-                    defaultView: 'timeGrid',
+                    initialView: 'timeGrid',
                     // Adapt to user selected locale
                     locale: '{{ LANGUAGE_CODE }}',
                     // No header, not buttons
-                    header: {
+                    headerToolbar: {
                         left: '',
                         center: '',
                         right: ''
@@ -40,12 +33,14 @@
                         start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
                         end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
                     },
+                    scrollTime: '08:00:00',
                     allDaySlot: false,
                     nowIndicator: true,
                     eventTextColor: '#fff',
                     eventColor: '#127ba3',
                     // Create entries for all scheduled slots
-                    events: {% block encode %}{% endblock %}
+                    events: {% block encode %}{% endblock %},
+                    schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
                 });
 
                 calendar.render();

@@ -21,39 +21,30 @@
 
     {% get_current_language as LANGUAGE_CODE %}
 
-    <link href='{% static 'AKPlan/vendor/fullcalendar/core/main.css' %}' rel='stylesheet'/>
-    <link href='{% static 'AKPlan/vendor/fullcalendar/timeline/main.css' %}' rel='stylesheet'/>
-    <link href='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.css' %}' rel='stylesheet'/>
-    <link href='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.min.css' %}' rel='stylesheet'/>
+    <script src='{% static 'AKPlan/vendor/fullcalendar-scheduler/main.js' %}'></script>
+    <link href='{% static 'AKPlan/vendor/fullcalendar-scheduler/main.css' %}' rel='stylesheet'/>
 
-    <script src='{% static 'AKPlan/vendor/fullcalendar/core/main.js' %}'></script>
-    {% with 'AKPlan/vendor/fullcalendar/core/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
+    {% with 'AKPlan/vendor/fullcalendar-scheduler/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
         <script src="{% static locale_file %}"></script>
     {% endwith %}
-    <script src='{% static 'AKPlan/vendor/fullcalendar/timeline/main.js' %}'></script>
-    <script src='{% static 'AKPlan/vendor/fullcalendar/resource-common/main.js' %}'></script>
-    <script src='{% static 'AKPlan/vendor/fullcalendar/resource-timeline/main.js' %}'></script>
-    <script src='{% static 'AKPlan/vendor/fullcalendar/bootstrap/main.js' %}'></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var planEl = document.getElementById('planCalendar');
 
             var plan = new FullCalendar.Calendar(planEl, {
-                plugins: ['resourceTimeline', 'bootstrap'],
                 timeZone: '{{ event.timezone }}',
-                header: false,
+                headerToolbar: false,
                 themeSystem: 'bootstrap',
                 // Adapt to user selected locale
                 locale: '{{ LANGUAGE_CODE }}',
-                type: 'resourceTimeline',
                 slotDuration: '01:00',
-                defaultView: 'resourceTimeline',
+                initialView: 'resourceTimeline',
                 visibleRange: {
                     start: '{{ start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
                     end: '{{ end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
                 },
-                eventRender: function(info) {
+                eventDidMount: function(info) {
                     $(info.el).tooltip({title: info.event.extendedProps.description});
                 },
                 editable: false,
@@ -61,9 +52,9 @@
                 nowIndicator: true,
                 eventTextColor: '#fff',
                 eventColor: '#127ba3',
-                height: 'parent',
+                height: '90%',
                 resourceAreaWidth: '15%',
-                resourceLabelText: '{% trans "Room" %}',
+                resourceAreaHeaderContent: '{% trans "Room" %}',
                 resources: [
                     {% for room in rooms %}
                         {
@@ -79,7 +70,9 @@
             plan.render();
 
             // Scroll to current time
-            $('.fc-scroller').scrollLeft($('.fc-now-indicator').position().left);
+                if($(".fc-timeline-now-indicator-line").length) {
+                    $('.fc-scroller').scrollLeft($('.fc-timeline-now-indicator-line').position().left);
+                }
         });
     </script>
 
