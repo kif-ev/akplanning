@@ -84,35 +84,9 @@
                 datesAboveResources: true,
                 resourceAreaHeaderContent: '{% trans "Room" %}',
                 resources: '{% url "model:scheduling-resources-list" event_slug=event.slug %}',
-                events: [
-                        {% for slot in akslots %}
-                            {% if slot.start %}
-                                {
-                                    'title': '{{ slot.ak.short_name }}',
-                                    'description': '{{ slot.ak.name }}',
-                                    'start': '{{ slot.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-                                    'end': '{{ slot.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-                                    'resourceId': '{{ slot.room.title }}',
-                                    'backgroundColor': '{{ slot|highlight_change_colors }}',
-                                    'borderColor': '{{ slot.ak.category.color }}',
-                                    'url': '{% url 'submit:ak_detail' event_slug=event.slug pk=slot.ak.pk %}',
-                                    constraint: 'roomAvailable',
-                                },
-                            {% endif %}
-                        {% endfor %}
-                        {% for a in availabilities %}
-                            {% if a.room != None %}
-                                {
-                                    title: '',
-                                    start: '{{ a.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-                                    end: '{{ a.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-                                    resourceId: '{{ a.room.title }}',
-                                    backgroundColor: '#28B62C',
-                                    display: 'background',
-                                    groupId: 'roomAvailable',
-                                },
-                            {% endif %}
-                        {% endfor %}
+                eventSources: [
+                        '{% url "model:scheduling-events" event_slug=event.slug %}',
+                        '{% url "model:scheduling-room-availabilities" event_slug=event.slug %}'
                     ],
                 schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
                 dayMinWidth: 100,
