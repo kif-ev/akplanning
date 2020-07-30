@@ -23,7 +23,10 @@ class UnscheduledSlotsAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView
 class SchedulingAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
     template_name = "admin/AKScheduling/scheduling.html"
     model = AKSlot
-    context_object_name = "akslots"
+    context_object_name = "slots_unscheduled"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(start__isnull=True)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)

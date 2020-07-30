@@ -2,6 +2,7 @@
 {% load tags_AKModel %}
 
 {% load i18n %}
+{% load l10n %}
 {% load tz %}
 {% load static %}
 {% load tags_AKPlan %}
@@ -18,6 +19,13 @@
     {% with 'AKPlan/vendor/fullcalendar-scheduler/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
         <script src="{% static locale_file %}"></script>
     {% endwith %}
+
+    <style>
+    .unscheduled-slot {
+        cursor: move;
+
+    }
+    </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -62,7 +70,7 @@
             // Calendar
             var planEl = document.getElementById('planCalendar');
 
-            var plan = new FullCalendar.Calendar(planEl, {
+            plan = new FullCalendar.Calendar(planEl, {
                 timeZone: '{{ event.timezone }}',
                 headerToolbar : {
                     left: 'today prev,next',
@@ -118,7 +126,12 @@
 
                 // React to event changes (moving or change of duration)
                 eventChange: updateEvent,
+                eventReceive: updateEvent,
                 editable: true,
+                dropable: true,
+                drop: function(info) {
+                    info.draggedEl.parentNode.removeChild(info.draggedEl);
+                },
                 allDaySlot: false,
                 nowIndicator: true,
                 eventTextColor: '#fff',
@@ -160,7 +173,17 @@
 
 {% block content %}
 
-    <div id="planCalendar" style="margin-bottom: 50px;"></div>
+    <div class="row" style="margin-bottom: 50px;">
+        <div class="col-md-10 col-lg-11">
+            <div id="planCalendar" ></div>
+        </div>
+        <div class="col-md-2 col-lg-1" id="unscheduled-slots">
+            {% for slot in slots_unscheduled %}
+                <div class="unscheduled-slot badge badge-primary" data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "description": "{{ slot.ak.name }}", "slotID": "{{ slot.pk }}"}'>{{ slot.ak.short_name }} ({{ slot.duration }} h)</div>
+            {% endfor %}
+        </div>
+    </div>
+
 
     <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %}</a>
 {% endblock %}

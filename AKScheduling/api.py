@@ -91,8 +91,8 @@ class EventSerializer(serializers.ModelSerializer):
     roomId = serializers.IntegerField(source='room.pk')
 
     def update(self, instance, validated_data):
-        start = timezone.make_aware(timezone.make_naive(validated_data.get('start', instance.start)), instance.event.timezone)
-        end = timezone.make_aware(timezone.make_naive(validated_data.get('end', instance.end)), instance.event.timezone)
+        start = timezone.make_aware(timezone.make_naive(validated_data.get('start')), instance.event.timezone)
+        end = timezone.make_aware(timezone.make_naive(validated_data.get('end')), instance.event.timezone)
         instance.start = start
         instance.room = get_object_or_404(Room, pk=validated_data.get('room')["pk"])
         diff = end - start
