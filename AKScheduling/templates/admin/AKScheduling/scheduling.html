@@ -83,14 +83,7 @@
                 eventColor: '#127ba3',
                 datesAboveResources: true,
                 resourceAreaHeaderContent: '{% trans "Room" %}',
-                resources: [
-                            {% for room in rooms %}
-                                {
-                                    'id': '{{ room.title }}',
-                                    'title': '{{ room.title }}',
-                                },
-                            {% endfor %}
-                        ],
+                resources: '{% url "model:scheduling-resources-list" event_slug=event.slug %}',
                 events: [
                         {% for slot in akslots %}
                             {% if slot.start %}

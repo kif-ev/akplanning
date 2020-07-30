@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
@@ -10,6 +11,10 @@ api_router.register('aktrack', views.AKTrackViewSet, basename='AKTrack')
 api_router.register('ak', views.AKViewSet, basename='AK')
 api_router.register('room', views.RoomViewSet, basename='Room')
 api_router.register('akslot', views.AKSlotViewSet, basename='AKSlot')
+
+if apps.is_installed("AKScheduling"):
+    from AKScheduling.api import ResourcesViewSet
+    api_router.register('scheduling-resources', ResourcesViewSet, basename='scheduling-resources')
 
 app_name = 'model'
 

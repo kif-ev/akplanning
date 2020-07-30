@@ -33,8 +33,6 @@ class SchedulingAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
         context["start"] = self.event.start
         context["end"] = self.event.end
 
-        context["rooms"] = self.event.room_set.all()
-
         context["availabilities"] = Availability.objects.filter(event=self.event, room__isnull=False)
 
         return context
