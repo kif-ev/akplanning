@@ -25,6 +25,9 @@ class Event(models.Model):
     start = models.DateTimeField(verbose_name=_('Start'), help_text=_('Time the event begins'))
     end = models.DateTimeField(verbose_name=_('End'), help_text=_('Time the event ends'))
 
+    public = models.BooleanField(verbose_name=_('Public event'), default=True,
+                                 help_text=_('Show this event on overview page.'))
+
     active = models.BooleanField(verbose_name=_('Active State'), help_text=_('Marks currently active events'))
     plan_hidden = models.BooleanField(verbose_name=_('Plan Hidden'), help_text=_('Hides plan for non-staff users'),
                                       default=True)

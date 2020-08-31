@@ -14,8 +14,9 @@ class DashboardView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['events'] = Event.objects.all()
+        context['events'] = Event.objects.filter(public=True)
         return context
+
 
 class DashboardEventView(DetailView):
     template_name = 'AKDashboard/dashboard_event.html'
