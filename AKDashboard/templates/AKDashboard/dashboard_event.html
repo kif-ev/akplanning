@@ -4,6 +4,7 @@
 {% load i18n %}
 {% load static %}
 {% load tags_AKModel %}
+{% load tz %}
 
 {% block imports %}
 
@@ -19,5 +20,22 @@
 {% endblock %}
 
 {% block content %}
-    {% include "AKDashboard/dashboard_row.html" %}
+    <div class="dashboard-row">
+        {% include "AKDashboard/dashboard_row.html" %}
+
+        {% if recent_changes|length > 0 %}
+            <h3 class="mt-1">{% trans "Recent" %}:</h3>
+            <ul id="recent-changes-list">
+                {% for recent in recent_changes %}
+                    <li><a href="{{ recent.link }}">{% fa5_icon recent.icon.0 recent.icon.1 %} {{ recent.text }}</a> <span style="color: #999999;">{{ recent.timestamp | timezone:event.timezone | date:"d.m. H:i" }}</span></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if event.contact_email %}
+            <p>
+                <a href="mailto:{{ event.contact_email }}">{% fa5_icon "envelope" "fas" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
+            </p>
+        {% endif %}
+    </div>
 {% endblock %}
