@@ -171,6 +171,11 @@ PLAN_SHOW_HIERARCHY = True
 # For which time (in seconds) should changes of akslots be highlighted in plan?
 PLAN_MAX_HIGHLIGHT_UPDATE_SECONDS = 2 * 60 * 60
 
+# Show feed of recent changes in dashboard
+DASHBOARD_SHOW_RECENT = True
+# How many entries max?
+DASHBOARD_RECENT_MAX = 25
+
 # Registration/login behavior
 SIMPLE_BACKEND_REDIRECT_URL = "/user/"
 LOGIN_REDIRECT_URL = SIMPLE_BACKEND_REDIRECT_URL

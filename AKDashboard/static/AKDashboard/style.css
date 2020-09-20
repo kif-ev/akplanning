@@ -29,3 +29,20 @@
     display: inline;
     padding: 0;
 }
+
+#recent-changes-list {
+    list-style-type:none;
+    padding-left: 0;
+    line-height: 220%;
+}
+
+#recent-changes-list li {
+    font-size: 120%;
+    font-family:monospace;
+}
+
+#recent-changes-list a {
+    text-decoration: none;
+    color: #555555;
+    font-weight: bold;
+}
