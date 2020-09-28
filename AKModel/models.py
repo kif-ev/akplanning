@@ -342,3 +342,17 @@ class AKSlot(models.Model):
         :rtype: float
         """
         return (timezone.now() - self.updated).total_seconds()
+
+
+class AKOrgaMessage(models.Model):
+    ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'), help_text=_('AK this message belongs to'))
+    text = models.TextField(verbose_name=_("Message text"), help_text=_("Message to the organizers. This is not publicly visible."))
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('AK Orga Message')
+        verbose_name_plural = _('AK Orga Messages')
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f'AK Orga Message for "{self.ak}" @ {self.timestamp}'

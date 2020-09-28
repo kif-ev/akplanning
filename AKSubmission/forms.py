@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
-from AKModel.models import AK, AKOwner, AKCategory, AKRequirement, AKSlot
+from AKModel.models import AK, AKOwner, AKCategory, AKRequirement, AKSlot, AKOrgaMessage
 
 
 class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
@@ -160,4 +160,14 @@ class AKDurationForm(forms.ModelForm):
         widgets = {
             'ak': forms.HiddenInput,
             'event': forms.HiddenInput
+        }
+
+
+class AKOrgaMessageForm(forms.ModelForm):
+    class Meta:
+        model = AKOrgaMessage
+        fields = ['ak', 'text']
+        widgets = {
+            'ak': forms.HiddenInput,
+            'text': forms.Textarea,
         }

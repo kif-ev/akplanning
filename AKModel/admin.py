@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from simple_history.admin import SimpleHistoryAdmin
 
 from AKModel.availability.models import Availability
-from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room
+from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage
 from AKModel.views import EventStatusView, AKCSVExportView
 
 
@@ -218,3 +218,10 @@ class AvailabilityAdmin(admin.ModelAdmin):
         else:
             timezone.activate("UTC")
         return super().get_form(request, obj, change, **kwargs)
+
+
+@admin.register(AKOrgaMessage)
+class AKOrgaMessageAdmin(admin.ModelAdmin):
+    list_display = ['timestamp', 'ak', 'text']
+    list_filter = ['ak__event']
+    readonly_fields = ['timestamp', 'ak', 'text']

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-12 16:17+0000\n"
+"POT-Creation-Date: 2020-09-28 22:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -86,7 +86,7 @@ msgid "Room whose availability this is"
 msgstr "Raum dessen Verfügbarkeit hier abgebildet wird"
 
 #: AKModel/availability/models.py:65 AKModel/models.py:236
-#: AKModel/models.py:298
+#: AKModel/models.py:298 AKModel/models.py:348
 msgid "AK"
 msgstr "AK"
 
@@ -519,6 +519,29 @@ msgstr "AK Slot"
 #: AKModel/models.py:327
 msgid "Not scheduled yet"
 msgstr "Noch nicht geplant"
+
+#: AKModel/models.py:348
+#, fuzzy
+#| msgid "Track the AK belongs to"
+msgid "AK this message belongs to"
+msgstr "Track zu dem der AK gehört"
+
+#: AKModel/models.py:349
+msgid "Message text"
+msgstr "Nachrichtentext"
+
+#: AKModel/models.py:349
+msgid "Message to the organizers. This is not publicly visible."
+msgstr ""
+"Nachricht an die Organisator*innen. Diese ist nicht öffentlich sichtbar."
+
+#: AKModel/models.py:353
+msgid "AK Orga Message"
+msgstr "AK-Organachricht"
+
+#: AKModel/models.py:354
+msgid "AK Orga Messages"
+msgstr "AK-Organachrichten"
 
 #: AKModel/site.py:10
 msgid "Administration"
