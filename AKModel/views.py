@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, DetailView, ListView
 from rest_framework import viewsets, permissions, mixins
 
-from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner
+from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner, AKOrgaMessage
 from AKModel.serializers import AKSerializer, AKSlotSerializer, RoomSerializer, AKTrackSerializer, AKCategorySerializer, \
     AKOwnerSerializer
 
@@ -132,6 +132,7 @@ class EventStatusView(AdminViewMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["unscheduled_slots_count"] = context["event"].akslot_set.filter(start=None).count
         context["site_url"] = reverse_lazy("dashboard:dashboard_event", kwargs={'slug': context["event"].slug})
+        context["ak_messages"] = AKOrgaMessage.objects.filter(ak__event=context["event"])
         return context
 
 

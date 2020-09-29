@@ -7,88 +7,105 @@
 {% block title %}{% trans "Status" %}: {{event}}{% endblock %}
 
 {% block content %}
-    <h2><a href="{% url 'admin:AKModel_event_change' event.pk %}">{{event}}</a></h2>
     {% timezone event.timezone %}
-    <h5>{{ event.start }} - {{ event.end }}</h5>
+        <h2><a href="{% url 'admin:AKModel_event_change' event.pk %}">{{event}}</a></h2>
+        <h5>{{ event.start }} - {{ event.end }}</h5>
 
-    <h3 class="block-header">{% trans "Categories" %}</h3>
-    {% if event.akcategory_set.count == 0 %}
-        <p class="text-danger">{% trans "No categroies yet" %}</p>
-    {% else %}
-        <p>
-            {{ event.akcategory_set.count }}:
-            {% for category in event.akcategory_set.all %}
-                {% if forloop.counter0 > 0 %}
-                    &middot;
+        <div class="row">
+            <div class="col-md-8">
+                <h3 class="block-header">{% trans "Categories" %}</h3>
+                {% if event.akcategory_set.count == 0 %}
+                    <p class="text-danger">{% trans "No categroies yet" %}</p>
+                {% else %}
+                    <p>
+                        {{ event.akcategory_set.count }}:
+                        {% for category in event.akcategory_set.all %}
+                            {% if forloop.counter0 > 0 %}
+                                &middot;
+                            {% endif %}
+                            <a href="{% url 'admin:AKModel_akcategory_change' category.pk %}">{{ category }}</a>
+                            ({{ category.ak_set.count }})
+                        {% endfor %}
+                    </p>
                 {% endif %}
-                <a href="{% url 'admin:AKModel_akcategory_change' category.pk %}">{{ category }}</a>
-                ({{ category.ak_set.count }})
-            {% endfor %}
-        </p>
-    {% endif %}
-    <a class="btn btn-success" href="{% url 'admin:AKModel_akcategory_add' %}">{% trans "Add category" %}</a>
+                <a class="btn btn-success" href="{% url 'admin:AKModel_akcategory_add' %}">{% trans "Add category" %}</a>
 
-    <h3 class="block-header">{% trans "Rooms" %}</h3>
-    {% if event.room_set.count == 0 %}
-        <p class="text-danger">{% trans "No rooms yet" %}</p>
-    {% else %}
-        <p>
-            {{ event.room_set.count }}:
-            {% for room in event.room_set.all %}
-                {% if forloop.counter0 > 0 %}
-                    &middot;
+                <h3 class="block-header">{% trans "Rooms" %}</h3>
+                {% if event.room_set.count == 0 %}
+                    <p class="text-danger">{% trans "No rooms yet" %}</p>
+                {% else %}
+                    <p>
+                        {{ event.room_set.count }}:
+                        {% for room in event.room_set.all %}
+                            {% if forloop.counter0 > 0 %}
+                                &middot;
+                            {% endif %}
+                            <a href="{% url 'admin:AKModel_room_change' room.pk %}">{{ room }}</a>
+                        {% endfor %}
+                    </p>
                 {% endif %}
-                <a href="{% url 'admin:AKModel_room_change' room.pk %}">{{ room }}</a>
-            {% endfor %}
-        </p>
-    {% endif %}
-    <a class="btn btn-success" href="{% url 'admin:AKModel_room_add' %}">{% trans "Add Room" %}</a>
+                <a class="btn btn-success" href="{% url 'admin:AKModel_room_add' %}">{% trans "Add Room" %}</a>
 
-    <h3 class="block-header">{% trans "AKs" %}</h3>
-    {% if event.ak_set.count == 0 %}
-        <p class="text-danger">{% trans "No AKs yet" %}</p>
-    {% else %}
-        <table>
-            <tbody>
-                <tr>
-                    <td>{% trans "AKs" %}</td><td>{{ event.ak_set.count }}</td>
-                </tr>
-                <tr>
-                    <td>{% trans "Slots" %}</td><td>{{ event.akslot_set.count }}</td>
-                </tr>
-                <tr>
-                  <td>{% trans "Unscheduled Slots" %}</td><td>
-                    {% if "AKScheduling"|check_app_installed %}
-                        <a href="{% url 'admin:slots_unscheduled' event_slug=event.slug %}">
-                            {{ unscheduled_slots_count }}
-                        </a>
-                    {% else %}
-                        {{ unscheduled_slots_count }}
-                    {% endif %}
-                </td>
-                </tr>
-            </tbody>
-        </table>
+                <h3 class="block-header">{% trans "AKs" %}</h3>
+                {% if event.ak_set.count == 0 %}
+                    <p class="text-danger">{% trans "No AKs yet" %}</p>
+                {% else %}
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>{% trans "AKs" %}</td><td>{{ event.ak_set.count }}</td>
+                            </tr>
+                            <tr>
+                                <td>{% trans "Slots" %}</td><td>{{ event.akslot_set.count }}</td>
+                            </tr>
+                            <tr>
+                              <td>{% trans "Unscheduled Slots" %}</td><td>
+                                {% if "AKScheduling"|check_app_installed %}
+                                    <a href="{% url 'admin:slots_unscheduled' event_slug=event.slug %}">
+                                        {{ unscheduled_slots_count }}
+                                    </a>
+                                {% else %}
+                                    {{ unscheduled_slots_count }}
+                                {% endif %}
+                            </td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-        <a class="btn btn-success" href="{% url 'admin:ak_csv_export' event_slug=event.slug %}">{% trans "Export AKs as CSV" %}</a>
-    {% endif %}
-
-    <h3 class="block-header">{% trans "Requirements" %}</h3>
-    {% if event.akrequirement_set.count == 0 %}
-        <p class="text-danger">{% trans "No requirements yet" %}</p>
-    {% else %}
-        <p>
-            {{ event.akrequirement_set.count }}:
-            {% for requirement in event.akrequirement_set.all %}
-                {% if forloop.counter0 > 0 %}
-                    &middot;
+                    <a class="btn btn-success" href="{% url 'admin:ak_csv_export' event_slug=event.slug %}">{% trans "Export AKs as CSV" %}</a>
                 {% endif %}
-                <a href="{% url 'admin:AKModel_akrequirement_change' requirement.pk %}">{{ requirement }}</a>
-                ({{ requirement.ak_set.count }})
-            {% endfor %}
-        </p>
-    {% endif %}
-    <a class="btn btn-success" href="{% url 'admin:AKModel_akrequirement_add' %}">{% trans "Add Requirement" %}</a>
 
+                <h3 class="block-header">{% trans "Requirements" %}</h3>
+                {% if event.akrequirement_set.count == 0 %}
+                    <p class="text-danger">{% trans "No requirements yet" %}</p>
+                {% else %}
+                    <p>
+                        {{ event.akrequirement_set.count }}:
+                        {% for requirement in event.akrequirement_set.all %}
+                            {% if forloop.counter0 > 0 %}
+                                &middot;
+                            {% endif %}
+                            <a href="{% url 'admin:AKModel_akrequirement_change' requirement.pk %}">{{ requirement }}</a>
+                            ({{ requirement.ak_set.count }})
+                        {% endfor %}
+                    </p>
+                {% endif %}
+                <a class="btn btn-success" href="{% url 'admin:AKModel_akrequirement_add' %}">{% trans "Add Requirement" %}</a>
+            </div>
+            <div class="col-md-4">
+                <h3 class="block-header">{% trans "Messages" %}</h3>
+                <table class="table table-striped">
+                {% for message in ak_messages %}
+                    <tr><td>
+                        <span class="text-secondary float-right">
+                            {{ message.timestamp|date:"Y-m-d H:i:s" }}
+                        </span>
+                        <h5><a href="{% url 'submit:ak_detail' event_slug=message.ak.event.slug pk=message.ak.pk %}">{{ message.ak }}</a></h5>
+                        <p>{{ message.text }}</p>
+                    </td></tr>
+                {% endfor %}
+                </table>
+            </div>
+        </div>
     {% endtimezone %}
 {% endblock %}
