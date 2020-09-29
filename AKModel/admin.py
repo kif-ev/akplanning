@@ -11,7 +11,7 @@ from simple_history.admin import SimpleHistoryAdmin
 
 from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage
-from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView
+from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView, AKMessageDeleteView
 
 
 @admin.register(Event)
@@ -28,6 +28,8 @@ class EventAdmin(admin.ModelAdmin):
             path('<slug:slug>/status/', self.admin_site.admin_view(EventStatusView.as_view()), name="event_status"),
             path('<slug:event_slug>/ak-csv-export/', self.admin_site.admin_view(AKCSVExportView.as_view()), name="ak_csv_export"),
             path('<slug:event_slug>/ak-wiki-export/', self.admin_site.admin_view(AKWikiExportView.as_view()), name="ak_wiki_export"),
+            path('<slug:slug>/delete-orga-messages/', self.admin_site.admin_view(AKMessageDeleteView.as_view()),
+                 name="ak_delete_orga_messages"),
         ]
         return custom_urls + urls
 

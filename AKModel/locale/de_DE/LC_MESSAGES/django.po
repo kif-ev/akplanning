@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-29 22:27+0000\n"
+"POT-Creation-Date: 2020-09-29 23:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,24 +11,24 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKModel/admin.py:36 AKModel/admin.py:37
+#: AKModel/admin.py:38 AKModel/admin.py:39
 #: AKModel/templates/admin/AKModel/status.html:7
 msgid "Status"
 msgstr "Status"
 
-#: AKModel/admin.py:115
+#: AKModel/admin.py:117
 msgid "Wish"
 msgstr "AK-Wunsch"
 
-#: AKModel/admin.py:121
+#: AKModel/admin.py:123
 msgid "Is wish"
 msgstr "Ist ein Wunsch"
 
-#: AKModel/admin.py:122
+#: AKModel/admin.py:124
 msgid "Is not a wish"
 msgstr "Ist kein Wunsch"
 
-#: AKModel/admin.py:149
+#: AKModel/admin.py:151
 msgid "Export to wiki syntax"
 msgstr "In Wiki-Syntax exportieren"
 
@@ -568,6 +568,32 @@ msgstr ""
 msgid "Logout"
 msgstr "Ausloggen"
 
+#: AKModel/templates/admin/AKModel/message_delete.html:7
+msgid "Delete Orga-Messages"
+msgstr "Organachrichten löschen"
+
+#: AKModel/templates/admin/AKModel/message_delete.html:10
+msgid "Delete AK Orga Messages"
+msgstr "AK-Organachrichten löschen"
+
+#: AKModel/templates/admin/AKModel/message_delete.html:11
+#, fuzzy, python-format
+#| msgid "Are you sure you want to delete all orga messages for "
+msgid ""
+"Are you sure you want to delete all orga messages for %(event)s? This will "
+"permanently delete %(message_count)s message(s):"
+msgstr ""
+"Sollen wirklich alle Organachrichten für %(event)s gelöscht werden? Dadurch "
+"werden %(message_count)s Nachricht(en) dauerhaft gelöscht:"
+
+#: AKModel/templates/admin/AKModel/message_delete.html:17
+msgid "Delete"
+msgstr "Löschen"
+
+#: AKModel/templates/admin/AKModel/message_delete.html:21
+msgid "Cancel"
+msgstr "Abbrechen"
+
 #: AKModel/templates/admin/AKModel/status.html:16
 #, fuzzy
 #| msgid "AK Categories"
@@ -624,21 +650,35 @@ msgstr "Anforderungen hinzufügen"
 msgid "Messages"
 msgstr "Nachrichten"
 
+#: AKModel/templates/admin/AKModel/status.html:99
+msgid "Delete all messages"
+msgstr "Alle Nachrichten löschen"
+
 #: AKModel/templates/admin/ak_index.html:7
 msgid "Active Events"
 msgstr "Aktive Events"
 
-#: AKModel/views.py:129
+#: AKModel/views.py:130
 msgid "Event Status"
 msgstr "Eventstatus"
 
-#: AKModel/views.py:143
+#: AKModel/views.py:144
 msgid "AK CSV Export"
 msgstr "AK CSV Export"
 
-#: AKModel/views.py:157
+#: AKModel/views.py:158
 msgid "AK Wiki Export"
 msgstr "AK Wiki Export"
+
+#: AKModel/views.py:178
+msgid "AK Orga Messages successfully deleted"
+msgstr "AK-Organachrichten erfolgreich gelöscht"
+
+#~ msgid "Confirm"
+#~ msgstr "Bestätigen"
+
+#~ msgid "messages will be permanently deleted:"
+#~ msgstr "Nachrichten werden dauerhaft gelöscht:"
 
 #~ msgid "Notes to organizers"
 #~ msgstr "Notizen an die Organisator*innen"

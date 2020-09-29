@@ -95,17 +95,8 @@
             </div>
             <div class="col-md-4">
                 <h3 class="block-header">{% trans "Messages" %}</h3>
-                <table class="table table-striped">
-                {% for message in ak_messages %}
-                    <tr><td>
-                        <span class="text-secondary float-right">
-                            {{ message.timestamp|date:"Y-m-d H:i:s" }}
-                        </span>
-                        <h5><a href="{% url 'submit:ak_detail' event_slug=message.ak.event.slug pk=message.ak.pk %}">{{ message.ak }}</a></h5>
-                        <p>{{ message.text }}</p>
-                    </td></tr>
-                {% endfor %}
-                </table>
+                {% include "admin/AKModel/render_ak_messages.html" %}
+                <a class="btn btn-danger" href="{% url 'admin:ak_delete_orga_messages' slug=event.slug %}">{% trans "Delete all messages" %}</a>
             </div>
         </div>
     {% endtimezone %}
