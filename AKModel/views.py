@@ -148,3 +148,13 @@ class AKCSVExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
+class AKWikiExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
+    template_name = "admin/AKModel/wiki_export.html"
+    model = AK
+    context_object_name = "AKs"
+    title = _("AK Wiki Export")
+
+    def get_queryset(self):
+        return super().get_queryset().order_by("category")
