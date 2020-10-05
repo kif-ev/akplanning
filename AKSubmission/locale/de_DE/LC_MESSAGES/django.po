@@ -122,7 +122,8 @@ msgid ""
 "%(featured_slot_remaining)s minute(s) in %(room)s.&nbsp;\n"
 "                    "
 msgstr ""
-"Dieser AK findet noch %(featured_slot_remaining)s Minute(n) in %(room)s "
+"\n"
+"                        Dieser AK findet noch %(featured_slot_remaining)s Minute(n) in %(room)s "
 "statt.&nbsp;\n"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:76
@@ -133,7 +134,8 @@ msgid ""
 "minute(s) in %(room)s.&nbsp;\n"
 "                    "
 msgstr ""
-" This AK beginnt in %(featured_slot_remaining)s Minute(n) in %(room)s."
+"\n"
+"                        This AK beginnt in %(featured_slot_remaining)s Minute(n) in %(room)s."
 "&nbsp;\n"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:83
