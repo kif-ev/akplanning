@@ -125,6 +125,7 @@ msgstr ""
 "\n"
 "                        Dieser AK findet noch %(featured_slot_remaining)s Minute(n) in %(room)s "
 "statt.&nbsp;\n"
+"                    "
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:76
 #, python-format
@@ -137,6 +138,7 @@ msgstr ""
 "\n"
 "                        This AK beginnt in %(featured_slot_remaining)s Minute(n) in %(room)s."
 "&nbsp;\n"
+"                    "
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:83
 #: AKSubmission/templates/AKSubmission/ak_detail.html:206
