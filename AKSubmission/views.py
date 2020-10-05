@@ -1,9 +1,14 @@
+from datetime import timedelta
+from math import floor
+
+from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django.utils.datetime_safe import datetime
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, RedirectView, TemplateView
 
@@ -130,6 +135,28 @@ class AKDetailView(EventSlugMixin, DetailView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context["availabilities"] = Availability.objects.filter(ak=context["ak"])
+
+        # Is this AK taking place now or soon (used for top page visualization)
+        context["featured_slot_type"] = "NONE"
+        if apps.is_installed("AKPlan"):
+            current_timestamp = datetime.now().astimezone(self.event.timezone)
+            in_two_hours = current_timestamp + timedelta(hours=2)
+            slots = context["ak"].akslot_set.filter(start__isnull=False, room__isnull=False)
+            for slot in slots:
+                if slot.end > current_timestamp:
+                    if slot.start <= current_timestamp:
+                        context["featured_slot_type"] = "CURRENT"
+                        remaining = slot.end - current_timestamp
+                    elif slot.start <= in_two_hours:
+                        context["featured_slot_type"] = "UPCOMING"
+                        remaining = slot.start - current_timestamp
+                    else:
+                        continue
+
+                    context["featured_slot"] = slot
+                    context["featured_slot_remaining"] = floor(remaining.days * 24 * 60 + remaining.seconds / 60)
+                    break
+
         return context
 
 
