@@ -1,5 +1,7 @@
 {% extends "admin/base_site.html" %}
 
+{% load tags_AKModel %}
+
 {% block content %}
 
 {% regroup AKs by category as ak_list %}
@@ -12,7 +14,7 @@
 | name={{ ak.name }}
 | beschreibung= {{ ak.description }}
 | wieviele={{ ak.interest_counter }}
-| wer={{ ak.owners_list }}
+| wer={{ ak.owners|wiki_owners_export:ak.event }}
 | wann=
 | dauer={{ ak.durations_list }}
 | reso={{ ak.reso }}
