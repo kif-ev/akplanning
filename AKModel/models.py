@@ -24,6 +24,8 @@ class Event(models.Model):
                              verbose_name=_('Time Zone'), help_text=_('Time Zone where this event takes place in'))
     start = models.DateTimeField(verbose_name=_('Start'), help_text=_('Time the event begins'))
     end = models.DateTimeField(verbose_name=_('End'), help_text=_('Time the event ends'))
+    reso_deadline = models.DateTimeField(verbose_name=_('Resolution Deadline'), blank=True, null=True,
+                               help_text=_('When should AKs with intention to submit a resolution be done?'))
 
     public = models.BooleanField(verbose_name=_('Public event'), default=True,
                                  help_text=_('Show this event on overview page.'))
