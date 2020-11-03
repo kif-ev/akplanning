@@ -25,7 +25,7 @@ CSRF_COOKIE_SECURE = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': 'localhost',
+        'HOST': getattr(secrets, "DB_HOST", "localhost"),
         'NAME': secrets.DB_NAME,
         'USER': secrets.DB_USER,
         'PASSWORD': secrets.DB_PASSWORD,
