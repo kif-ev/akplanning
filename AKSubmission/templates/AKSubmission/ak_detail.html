@@ -56,7 +56,7 @@
            title="{% trans 'History' %}" class="btn btn-light">{% fa5_icon 'clock' 'fas' %}</a>
         {% if ak.event.active %}
             <a href="{% url 'submit:akmessage_add' event_slug=ak.event.slug pk=ak.pk %}" data-toggle="tooltip"
-               title="{% trans 'Add confident message to organizers' %}"
+               title="{% trans 'Add confidential message to organizers' %}"
                class="btn btn-warning">{% fa5_icon 'envelope' 'fas' %}</a>
             <a href="{% url 'submit:ak_edit' event_slug=ak.event.slug pk=ak.pk %}" data-toggle="tooltip"
                title="{% trans 'Edit' %}"
@@ -65,6 +65,31 @@
     </div>
 
     <h2>{% if ak.wish %}{% trans "AK Wish" %}: {% endif %}{{ ak.name }}</h2>
+
+    {# Show current or upcoming slot featured in a box on top of the plage #}
+    {% if featured_slot_type != "NONE" %}
+        <div class="card border-success mt-3 mb-3">
+            <div class="card-body font-weight-bold">
+                {% if featured_slot_type == "CURRENT" %}
+                    {% blocktrans with room=featured_slot.room %}
+                        This AK currently takes place for another {{ featured_slot_remaining }} minute(s) in {{ room }}.
+                        &nbsp;
+                    {% endblocktrans %}
+
+                {% elif featured_slot_type == "UPCOMING" %}
+                    {% blocktrans with room=featured_slot.room %}
+                        This AK starts in {{ featured_slot_remaining }} minute(s) in {{ room }}.&nbsp;
+                    {% endblocktrans %}
+                {% endif %}
+
+                {% if "AKOnline"|check_app_installed and featured_slot.room.virtualroom and featured_slot.room.virtualroom.url != '' %}
+                    <a class="btn btn-success" href="{{ featured_slot.room.virtualroom.url }}">
+                        {% fa5_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
 
     <table class="table table-borderless">
         <tr>

@@ -4,7 +4,8 @@
 {% load bootstrap4 %}
 {% load fontawesome_5 %}
 
-{% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "Add message to organizers" %}{% endblock %}
+{% block title %}{% trans "AKs" %}: {{ event.name }} -
+    {% trans "Add confidential message to organizers" %}{% endblock %}
 
 {% block breadcrumbs %}
     {% include "AKSubmission/submission_breadcrumbs.html" %}
@@ -12,13 +13,13 @@
             href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
     <li class="breadcrumb-item"><a
             href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}">{{ ak.short_name }}</a></li>
-    <li class="breadcrumb-item active">{% trans "Add message to organizers" %}</li>
+    <li class="breadcrumb-item active">{% trans "Add confidential message to organizers" %}</li>
 {% endblock %}
 
 {% block content %}
     {% block headline %}
         <h2>{{ ak }}</h2>
-        <h3>{% trans 'Add message to organizers' %}</h3>
+        <h3>{% trans 'Add confidential message to organizers' %}</h3>
     {% endblock %}
     <form method="POST" class="post-form">{% csrf_token %}
         {% bootstrap_form form %}
