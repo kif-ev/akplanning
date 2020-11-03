@@ -147,6 +147,15 @@ BOOTSTRAP4 = {
     "css_url": {
         "href": STATIC_URL + "common/css/bootstrap.css",
     },
+    "javascript_url": {
+        "url": STATIC_URL + "common/vendor/bootstrap/bootstrap-4.3.1.min.js",
+    },
+    "jquery_slim_url": {
+        "url": STATIC_URL + "common/vendor/jquery/jquery-3.3.1.slim.min.js",
+    },
+    "popper_url": {
+        "url": STATIC_URL + "common/vendor/popper/popper-1.14.7.min.js",
+    },
 }
 
 # Settings for FontAwesome
