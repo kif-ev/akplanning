@@ -8,10 +8,10 @@ from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, RedirectView, TemplateView
 
 from AKModel.availability.models import Availability
-from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot, AKTrack
+from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot, AKTrack, AKOrgaMessage
 from AKModel.views import EventSlugMixin
 from AKModel.views import FilterByEventSlugMixin
-from AKSubmission.forms import AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm, AKDurationForm
+from AKSubmission.forms import AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm, AKDurationForm, AKOrgaMessageForm
 
 
 class SubmissionErrorNotConfiguredView(EventSlugMixin, TemplateView):
@@ -401,5 +401,26 @@ class AKSlotDeleteView(EventSlugMixin, EventInactiveRedirectMixin, DeleteView):
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully deleted"))
+        return reverse_lazy('submit:ak_detail',
+                            kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
+
+
+class AKAddOrgaMessageView(EventSlugMixin, CreateView):
+    model = AKOrgaMessage
+    form_class = AKOrgaMessageForm
+    template_name = "AKSubmission/akmessage_add.html"
+
+    def get_initial(self):
+        initials = super(AKAddOrgaMessageView, self).get_initial()
+        initials['ak'] = get_object_or_404(AK, pk=self.kwargs['pk'])
+        return initials
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context['ak'] = get_object_or_404(AK, pk=self.kwargs['pk'])
+        return context
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, _("Message to organizers successfully saved"))
         return reverse_lazy('submit:ak_detail',
                             kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})

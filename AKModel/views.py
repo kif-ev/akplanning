@@ -1,12 +1,13 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
-from django.views.generic import TemplateView, DetailView, ListView
+from django.views.generic import TemplateView, DetailView, ListView, DeleteView
 from rest_framework import viewsets, permissions, mixins
 
-from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner
+from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner, AKOrgaMessage
 from AKModel.serializers import AKSerializer, AKSlotSerializer, RoomSerializer, AKTrackSerializer, AKCategorySerializer, \
     AKOwnerSerializer
 
@@ -132,6 +133,7 @@ class EventStatusView(AdminViewMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["unscheduled_slots_count"] = context["event"].akslot_set.filter(start=None).count
         context["site_url"] = reverse_lazy("dashboard:dashboard_event", kwargs={'slug': context["event"].slug})
+        context["ak_messages"] = AKOrgaMessage.objects.filter(ak__event=context["event"])
         return context
 
 
@@ -147,3 +149,31 @@ class AKCSVExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
+class AKWikiExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
+    template_name = "admin/AKModel/wiki_export.html"
+    model = AK
+    context_object_name = "AKs"
+    title = _("AK Wiki Export")
+
+    def get_queryset(self):
+        return super().get_queryset().order_by("category")
+
+
+class AKMessageDeleteView(AdminViewMixin, DeleteView):
+    model = Event
+    template_name = "admin/AKModel/message_delete.html"
+
+    def get_orga_messages_for_event(self, event):
+        return AKOrgaMessage.objects.filter(ak__event=event)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["ak_messages"] = self.get_orga_messages_for_event(self.get_object())
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.get_orga_messages_for_event(self.get_object()).delete()
+        messages.add_message(self.request, messages.SUCCESS, _("AK Orga Messages successfully deleted"))
+        return HttpResponseRedirect(reverse_lazy('admin:event_status', kwargs={'slug': self.get_object().slug}))

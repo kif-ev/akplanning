@@ -55,6 +55,9 @@
            data-toggle="tooltip"
            title="{% trans 'History' %}" class="btn btn-light">{% fa5_icon 'clock' 'fas' %}</a>
         {% if ak.event.active %}
+            <a href="{% url 'submit:akmessage_add' event_slug=ak.event.slug pk=ak.pk %}" data-toggle="tooltip"
+               title="{% trans 'Add confident message to organizers' %}"
+               class="btn btn-warning">{% fa5_icon 'envelope' 'fas' %}</a>
             <a href="{% url 'submit:ak_edit' event_slug=ak.event.slug pk=ak.pk %}" data-toggle="tooltip"
                title="{% trans 'Edit' %}"
                class="btn btn-success">{% fa5_icon 'pencil-alt' 'fas' %}</a>

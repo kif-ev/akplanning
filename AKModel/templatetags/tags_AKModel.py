@@ -25,3 +25,17 @@ def message_bootstrap_class(tag):
     elif tag == "warning":
         return "alert-warning"
     return "alert-info"
+
+
+@register.filter
+def wiki_owners_export(owners, event):
+    def to_link(owner):
+        if owner.link != '':
+            event_link_prefix, _ = event.base_url.rsplit("/", 1)
+            link_prefix, link_end = owner.link.rsplit("/", 1)
+            if event_link_prefix == link_prefix:
+                return f"[[{link_end}|{str(owner)}]]"
+            return f"[{owner.link} {str(owner)}]"
+        return str(owner)
+
+    return ", ".join(to_link(owner) for owner in owners.all())

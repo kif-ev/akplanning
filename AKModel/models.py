@@ -33,6 +33,7 @@ class Event(models.Model):
                                       default=True)
 
     base_url = models.URLField(verbose_name=_("Base URL"), help_text=_("Prefix for wiki link construction"), blank=True)
+    wiki_export_template_name = models.CharField(verbose_name=_("Wiki Export Template Name"), blank=True, max_length=50)
     default_slot = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Default Slot Length'),
                                        help_text=_('Default length in hours that is assumed for AKs in this event.'))
 
@@ -342,3 +343,17 @@ class AKSlot(models.Model):
         :rtype: float
         """
         return (timezone.now() - self.updated).total_seconds()
+
+
+class AKOrgaMessage(models.Model):
+    ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'), help_text=_('AK this message belongs to'))
+    text = models.TextField(verbose_name=_("Message text"), help_text=_("Message to the organizers. This is not publicly visible."))
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('AK Orga Message')
+        verbose_name_plural = _('AK Orga Messages')
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f'AK Orga Message for "{self.ak}" @ {self.timestamp}'
