@@ -7,7 +7,7 @@
 {% load static %}
 {% load tags_AKPlan %}
 
-{% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}
+{% block title %}{% trans "Scheduling for" %} {{ event }}{% endblock %}
 
 {% block extrahead %}
     {{ block.super }}
@@ -21,10 +21,14 @@
     {% endwith %}
 
     <style>
-    .unscheduled-slot {
-        cursor: move;
+        .unscheduled-slot {
+            cursor: move;
 
-    }
+        }
+
+        .fc-v-event, .tooltip {
+            white-space: pre-line;
+        }
     </style>
 
     <script>
@@ -45,14 +49,16 @@
                 }
                 return cookieValue;
             }
+
             const csrftoken = getCookie('csrftoken');
 
             function csrfSafeMethod(method) {
                 // these HTTP methods do not require CSRF protection
                 return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
             }
+
             $.ajaxSetup({
-                beforeSend: function(xhr, settings) {
+                beforeSend: function (xhr, settings) {
                     if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                         xhr.setRequestHeader("X-CSRFToken", csrftoken);
                     }
@@ -64,7 +70,7 @@
             var containerEl = document.getElementById('unscheduled-slots');
             new FullCalendar.Draggable(containerEl, {
                 itemSelector: '.unscheduled-slot',
-              });
+            });
 
 
             // Calendar
@@ -72,7 +78,7 @@
 
             plan = new FullCalendar.Calendar(planEl, {
                 timeZone: '{{ event.timezone }}',
-                headerToolbar : {
+                headerToolbar: {
                     left: 'today prev,next',
                     center: 'title',
                     right: 'resourceTimelineDayVert,resourceTimelineDayHoriz,resourceTimelineEventVert,resourceTimelineEventHoriz'
@@ -115,12 +121,12 @@
                     }
                 },
                 // Show full AK title as tooltip for each AK (needs to be removed and newly placed when AK is moved)
-                eventDidMount : function(info) {
-                    if(info.event.extendedProps.description !== undefined) {
+                eventDidMount: function (info) {
+                    if (info.event.extendedProps.description !== undefined) {
                         $(info.el).tooltip({title: info.event.extendedProps.description, trigger: 'hover'});
                     }
                 },
-                eventWillUnmount : function(info) {
+                eventWillUnmount: function (info) {
                     $(info.el).tooltip('dispose');
                 },
 
@@ -129,7 +135,7 @@
                 eventReceive: updateEvent,
                 editable: true,
                 dropable: true,
-                drop: function(info) {
+                drop: function (info) {
                     info.draggedEl.parentNode.removeChild(info.draggedEl);
                 },
                 allDaySlot: false,
@@ -140,9 +146,9 @@
                 resourceAreaHeaderContent: '{% trans "Room" %}',
                 resources: '{% url "model:scheduling-resources-list" event_slug=event.slug %}',
                 eventSources: [
-                        '{% url "model:scheduling-events" event_slug=event.slug %}',
-                        '{% url "model:scheduling-room-availabilities" event_slug=event.slug %}'
-                    ],
+                    '{% url "model:scheduling-events" event_slug=event.slug %}',
+                    '{% url "model:scheduling-room-availabilities" event_slug=event.slug %}'
+                ],
                 schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
                 dayMinWidth: 100,
             });
@@ -160,10 +166,11 @@
                         end: plan.formatIso(changeInfo.event.end),
                         roomId: room.id,
                     },
-                    success: function(response) {},
-                    error: function(response) {
+                    success: function (response) {
+                    },
+                    error: function (response) {
                         changeInfo.revert();
-                        alert("ERROR. Did not update "+changeInfo.event.title)
+                        alert("ERROR. Did not update " + changeInfo.event.title)
                     }
                 });
             }
@@ -181,7 +188,7 @@
             {% for slot in slots_unscheduled %}
                 <div class="unscheduled-slot badge badge-primary" style='background-color: {{ slot.ak.category.color }}'
                      data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "description": "{{ slot.ak.name }}", "slotID": "{{ slot.pk }}"}'>{{ slot.ak.short_name }}
-                    ({{ slot.duration }} h)
+                    ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
                 </div>
             {% endfor %}
         </div>

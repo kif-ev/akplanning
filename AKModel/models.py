@@ -246,6 +246,16 @@ class AK(models.Model):
         return self.name
 
     @property
+    def details(self):
+        return f"""{self.name}{" (R)" if self.reso else ""}:
+        
+        {self.owners_list}
+
+        {_("Requirements")}: {", ".join(str(r) for r in self.requirements.all())}  
+        {_("Conflicts")}: {", ".join(str(c) for c in self.conflicts.all())}  
+        {_("Prerequisites")}: {", ".join(str(p) for p in self.prerequisites.all())}"""
+
+    @property
     def owners_list(self):
         return ", ".join(str(owner) for owner in self.owners.all())
 
