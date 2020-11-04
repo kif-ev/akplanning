@@ -425,7 +425,6 @@ class ConstraintViolation(models.Model):
         return ", ".join(output)
     get_details.short_description = _('Details')
 
-    # TODO Automatically save this
     aks_tmp = set()
     @property
     def _aks(self):
@@ -459,9 +458,31 @@ class ConstraintViolation(models.Model):
             return set(self.ak_slots.all())
         return self.ak_slots_tmp
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Store temporary m2m-relations in db
+        for ak in self.aks_tmp:
+            self.aks.add(ak)
+        for ak_slot in self.ak_slots_tmp:
+            self.ak_slots.add(ak_slot)
+
     def __str__(self):
         return f"{self.get_level_display()}: {self.get_type_display()} [{self.get_details()}]"
 
     def __eq__(self, other):
-        # TODO Check if FIELDS and FIELDS_MM are equal
-        return super().__eq__(other)
+        if not isinstance(other, ConstraintViolation):
+            return False
+        if self.type != other.type:
+            return False
+        for field_mm in self.FIELDS_MM:
+            s: set = getattr(self, field_mm)
+            o: set = getattr(other, field_mm)
+            if len(s) != len(o):
+                return False
+            if len(s.intersection(o)) != len(s):
+                return False
+        for field in self.FIELDS:
+            if getattr(self, field) != getattr(other, field):
+                return False
+        return True
+

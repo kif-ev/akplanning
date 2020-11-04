@@ -14,7 +14,7 @@ def ak_changed_handler(sender, instance: AK, **kwargs):
 
     # Owner might have changed: Might affect multiple AKs by the same owner at the same time
     conflicts = []
-    type = ConstraintViolation.ViolationType.OWNER_TWO_SLOTS
+    violation_type = ConstraintViolation.ViolationType.OWNER_TWO_SLOTS
     # For all owners...
     for owner in instance.owners.all():
         # ...find overlapping AKs...
@@ -30,9 +30,8 @@ def ak_changed_handler(sender, instance: AK, **kwargs):
         for slot in slots_by_owner_this_ak:
             for other_slot in slots_by_owner:
                 if slot.overlaps(other_slot):
-                    # TODO Create ConstraintViolation here
                     c = ConstraintViolation(
-                        type=type,
+                        type=violation_type,
                         level=ConstraintViolation.ViolationLevel.VIOLATION,
                         event=event,
                         ak_owner=owner
@@ -44,12 +43,26 @@ def ak_changed_handler(sender, instance: AK, **kwargs):
                     conflicts.append(c)
         print(f"{owner} has the following conflicts: {conflicts}")
     # ... and compare to/update list of existing violations of this type:
-    current_violations = instance.constraintviolation_set.filter(type=type)
+    current_violations = list(instance.constraintviolation_set.filter(type=violation_type))
+    print(current_violations)
     for conflict in conflicts:
-        pass
+        # eq_violation_index = -1
+        try:
+            current_violations.remove(conflict)
+            print(f"Found existing conflict {conflict}")
+        except ValueError:
+            conflict.save()
+        """for i, other_violation in enumerate(current_violations):
+            if conflict == other_violation:
+                eq_violation_index = i
+                break
+        if eq_violation_index > -1:"""
         # TODO Remove from list of current_violations if an equal new one is found
         # TODO Otherwise, store this conflict in db
+        # conflict.save()
     # TODO Remove all violations still in current_violations
+    for old_violation in current_violations:
+        old_violation.delete()
 
 
 @receiver(post_save, sender=AKSlot)
