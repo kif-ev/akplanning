@@ -325,7 +325,8 @@ class AKSlot(models.Model):
     duration = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Duration'),
                                    help_text=_('Length in hours'))
 
-    fixed = models.BooleanField(default=False, verbose_name=_('Scheduling fixed'), help_text=_('Length and time of this AK should not be changed'))
+    fixed = models.BooleanField(default=False, verbose_name=_('Scheduling fixed'),
+                                help_text=_('Length and time of this AK should not be changed'))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
@@ -387,6 +388,9 @@ class AKSlot(models.Model):
         :rtype: float
         """
         return (timezone.now() - self.updated).total_seconds()
+
+    def overlaps(self, other: "AKSlot"):
+        return self.start <= other.end  <= self.end or self.start <= other.start <= self.end
 
 
 class AKOrgaMessage(models.Model):
@@ -496,5 +500,45 @@ class ConstraintViolation(models.Model):
     def timestamp_display(self):
         return self.timestamp.astimezone(self.event.timezone).strftime('%d.%m.%y %H:%M')
 
+    # TODO Automatically save this
+    aks_tmp = set()
+
+    @property
+    def _aks(self):
+        """
+        Get all AKs belonging to this constraint violation
+
+        The distinction between real and tmp relationships is needed since many to many
+        relations only work for objects already persisted in the database
+
+        :return: set of all AKs belonging to this constraint violation
+        :rtype: set(AK)
+        """
+        if self.pk and self.pk > 0:
+            return set(self.aks.all())
+        return self.aks_tmp
+
+    # TODO Automatically save this
+    ak_slots_tmp = set()
+
+    @property
+    def _ak_slots(self):
+        """
+        Get all AK Slots belonging to this constraint violation
+
+        The distinction between real and tmp relationships is needed since many to many
+        relations only work for objects already persisted in the database
+
+        :return: set of all AK Slots belonging to this constraint violation
+        :rtype: set(AKSlot)
+        """
+        if self.pk and self.pk > 0:
+            return set(self.ak_slots.all())
+        return self.ak_slots_tmp
+
     def __str__(self):
         return f"{self.get_level_display()}: {self.get_type_display()} [{self.get_details()}]"
+
+    def __eq__(self, other):
+        # TODO Check if FIELDS and FIELDS_MM are equal
+        return super().__eq__(other)
