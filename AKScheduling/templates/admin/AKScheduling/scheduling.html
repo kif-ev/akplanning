@@ -7,7 +7,7 @@
 {% load static %}
 {% load tags_AKPlan %}
 
-{% block title %}{% trans "Scheduling for" %} {{ event }}{% endblock %}
+{% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}
 
 {% block extrahead %}
     {{ block.super }}
@@ -174,6 +174,10 @@
                     }
                 });
             }
+
+            $('.unscheduled-slot').each(function() {
+                $(this).tooltip({title: $(this).first().attr('data-details'), trigger: 'hover'});
+            });
         });
     </script>
 {% endblock extrahead %}
@@ -181,13 +185,13 @@
 {% block content %}
 
     <div class="row" style="margin-bottom: 50px;">
-        <div class="col-md-10 col-lg-11">
+        <div class="col-md-10 col-lg-10">
             <div id="planCalendar"></div>
         </div>
-        <div class="col-md-2 col-lg-1" id="unscheduled-slots">
+        <div class="col-md-2 col-lg-2" id="unscheduled-slots">
             {% for slot in slots_unscheduled %}
                 <div class="unscheduled-slot badge badge-primary" style='background-color: {{ slot.ak.category.color }}'
-                     data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "description": "{{ slot.ak.name }}", "slotID": "{{ slot.pk }}"}'>{{ slot.ak.short_name }}
+                     data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "description": "{{ slot.ak.name }}", "slotID": "{{ slot.pk }}"}' data-details="{{ slot.ak.details }}">{{ slot.ak.short_name }}
                     ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
                 </div>
             {% endfor %}
