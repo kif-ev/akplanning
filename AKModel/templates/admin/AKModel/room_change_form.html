@@ -1,0 +1,16 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {% bootstrap_javascript jquery='slim' %}
+    <link href='{% static 'AKSubmission/vendor/fullcalendar3/fullcalendar.min.css' %}' rel='stylesheet'/>
+    <link href='{% static 'AKSubmission/css/availabilities.css' %}' rel='stylesheet'/>
+
+    <script src="{% static "AKSubmission/vendor/moment/moment-with-locales.js" %}"></script>
+    <script src="{% static "AKSubmission/vendor/moment-timezone/moment-timezone-with-data-10-year-range.js" %}"></script>
+    <script src='{% static 'AKSubmission/vendor/fullcalendar3/fullcalendar.min.js' %}'></script>
+    <script src="{% static "common/js/availabilities.js" %}"></script>
+{% endblock %}

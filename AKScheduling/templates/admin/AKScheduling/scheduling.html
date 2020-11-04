@@ -1,0 +1,189 @@
+{% extends "admin_base.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load l10n %}
+{% load tz %}
+{% load static %}
+{% load tags_AKPlan %}
+
+{% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {% get_current_language as LANGUAGE_CODE %}
+
+    <script src='{% static 'AKPlan/vendor/fullcalendar-scheduler/main.js' %}'></script>
+    <link href='{% static 'AKPlan/vendor/fullcalendar-scheduler/main.css' %}' rel='stylesheet'/>
+
+    {% with 'AKPlan/vendor/fullcalendar-scheduler/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
+        <script src="{% static locale_file %}"></script>
+    {% endwith %}
+
+    <style>
+    .unscheduled-slot {
+        cursor: move;
+
+    }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // CSRF Protection/Authentication
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getCookie('csrftoken');
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
+
+            // Place slots by dropping placeholders on calendar
+            var containerEl = document.getElementById('unscheduled-slots');
+            new FullCalendar.Draggable(containerEl, {
+                itemSelector: '.unscheduled-slot',
+              });
+
+
+            // Calendar
+            var planEl = document.getElementById('planCalendar');
+
+            plan = new FullCalendar.Calendar(planEl, {
+                timeZone: '{{ event.timezone }}',
+                headerToolbar : {
+                    left: 'today prev,next',
+                    center: 'title',
+                    right: 'resourceTimelineDayVert,resourceTimelineDayHoriz,resourceTimelineEventVert,resourceTimelineEventHoriz'
+                },
+                //aspectRatio: 2,
+                themeSystem: 'bootstrap',
+                // Adapt to user selected locale
+                locale: '{{ LANGUAGE_CODE }}',
+                initialView: 'resourceTimelineEventVert',
+                views: {
+                    resourceTimelineDayHoriz: {
+                        type: 'resourceTimelineDay',
+                        buttonText: '{% trans "Day (Horizontal)" %}',
+                        slotDuration: '00:15',
+                        scrollTime: '08:00',
+                    },
+                    resourceTimelineDayVert: {
+                        type: 'resourceTimeGridDay',
+                        buttonText: '{% trans "Day (Vertical)" %}',
+                        slotDuration: '00:30',
+                        scrollTime: '08:00',
+                    },
+                    resourceTimelineEventHoriz: {
+                        type: 'resourceTimeline',
+                        visibleRange: {
+                            start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                            end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
+                        },
+                        buttonText: '{% trans "Event (Horizontal)" %}',
+                        slotDuration: '00:15',
+                    },
+                    resourceTimelineEventVert: {
+                        type: 'resourceTimeGrid',
+                        visibleRange: {
+                            start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                            end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
+                        },
+                        buttonText: '{% trans "Event (Vertical)" %}',
+                        slotDuration: '00:30',
+                    }
+                },
+                // Show full AK title as tooltip for each AK (needs to be removed and newly placed when AK is moved)
+                eventDidMount : function(info) {
+                    if(info.event.extendedProps.description !== undefined) {
+                        $(info.el).tooltip({title: info.event.extendedProps.description, trigger: 'hover'});
+                    }
+                },
+                eventWillUnmount : function(info) {
+                    $(info.el).tooltip('dispose');
+                },
+
+                // React to event changes (moving or change of duration)
+                eventChange: updateEvent,
+                eventReceive: updateEvent,
+                editable: true,
+                dropable: true,
+                drop: function(info) {
+                    info.draggedEl.parentNode.removeChild(info.draggedEl);
+                },
+                allDaySlot: false,
+                nowIndicator: true,
+                eventTextColor: '#fff',
+                eventColor: '#127ba3',
+                datesAboveResources: true,
+                resourceAreaHeaderContent: '{% trans "Room" %}',
+                resources: '{% url "model:scheduling-resources-list" event_slug=event.slug %}',
+                eventSources: [
+                        '{% url "model:scheduling-events" event_slug=event.slug %}',
+                        '{% url "model:scheduling-room-availabilities" event_slug=event.slug %}'
+                    ],
+                schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+                dayMinWidth: 100,
+            });
+
+            plan.setOption('contentHeight', $(window).height() - $('#header').height() * 11);
+            plan.render();
+
+            function updateEvent(changeInfo) {
+                room = changeInfo.event.getResources()[0];
+                $.ajax({
+                    url: '{% url "model:scheduling-event-list" event_slug=event.slug %}' + changeInfo.event.extendedProps.slotID + "/",
+                    type: 'PUT',
+                    data: {
+                        start: plan.formatIso(changeInfo.event.start),
+                        end: plan.formatIso(changeInfo.event.end),
+                        roomId: room.id,
+                    },
+                    success: function(response) {},
+                    error: function(response) {
+                        changeInfo.revert();
+                        alert("ERROR. Did not update "+changeInfo.event.title)
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock extrahead %}
+
+{% block content %}
+
+    <div class="row" style="margin-bottom: 50px;">
+        <div class="col-md-10 col-lg-11">
+            <div id="planCalendar" ></div>
+        </div>
+        <div class="col-md-2 col-lg-1" id="unscheduled-slots">
+            {% for slot in slots_unscheduled %}
+                <div class="unscheduled-slot badge badge-primary" data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "description": "{{ slot.ak.name }}", "slotID": "{{ slot.pk }}"}'>{{ slot.ak.short_name }} ({{ slot.duration }} h)</div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %}</a>
+{% endblock %}
