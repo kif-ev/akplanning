@@ -463,7 +463,7 @@ class ConstraintViolation(models.Model):
                                             help_text=_('Mark this violation manually as resolved'))
 
     fields = ['ak_owner', 'room', 'requirement', 'category']
-    fields_mm = ['aks', 'ak_slots']
+    fields_mm = ['_aks', '_ak_slots']
 
     def get_details(self):
         """
@@ -471,10 +471,10 @@ class ConstraintViolation(models.Model):
         :return: string of details
         :rtype: str
         """
-        output = []
-        # Stringify all ManyToMany fields
-        for field_mm in self.fields_mm:
-            output.append(f"{field_mm}: {', '.join(str(a) for a in getattr(self, field_mm).all())}")
+        # Stringify aks and ak slots fields (m2m)
+        output = [f"{_('AKs')}: {self._aks_str}",
+                  f"{_('AK Slots')}: {self._ak_slots_str}"]
+
         # Stringify all other fields
         for field in self.fields:
             a = getattr(self, field, None)
@@ -500,7 +500,6 @@ class ConstraintViolation(models.Model):
     def timestamp_display(self):
         return self.timestamp.astimezone(self.event.timezone).strftime('%d.%m.%y %H:%M')
 
-    # TODO Automatically save this
     aks_tmp = set()
 
     @property
@@ -518,8 +517,13 @@ class ConstraintViolation(models.Model):
             return set(self.aks.all())
         return self.aks_tmp
 
-    # TODO Automatically save this
     ak_slots_tmp = set()
+
+    @property
+    def _aks_str(self):
+        if self.pk and self.pk > 0:
+            return ', '.join(str(a) for a in self.aks.all())
+        return ', '.join(str(a) for a in self.aks_tmp)
 
     @property
     def _ak_slots(self):
@@ -536,9 +540,50 @@ class ConstraintViolation(models.Model):
             return set(self.ak_slots.all())
         return self.ak_slots_tmp
 
+    @property
+    def _ak_slots_str(self):
+        if self.pk and self.pk > 0:
+            return ', '.join(str(a) for a in self.ak_slots.all())
+        return ', '.join(str(a) for a in self.ak_slots_tmp)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Store temporary m2m-relations in db
+        for ak in self.aks_tmp:
+            self.aks.add(ak)
+        for ak_slot in self.ak_slots_tmp:
+            self.ak_slots.add(ak_slot)
+
     def __str__(self):
         return f"{self.get_level_display()}: {self.get_type_display()} [{self.get_details()}]"
 
-    def __eq__(self, other):
-        # TODO Check if FIELDS and FIELDS_MM are equal
-        return super().__eq__(other)
+    def matches(self, other):
+        """
+        Check whether one constraint violation instance matches another,
+        this means has the same type, room, requirement, owner, category
+        as well as the same lists of aks and ak slots.
+        PK, timestamp, comments and manual resolving are ignored.
+
+        :param other: second instance to compare to
+        :type other: ConstraintViolation
+        :return: true if both instances are similar in the way described, false if not
+        :rtype: bool
+        """
+        if not isinstance(other, ConstraintViolation):
+            return False
+        # Check type
+        if self.type != other.type:
+            return False
+        # Make sure both have the same aks and ak slots
+        for field_mm in self.fields_mm:
+            s: set = getattr(self, field_mm)
+            o: set = getattr(other, field_mm)
+            if len(s) != len(o):
+                return False
+            if len(s.intersection(o)) != len(s):
+                return False
+        # Check other "defining" fields
+        for field in self.fields:
+            if getattr(self, field) != getattr(other, field):
+                return False
+        return True
