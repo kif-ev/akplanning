@@ -12,7 +12,8 @@ from simple_history.admin import SimpleHistoryAdmin
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
-from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage
+from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
+    ConstraintViolation
 from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView, AKMessageDeleteView
 
 
@@ -259,3 +260,10 @@ class AKOrgaMessageAdmin(admin.ModelAdmin):
     list_display = ['timestamp', 'ak', 'text']
     list_filter = ['ak__event']
     readonly_fields = ['timestamp', 'ak', 'text']
+
+
+@admin.register(ConstraintViolation)
+class ConstraintViolationAdmin(admin.ModelAdmin):
+    list_display = ['type', 'level', 'get_details']
+    list_filter = ['event']
+    readonly_fields = ['timestamp']

@@ -346,6 +346,9 @@ class AKSlot(models.Model):
         """
         return (timezone.now() - self.updated).total_seconds()
 
+    def overlaps(self, other: "AKSlot"):
+        return self.start <= other.end  <= self.end or self.start <= other.start <= self.end
+
 
 class AKOrgaMessage(models.Model):
     ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'), help_text=_('AK this message belongs to'))
@@ -359,3 +362,106 @@ class AKOrgaMessage(models.Model):
 
     def __str__(self):
         return f'AK Orga Message for "{self.ak}" @ {self.timestamp}'
+
+
+class ConstraintViolation(models.Model):
+    class Meta:
+        verbose_name = _('Constraint Violation')
+        verbose_name_plural = _('Constraint Violations')
+        ordering = ['-timestamp']
+
+    class ViolationType(models.TextChoices):
+        OWNER_TWO_SLOTS = 'ots', _('Owner has two parallel slots')
+        SLOT_OUTSIDE_AVAIL = 'soa', _('AK Slot was scheduled outside the AK\'s availabilities')
+        ROOM_TWO_SLOTS = 'rts', _('Room has two AK slots scheduled at the same time')
+        REQUIRE_NOT_GIVEN = 'rng', _('Room does not satisfy the requirement of the scheduled AK')
+        AK_CONFLICT_COLLISION = 'acc', _('AK Slot is scheduled at the same time as an AK listed as a conflict')
+        AK_BEFORE_PREREQUISITE = 'abp', _('AK Slot is scheduled before an AK listed as a prerequisite')
+        AK_AFTER_RESODEADLINE = 'aar', _('AK Slot for AK with intention to submit a resolution is scheduled after resolution deadline')
+        AK_CATEGORY_MISMATCH = 'acm', _('AK Slot in a category is outside that categories availabilities')
+        AK_SLOT_COLLISION = 'asc', _('Two AK Slots for the same AK scheduled at the same time')
+        ROOM_CAPACITY_EXCEEDED = 'rce', _('AK Slot is scheduled in a room with less space than interest')
+        SLOT_OUTSIDE_EVENT = 'soe', _('AK Slot is scheduled outside the event\'s availabilities')
+
+    class ViolationLevel(models.IntegerChoices):
+        WARNING = 1, _('Warning')
+        VIOLATION = 10, _('Violation')
+
+    type = models.CharField(verbose_name=_('Type'), max_length=3, choices=ViolationType.choices, help_text=_('Type of violation, i.e. what kind of constraint was violated'))
+    level = models.PositiveSmallIntegerField(verbose_name=_('Level'), choices=ViolationLevel.choices, help_text=_('Severity level of the violation'))
+
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'), help_text=_('Associated event'))
+
+    aks = models.ManyToManyField(to=AK, blank=True, verbose_name=_('AKs'), help_text=_('AK(s) belonging to this constraint'))
+    ak_slots = models.ManyToManyField(to=AKSlot, blank=True, verbose_name=_('AK Slots'), help_text=_('AK Slot(s) belonging to this constraint'))
+    ak_owner = models.ForeignKey(to=AKOwner, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('AK Owner'), help_text=_('AK Owner belonging to this constraint'))
+    room = models.ForeignKey(to=Room, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('Room'), help_text=_('Room belonging to this constraint'))
+    requirement = models.ForeignKey(to=AKRequirement, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('AK Requirement'), help_text=_('AK Requirement belonging to this constraint'))
+    category = models.ForeignKey(to=AKCategory, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('AK Category'), help_text=_('AK Category belonging to this constraint'))
+
+    comment = models.TextField(verbose_name=_('Comment'), help_text=_('Comment or further details for this violation'), blank=True)
+
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_('Timestamp'), help_text=_('Time of creation'))
+    manually_resolved = models.BooleanField(verbose_name=_('Manually Resolved'), default=False, help_text=_('Mark this violation manually as resolved'))
+
+    FIELDS = ['ak_owner', 'room', 'requirement', 'category']
+    FIELDS_MM = ['_aks', '_ak_slots']
+
+    def get_details(self):
+        """
+        Get details of this constraint (all fields connected to it)
+        :return: string of details
+        :rtype: str
+        """
+        output = []
+        # Stringify all ManyToMany fields
+        for field_mm in self.FIELDS_MM:
+            output.append(f"{field_mm[1:]}: {', '.join(str(a) for a in getattr(self, field_mm))}")
+        # Stringify all other fields
+        for field in self.FIELDS:
+            a = getattr(self, field, None)
+            if a is not None:
+                output.append(f"{field}: {a}")
+        return ", ".join(output)
+    get_details.short_description = _('Details')
+
+    # TODO Automatically save this
+    aks_tmp = set()
+    @property
+    def _aks(self):
+        """
+        Get all AKs belonging to this constraint violation
+
+        The distinction between real and tmp relationships is needed since many to many
+        relations only work for objects already persisted in the database
+
+        :return: set of all AKs belonging to this constraint violation
+        :rtype: set(AK)
+        """
+        if self.pk and self.pk > 0:
+            return set(self.aks.all())
+        return self.aks_tmp
+
+    # TODO Automatically save this
+    ak_slots_tmp = set()
+    @property
+    def _ak_slots(self):
+        """
+        Get all AK Slots belonging to this constraint violation
+
+        The distinction between real and tmp relationships is needed since many to many
+        relations only work for objects already persisted in the database
+
+        :return: set of all AK Slots belonging to this constraint violation
+        :rtype: set(AKSlot)
+        """
+        if self.pk and self.pk > 0:
+            return set(self.ak_slots.all())
+        return self.ak_slots_tmp
+
+    def __str__(self):
+        return f"{self.get_level_display()}: {self.get_type_display()} [{self.get_details()}]"
+
+    def __eq__(self, other):
+        # TODO Check if FIELDS and FIELDS_MM are equal
+        return super().__eq__(other)
