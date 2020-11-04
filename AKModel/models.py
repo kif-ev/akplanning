@@ -356,9 +356,6 @@ class AKSlot(models.Model):
         """
         return (timezone.now() - self.updated).total_seconds()
 
-    def overlaps(self, other: "AKSlot"):
-        return self.start <= other.end  <= self.end or self.start <= other.start <= self.end
-
 
 class AKOrgaMessage(models.Model):
     ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'), help_text=_('AK this message belongs to'))
@@ -404,18 +401,25 @@ class ConstraintViolation(models.Model):
 
     aks = models.ManyToManyField(to=AK, blank=True, verbose_name=_('AKs'), help_text=_('AK(s) belonging to this constraint'))
     ak_slots = models.ManyToManyField(to=AKSlot, blank=True, verbose_name=_('AK Slots'), help_text=_('AK Slot(s) belonging to this constraint'))
-    ak_owner = models.ForeignKey(to=AKOwner, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('AK Owner'), help_text=_('AK Owner belonging to this constraint'))
-    room = models.ForeignKey(to=Room, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('Room'), help_text=_('Room belonging to this constraint'))
-    requirement = models.ForeignKey(to=AKRequirement, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('AK Requirement'), help_text=_('AK Requirement belonging to this constraint'))
-    category = models.ForeignKey(to=AKCategory, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('AK Category'), help_text=_('AK Category belonging to this constraint'))
+    ak_owner = models.ForeignKey(to=AKOwner, on_delete=models.CASCADE, blank=True, null=True,
+                                 verbose_name=_('AK Owner'), help_text=_('AK Owner belonging to this constraint'))
+    room = models.ForeignKey(to=Room, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('Room'),
+                             help_text=_('Room belonging to this constraint'))
+    requirement = models.ForeignKey(to=AKRequirement, on_delete=models.CASCADE, blank=True, null=True,
+                                    verbose_name=_('AK Requirement'),
+                                    help_text=_('AK Requirement belonging to this constraint'))
+    category = models.ForeignKey(to=AKCategory, on_delete=models.CASCADE, blank=True, null=True,
+                                 verbose_name=_('AK Category'), help_text=_('AK Category belonging to this constraint'))
 
-    comment = models.TextField(verbose_name=_('Comment'), help_text=_('Comment or further details for this violation'), blank=True)
+    comment = models.TextField(verbose_name=_('Comment'), help_text=_('Comment or further details for this violation'),
+                               blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_('Timestamp'), help_text=_('Time of creation'))
-    manually_resolved = models.BooleanField(verbose_name=_('Manually Resolved'), default=False, help_text=_('Mark this violation manually as resolved'))
+    manually_resolved = models.BooleanField(verbose_name=_('Manually Resolved'), default=False,
+                                            help_text=_('Mark this violation manually as resolved'))
 
-    FIELDS = ['ak_owner', 'room', 'requirement', 'category']
-    FIELDS_MM = ['_aks', '_ak_slots']
+    fields = ['ak_owner', 'room', 'requirement', 'category']
+    fields_mm = ['aks', 'ak_slots']
 
     def get_details(self):
         """
@@ -425,53 +429,15 @@ class ConstraintViolation(models.Model):
         """
         output = []
         # Stringify all ManyToMany fields
-        for field_mm in self.FIELDS_MM:
-            output.append(f"{field_mm[1:]}: {', '.join(str(a) for a in getattr(self, field_mm))}")
+        for field_mm in self.fields_mm:
+            output.append(f"{field_mm}: {', '.join(str(a) for a in getattr(self, field_mm).all())}")
         # Stringify all other fields
-        for field in self.FIELDS:
+        for field in self.fields:
             a = getattr(self, field, None)
             if a is not None:
                 output.append(f"{field}: {a}")
         return ", ".join(output)
     get_details.short_description = _('Details')
 
-    # TODO Automatically save this
-    aks_tmp = set()
-    @property
-    def _aks(self):
-        """
-        Get all AKs belonging to this constraint violation
-
-        The distinction between real and tmp relationships is needed since many to many
-        relations only work for objects already persisted in the database
-
-        :return: set of all AKs belonging to this constraint violation
-        :rtype: set(AK)
-        """
-        if self.pk and self.pk > 0:
-            return set(self.aks.all())
-        return self.aks_tmp
-
-    # TODO Automatically save this
-    ak_slots_tmp = set()
-    @property
-    def _ak_slots(self):
-        """
-        Get all AK Slots belonging to this constraint violation
-
-        The distinction between real and tmp relationships is needed since many to many
-        relations only work for objects already persisted in the database
-
-        :return: set of all AK Slots belonging to this constraint violation
-        :rtype: set(AKSlot)
-        """
-        if self.pk and self.pk > 0:
-            return set(self.ak_slots.all())
-        return self.ak_slots_tmp
-
     def __str__(self):
         return f"{self.get_level_display()}: {self.get_type_display()} [{self.get_details()}]"
-
-    def __eq__(self, other):
-        # TODO Check if FIELDS and FIELDS_MM are equal
-        return super().__eq__(other)
