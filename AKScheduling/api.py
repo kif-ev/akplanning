@@ -42,8 +42,8 @@ class EventsView(LoginRequiredMixin, EventSlugMixin, ListView):
         return JsonResponse(
             [{
                 "slotID": slot.pk,
-                "title": slot.ak.short_name,
-                "description": slot.ak.name,
+                "title": f'{slot.ak.short_name}: \n{slot.ak.owners_list}',
+                "description": slot.ak.details,
                 "resourceId": slot.room.id,
                 "start": timezone.localtime(slot.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
                 "end": timezone.localtime(slot.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
