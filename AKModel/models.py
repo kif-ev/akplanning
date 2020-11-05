@@ -25,7 +25,7 @@ class Event(models.Model):
     start = models.DateTimeField(verbose_name=_('Start'), help_text=_('Time the event begins'))
     end = models.DateTimeField(verbose_name=_('End'), help_text=_('Time the event ends'))
     reso_deadline = models.DateTimeField(verbose_name=_('Resolution Deadline'), blank=True, null=True,
-                               help_text=_('When should AKs with intention to submit a resolution be done?'))
+                                         help_text=_('When should AKs with intention to submit a resolution be done?'))
 
     public = models.BooleanField(verbose_name=_('Public event'), default=True,
                                  help_text=_('Show this event on overview page.'))
@@ -247,13 +247,16 @@ class AK(models.Model):
 
     @property
     def details(self):
+        from AKModel.availability.models import Availability
+        availabilities = ', \n'.join(f'{a.simplified}' for a in Availability.objects.filter(ak=self))
         return f"""{self.name}{" (R)" if self.reso else ""}:
         
         {self.owners_list}
 
         {_("Requirements")}: {", ".join(str(r) for r in self.requirements.all())}  
         {_("Conflicts")}: {", ".join(str(c) for c in self.conflicts.all())}  
-        {_("Prerequisites")}: {", ".join(str(p) for p in self.prerequisites.all())}"""
+        {_("Prerequisites")}: {", ".join(str(p) for p in self.prerequisites.all())}
+        {_("Availabilities")}: \n{availabilities}"""
 
     @property
     def owners_list(self):
@@ -360,8 +363,10 @@ class AKSlot(models.Model):
 
 
 class AKOrgaMessage(models.Model):
-    ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'), help_text=_('AK this message belongs to'))
-    text = models.TextField(verbose_name=_("Message text"), help_text=_("Message to the organizers. This is not publicly visible."))
+    ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'),
+                           help_text=_('AK this message belongs to'))
+    text = models.TextField(verbose_name=_("Message text"),
+                            help_text=_("Message to the organizers. This is not publicly visible."))
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -386,7 +391,8 @@ class ConstraintViolation(models.Model):
         REQUIRE_NOT_GIVEN = 'rng', _('Room does not satisfy the requirement of the scheduled AK')
         AK_CONFLICT_COLLISION = 'acc', _('AK Slot is scheduled at the same time as an AK listed as a conflict')
         AK_BEFORE_PREREQUISITE = 'abp', _('AK Slot is scheduled before an AK listed as a prerequisite')
-        AK_AFTER_RESODEADLINE = 'aar', _('AK Slot for AK with intention to submit a resolution is scheduled after resolution deadline')
+        AK_AFTER_RESODEADLINE = 'aar', _(
+            'AK Slot for AK with intention to submit a resolution is scheduled after resolution deadline')
         AK_CATEGORY_MISMATCH = 'acm', _('AK Slot in a category is outside that categories availabilities')
         AK_SLOT_COLLISION = 'asc', _('Two AK Slots for the same AK scheduled at the same time')
         ROOM_CAPACITY_EXCEEDED = 'rce', _('AK Slot is scheduled in a room with less space than interest')
@@ -396,13 +402,18 @@ class ConstraintViolation(models.Model):
         WARNING = 1, _('Warning')
         VIOLATION = 10, _('Violation')
 
-    type = models.CharField(verbose_name=_('Type'), max_length=3, choices=ViolationType.choices, help_text=_('Type of violation, i.e. what kind of constraint was violated'))
-    level = models.PositiveSmallIntegerField(verbose_name=_('Level'), choices=ViolationLevel.choices, help_text=_('Severity level of the violation'))
+    type = models.CharField(verbose_name=_('Type'), max_length=3, choices=ViolationType.choices,
+                            help_text=_('Type of violation, i.e. what kind of constraint was violated'))
+    level = models.PositiveSmallIntegerField(verbose_name=_('Level'), choices=ViolationLevel.choices,
+                                             help_text=_('Severity level of the violation'))
 
-    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'), help_text=_('Associated event'))
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
+                              help_text=_('Associated event'))
 
-    aks = models.ManyToManyField(to=AK, blank=True, verbose_name=_('AKs'), help_text=_('AK(s) belonging to this constraint'))
-    ak_slots = models.ManyToManyField(to=AKSlot, blank=True, verbose_name=_('AK Slots'), help_text=_('AK Slot(s) belonging to this constraint'))
+    aks = models.ManyToManyField(to=AK, blank=True, verbose_name=_('AKs'),
+                                 help_text=_('AK(s) belonging to this constraint'))
+    ak_slots = models.ManyToManyField(to=AKSlot, blank=True, verbose_name=_('AK Slots'),
+                                      help_text=_('AK Slot(s) belonging to this constraint'))
     ak_owner = models.ForeignKey(to=AKOwner, on_delete=models.CASCADE, blank=True, null=True,
                                  verbose_name=_('AK Owner'), help_text=_('AK Owner belonging to this constraint'))
     room = models.ForeignKey(to=Room, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('Room'),
@@ -439,6 +450,7 @@ class ConstraintViolation(models.Model):
             if a is not None:
                 output.append(f"{field}: {a}")
         return ", ".join(output)
+
     get_details.short_description = _('Details')
 
     def __str__(self):
