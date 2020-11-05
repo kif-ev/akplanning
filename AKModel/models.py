@@ -316,6 +316,8 @@ class AKSlot(models.Model):
     duration = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Duration'),
                                    help_text=_('Length in hours'))
 
+    fixed = models.BooleanField(default=False, verbose_name=_('Scheduling Fixed'), help_text=_('Length and time of this AK should not be changed'))
+
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 

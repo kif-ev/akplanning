@@ -48,10 +48,10 @@ class EventsView(LoginRequiredMixin, EventSlugMixin, ListView):
                 "start": timezone.localtime(slot.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
                 "end": timezone.localtime(slot.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
                 "backgroundColor": slot.ak.category.color,
-                # TODO Mark conflicts here?
-                "borderColor": slot.ak.category.color,
+                "borderColor": "#ff291d" if slot.fixed else slot.ak.category.color,
                 "constraint": 'roomAvailable',
-                'url': str(reverse('submit:ak_detail', kwargs={"event_slug": self.event.slug, "pk": slot.ak.pk})),
+                "editable": not slot.fixed,
+                'url': str(reverse('admin:AKModel_akslot_change', args=[slot.pk])),
             } for slot in context["object_list"]],
             safe=False,
             **response_kwargs
