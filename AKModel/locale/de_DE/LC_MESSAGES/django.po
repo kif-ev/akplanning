@@ -746,10 +746,8 @@ msgid "Cancel"
 msgstr "Abbrechen"
 
 #: AKModel/templates/admin/AKModel/status.html:16
-#, fuzzy
-#| msgid "AK Categories"
 msgid "Categories"
-msgstr "AK Kategorien"
+msgstr "Kategorien"
 
 #: AKModel/templates/admin/AKModel/status.html:18
 #, fuzzy
