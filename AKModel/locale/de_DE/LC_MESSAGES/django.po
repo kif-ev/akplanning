@@ -99,11 +99,11 @@ msgstr "Verfügbarkeiten"
 #: AKModel/availability/models.py:74 AKModel/models.py:132
 #: AKModel/models.py:425
 msgid "AK Category"
-msgstr "AK Kategorie"
+msgstr "AK-Kategorie"
 
 #: AKModel/availability/models.py:75
 msgid "AK Category whose availability this is"
-msgstr "AK Kategorie dessen Verfügbarkeit hier abgebildet wird"
+msgstr "AK-Kategorie deren Verfügbarkeit hier abgebildet wird"
 
 #: AKModel/availability/models.py:240
 msgid "Availabilities"
@@ -235,7 +235,7 @@ msgstr "Spitzname"
 
 #: AKModel/models.py:71
 msgid "Name to identify an AK owner by"
-msgstr "Name durch den eine AK Leitung identifiziert wird"
+msgstr "Name durch den eine AK-Leitung identifiziert wird"
 
 #: AKModel/models.py:72
 msgid "Slug"
@@ -263,15 +263,15 @@ msgstr "Link zu Homepage oder Webseite"
 
 #: AKModel/models.py:80 AKModel/models.py:418
 msgid "AK Owner"
-msgstr "AK Leitung"
+msgstr "AK-Leitung"
 
 #: AKModel/models.py:81
 msgid "AK Owners"
-msgstr "AK Leitungen"
+msgstr "AK-Leitungen"
 
 #: AKModel/models.py:123
 msgid "Name of the AK Category"
-msgstr "Name des AK Kategorie"
+msgstr "Name des AK-Kategorie"
 
 #: AKModel/models.py:124 AKModel/models.py:145
 msgid "Color"
@@ -291,31 +291,31 @@ msgstr "Beschreibung der AK-Kategorie"
 
 #: AKModel/models.py:133
 msgid "AK Categories"
-msgstr "AK Kategorien"
+msgstr "AK-Kategorien"
 
 #: AKModel/models.py:144
 msgid "Name of the AK Track"
-msgstr "Name des AK Tracks"
+msgstr "Name des AK-Tracks"
 
 #: AKModel/models.py:151
 msgid "AK Track"
-msgstr "AK Track"
+msgstr "AK-Track"
 
 #: AKModel/models.py:152
 msgid "AK Tracks"
-msgstr "AK Tracks"
+msgstr "AK-Tracks"
 
 #: AKModel/models.py:163
 msgid "Name of the AK Tag"
-msgstr "Name das AK Tags"
+msgstr "Name das AK-Tags"
 
 #: AKModel/models.py:166
 msgid "AK Tag"
-msgstr "AK Tag"
+msgstr "AK-Tag"
 
 #: AKModel/models.py:167
 msgid "AK Tags"
-msgstr "AK Tags"
+msgstr "AK-Tags"
 
 #: AKModel/models.py:177
 msgid "Name of the Requirement"
@@ -323,11 +323,11 @@ msgstr "Name der Anforderung"
 
 #: AKModel/models.py:183 AKModel/models.py:422
 msgid "AK Requirement"
-msgstr "AK Anforderung"
+msgstr "AK-Anforderung"
 
 #: AKModel/models.py:184
 msgid "AK Requirements"
-msgstr "AK Anforderungen"
+msgstr "AK-Anforderungen"
 
 #: AKModel/models.py:195
 msgid "Name of the AK"
@@ -339,7 +339,7 @@ msgstr "Kurzer Name"
 
 #: AKModel/models.py:197
 msgid "Name displayed in the schedule"
-msgstr "Name zur Anzeige im AK Plan"
+msgstr "Name zur Anzeige im AK-Plan"
 
 #: AKModel/models.py:198
 msgid "Description of the AK"
@@ -379,7 +379,7 @@ msgstr "Tags"
 
 #: AKModel/models.py:209
 msgid "Tags provided by owners"
-msgstr "Tags, die durch die AK Leitung vergeben wurden"
+msgstr "Tags, die durch die AK-Leitung vergeben wurden"
 
 #: AKModel/models.py:210
 msgid "Track"
@@ -415,7 +415,7 @@ msgstr "Anforderungen des AKs"
 
 #: AKModel/models.py:221
 msgid "Conflicting AKs"
-msgstr "AK Konflikte"
+msgstr "AK-Konflikte"
 
 #: AKModel/models.py:222
 msgid "AKs that conflict and thus must not take place at the same time"
@@ -428,7 +428,7 @@ msgstr "Vorausgesetzte AKs"
 
 #: AKModel/models.py:224
 msgid "AKs that should precede this AK in the schedule"
-msgstr "AKS die im AK Plan vor diesem AK stattfinden müssen"
+msgstr "AKs die im AK-Plan vor diesem AK stattfinden müssen"
 
 #: AKModel/models.py:226
 msgid "Organizational Notes"
@@ -490,7 +490,7 @@ msgstr "Eigenschaften"
 
 #: AKModel/models.py:290
 msgid "AK requirements fulfilled by the room"
-msgstr "AK Anforderungen, die dieser Raum erfüllt"
+msgstr "AK-Anforderungen, die dieser Raum erfüllt"
 
 #: AKModel/models.py:297 AKModel/templates/admin/AKModel/status.html:33
 msgid "Rooms"
@@ -534,11 +534,11 @@ msgstr "Letzte Aktualisierung"
 
 #: AKModel/models.py:330
 msgid "AK Slot"
-msgstr "AK Slot"
+msgstr "AK-Slot"
 
 #: AKModel/models.py:331 AKModel/models.py:415
 msgid "AK Slots"
-msgstr "AK Slot"
+msgstr "AK-Slot"
 
 #: AKModel/models.py:345
 msgid "Not scheduled yet"
@@ -818,11 +818,11 @@ msgstr "Eventstatus"
 
 #: AKModel/views.py:144
 msgid "AK CSV Export"
-msgstr "AK CSV Export"
+msgstr "AK-CSV-Export"
 
 #: AKModel/views.py:158
 msgid "AK Wiki Export"
-msgstr "AK Wiki Export"
+msgstr "AK-Wiki-Export"
 
 #: AKModel/views.py:178
 msgid "AK Orga Messages successfully deleted"

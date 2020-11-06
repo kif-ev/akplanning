@@ -195,7 +195,7 @@ msgstr "Anforderungen"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:144
 msgid "Conflicting AKs"
-msgstr "AK Konflikte"
+msgstr "AK-Konflikte"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:152
 msgid "Prerequisite AKs"
