@@ -60,10 +60,13 @@ Python requirements are listed in ``requirements.txt``. They can be installed wi
 
 **Development Server**
 
-To start the application for development use ``python manage.py runserver 0:8000`` from the root directory.
 *Do not use this for deployment!*
 
-In your browser, access ``http://127.0.0.1:8000/`` and continue from there.
+To start the application for development, in the root directory,
+
+1. activate virtualenv ``source venv/bin/activate``
+1. start development server ``python manage.py runserver 0:8000``
+1. In your browser, access ``http://127.0.0.1:8000/admin/`` and continue from there.
 
 
 ### Deployment Setup
