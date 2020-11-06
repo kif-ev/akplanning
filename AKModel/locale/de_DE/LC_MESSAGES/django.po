@@ -600,12 +600,9 @@ msgid "AK Slot is scheduled before an AK listed as a prerequisite"
 msgstr ""
 
 #: AKModel/models.py:395
-#, fuzzy
-#| msgid "When should AKs with intention to submit a resolution be done?"
-msgid ""
-"AK Slot for AK with intention to submit a resolution is scheduled after "
+msgid "AK Slot for AK with intention to submit a resolution is scheduled after "
 "resolution deadline"
-msgstr "Wann sollen AKs mit Resolutionsabsicht stattgefunden haben?"
+msgstr ""
 
 #: AKModel/models.py:396
 msgid "AK Slot in a category is outside that categories availabilities"
