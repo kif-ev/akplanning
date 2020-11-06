@@ -177,8 +177,8 @@ msgid "Track"
 msgstr "Track"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:114
-msgid "Present this AK"
-msgstr "Diesen AK vorstellen"
+msgid "Present AK results"
+msgstr "AK-Ergebnisse vorstellen"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:118
 #: AKSubmission/templates/AKSubmission/ak_table.html:12
@@ -262,8 +262,8 @@ msgstr "Zeit"
 
 #: AKSubmission/templates/AKSubmission/ak_history.html:48
 #: AKSubmission/templates/AKSubmission/ak_table.html:26
-msgid "present this AK"
-msgstr "Diesen AK vorstellen"
+msgid "Present results of this AK in the final plenum"
+msgstr "Die Ergebnisse dieses AKs im Abschlussplenum vorstellen"
 
 #: AKSubmission/templates/AKSubmission/ak_history.html:52
 #: AKSubmission/templates/AKSubmission/ak_table.html:30

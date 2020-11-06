@@ -399,11 +399,11 @@ msgstr "Beabsichtigt eine Resolution einzureichen"
 
 #: AKModel/models.py:215
 msgid "Present this AK"
-msgstr "AK Präsentieren"
+msgstr "AK präsentieren"
 
 #: AKModel/models.py:216
-msgid "Present results of this AK"
-msgstr "Die Ergebnisse dieses AKs vorstellen"
+msgid "Present results of this AK in the final plenum"
+msgstr "Die Ergebnisse dieses AKs im Abschlussplenum vorstellen"
 
 #: AKModel/models.py:218 AKModel/templates/admin/AKModel/status.html:83
 msgid "Requirements"
