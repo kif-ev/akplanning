@@ -20,7 +20,12 @@ This repository contains a Django project called AKPlanning. The functionality i
 
 ## Setup instructions
 
-See [INSTALL.md](INSTALL.md).
+See [INSTALL.md](INSTALL.md) for detailed instructions on development and production setups.
+
+To update the setup to the current version on the main branch of the repository use the update script ``Utils/update.sh`` or ``Utils/update.sh --prod`` in production.
+
+Afterwards, you may check your setup by executing ``Utils/check.sh`` or ``Utils/check.sh --prod`` in production.
+
 
 
 ## Developer Notes
