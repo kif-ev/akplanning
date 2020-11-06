@@ -34,6 +34,35 @@ msgstr "Virtueller Raum"
 msgid "Virtual Rooms"
 msgstr "Virtuelle Räume"
 
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:10
+msgid "Scheduling for"
+msgstr ""
+
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:94
+msgid "Day (Horizontal)"
+msgstr ""
+
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:101
+msgid "Day (Vertical)"
+msgstr ""
+
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:112
+msgid "Event (Horizontal)"
+msgstr ""
+
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:121
+msgid "Event (Vertical)"
+msgstr ""
+
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:148
+msgid "Room"
+msgstr ""
+
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:204
+#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:34
+msgid "Event Status"
+msgstr "Event-Status"
+
 #: AKScheduling/templates/admin/AKScheduling/unscheduled.html:7
 msgid "Unscheduled AK Slots"
 msgstr "Noch nicht geschedulte AK-Slots"
@@ -41,10 +70,6 @@ msgstr "Noch nicht geschedulte AK-Slots"
 #: AKScheduling/templates/admin/AKScheduling/unscheduled.html:11
 msgid "Count"
 msgstr "Anzahl"
-
-#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:34
-msgid "Event Status"
-msgstr "Event-Status"
 
 #: templates/base.html:29
 msgid ""
