@@ -7,7 +7,10 @@
 <link href='{% static 'AKPlan/vendor/fullcalendar-scheduler/main.css' %}' rel='stylesheet'/>
 
 {% with 'AKPlan/vendor/fullcalendar-scheduler/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
-    <script src="{% static locale_file %}"></script>
+    {% if LANGUAGE_CODE != "en" %}
+        {# Locale 'en' is included in main.js and does not exist separately #}
+        <script src="{% static locale_file %}"></script>
+    {% endif %}
 {% endwith %}
 
 <script>
