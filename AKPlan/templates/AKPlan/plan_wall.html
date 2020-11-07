@@ -19,17 +19,7 @@
 
     <link rel="stylesheet" href="{% static 'common/css/custom.css' %}">
 
-    {% get_current_language as LANGUAGE_CODE %}
-
-    <script src='{% static 'AKPlan/vendor/fullcalendar-scheduler/main.js' %}'></script>
-    <link href='{% static 'AKPlan/vendor/fullcalendar-scheduler/main.css' %}' rel='stylesheet'/>
-
-    {% with 'AKPlan/vendor/fullcalendar-scheduler/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
-        {% if LANGUAGE_CODE != "en" %}
-            {# Locale 'en' is included in main.js and does not exist separately #}
-            <script src="{% static locale_file %}"></script>
-        {% endif %}
-    {% endwith %}
+    {% include "AKPlan/load_fullcalendar.html" %}
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -39,8 +29,6 @@
                 timeZone: '{{ event.timezone }}',
                 headerToolbar: false,
                 themeSystem: 'bootstrap',
-                // Adapt to user selected locale
-                locale: '{{ LANGUAGE_CODE }}',
                 slotDuration: '01:00',
                 initialView: 'resourceTimeline',
                 visibleRange: {
