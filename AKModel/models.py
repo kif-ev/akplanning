@@ -346,6 +346,15 @@ class AKSlot(models.Model):
         return self.start.astimezone(self.event.timezone).strftime('%a %H:%M')
 
     @property
+    def time_simplified(self):
+        """
+        Display start and end time of slot in format weekday + time, e.g. "Fri 14:00 - 15:30"
+        """
+        if self.start is None:
+            return _("Not scheduled yet")
+        return self.start.astimezone(self.event.timezone).strftime('%a %H:%M') + ' - ' + self.end.astimezone(self.event.timezone).strftime('%H:%M')
+
+    @property
     def end(self):
         """
         Retrieve end time of the AK slot
