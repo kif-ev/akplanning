@@ -174,9 +174,11 @@
     <table class="table">
         <thead>
         <tr>
-            <th>{% trans "Duration" %}</th>
             {% if not ak.event.plan_hidden or user.is_staff %}
                 <th>{% trans "When?" %}</th>
+            {% endif %}
+            <th>{% trans "Duration" %}</th>
+            {% if not ak.event.plan_hidden or user.is_staff %}
                 <th>{% trans "Room" %}</th>
             {% endif %}
             <th></th>
@@ -185,9 +187,11 @@
         <tbody>
         {% for slot in ak.akslot_set.all %}
             <tr>
-                <td>{{ slot.duration_simplified }}</td>
                 {% if not ak.event.plan_hidden or user.is_staff %}
                     <td>{{ slot.time_simplified }}</td>
+                {% endif %}
+                <td>{{ slot.duration_simplified }}</td>
+                {% if not ak.event.plan_hidden or user.is_staff %}
                     <td>
                         {% if "AKPlan"|check_app_installed and slot.room %}
                             <a href="{% url 'plan:plan_room' event_slug=ak.event.slug pk=slot.room.pk %}">{{ slot.room }}</a>
