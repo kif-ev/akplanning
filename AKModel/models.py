@@ -337,6 +337,15 @@ class AKSlot(models.Model):
         return f"{self.ak} @ {self.start_simplified}"
 
     @property
+    def duration_simplified(self):
+        """
+        Display duration of slot in format hours:minutes, e.g. 1.5 -> "1:30"
+        """
+        hours = int(self.duration)
+        minutes = (self.duration * 60) % 60
+        return '%d:%02d' % (hours, minutes)
+
+    @property
     def start_simplified(self):
         """
         Display start time of slot in format weekday + time, e.g. "Fri 14:00"
