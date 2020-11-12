@@ -7,7 +7,9 @@ from django.shortcuts import render
 from django.urls import path, reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from rest_framework.reverse import reverse
 from simple_history.admin import SimpleHistoryAdmin
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
@@ -212,7 +214,7 @@ class AKSlotAdmin(admin.ModelAdmin):
     list_editable = ['ak', 'room', 'start', 'duration']
     ordering = ['start']
 
-    readonly_fields = ['updated']
+    readonly_fields = ['ak_details_link', 'updated']
 
     def get_urls(self):
         urls = super().get_urls()
@@ -241,6 +243,13 @@ class AKSlotAdmin(admin.ModelAdmin):
         if db_field.name == 'event':
             kwargs['initial'] = Event.get_next_active()
         return super(AKSlotAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def ak_details_link(self, akslot):
+        if apps.is_installed("AKScheduling") and akslot.ak is not None:
+            link = f"<a href={reverse('submit:ak_detail', args=[akslot.event.slug, akslot.ak.pk])}>{str(akslot.ak)}</a>"
+            return mark_safe(link)
+        return "-"
+    ak_details_link.short_description = _('AK Details')
 
 
 @admin.register(Availability)
