@@ -193,10 +193,14 @@
                 <td>{{ slot.duration_simplified }}</td>
                 {% if not ak.event.plan_hidden or user.is_staff %}
                     <td>
-                        {% if "AKPlan"|check_app_installed and slot.room %}
-                            <a href="{% url 'plan:plan_room' event_slug=ak.event.slug pk=slot.room.pk %}">{{ slot.room }}</a>
+                        {% if slot.room %}
+                            {% if "AKPlan"|check_app_installed %}
+                                <a href="{% url 'plan:plan_room' event_slug=ak.event.slug pk=slot.room.pk %}">{{ slot.room }}</a>
+                            {% else %}
+                                {{ slot.room }}
+                            {% endif %}
                         {% else %}
-                            {{ slot.room }}
+                            -
                         {% endif %}
                     </td>
                 {% endif %}
