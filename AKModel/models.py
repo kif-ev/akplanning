@@ -337,6 +337,14 @@ class AKSlot(models.Model):
         return f"{self.ak} @ {self.start_simplified}"
 
     @property
+    def duration_simplified(self):
+        """
+        Display duration of slot in format hours:minutes, e.g. 1.5 -> "1:30"
+        """
+        hours, minutes = divmod(self.duration * 60, 60)
+        return f"{hours}:{minutes:2.0f}"
+
+    @property
     def start_simplified(self):
         """
         Display start time of slot in format weekday + time, e.g. "Fri 14:00"
@@ -344,6 +352,19 @@ class AKSlot(models.Model):
         if self.start is None:
             return _("Not scheduled yet")
         return self.start.astimezone(self.event.timezone).strftime('%a %H:%M')
+
+    @property
+    def time_simplified(self):
+        """
+        Display start and end time of slot in format weekday + time, e.g. "Fri 14:00 - 15:30" or "Fri 22:00 - Sat 02:00"
+        """
+        if self.start is None:
+            return _("Not scheduled yet")
+
+        start = self.start.astimezone(self.event.timezone)
+        end = self.end.astimezone(self.event.timezone)
+
+        return f"{start.strftime('%a %H:%M')} - {end.strftime('%H:%M') if start.day == end.day else end.strftime('%a %H:%M')}"
 
     @property
     def end(self):
