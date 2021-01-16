@@ -15,7 +15,7 @@
             <div class="col-md-8">
                 <h3 class="block-header">{% trans "Categories" %}</h3>
                 {% if event.akcategory_set.count == 0 %}
-                    <p class="text-danger">{% trans "No categroies yet" %}</p>
+                    <p class="text-danger">{% trans "No categories yet" %}</p>
                 {% else %}
                     <p>
                         {{ event.akcategory_set.count }}:

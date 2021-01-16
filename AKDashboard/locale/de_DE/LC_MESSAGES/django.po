@@ -35,7 +35,7 @@ msgstr "Text, der auf dem Button angezeigt wird"
 
 #: AKDashboard/models.py:23
 msgid "Link URL"
-msgstr "Link URL"
+msgstr "Link-URL"
 
 #: AKDashboard/models.py:23
 msgid "URL this button links to"
@@ -83,7 +83,7 @@ msgstr "Kürzlich"
 
 #: AKDashboard/templates/AKDashboard/dashboard_row.html:12
 msgid "AK List"
-msgstr "AK Liste"
+msgstr "AK-Liste"
 
 #: AKDashboard/templates/AKDashboard/dashboard_row.html:23
 msgid "Current AKs"

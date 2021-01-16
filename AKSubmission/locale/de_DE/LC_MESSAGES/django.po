@@ -177,8 +177,8 @@ msgid "Track"
 msgstr "Track"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:114
-msgid "Present this AK"
-msgstr "Diesen AK vorstellen"
+msgid "Present AK results"
+msgstr "AK-Ergebnisse vorstellen"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:118
 #: AKSubmission/templates/AKSubmission/ak_table.html:12
@@ -186,8 +186,8 @@ msgid "Tags"
 msgstr "Tags"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:124
-msgid "Reso?"
-msgstr "Reso?"
+msgid "Reso intention?"
+msgstr "Resoabsicht?"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:131
 msgid "Requirements"
@@ -195,11 +195,11 @@ msgstr "Anforderungen"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:144
 msgid "Conflicting AKs"
-msgstr "AK Konflikte"
+msgstr "AK-Konflikte"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:152
 msgid "Prerequisite AKs"
-msgstr "AK Voraussetzungen"
+msgstr "Vorausgesetzte AKs"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:160
 msgid "Notes"
@@ -262,13 +262,13 @@ msgstr "Zeit"
 
 #: AKSubmission/templates/AKSubmission/ak_history.html:48
 #: AKSubmission/templates/AKSubmission/ak_table.html:26
-msgid "present this AK"
-msgstr "Diesen AK vorstellen"
+msgid "Present results of this AK"
+msgstr "Die Ergebnisse dieses AKs vorstellen"
 
 #: AKSubmission/templates/AKSubmission/ak_history.html:52
 #: AKSubmission/templates/AKSubmission/ak_table.html:30
-msgid "Reso"
-msgstr "Reso"
+msgid "Intends to submit a resolution"
+msgstr "Beabsichtigt eine Resolution einzureichen"
 
 #: AKSubmission/templates/AKSubmission/ak_list.html:6 AKSubmission/views.py:39
 msgid "All AKs"
