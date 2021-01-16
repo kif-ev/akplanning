@@ -16,6 +16,7 @@ Including another URLconf
 from django.apps import apps
 from django.contrib import admin
 from django.urls import path, include
+import debug_toolbar
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,6 +24,7 @@ urlpatterns = [
     path('accounts/', include('registration.backends.simple.urls')),
     path('', include('AKModel.urls', namespace='model')),
     path('i18n/', include('django.conf.urls.i18n')),
+    path('__debug__/', include(debug_toolbar.urls)),
 ]
 
 # Load URLs dynamically (only if components are active)
