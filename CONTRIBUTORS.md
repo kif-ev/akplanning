@@ -15,3 +15,4 @@ AKPlanning is currently being maintained by:
 Further contributions  in the form of code, testing, documentation etc. were made by:
 
 * R. Zameitat [xayomer](https://gitlab.fachschaften.org/xayomer)
+* N. Steinger [voidptr](https://gitlab.fachschaften.org/voidptr)
