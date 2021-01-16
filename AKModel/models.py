@@ -213,7 +213,7 @@ class AK(models.Model):
     reso = models.BooleanField(verbose_name=_('Resolution Intention'), default=False,
                                help_text=_('Intends to submit a resolution'))
     present = models.BooleanField(verbose_name=_("Present this AK"), null=True,
-                                  help_text=_("Present results of this AK in the final plenum"))
+                                  help_text=_("Present results of this AK"))
 
     requirements = models.ManyToManyField(to=AKRequirement, blank=True, verbose_name=_('Requirements'),
                                           help_text=_("AK's Requirements"))
@@ -319,7 +319,7 @@ class AKSlot(models.Model):
     duration = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Duration'),
                                    help_text=_('Length in hours'))
 
-    fixed = models.BooleanField(default=False, verbose_name=_('Scheduling Fixed'), help_text=_('Length and time of this AK should not be changed'))
+    fixed = models.BooleanField(default=False, verbose_name=_('Scheduling fixed'), help_text=_('Length and time of this AK should not be changed'))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))

@@ -103,7 +103,7 @@ msgstr "AK-Kategorie"
 
 #: AKModel/availability/models.py:75
 msgid "AK Category whose availability this is"
-msgstr "AK-Kategorie deren Verfügbarkeit hier abgebildet wird"
+msgstr "AK-Kategorie, deren Verfügbarkeit hier abgebildet wird"
 
 #: AKModel/availability/models.py:240
 msgid "Availabilities"
@@ -235,7 +235,7 @@ msgstr "Spitzname"
 
 #: AKModel/models.py:71
 msgid "Name to identify an AK owner by"
-msgstr "Name durch den eine AK-Leitung identifiziert wird"
+msgstr "Name, durch den eine AK-Leitung identifiziert wird"
 
 #: AKModel/models.py:72
 msgid "Slug"
@@ -271,7 +271,7 @@ msgstr "AK-Leitungen"
 
 #: AKModel/models.py:123
 msgid "Name of the AK Category"
-msgstr "Name des AK-Kategorie"
+msgstr "Name der AK-Kategorie"
 
 #: AKModel/models.py:124 AKModel/models.py:145
 msgid "Color"
@@ -402,8 +402,8 @@ msgid "Present this AK"
 msgstr "AK präsentieren"
 
 #: AKModel/models.py:216
-msgid "Present results of this AK in the final plenum"
-msgstr "Die Ergebnisse dieses AKs im Abschlussplenum vorstellen"
+msgid "Present results of this AK"
+msgstr "Die Ergebnisse dieses AKs vorstellen"
 
 #: AKModel/models.py:218 AKModel/templates/admin/AKModel/status.html:83
 msgid "Requirements"
@@ -521,12 +521,12 @@ msgid "Length in hours"
 msgstr "Länge in Stunden"
 
 #: AKModel/models.py:322
-msgid "Scheduling Fixed"
-msgstr ""
+msgid "Scheduling fixed"
+msgstr "Planung fix"
 
 #: AKModel/models.py:322
 msgid "Length and time of this AK should not be changed"
-msgstr ""
+msgstr "Dauer und Zeit dieses AKs sollten nicht verändert werden"
 
 #: AKModel/models.py:327
 msgid "Last update"
@@ -569,134 +569,132 @@ msgstr "AK-Organachrichten"
 
 #: AKModel/models.py:383
 msgid "Constraint Violation"
-msgstr ""
+msgstr "Constraintverletzung"
 
 #: AKModel/models.py:384
 msgid "Constraint Violations"
-msgstr ""
+msgstr "Constraintverletzungen"
 
 #: AKModel/models.py:388
 msgid "Owner has two parallel slots"
-msgstr ""
+msgstr "Leitung hat zwei Slots parallel"
 
 #: AKModel/models.py:389
 msgid "AK Slot was scheduled outside the AK's availabilities"
-msgstr ""
+msgstr "AK Slot wurde außerhalb der Verfügbarkeit des AKs platziert"
 
 #: AKModel/models.py:390
 msgid "Room has two AK slots scheduled at the same time"
-msgstr ""
+msgstr "Raum hat AK Slots gleichzeitig"
 
 #: AKModel/models.py:391
 msgid "Room does not satisfy the requirement of the scheduled AK"
-msgstr ""
+msgstr "Room erfüllt die Anforderungen des platzierten AKs nicht"
 
 #: AKModel/models.py:392
 msgid "AK Slot is scheduled at the same time as an AK listed as a conflict"
-msgstr ""
+msgstr "AK Slot wurde wurde zur gleichen Zeit wie ein Konflikt des AKs platziert"
 
 #: AKModel/models.py:393
 msgid "AK Slot is scheduled before an AK listed as a prerequisite"
-msgstr ""
+msgstr "AK Slot wurde vor einem als Voraussetzung gelisteten AK platziert"
 
 #: AKModel/models.py:395
 msgid "AK Slot for AK with intention to submit a resolution is scheduled after "
 "resolution deadline"
-msgstr ""
+msgstr "AK Slot eines AKs mit Resoabsicht wurde nach der Resodeadline platziert"
 
 #: AKModel/models.py:396
 msgid "AK Slot in a category is outside that categories availabilities"
-msgstr ""
+msgstr "AK Slot wurde außerhalb der Verfügbarkeiten seiner Kategorie"
 
 #: AKModel/models.py:397
 msgid "Two AK Slots for the same AK scheduled at the same time"
-msgstr ""
+msgstr "Zwei AK Slots eines AKs wurden zur selben Zeit platziert"
 
 #: AKModel/models.py:398
 msgid "AK Slot is scheduled in a room with less space than interest"
-msgstr ""
+msgstr "AK Slot wurde in einem Raum mit weniger Plätzen als am AK Interessierten platziert"
 
 #: AKModel/models.py:399
 msgid "AK Slot is scheduled outside the event's availabilities"
-msgstr ""
+msgstr "AK Slot wurde außerhalb der Verfügbarkeit des Events platziert"
 
 #: AKModel/models.py:402
 msgid "Warning"
-msgstr ""
+msgstr "Warnung"
 
 #: AKModel/models.py:403
-#, fuzzy
-#| msgid "Location"
 msgid "Violation"
-msgstr "Ort"
+msgstr "Verletzung"
 
 #: AKModel/models.py:405
 msgid "Type"
-msgstr ""
+msgstr "Art"
 
 #: AKModel/models.py:406
 msgid "Type of violation, i.e. what kind of constraint was violated"
-msgstr ""
+msgstr "Art der Verletzung, gibt an welche Art Constraint verletzt wurde"
 
 #: AKModel/models.py:407
 msgid "Level"
-msgstr ""
+msgstr "Level"
 
 #: AKModel/models.py:408
 msgid "Severity level of the violation"
-msgstr ""
+msgstr "Schweregrad der Verletzung"
 
 #: AKModel/models.py:414
 msgid "AK(s) belonging to this constraint"
-msgstr ""
+msgstr "AK(s), die zu diesem Constraint gehören"
 
 #: AKModel/models.py:416
 msgid "AK Slot(s) belonging to this constraint"
-msgstr ""
+msgstr "AK Slot(s), die zu diesem Constraint gehören"
 
 #: AKModel/models.py:418
 msgid "AK Owner belonging to this constraint"
-msgstr ""
+msgstr "AK Leitung(en), die zu diesem Constraint gehören"
 
 #: AKModel/models.py:420
 msgid "Room belonging to this constraint"
-msgstr ""
+msgstr "Raum, der zu diesem Constraint gehört"
 
 #: AKModel/models.py:423
 msgid "AK Requirement belonging to this constraint"
-msgstr ""
+msgstr "AK Anforderung, die zu diesem Constraint gehört"
 
 #: AKModel/models.py:425
 msgid "AK Category belonging to this constraint"
-msgstr ""
+msgstr "AK Kategorie, di zu diesem Constraint gehört"
 
 #: AKModel/models.py:427
 msgid "Comment"
-msgstr ""
+msgstr "Kommentar"
 
 #: AKModel/models.py:427
 msgid "Comment or further details for this violation"
-msgstr ""
+msgstr "Kommentar oder weitere Details zu dieser Vereletzung"
 
 #: AKModel/models.py:430
 msgid "Timestamp"
-msgstr ""
+msgstr "Timestamp"
 
 #: AKModel/models.py:430
 msgid "Time of creation"
-msgstr ""
+msgstr "Zeitpunkt der ERstellung"
 
 #: AKModel/models.py:431
 msgid "Manually Resolved"
-msgstr ""
+msgstr "Manuell behoben"
 
 #: AKModel/models.py:432
 msgid "Mark this violation manually as resolved"
-msgstr ""
+msgstr "Markiere diese Verletzung manuell als behoben"
 
 #: AKModel/models.py:454
 msgid "Details"
-msgstr ""
+msgstr "Details"
 
 #: AKModel/site.py:10
 msgid "Administration"
@@ -752,7 +750,7 @@ msgstr "Kategorien"
 #: AKModel/templates/admin/AKModel/status.html:18
 #, fuzzy
 #| msgid "No categories yet"
-msgid "No categroies yet"
+msgid "No categories yet"
 msgstr "Bisher keine Kategorien"
 
 #: AKModel/templates/admin/AKModel/status.html:31
@@ -782,7 +780,7 @@ msgstr "Ungeplante Slots"
 #: AKModel/templates/admin/AKModel/status.html:76
 #: AKModel/templates/admin/ak_index.html:16
 msgid "Scheduling"
-msgstr ""
+msgstr "Scheduling"
 
 #: AKModel/templates/admin/AKModel/status.html:78
 msgid "Export AKs as CSV"

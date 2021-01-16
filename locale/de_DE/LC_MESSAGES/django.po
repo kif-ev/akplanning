@@ -36,27 +36,27 @@ msgstr "Virtuelle Räume"
 
 #: AKScheduling/templates/admin/AKScheduling/scheduling.html:10
 msgid "Scheduling for"
-msgstr ""
+msgstr "Scheduling für"
 
 #: AKScheduling/templates/admin/AKScheduling/scheduling.html:94
 msgid "Day (Horizontal)"
-msgstr ""
+msgstr "Tag (horizontal)"
 
 #: AKScheduling/templates/admin/AKScheduling/scheduling.html:101
 msgid "Day (Vertical)"
-msgstr ""
+msgstr "Tag (vertikal)"
 
 #: AKScheduling/templates/admin/AKScheduling/scheduling.html:112
 msgid "Event (Horizontal)"
-msgstr ""
+msgstr "Event (horizontal)"
 
 #: AKScheduling/templates/admin/AKScheduling/scheduling.html:121
 msgid "Event (Vertical)"
-msgstr ""
+msgstr "Event (vertikal)"
 
 #: AKScheduling/templates/admin/AKScheduling/scheduling.html:148
 msgid "Room"
-msgstr ""
+msgstr "Raum"
 
 #: AKScheduling/templates/admin/AKScheduling/scheduling.html:204
 #: AKScheduling/templates/admin/AKScheduling/unscheduled.html:34
