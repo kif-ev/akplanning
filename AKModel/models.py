@@ -341,9 +341,8 @@ class AKSlot(models.Model):
         """
         Display duration of slot in format hours:minutes, e.g. 1.5 -> "1:30"
         """
-        hours = int(self.duration)
-        minutes = (self.duration * 60) % 60
-        return '%d:%02d' % (hours, minutes)
+        hours, minutes = divmod(self.duration * 60, 60)
+        return f"{hours}:{minutes:2.0f}"
 
     @property
     def start_simplified(self):
@@ -361,13 +360,11 @@ class AKSlot(models.Model):
         """
         if self.start is None:
             return _("Not scheduled yet")
-        result = self.start.astimezone(self.event.timezone).strftime('%a %H:%M')
-        result += ' - '
-        if self.start.astimezone(self.event.timezone).day == self.end.astimezone(self.event.timezone).day:
-            result += self.end.astimezone(self.event.timezone).strftime('%H:%M')
-        else:
-            result += self.end.astimezone(self.event.timezone).strftime('%a %H:%M')
-        return result
+
+        start = self.start.astimezone(self.event.timezone)
+        end = self.end.astimezone(self.event.timezone)
+
+        return f"{start.strftime('%a %H:%M')} - {end.strftime('%H:%M') if start.day == end.day else end.strftime('%a %H:%M')}"
 
     @property
     def end(self):
