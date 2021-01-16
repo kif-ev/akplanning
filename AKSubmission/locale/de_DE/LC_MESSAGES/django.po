@@ -124,12 +124,7 @@ msgid "AK Wish"
 msgstr "AK-Wunsch"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:74
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                        This AK currently takes place for another "
-#| "%(featured_slot_remaining)s minute(s) in %(room)s.&nbsp;\n"
-#| "                    "
+#, python-format         "
 msgid ""
 "\n"
 "                        This AK currently takes place for another "
