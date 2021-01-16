@@ -11,14 +11,7 @@
 
 {% block extrahead %}
     {{ block.super }}
-    {% get_current_language as LANGUAGE_CODE %}
-
-    <script src='{% static 'AKPlan/vendor/fullcalendar-scheduler/main.js' %}'></script>
-    <link href='{% static 'AKPlan/vendor/fullcalendar-scheduler/main.css' %}' rel='stylesheet'/>
-
-    {% with 'AKPlan/vendor/fullcalendar-scheduler/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
-        <script src="{% static locale_file %}"></script>
-    {% endwith %}
+    {% include "AKPlan/load_fullcalendar.html" %}
 
     <style>
         .unscheduled-slot {
@@ -85,8 +78,6 @@
                 },
                 //aspectRatio: 2,
                 themeSystem: 'bootstrap',
-                // Adapt to user selected locale
-                locale: '{{ LANGUAGE_CODE }}',
                 initialView: 'resourceTimelineEventVert',
                 views: {
                     resourceTimelineDayHoriz: {
