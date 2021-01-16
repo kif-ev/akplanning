@@ -52,6 +52,9 @@
                     <a href="{% url 'submit:ak_edit' event_slug=event.slug pk=ak.pk %}" data-toggle="tooltip"
                        title="{% trans 'Edit' %}"
                        class="btn btn-success">{% fa5_icon 'pencil-alt' 'fas' %}</a>
+                     <a href="{% url 'submit:overview_inc_interest' event_slug=event.slug pk=ak.pk %}" data-toggle="tooltip"
+                       title="{% trans 'Show Interest' %}"
+                       class="btn btn-primary">{% fa5_icon 'thumbs-up' 'fas' %}</a>
                 {% endif %}
             </td>
         </tr>

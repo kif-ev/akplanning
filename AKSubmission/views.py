@@ -281,11 +281,22 @@ class AKInterestView(RedirectView):
     permanent = False
     pattern_name = 'submit:ak_detail'
 
-    def get_redirect_url(self, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
+        # Increase interest counter for given AK
         ak = get_object_or_404(AK, pk=kwargs['pk'])
         if ak.event.active:
             ak.increment_interest()
             messages.add_message(self.request, messages.SUCCESS, _("Interest saved"))
+        return super().get(request, *args, **kwargs)
+
+
+# when the interest increase request comes from the AK overview page, redirect to that instead of the AK overview page
+class AKOverviewInterestView(AKInterestView):
+    pattern_name = 'submit:submission_overview'
+
+    def get_redirect_url(self, *args, **kwargs):
+        # No PK needed for overview page of all AKs
+        del kwargs['pk']
         return super().get_redirect_url(*args, **kwargs)
 
 
