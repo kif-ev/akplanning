@@ -127,7 +127,6 @@
                 eventChange: updateEvent,
                 eventReceive: updateEvent,
                 editable: true,
-                dropable: true,
                 drop: function (info) {
                     info.draggedEl.parentNode.removeChild(info.draggedEl);
                 },
@@ -135,6 +134,7 @@
                 nowIndicator: true,
                 eventTextColor: '#fff',
                 eventColor: '#127ba3',
+                eventBackgroundColor: '#28B62C',
                 datesAboveResources: true,
                 resourceAreaHeaderContent: '{% trans "Room" %}',
                 resources: '{% url "model:scheduling-resources-list" event_slug=event.slug %}',

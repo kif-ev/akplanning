@@ -72,7 +72,6 @@ class RoomAvailabilitiesView(LoginRequiredMixin, EventSlugMixin, ListView):
                 "resourceId": a.room.id,
                 "start": timezone.localtime(a.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
                 "end": timezone.localtime(a.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
-                "backgroundColor": "#28B62C",
                 "display": 'background',
                 "groupId": 'roomAvailable',
             } for a in context["availabilities"]],
