@@ -2,6 +2,13 @@
 
 {% load bootstrap4 %}
 {% load fontawesome_5 %}
+{% load static %}
+
+{% block extrastyle %}
+    {% if not debug %}
+        <link rel="stylesheet" type="text/css" href="{% static "common/css/admin-color.css" %}"/>
+    {% endif %}
+{% endblock %}
 
 {% block extrahead %}
     {% bootstrap_css %}
