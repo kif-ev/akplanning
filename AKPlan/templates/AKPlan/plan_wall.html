@@ -29,6 +29,8 @@
                 timeZone: '{{ event.timezone }}',
                 headerToolbar: false,
                 themeSystem: 'bootstrap',
+                // Adapt to user selected locale
+                locale: '{{ LANGUAGE_CODE }}',
                 slotDuration: '01:00',
                 initialView: 'resourceTimeline',
                 visibleRange: {
