@@ -127,7 +127,6 @@
                 eventChange: updateEvent,
                 eventReceive: updateEvent,
                 editable: true,
-                dropable: true,
                 drop: function (info) {
                     info.draggedEl.parentNode.removeChild(info.draggedEl);
                 },
@@ -135,6 +134,7 @@
                 nowIndicator: true,
                 eventTextColor: '#fff',
                 eventColor: '#127ba3',
+                eventBackgroundColor: '#28B62C',
                 datesAboveResources: true,
                 resourceAreaHeaderContent: '{% trans "Room" %}',
                 resources: '{% url "model:scheduling-resources-list" event_slug=event.slug %}',
@@ -184,7 +184,7 @@
         <div class="col-md-2 col-lg-2" id="unscheduled-slots">
             {% for slot in slots_unscheduled %}
                 <div class="unscheduled-slot badge badge-primary" style='background-color: {{ slot.ak.category.color }}'
-                     data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "description": "{{ slot.ak.details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}"}' data-details="{{ slot.ak.details }}">{{ slot.ak.short_name }}
+                     data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ slot.ak.details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}"}' data-details="{{ slot.ak.details }}">{{ slot.ak.short_name }}
                     ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
                 </div>
             {% endfor %}
