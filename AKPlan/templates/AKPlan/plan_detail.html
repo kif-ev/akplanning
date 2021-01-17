@@ -18,6 +18,8 @@
                     // Adapt to timezone of the connected event
                     timeZone: '{{ event.timezone }}',
                     initialView: 'timeGrid',
+                    // Adapt to user selected locale
+                    locale: '{{ LANGUAGE_CODE }}',
                     // No header, not buttons
                     headerToolbar: {
                         left: '',
