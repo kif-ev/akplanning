@@ -233,7 +233,7 @@ class AK(models.Model):
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
-    history = HistoricalRecords()
+    history = HistoricalRecords(excluded_fields=['interest_counter'])
 
     class Meta:
         verbose_name = _('AK')
@@ -272,7 +272,9 @@ class AK(models.Model):
 
     def increment_interest(self):
         self.interest_counter += 1
+        self.skip_history_when_saving = True
         self.save()
+        del self.skip_history_when_saving
 
     @property
     def availabilities(self):
