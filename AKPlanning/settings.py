@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'simple_history',
     'registration',
+    'django_tex',
 ]
 
 MIDDLEWARE = [
@@ -83,6 +84,14 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
         },
+    },
+    {
+        'NAME': 'tex',
+        'BACKEND': 'django_tex.engine.TeXEngine',
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'environment': 'AKModel.environment.improved_tex_environment',
+        }
     },
 ]
 
@@ -135,6 +144,8 @@ LANGUAGES = [
 ]
 
 INTERNAL_IPS = ['127.0.0.1', '::1']
+
+LATEX_INTERPRETER = 'pdflatex'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
