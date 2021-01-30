@@ -1,0 +1,72 @@
+\documentclass{beamer}
+\usetheme{metropolis}
+% \usetheme[numbering=fraction, progressbar=foot]{metropolis} TODO Activate when total number of frames bug is resolved
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontawesome5}
+
+\title{ {{- title -}} }
+\subtitle{ {{- subtitle -}} }
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+
+{%for category in categories %}
+
+    \section{ {{- category.name | latex_escape_utf8 -}} }
+
+    {% for ak in category.ak_set.all() %}
+
+        {% if not ak.wish %}
+
+            %\setbeamertemplate{frame footer}{}
+
+            \begin{frame}[shrink=15]
+                \frametitle{ {{- ak.name | latex_escape_utf8 -}} }
+
+                \vspace{1em}
+
+                \faUser~ {{ ak.owners_list | latex_escape_utf8 }}
+
+                \faClock~ {{ak.durations_list}}
+
+                {% if ak.reso %}
+                    \faScroll
+                {% endif %}
+
+                {{ ak.description | latex_escape_utf8 }}
+
+            \end{frame}
+
+        {% endif %}
+
+    {% endfor %}
+
+{% endfor %}
+
+
+\section{ {{- wish_category_title -}} }
+
+{% for ak in wishes %}
+
+    %\setbeamertemplate{frame footer}{}
+
+    \begin{frame}[shrink=15]
+        \frametitle{ {{- ak.name | latex_escape_utf8 -}} }
+
+        \vspace{1em}
+
+        \faFilter~ {{ ak.category.name | latex_escape_utf8 }}
+
+        {{ ak.description | latex_escape_utf8 }}
+
+    \end{frame}
+
+{% endfor %}
+
+\end{document}

@@ -1,4 +1,5 @@
 from django.contrib import admin, messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
@@ -6,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 
 from django.views.generic import TemplateView, DetailView, ListView, DeleteView
 from rest_framework import viewsets, permissions, mixins
+from django_tex.shortcuts import render_to_pdf
+
 
 from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner, AKOrgaMessage
 from AKModel.serializers import AKSerializer, AKSlotSerializer, RoomSerializer, AKTrackSerializer, AKCategorySerializer, \
@@ -177,3 +180,20 @@ class AKMessageDeleteView(AdminViewMixin, DeleteView):
         self.get_orga_messages_for_event(self.get_object()).delete()
         messages.add_message(self.request, messages.SUCCESS, _("AK Orga Messages successfully deleted"))
         return HttpResponseRedirect(reverse_lazy('admin:event_status', kwargs={'slug': self.get_object().slug}))
+
+
+@staff_member_required
+def export_slides(request, event_slug):
+    template_name = 'AKModel/export/slides.tex'
+
+    event = get_object_or_404(Event, slug=event_slug)
+
+    context = {
+        'title': event.name,
+        'categories': event.akcategory_set.all(),
+        'subtitle': _("AKs"),
+        'wish_category_title': _("Wishes"),
+        "wishes": [ak for ak in event.ak_set.order_by('category') if ak.wish]
+        }
+
+    return render_to_pdf(request, template_name, context, filename='slides.pdf')
