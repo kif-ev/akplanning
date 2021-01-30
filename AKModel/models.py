@@ -264,7 +264,7 @@ class AK(models.Model):
 
     @property
     def durations_list(self):
-        return ", ".join(str(slot.duration) for slot in self.akslot_set.all())
+        return ", ".join(str(slot.duration_simplified) for slot in self.akslot_set.all())
 
     @property
     def tags_list(self):
