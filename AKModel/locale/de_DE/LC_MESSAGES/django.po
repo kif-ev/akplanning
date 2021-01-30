@@ -485,7 +485,7 @@ msgstr "Anzahl Personen, die online Interesse bekundet haben"
 
 #: AKModel/models.py:240 AKModel/models.py:440
 #: AKModel/templates/admin/AKModel/status.html:49
-#: AKModel/templates/admin/AKModel/status.html:56
+#: AKModel/templates/admin/AKModel/status.html:56 AKModel/views.py:194
 msgid "AKs"
 msgstr "AKs"
 
@@ -898,6 +898,10 @@ msgstr "AKs als CSV exportieren"
 msgid "Export AKs for Wiki"
 msgstr "AKs im Wiki-Format exportieren"
 
+#: AKModel/templates/admin/AKModel/status.html:82
+msgid "Export AK Slides"
+msgstr "AK-Folien exportieren"
+
 #: AKModel/templates/admin/AKModel/status.html:87
 msgid "No requirements yet"
 msgstr "Bisher keine Anforderungen"
@@ -937,6 +941,10 @@ msgstr "AK-Wiki-Export"
 #: AKModel/views.py:197
 msgid "AK Orga Messages successfully deleted"
 msgstr "AK-Organachrichten erfolgreich gelöscht"
+
+#: AKModel/views.py:195
+msgid "Wishes"
+msgstr "Wünsche"
 
 #: AKModel/views.py:207
 msgid "Settings"

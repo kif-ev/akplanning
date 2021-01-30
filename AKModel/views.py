@@ -1,10 +1,13 @@
 from django.contrib import admin, messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, DetailView, ListView, DeleteView, CreateView, FormView, UpdateView
 from rest_framework import viewsets, permissions, mixins
+from django_tex.shortcuts import render_to_pdf
+
 
 from AKModel.forms import NewEventWizardStartForm, NewEventWizardSettingsForm, NewEventWizardPrepareImportForm, \
     NewEventWizardImportForm, NewEventWizardActivateForm
@@ -242,8 +245,6 @@ class NewEventWizardPrepareImportView(WizardViewMixin, EventSlugMixin, FormView)
     template_name = "admin/AKModel/event_wizard/created_prepare_import.html"
     wizard_step = 3
 
-
-
     def form_valid(self, form):
         # Selected a valid event to import from? Use this to go to next step of wizard
         return redirect("admin:new_event_wizard_import", event_slug=self.event.slug, import_slug=form.cleaned_data["import_event"].slug)
@@ -287,3 +288,20 @@ class NewEventWizardFinishView(WizardViewMixin, DetailView):
     model = Event
     template_name = "admin/AKModel/event_wizard/finish.html"
     wizard_step = 6
+
+
+@staff_member_required
+def export_slides(request, event_slug):
+    template_name = 'AKModel/export/slides.tex'
+
+    event = get_object_or_404(Event, slug=event_slug)
+
+    context = {
+        'title': event.name,
+        'categories': event.akcategory_set.all(),
+        'subtitle': _("AKs"),
+        'wish_category_title': _("Wishes"),
+        "wishes": [ak for ak in event.ak_set.order_by('category') if ak.wish]
+        }
+
+    return render_to_pdf(request, template_name, context, filename='slides.pdf')
