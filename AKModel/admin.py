@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, F
 from django import forms
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import path, reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
@@ -16,7 +16,9 @@ from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation
-from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView, AKMessageDeleteView, AKRequirementOverview
+from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView, AKMessageDeleteView, AKRequirementOverview, \
+    NewEventWizardStartView, NewEventWizardSettingsView, NewEventWizardPrepareImportView, NewEventWizardFinishView, \
+    NewEventWizardImportView, NewEventWizardActivateView
 
 
 @admin.register(Event)
@@ -27,9 +29,29 @@ class EventAdmin(admin.ModelAdmin):
     list_editable = ['active']
     ordering = ['-start']
 
+    def add_view(self, request, form_url='', extra_context=None):
+        # Always use wizard to create new events
+        # (the built-in form wouldn't work anyways since the timezone cannot be specified before starting to fill the form)
+        return redirect("admin:new_event_wizard_start")
+
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
+            path('add/wizard/start/', self.admin_site.admin_view(NewEventWizardStartView.as_view()),
+                 name="new_event_wizard_start"),
+            path('add/wizard/settings/', self.admin_site.admin_view(NewEventWizardSettingsView.as_view()),
+                 name="new_event_wizard_settings"),
+            path('add/wizard/created/<slug:event_slug>/', self.admin_site.admin_view(NewEventWizardPrepareImportView.as_view()),
+                 name="new_event_wizard_prepare_import"),
+            path('add/wizard/import/<slug:event_slug>/from/<slug:import_slug>/',
+                 self.admin_site.admin_view(NewEventWizardImportView.as_view()),
+                 name="new_event_wizard_import"),
+            path('add/wizard/activate/<slug:slug>/',
+                 self.admin_site.admin_view(NewEventWizardActivateView.as_view()),
+                 name="new_event_wizard_activate"),
+            path('add/wizard/finish/<slug:slug>/',
+                 self.admin_site.admin_view(NewEventWizardFinishView.as_view()),
+                 name="new_event_wizard_finish"),
             path('<slug:slug>/status/', self.admin_site.admin_view(EventStatusView.as_view()), name="event_status"),
             path('<slug:event_slug>/requirements/', self.admin_site.admin_view(AKRequirementOverview.as_view()), name="event_requirement_overview"),
             path('<slug:event_slug>/ak-csv-export/', self.admin_site.admin_view(AKCSVExportView.as_view()), name="ak_csv_export"),
@@ -46,11 +68,7 @@ class EventAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of event
-        if obj is not None and obj.timezone:
-            timezone.activate(obj.timezone)
-        # No timezone available? Use UTC
-        else:
-            timezone.activate("UTC")
+        timezone.activate(obj.timezone)
         return super().get_form(request, obj, change, **kwargs)
 
 

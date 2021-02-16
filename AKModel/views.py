@@ -1,12 +1,13 @@
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-
-from django.views.generic import TemplateView, DetailView, ListView, DeleteView
+from django.views.generic import TemplateView, DetailView, ListView, DeleteView, CreateView, FormView, UpdateView
 from rest_framework import viewsets, permissions, mixins
 
+from AKModel.forms import NewEventWizardStartForm, NewEventWizardSettingsForm, NewEventWizardPrepareImportForm, \
+    NewEventWizardImportForm, NewEventWizardActivateForm
 from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner, AKOrgaMessage, AKRequirement
 from AKModel.serializers import AKSerializer, AKSlotSerializer, RoomSerializer, AKTrackSerializer, AKCategorySerializer, \
     AKOwnerSerializer
@@ -38,10 +39,10 @@ class EventSlugMixin:
         self._load_event()
         return super().create(request, *args, **kwargs)
 
-    def initial(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         if self.event is None:
             self._load_event()
-        super().initial(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
@@ -195,3 +196,94 @@ class AKMessageDeleteView(AdminViewMixin, DeleteView):
         self.get_orga_messages_for_event(self.get_object()).delete()
         messages.add_message(self.request, messages.SUCCESS, _("AK Orga Messages successfully deleted"))
         return HttpResponseRedirect(reverse_lazy('admin:event_status', kwargs={'slug': self.get_object().slug}))
+
+
+class WizardViewMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["wizard_step"] = self.wizard_step
+        context["wizard_steps"] = [
+            _("Start"),
+            _("Settings"),
+            _("Event created, Prepare Import"),
+            _("Import categories & requirements"),
+            _("Activate?"),
+            _("Finish")
+        ]
+        context["wizard_step_text"] = context["wizard_steps"][self.wizard_step - 1]
+        context["wizard_steps_total"] = len(context["wizard_steps"])
+        return context
+
+
+class NewEventWizardStartView(AdminViewMixin, WizardViewMixin,  CreateView):
+    model = Event
+    form_class = NewEventWizardStartForm
+    template_name = "admin/AKModel/event_wizard/start.html"
+    wizard_step = 1
+
+
+class NewEventWizardSettingsView(AdminViewMixin, WizardViewMixin, CreateView):
+    model = Event
+    form_class = NewEventWizardSettingsForm
+    template_name = "admin/AKModel/event_wizard/settings.html"
+    wizard_step = 2
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["timezone"] = context["form"].cleaned_data["timezone"]
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("admin:new_event_wizard_prepare_import", kwargs={"event_slug": self.object.slug})
+
+
+class NewEventWizardPrepareImportView(WizardViewMixin, EventSlugMixin, FormView):
+    form_class = NewEventWizardPrepareImportForm
+    template_name = "admin/AKModel/event_wizard/created_prepare_import.html"
+    wizard_step = 3
+
+
+
+    def form_valid(self, form):
+        # Selected a valid event to import from? Use this to go to next step of wizard
+        return redirect("admin:new_event_wizard_import", event_slug=self.event.slug, import_slug=form.cleaned_data["import_event"].slug)
+
+
+class NewEventWizardImportView(EventSlugMixin, WizardViewMixin, FormView):
+    form_class = NewEventWizardImportForm
+    template_name = "admin/AKModel/event_wizard/import.html"
+    wizard_step = 4
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial["import_event"] = Event.objects.get(slug=self.kwargs["import_slug"])
+        return initial
+
+    def form_valid(self, form):
+        for import_type in ["import_categories", "import_requirements"]:
+            for import_obj in form.cleaned_data.get(import_type):
+                # clone existing entry
+                try:
+                    import_obj.event = self.event
+                    import_obj.pk = None
+                    import_obj.save()
+                    messages.add_message(self.request, messages.SUCCESS, _("Copied '%(obj)s'" % {'obj': import_obj}))
+                except BaseException as e:
+                    messages.add_message(self.request, messages.ERROR, _("Could not copy '%(obj)s' (%(error)s)" %  {'obj': import_obj, "error": str(e)}))
+        return redirect("admin:new_event_wizard_activate", slug=self.event.slug)
+
+
+class NewEventWizardActivateView(WizardViewMixin, UpdateView):
+    model = Event
+    template_name = "admin/AKModel/event_wizard/activate.html"
+    form_class = NewEventWizardActivateForm
+    wizard_step = 5
+
+    def get_success_url(self):
+        return reverse_lazy("admin:new_event_wizard_finish", kwargs={"slug": self.object.slug})
+
+
+class NewEventWizardFinishView(WizardViewMixin, DetailView):
+    model = Event
+    template_name = "admin/AKModel/event_wizard/finish.html"
+    wizard_step = 6

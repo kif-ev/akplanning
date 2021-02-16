@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load bootstrap4 %}
+{% load fontawesome_5 %}
+{% load tz %}
+
+{% block title %}{% trans "New event wizard" %}: {{ wizard_step_text }}{% endblock %}
+
+{% block content %}
+    {% include "admin/AKModel/event_wizard/wizard_steps.html" %}
+
+    <div class="text-center btn-success disabled mt-3 mb-3" style="font-size: 8em;">
+        {% fa5_icon "check-circle" "fas" %}
+    </div>
+
+    <h5>{% trans "Congratulations. Everything is set up!" %}</h5>
+
+    <a href="{% url 'admin:event_status' event.slug %}" class="btn btn-info float-right">
+            {% fa5_icon "info" 'fas' %}&nbsp;{% trans "Status" %}
+    </a>
+
+{% endblock %}
