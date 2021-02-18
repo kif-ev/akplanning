@@ -94,6 +94,18 @@ class AKTrackAdmin(admin.ModelAdmin):
             kwargs['initial'] = Event.get_next_active()
         return super(AKTrackAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = []
+        if apps.is_installed("AKScheduling"):
+            from AKScheduling.views import TrackAdminView
+
+            custom_urls.extend([
+                path('<slug:event_slug>/manage/', self.admin_site.admin_view(TrackAdminView.as_view()),
+                     name="tracks_manage"),
+            ])
+        return custom_urls + urls
+
 
 @admin.register(AKTag)
 class AKTagAdmin(admin.ModelAdmin):

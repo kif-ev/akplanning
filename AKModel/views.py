@@ -92,7 +92,7 @@ class AKCategoryViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListMo
         return AKCategory.objects.filter(event=self.event)
 
 
-class AKTrackViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+class AKTrackViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,)
     serializer_class = AKTrackSerializer
 
@@ -100,7 +100,7 @@ class AKTrackViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModel
         return AKTrack.objects.filter(event=self.event)
 
 
-class AKViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+class AKViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,)
     serializer_class = AKSerializer
 
