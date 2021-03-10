@@ -157,11 +157,11 @@ services:
     restart: always
     volumes:
       - /path/to/nginx.conf:/etc/nginx/nginx.conf:ro
-      - static-files:/var/www/ak-static
+      - static-files:/var/www/akplanning-static
     ports:
       - "8080:80"
     depends_on:
-      - ak-server
+      - akplanning-server
     networks:
       - akplanning
 ```
@@ -192,12 +192,12 @@ http {
         server_name localhost:8080;
 
         location /static/ {
-            alias /var/www/ak-static/;
+            alias /var/www/akplanning-static/;
         }
 
         location / {
             include /etc/nginx/uwsgi_params;
-            uwsgi_pass uwsgi://ak-server:3035;
+            uwsgi_pass uwsgi://akplanning-server:3035;
         }
     }
 }
