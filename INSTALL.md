@@ -100,9 +100,139 @@ start uwsgi using the configuration file ``uwsgi --ini uwsgi-akplanning.ini``
 1. execute the update script ``./Utils/update.sh --prod``
 
 
+## Deployment Setup using Docker
+This project also provides a docker file for easy deployment.
+
+The container described by the docker file only contains the project itself.
+Additional containers for the database and webserver are needed to use it.
+
+The following [docker-compose](https://docs.docker.com/compose/) file shows a typical usage:
+```
+version: "3"
+
+networks:
+  akplanning:
+    external: false
+
+volumes:
+  static-files:
+
+services:
+  mariadb:
+    image: mariadb:10
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: supermegasecrey
+      MYSQL_DATABASE: akplanning
+      MYSQL_USER: akplanning
+      MYSQL_PASSWORD: secret
+      TZ: Europe/Berlin
+    networks:
+      - akplanning
+
+  akplanning-server:
+    image: neumantm/akplanning:2021-03-10
+    restart: always
+    environment:
+      SECRET_KEY: superlongandsupersecret
+      DB_HOST: mariadb
+      DB_USER: akplanning
+      DB_NAME: akplanning
+      DB_PASSWORD: secret
+      HOSTS: "['akplanning.example.net', 'akplanning.example.de']"
+      TZ: Europe/Berlin
+      AUTO_MIGRATE_DB: 'true'
+      DJANGO_SUPERUSER_USERNAME: admin
+      DJANGO_SUPERUSER_EMAIL: admin@example.com
+      DJANGO_SUPERUSER_PASSWORD: supersecret
+    depends_on:
+      - mariadb
+    networks:
+      - akplanning
+    volumes:
+      - static-files:/app/static
+
+  web-server:
+    image: nginx
+    restart: always
+    volumes:
+      - /path/to/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static-files:/var/www/ak-static
+    ports:
+      - "8080:80"
+    depends_on:
+      - ak-server
+    networks:
+      - akplanning
+```
+
+The `nginx.conf` would look like this:
+
+```
+user  nginx;
+worker_processes  1;
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+    access_log  /var/log/nginx/access.log  main;
+    sendfile        on;
+    keepalive_timeout  65;
+    server {
+        listen      80;
+        server_name localhost:8080;
+
+        location /static/ {
+            alias /var/www/ak-static/;
+        }
+
+        location / {
+            include /etc/nginx/uwsgi_params;
+            uwsgi_pass uwsgi://ak-server:3035;
+        }
+    }
+}
+```
+### Initializing and migrating database
+On the first start, the database must be initialized (the Tables created and so on).
+When updating the project the database must be migrated.
+Both are done using the `migrate` command.
+
+This can be done manually by runningthe following command after the container has started:
+`docker-compose exec -it akplanning-server ./manage.py migrate`
+
+It can also be done automatically on each container start by setting `AUTO_MIGRATE_DB` to the string `true`
+(as shown in the docker-compose file above).
+
+Database migration may lead to the corruption or loss of data in some cases.
+Make sure you have a backup before running the command and be very careful with enabling auto migration.
+
+### Creating initial superuser
+There are two ways to create the initial superuser when using the docker container.
+For both the database must have been intialized before.
+
+The first way is already shown in the docker-compose file above:
+Using the environment variables `DJANGO_SUPERUSER_{USERNAME,EMAIL,PASSWORD}`.
+
+The second way is to run the following command after the container has started:
+`docker-compose exec -it akplanning-server ./manage.py createsuperuser`
+
 ## Updates
 
 To update the setup to the current version on the main branch of the repository use the update script ``Utils/update.sh`` or ``Utils/update.sh --prod`` in production.
 
 Afterwards, you may check your setup by executing ``Utils/check.sh`` or ``Utils/check.sh --prod`` in production.
 
+### Updating when using docker
+
+To update when using docker, just switch the tag of the image for `akplanning-server`.
+Then (if `AUTO_MIGRATE_DB` is not enabled), do a database migration as described in [Initializing and migrating database](#initializing-and-migrating-database)
