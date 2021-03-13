@@ -145,6 +145,7 @@ services:
       DJANGO_SUPERUSER_USERNAME: admin
       DJANGO_SUPERUSER_EMAIL: admin@example.com
       DJANGO_SUPERUSER_PASSWORD: supersecret
+      EXTRA_DJANGO_SETTING_FOO: DJANGO_FOO = True\nDJANGO_BAR = False
     depends_on:
       - mariadb
     networks:
@@ -225,6 +226,12 @@ Using the environment variables `DJANGO_SUPERUSER_{USERNAME,EMAIL,PASSWORD}`.
 
 The second way is to run the following command after the container has started:
 `docker-compose exec -it akplanning-server ./manage.py createsuperuser`
+
+### Extra djnago settings
+For simple cases you can pass environment variables starting with `EXTRA_DJANGO_SETTING`.
+The content of such variables is written into python files, which are loaded as settings.
+
+For more complex scenarios you can also mount a docker volume to `/app/AKPlanning/settings` and add any number of python files to the volume.
 
 ## Updates
 

@@ -32,6 +32,14 @@ if [ "$DJANGO_SUPERUSER_PASSWORD" != "" ] ;then
   ./manage.py createsuperuser --noinput
 fi
 
+env | while IFS= read -r line; do
+    value=${line#*=}
+    name=${line%%=*}
+    case $name in EXTRA_DJANGO_SETTING*)
+      echo -e "$value" > "./AKPlanning/settings/$name.py"
+    esac
+done
+
 ./manage.py collectstatic --noinput
 ./manage.py compilemessages -l de_DE
 uwsgi --ini .docker/uwsgi.ini

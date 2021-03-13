@@ -9,5 +9,7 @@ RUN pip install -r requirements.txt -r .docker/extra_requirements.txt
 
 ENV DJANGO_SETTINGS_MODULE=AKPlanning.settings_production
 
+RUN mkdir /app/AKPlanning/settings
+
 EXPOSE 3035
 CMD ["sh", "/app/.docker/entrypoint.sh"]
