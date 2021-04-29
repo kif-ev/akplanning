@@ -38,6 +38,11 @@ class EventSlugMixin:
         self._load_event()
         return super().create(request, *args, **kwargs)
 
+    def initial(self, request, *args, **kwargs):
+        if self.event is None:
+            self._load_event()
+        super().initial(request, *args, **kwargs)
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
         # Add event to context (to make it accessible in templates)
