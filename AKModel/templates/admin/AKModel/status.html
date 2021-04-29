@@ -95,6 +95,7 @@
                         {% endfor %}
                     </p>
                 {% endif %}
+                <a class="btn btn-success" href="{% url 'admin:event_requirement_overview' event.slug %}">{% trans "Show AKs for requirements" %}</a>
                 <a class="btn btn-success" href="{% url 'admin:AKModel_akrequirement_add' %}">{% trans "Add Requirement" %}</a>
             </div>
             <div class="col-md-4">
