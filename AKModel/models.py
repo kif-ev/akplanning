@@ -233,7 +233,7 @@ class AK(models.Model):
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
-    history = HistoricalRecords()
+    history = HistoricalRecords(excluded_fields=['interest_counter'])
 
     class Meta:
         verbose_name = _('AK')
@@ -267,12 +267,18 @@ class AK(models.Model):
         return ", ".join(str(slot.duration) for slot in self.akslot_set.all())
 
     @property
+    def tags_list(self):
+        return ", ".join(str(tag) for tag in self.tags.all())
+
+    @property
     def wish(self):
         return self.owners.count() == 0
 
     def increment_interest(self):
         self.interest_counter += 1
+        self.skip_history_when_saving = True
         self.save()
+        del self.skip_history_when_saving
 
     @property
     def availabilities(self):

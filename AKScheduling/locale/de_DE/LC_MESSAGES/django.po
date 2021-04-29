@@ -1,0 +1,89 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-29 21:09+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:11
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:10
+msgid "Scheduling for"
+msgstr "Scheduling für"
+
+#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:126
+msgid "Name of new ak track"
+msgstr "Name des neuen AK-Tracks"
+
+#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:142
+msgid "Could not create ak track"
+msgstr "Konnte neuen AK-Track nicht anlegen"
+
+#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:168
+msgid "Could not update ak track name"
+msgstr "Konnte Namen des AK-Tracks nicht ändern"
+
+#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:174
+msgid "Do you really want to delete this ak track?"
+msgstr "Soll dieser AK-Track wirklich gelöscht werden?"
+
+#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:188
+msgid "Could not delete ak track"
+msgstr "AK-Track konnte nicht gelöscht werden"
+
+#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:200
+msgid "Manage AK Tracks"
+msgstr "AK-Tracks verwalten"
+
+#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:201
+msgid "Add ak track"
+msgstr "AK-Track hinzufügen"
+
+#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:206
+msgid "AKs without track"
+msgstr "AKs ohne Track"
+
+#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:240
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:197
+#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:34
+msgid "Event Status"
+msgstr "Event-Status"
+
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:87
+msgid "Day (Horizontal)"
+msgstr "Tag (horizontal)"
+
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:94
+msgid "Day (Vertical)"
+msgstr "Tag (vertikal)"
+
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:105
+msgid "Event (Horizontal)"
+msgstr "Event (horizontal)"
+
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:114
+msgid "Event (Vertical)"
+msgstr "Event (vertikal)"
+
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:141
+msgid "Room"
+msgstr "Raum"
+
+#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:7
+msgid "Unscheduled AK Slots"
+msgstr "Noch nicht geschedulte AK-Slots"
+
+#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:11
+msgid "Count"
+msgstr "Anzahl"

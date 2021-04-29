@@ -38,6 +38,11 @@ class EventSlugMixin:
         self._load_event()
         return super().create(request, *args, **kwargs)
 
+    def initial(self, request, *args, **kwargs):
+        if self.event is None:
+            self._load_event()
+        super().initial(request, *args, **kwargs)
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
         # Add event to context (to make it accessible in templates)
@@ -87,7 +92,7 @@ class AKCategoryViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListMo
         return AKCategory.objects.filter(event=self.event)
 
 
-class AKTrackViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+class AKTrackViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,)
     serializer_class = AKTrackSerializer
 
@@ -95,7 +100,7 @@ class AKTrackViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModel
         return AKTrack.objects.filter(event=self.event)
 
 
-class AKViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+class AKViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,)
     serializer_class = AKSerializer
 

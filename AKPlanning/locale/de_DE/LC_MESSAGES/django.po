@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-03 17:40+0000\n"
+"POT-Creation-Date: 2021-04-29 21:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,10 +17,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKPlanning/settings.py:131
+#: AKPlanning/settings.py:133
 msgid "German"
 msgstr "Deutsch"
 
-#: AKPlanning/settings.py:132
+#: AKPlanning/settings.py:134
 msgid "English"
 msgstr "Englisch"
