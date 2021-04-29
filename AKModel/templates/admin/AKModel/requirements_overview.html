@@ -1,0 +1,48 @@
+{% extends "admin/base_site.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load tz %}
+{% load fontawesome_5 %}
+
+{% block title %}{% trans "Status" %}: {{event}}{% endblock %}
+
+{% block content %}
+    {% timezone event.timezone %}
+        <h2><a href="{% url 'admin:AKModel_event_change' event.pk %}">{{event}}</a> - {% trans "Requirements Overview" %}</h2>
+        <h5>{{ event.start }} - {{ event.end }}</h5>
+
+        <div class="row mt-4">
+            {% for requirement in requirements %}
+                <div class="col-md-4">
+                    <h4>{{ requirement }}</h4>
+
+                    <table class="table table-striped">
+                        {% for ak in requirement.ak_set.all %}
+                            <tr>
+                                <td>{{ ak }}</td>
+                                {% if "AKSubmission"|check_app_installed %}
+                                    <td class="text-right">
+                                        <a href="{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}" data-toggle="tooltip"
+                                           title="{% trans 'Details' %}"
+                                           class="btn btn-primary">{% fa5_icon 'info' 'fas' %}</a>
+                                        {% if event.active %}
+                                            <a href="{% url 'submit:ak_edit' event_slug=event.slug pk=ak.pk %}" data-toggle="tooltip"
+                                               title="{% trans 'Edit' %}"
+                                               class="btn btn-success">{% fa5_icon 'pencil-alt' 'fas' %}</a>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td>{% trans "No AKs with this requirement" %}</td></tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            {% endfor %}
+        </div>
+
+        <a class="btn btn-success" href="{% url 'admin:AKModel_akrequirement_add' %}">{% trans "Add Requirement" %}</a>
+
+    {% endtimezone %}
+{% endblock %}

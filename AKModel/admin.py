@@ -16,7 +16,7 @@ from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation
-from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView, AKMessageDeleteView
+from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView, AKMessageDeleteView, AKRequirementOverview
 
 
 @admin.register(Event)
@@ -31,6 +31,7 @@ class EventAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         custom_urls = [
             path('<slug:slug>/status/', self.admin_site.admin_view(EventStatusView.as_view()), name="event_status"),
+            path('<slug:event_slug>/requirements/', self.admin_site.admin_view(AKRequirementOverview.as_view()), name="event_requirement_overview"),
             path('<slug:event_slug>/ak-csv-export/', self.admin_site.admin_view(AKCSVExportView.as_view()), name="ak_csv_export"),
             path('<slug:event_slug>/ak-wiki-export/', self.admin_site.admin_view(AKWikiExportView.as_view()), name="ak_wiki_export"),
             path('<slug:slug>/delete-orga-messages/', self.admin_site.admin_view(AKMessageDeleteView.as_view()),
