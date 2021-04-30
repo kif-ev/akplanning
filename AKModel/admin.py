@@ -224,7 +224,6 @@ class AKSlotAdmin(admin.ModelAdmin):
     model = AKSlot
     list_display = ['id', 'ak', 'room', 'start', 'duration', 'event']
     list_filter = ['room', 'event']
-    list_editable = ['ak', 'room', 'start', 'duration']
     ordering = ['start']
 
     readonly_fields = ['ak_details_link', 'updated']
