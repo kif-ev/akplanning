@@ -169,6 +169,24 @@ class WishFilter(SimpleListFilter):
         return queryset
 
 
+class AKAdminForm(forms.ModelForm):
+    class Meta:
+        widgets = {
+            'requirements': forms.CheckboxSelectMultiple,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter possible values for foreign keys & m2m when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["category"].queryset = AKCategory.objects.filter(event=self.instance.event)
+            self.fields["track"].queryset = AKTrack.objects.filter(event=self.instance.event)
+            self.fields["owners"].queryset = AKOwner.objects.filter(event=self.instance.event)
+            self.fields["requirements"].queryset = AKRequirement.objects.filter(event=self.instance.event)
+            self.fields["conflicts"].queryset = AK.objects.filter(event=self.instance.event)
+            self.fields["prerequisites"].queryset = AK.objects.filter(event=self.instance.event)
+
+
 @admin.register(AK)
 class AKAdmin(SimpleHistoryAdmin):
     model = AK
@@ -177,6 +195,7 @@ class AKAdmin(SimpleHistoryAdmin):
     list_editable = ['short_name', 'track', 'interest']
     ordering = ['pk']
     actions = ['wiki_export']
+    form = AKAdminForm
 
     def is_wish(self, obj):
         return obj.wish
@@ -213,6 +232,10 @@ class RoomForm(AvailabilitiesFormMixin, forms.ModelForm):
         kwargs['initial'] = dict()
         super().__init__(*args, **kwargs)
         self.initial = {**self.initial, **kwargs['initial']}
+        # Filter possible values for m2m when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["properties"].queryset = AKRequirement.objects.filter(event=self.instance.event)
+
 
 
 @admin.register(Room)
@@ -237,15 +260,23 @@ class RoomAdmin(admin.ModelAdmin):
         )
 
 
+class AKSlotAdminForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter possible values for foreign keys when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["ak"].queryset = AK.objects.filter(event=self.instance.event)
+            self.fields["room"].queryset = Room.objects.filter(event=self.instance.event)
+
+
 @admin.register(AKSlot)
 class AKSlotAdmin(admin.ModelAdmin):
     model = AKSlot
     list_display = ['id', 'ak', 'room', 'start', 'duration', 'event']
     list_filter = ['room', 'event']
-    list_editable = ['ak', 'room', 'start', 'duration']
     ordering = ['start']
-
     readonly_fields = ['ak_details_link', 'updated']
+    form = AKSlotAdminForm
 
     def get_urls(self):
         urls = super().get_urls()
@@ -302,8 +333,22 @@ class AKOrgaMessageAdmin(admin.ModelAdmin):
     readonly_fields = ['timestamp', 'ak', 'text']
 
 
+class ConstraintViolationAdminForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter possible values for foreign keys & m2m when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["ak_owner"].queryset = AKOwner.objects.filter(event=self.instance.event)
+            self.fields["room"].queryset = Room.objects.filter(event=self.instance.event)
+            self.fields["requirement"].queryset = AKRequirement.objects.filter(event=self.instance.event)
+            self.fields["category"].queryset = AKCategory.objects.filter(event=self.instance.event)
+            self.fields["aks"].queryset = AK.objects.filter(event=self.instance.event)
+            self.fields["ak_slots"].queryset = AKSlot.objects.filter(event=self.instance.event)
+
+
 @admin.register(ConstraintViolation)
 class ConstraintViolationAdmin(admin.ModelAdmin):
     list_display = ['type', 'level', 'get_details']
     list_filter = ['event']
     readonly_fields = ['timestamp']
+    form = ConstraintViolationAdminForm
