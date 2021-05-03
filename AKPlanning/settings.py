@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'simple_history',
     'registration',
+    'bootstrap_datepicker_plus',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,15 @@
+{% load i18n %}
+
+<h2>{% trans "New event wizard" %}</h2>
+
+<div>
+  <ul class="pagination pagination-sm">
+    {% for step in wizard_steps %}
+    <li class="page-item {% if forloop.counter == wizard_step %}active{% else %}disabled{% endif %}">
+      <a class="page-link" href="#">{{ step }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<h3>{% trans "Step" %} {{ wizard_step }}: {{ wizard_step_text }}</h3>

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-29 21:09+0000\n"
+"POT-Creation-Date: 2021-04-29 22:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,30 +11,33 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKModel/admin.py:44 AKModel/admin.py:45
+#: AKModel/admin.py:66 AKModel/admin.py:67
+#: AKModel/templates/admin/AKModel/event_wizard/activate.html:32
+#: AKModel/templates/admin/AKModel/event_wizard/created_prepare_import.html:48
+#: AKModel/templates/admin/AKModel/event_wizard/finish.html:21
 #: AKModel/templates/admin/AKModel/requirements_overview.html:8
 #: AKModel/templates/admin/AKModel/status.html:7
 #: AKModel/templates/admin/ak_index.html:15
 msgid "Status"
 msgstr "Status"
 
-#: AKModel/admin.py:135
+#: AKModel/admin.py:153
 msgid "Wish"
 msgstr "AK-Wunsch"
 
-#: AKModel/admin.py:141
+#: AKModel/admin.py:159
 msgid "Is wish"
 msgstr "Ist ein Wunsch"
 
-#: AKModel/admin.py:142
+#: AKModel/admin.py:160
 msgid "Is not a wish"
 msgstr "Ist kein Wunsch"
 
-#: AKModel/admin.py:169
+#: AKModel/admin.py:187
 msgid "Export to wiki syntax"
 msgstr "In Wiki-Syntax exportieren"
 
-#: AKModel/admin.py:265
+#: AKModel/admin.py:283
 msgid "AK Details"
 msgstr "AK-Details"
 
@@ -114,6 +117,23 @@ msgstr "AK-Kategorie, deren Verfügbarkeit hier abgebildet wird"
 msgid "Availabilities"
 msgstr "Verfügbarkeiten"
 
+#: AKModel/forms.py:36
+msgid "Copy ak requirements and ak categories of existing event"
+msgstr "AK-Anforderungen und AK-Kategorien eines existierenden Events kopieren"
+
+#: AKModel/forms.py:37
+msgid "You can choose what to copy in the next step"
+msgstr ""
+"Im nächsten Schritt kann ausgewählt werden, was genau kopiert werden soll"
+
+#: AKModel/forms.py:45
+msgid "Copy ak categories"
+msgstr "AK-Kategorien kopieren"
+
+#: AKModel/forms.py:52
+msgid "Copy ak requirements"
+msgstr "AK-Anforderungen kopieren"
+
 #: AKModel/models.py:16 AKModel/models.py:123 AKModel/models.py:144
 #: AKModel/models.py:163 AKModel/models.py:177 AKModel/models.py:195
 #: AKModel/models.py:291
@@ -150,7 +170,7 @@ msgstr "Zeitzone"
 msgid "Time Zone where this event takes place in"
 msgstr "Zeitzone in der das Event stattfindet"
 
-#: AKModel/models.py:25
+#: AKModel/models.py:25 AKModel/views.py:206
 msgid "Start"
 msgstr "Start"
 
@@ -543,7 +563,7 @@ msgstr "AK-Slot"
 
 #: AKModel/models.py:337 AKModel/models.py:442
 msgid "AK Slots"
-msgstr "AK-Slots"
+msgstr "AK-Slot"
 
 #: AKModel/models.py:359 AKModel/models.py:368
 msgid "Not scheduled yet"
@@ -726,6 +746,71 @@ msgstr ""
 msgid "Logout"
 msgstr "Ausloggen"
 
+#: AKModel/templates/admin/AKModel/event_wizard/activate.html:9
+#: AKModel/templates/admin/AKModel/event_wizard/created_prepare_import.html:9
+#: AKModel/templates/admin/AKModel/event_wizard/finish.html:9
+#: AKModel/templates/admin/AKModel/event_wizard/import.html:9
+#: AKModel/templates/admin/AKModel/event_wizard/settings.html:9
+#: AKModel/templates/admin/AKModel/event_wizard/start.html:8
+#: AKModel/templates/admin/AKModel/event_wizard/wizard_steps.html:3
+msgid "New event wizard"
+msgstr "Assistent zum Anlegen eines neuen Events"
+
+#: AKModel/templates/admin/AKModel/event_wizard/activate.html:18
+msgid "Successfully imported.<br><br>Do you want to activate your event now?"
+msgstr "Erfolgreich importiert.<br><br>Soll das Event jetzt aktiviert werden?"
+
+#: AKModel/templates/admin/AKModel/event_wizard/activate.html:27
+#: AKModel/views.py:211
+msgid "Finish"
+msgstr "Abschluss"
+
+#: AKModel/templates/admin/AKModel/event_wizard/created_prepare_import.html:16
+msgid "New event:"
+msgstr "Neues Event:"
+
+#: AKModel/templates/admin/AKModel/event_wizard/created_prepare_import.html:30
+msgid "Your event was created and can now be further configured."
+msgstr "Das Event wurde angelegt und kann nun weiter konfiguriert werden."
+
+#: AKModel/templates/admin/AKModel/event_wizard/created_prepare_import.html:39
+msgid "Skip Import"
+msgstr "Import überspringen"
+
+#: AKModel/templates/admin/AKModel/event_wizard/created_prepare_import.html:43
+#: AKModel/templates/admin/AKModel/event_wizard/import.html:20
+#: AKModel/templates/admin/AKModel/event_wizard/settings.html:22
+#: AKModel/templates/admin/AKModel/event_wizard/start.html:19
+msgid "Continue"
+msgstr "Fortfahren"
+
+#: AKModel/templates/admin/AKModel/event_wizard/finish.html:18
+msgid "Congratulations. Everything is set up!"
+msgstr "Herzlichen Glückwunsch. Alles ist eingerichtet!"
+
+#: AKModel/templates/admin/AKModel/event_wizard/import.html:24
+#: AKModel/templates/admin/AKModel/event_wizard/settings.html:29
+#: AKModel/templates/admin/AKModel/event_wizard/start.html:23
+#: AKModel/templates/admin/AKModel/message_delete.html:21
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: AKModel/templates/admin/AKModel/event_wizard/settings.html:26
+msgid "Back"
+msgstr "Zurück"
+
+#: AKModel/templates/admin/AKModel/event_wizard/start.html:13
+msgid ""
+"Add a new event. Please start by filling these basic properties. You can "
+"specify more settings later."
+msgstr ""
+"Neues Event anlegen. Bitte zunächst diese Grundeinstellungen ausfüllen, "
+"weitere Einstellungen können später gesetzt werden."
+
+#: AKModel/templates/admin/AKModel/event_wizard/wizard_steps.html:15
+msgid "Step"
+msgstr "Schritt"
+
 #: AKModel/templates/admin/AKModel/message_delete.html:7
 msgid "Delete Orga-Messages"
 msgstr "Organachrichten löschen"
@@ -746,10 +831,6 @@ msgstr ""
 #: AKModel/templates/admin/AKModel/message_delete.html:17
 msgid "Delete"
 msgstr "Löschen"
-
-#: AKModel/templates/admin/AKModel/message_delete.html:21
-msgid "Cancel"
-msgstr "Abbrechen"
 
 #: AKModel/templates/admin/AKModel/requirements_overview.html:12
 msgid "Requirements Overview"
@@ -837,25 +918,53 @@ msgstr "Alle Nachrichten löschen"
 msgid "Active Events"
 msgstr "Aktive Events"
 
-#: AKModel/views.py:135
+#: AKModel/views.py:136
 msgid "Event Status"
 msgstr "Eventstatus"
 
-#: AKModel/views.py:148
+#: AKModel/views.py:149
 msgid "Requirements for Event"
 msgstr "Anforderungen für das Event"
 
-#: AKModel/views.py:162
+#: AKModel/views.py:163
 msgid "AK CSV Export"
 msgstr "AK-CSV-Export"
 
-#: AKModel/views.py:176
+#: AKModel/views.py:177
 msgid "AK Wiki Export"
 msgstr "AK-Wiki-Export"
 
-#: AKModel/views.py:196
+#: AKModel/views.py:197
 msgid "AK Orga Messages successfully deleted"
 msgstr "AK-Organachrichten erfolgreich gelöscht"
+
+#: AKModel/views.py:207
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: AKModel/views.py:208
+msgid "Event created, Prepare Import"
+msgstr "Event angelegt, Import vorbereiten"
+
+#: AKModel/views.py:209
+msgid "Import categories & requirements"
+msgstr "Kategorien & Anforderungen kopieren"
+
+#: AKModel/views.py:210
+#, fuzzy
+#| msgid "Active State"
+msgid "Activate?"
+msgstr "Aktivieren?"
+
+#: AKModel/views.py:270
+#, python-format
+msgid "Copied '%(obj)s'"
+msgstr "'%(obj)s' kopiert"
+
+#: AKModel/views.py:272
+#, python-format
+msgid "Could not copy '%(obj)s' (%(error)s)"
+msgstr "'%(obj)s' konnte nicht kopiert werden (%(error)s)"
 
 #~ msgid "Confirm"
 #~ msgstr "Bestätigen"
