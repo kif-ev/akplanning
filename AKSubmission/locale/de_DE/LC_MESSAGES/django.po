@@ -109,7 +109,7 @@ msgstr "Versionsgeschichte"
 #: AKSubmission/templates/AKSubmission/akmessage_add.html:16
 #: AKSubmission/templates/AKSubmission/akmessage_add.html:22
 msgid "Add confidential message to organizers"
-msgstr "Sende eine provate Nachricht an das Organisationsteam"
+msgstr "Sende eine private Nachricht an das Organisationsteam"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:62
 #: AKSubmission/templates/AKSubmission/ak_detail.html:210
