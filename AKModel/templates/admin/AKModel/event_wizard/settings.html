@@ -1,0 +1,34 @@
+{% extends "admin/base_site.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load bootstrap4 %}
+{% load fontawesome_5 %}
+{% load tz %}
+
+{% block title %}{% trans "New event wizard" %}: {{ wizard_step_text }}{% endblock %}
+
+{% block content %}
+    {% include "admin/AKModel/event_wizard/wizard_steps.html" %}
+
+    {{ form.media }}
+
+    {% timezone timezone %}
+
+    <form method="post">{% csrf_token %}
+        {% bootstrap_form form %}
+
+        <button type="submit" class="save btn btn-success float-right" value="Submit">
+            {% fa5_icon "check" 'fas' %} {% trans "Continue" %}
+        </button>
+
+        <a href="{% url 'admin:new_event_wizard_start' %}" class="btn btn-info">
+            {% fa5_icon "chevron-left" 'fas' %} {% trans "Back" %}
+        </a>
+        <a href="{% url 'admin:index' %}" class="btn btn-warning">
+            {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
+        </a>
+    </form>
+
+    {% endtimezone %}
+{% endblock %}

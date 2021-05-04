@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-29 21:09+0000\n"
+"POT-Creation-Date: 2021-04-29 22:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,9 +50,6 @@ msgstr "Diese Software ist Open Source"
 #~ msgid "Scheduling for"
 #~ msgstr "Scheduling für"
 
-#~ msgid "Event Status"
-#~ msgstr "Event-Status"
-
 #~ msgid "Day (Horizontal)"
 #~ msgstr "Tag (horizontal)"
 
@@ -67,6 +64,9 @@ msgstr "Diese Software ist Open Source"
 
 #~ msgid "Room"
 #~ msgstr "Raum"
+
+#~ msgid "Event Status"
+#~ msgstr "Event-Status"
 
 #~ msgid "Unscheduled AK Slots"
 #~ msgstr "Noch nicht geschedulte AK-Slots"

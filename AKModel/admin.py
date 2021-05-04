@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, F
 from django import forms
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import path, reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
@@ -16,7 +16,9 @@ from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation
-from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView, AKMessageDeleteView, AKRequirementOverview
+from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView, AKMessageDeleteView, AKRequirementOverview, \
+    NewEventWizardStartView, NewEventWizardSettingsView, NewEventWizardPrepareImportView, NewEventWizardFinishView, \
+    NewEventWizardImportView, NewEventWizardActivateView
 
 
 @admin.register(Event)
@@ -27,9 +29,29 @@ class EventAdmin(admin.ModelAdmin):
     list_editable = ['active']
     ordering = ['-start']
 
+    def add_view(self, request, form_url='', extra_context=None):
+        # Always use wizard to create new events
+        # (the built-in form wouldn't work anyways since the timezone cannot be specified before starting to fill the form)
+        return redirect("admin:new_event_wizard_start")
+
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
+            path('add/wizard/start/', self.admin_site.admin_view(NewEventWizardStartView.as_view()),
+                 name="new_event_wizard_start"),
+            path('add/wizard/settings/', self.admin_site.admin_view(NewEventWizardSettingsView.as_view()),
+                 name="new_event_wizard_settings"),
+            path('add/wizard/created/<slug:event_slug>/', self.admin_site.admin_view(NewEventWizardPrepareImportView.as_view()),
+                 name="new_event_wizard_prepare_import"),
+            path('add/wizard/import/<slug:event_slug>/from/<slug:import_slug>/',
+                 self.admin_site.admin_view(NewEventWizardImportView.as_view()),
+                 name="new_event_wizard_import"),
+            path('add/wizard/activate/<slug:slug>/',
+                 self.admin_site.admin_view(NewEventWizardActivateView.as_view()),
+                 name="new_event_wizard_activate"),
+            path('add/wizard/finish/<slug:slug>/',
+                 self.admin_site.admin_view(NewEventWizardFinishView.as_view()),
+                 name="new_event_wizard_finish"),
             path('<slug:slug>/status/', self.admin_site.admin_view(EventStatusView.as_view()), name="event_status"),
             path('<slug:event_slug>/requirements/', self.admin_site.admin_view(AKRequirementOverview.as_view()), name="event_requirement_overview"),
             path('<slug:event_slug>/ak-csv-export/', self.admin_site.admin_view(AKCSVExportView.as_view()), name="ak_csv_export"),
@@ -46,11 +68,7 @@ class EventAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of event
-        if obj is not None and obj.timezone:
-            timezone.activate(obj.timezone)
-        # No timezone available? Use UTC
-        else:
-            timezone.activate("UTC")
+        timezone.activate(obj.timezone)
         return super().get_form(request, obj, change, **kwargs)
 
 
@@ -151,6 +169,24 @@ class WishFilter(SimpleListFilter):
         return queryset
 
 
+class AKAdminForm(forms.ModelForm):
+    class Meta:
+        widgets = {
+            'requirements': forms.CheckboxSelectMultiple,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter possible values for foreign keys & m2m when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["category"].queryset = AKCategory.objects.filter(event=self.instance.event)
+            self.fields["track"].queryset = AKTrack.objects.filter(event=self.instance.event)
+            self.fields["owners"].queryset = AKOwner.objects.filter(event=self.instance.event)
+            self.fields["requirements"].queryset = AKRequirement.objects.filter(event=self.instance.event)
+            self.fields["conflicts"].queryset = AK.objects.filter(event=self.instance.event)
+            self.fields["prerequisites"].queryset = AK.objects.filter(event=self.instance.event)
+
+
 @admin.register(AK)
 class AKAdmin(SimpleHistoryAdmin):
     model = AK
@@ -159,6 +195,7 @@ class AKAdmin(SimpleHistoryAdmin):
     list_editable = ['short_name', 'track', 'interest']
     ordering = ['pk']
     actions = ['wiki_export']
+    form = AKAdminForm
 
     def is_wish(self, obj):
         return obj.wish
@@ -195,6 +232,10 @@ class RoomForm(AvailabilitiesFormMixin, forms.ModelForm):
         kwargs['initial'] = dict()
         super().__init__(*args, **kwargs)
         self.initial = {**self.initial, **kwargs['initial']}
+        # Filter possible values for m2m when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["properties"].queryset = AKRequirement.objects.filter(event=self.instance.event)
+
 
 
 @admin.register(Room)
@@ -219,15 +260,23 @@ class RoomAdmin(admin.ModelAdmin):
         )
 
 
+class AKSlotAdminForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter possible values for foreign keys when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["ak"].queryset = AK.objects.filter(event=self.instance.event)
+            self.fields["room"].queryset = Room.objects.filter(event=self.instance.event)
+
+
 @admin.register(AKSlot)
 class AKSlotAdmin(admin.ModelAdmin):
     model = AKSlot
     list_display = ['id', 'ak', 'room', 'start', 'duration', 'event']
     list_filter = ['room', 'event']
-    list_editable = ['ak', 'room', 'start', 'duration']
     ordering = ['start']
-
     readonly_fields = ['ak_details_link', 'updated']
+    form = AKSlotAdminForm
 
     def get_urls(self):
         urls = super().get_urls()
@@ -284,8 +333,22 @@ class AKOrgaMessageAdmin(admin.ModelAdmin):
     readonly_fields = ['timestamp', 'ak', 'text']
 
 
+class ConstraintViolationAdminForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter possible values for foreign keys & m2m when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["ak_owner"].queryset = AKOwner.objects.filter(event=self.instance.event)
+            self.fields["room"].queryset = Room.objects.filter(event=self.instance.event)
+            self.fields["requirement"].queryset = AKRequirement.objects.filter(event=self.instance.event)
+            self.fields["category"].queryset = AKCategory.objects.filter(event=self.instance.event)
+            self.fields["aks"].queryset = AK.objects.filter(event=self.instance.event)
+            self.fields["ak_slots"].queryset = AKSlot.objects.filter(event=self.instance.event)
+
+
 @admin.register(ConstraintViolation)
 class ConstraintViolationAdmin(admin.ModelAdmin):
     list_display = ['type', 'level', 'get_details']
     list_filter = ['event']
     readonly_fields = ['timestamp']
+    form = ConstraintViolationAdminForm
