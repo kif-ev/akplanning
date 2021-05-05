@@ -11,6 +11,10 @@
 {% endblock %}
 
 {% block extrahead %}
+    <!-- Load popper before bootstrap loads -->
+    <script src="{% static "common/vendor/popper/popper-1.14.7.min.js" %}"></script>
+
+    <!-- Load bootstrap, jquery and fontawesome-->
     {% bootstrap_css %}
     {% bootstrap_javascript jquery='full' %}
     {% fontawesome_5_static %}

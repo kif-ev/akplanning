@@ -13,7 +13,7 @@
 {% block extrahead %}
     {{ block.super }}
 
-    <script src="{% static "common/vendor/sortable/sortable.min.js" %}"></script>
+    <script src="{% static "common/vendor/sortable/Sortable.min.js" %}"></script>
     <script src="{% static "common/vendor/sortable/jquery-sortable.js" %}"></script>
 
     <style>
@@ -77,7 +77,9 @@
             }
 
             function update_ak_track(ak_id, track_id, container) {
-                mark_dirty(container);
+                if(container!==undefined)
+                    mark_dirty(container);
+
                 $.ajax({
                        url: "{% url "model:AK-list" event_slug=event.slug %}" + ak_id + "/",
                         type: 'PATCH',
@@ -85,7 +87,8 @@
                             track: track_id,
                         },
                         success: function (response) {
-                           mark_clean(container);
+                           if(container!==undefined)
+                               mark_clean(container);
                         },
                         error: function (response) {
                             alert("ERROR. Did not update " + changeInfo.event.title)
@@ -100,16 +103,16 @@
                 // Element is dropped into the list from another list
                 onAdd: function (/**Event*/evt) {
                     // same properties as onEnd
-                    console.log(evt.item);
                     var ak_id = evt.item.dataset["akId"];
-                    var container = $(evt.to).parents(".track-container");
-                    if(evt.to.dataset["sync"]==="true")
-                    {
-                        var track_id = evt.to.dataset["trackId"]
+
+                    // For lists that should stay in sync with server (all except 'without track')
+                    if(evt.to.dataset["sync"]==="true") {
+                        var container = $(evt.to).parents(".track-container");
+                        var track_id = evt.to.dataset["trackId"];
                         update_ak_track(ak_id, track_id, container);
                     }
                     else {
-                        update_ak_track(ak_id, "");
+                        update_ak_track(ak_id, "", undefined);
                     }
                 },
             };
