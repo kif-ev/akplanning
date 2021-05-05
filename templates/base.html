@@ -12,7 +12,10 @@
 
     <title>{% block title %}AK Planning{% endblock %}</title>
 
-    {# Load Bootstrap CSS and JavaScript as well as font awesome #}
+    <!-- Load popper before bootstrap loads -->
+    <script src="{% static "common/vendor/popper/popper-1.14.7.min.js" %}"></script>
+
+    <!-- Load bootstrap, jquery and fontawesome-->
     {% bootstrap_css %}
     {% bootstrap_javascript jquery='slim' %}
     {% fontawesome_5_static %}
