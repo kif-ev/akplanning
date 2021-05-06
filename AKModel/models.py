@@ -348,7 +348,7 @@ class AKSlot(models.Model):
         Display duration of slot in format hours:minutes, e.g. 1.5 -> "1:30"
         """
         hours, minutes = divmod(self.duration * 60, 60)
-        return f"{hours}:{minutes:2.0f}"
+        return f"{int(hours)}:{int(minutes):02}"
 
     @property
     def start_simplified(self):
