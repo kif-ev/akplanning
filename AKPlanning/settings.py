@@ -92,7 +92,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'environment': 'AKModel.environment.improved_tex_environment',
-        }
+        },
     },
 ]
 
@@ -147,6 +147,7 @@ LANGUAGES = [
 INTERNAL_IPS = ['127.0.0.1', '::1']
 
 LATEX_INTERPRETER = 'pdflatex'
+LATEX_RUN_COUNT = 2
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
