@@ -62,7 +62,7 @@
 
         \faFilter~ {{ ak.category.name | latex_escape_utf8 }}
 
-        {{ ak.description | latex_escape_utf8 }}
+        {{ ak.description | truncatechars(500) | latex_escape_utf8 }}
 
     \end{frame}
 
