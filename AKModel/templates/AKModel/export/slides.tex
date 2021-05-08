@@ -1,6 +1,5 @@
 \documentclass{beamer}
-\usetheme{metropolis}
-% \usetheme[numbering=fraction, progressbar=foot]{metropolis} TODO Activate when total number of frames bug is resolved
+\usetheme[numbering=fraction, progressbar=foot]{metropolis}
 
 \usepackage[utf8]{inputenc}
 \usepackage{fontawesome5}
@@ -39,7 +38,7 @@
                     \faScroll
                 {% endif %}
 
-                {{ ak.description | latex_escape_utf8 }}
+                {{ ak.description | truncatechars(500) | latex_escape_utf8 }}
 
             \end{frame}
 
