@@ -199,8 +199,7 @@ LOGIN_REDIRECT_URL = SIMPLE_BACKEND_REDIRECT_URL
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'")
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "fonts.googleapis.com")
-CSP_IMG_SRC = ("*", "data:")
-CSP_MEDIA_SRC = ("*", )
+CSP_IMG_SRC = ("'self'", "data:")
 CSP_FRAME_SRC = ("'self'", )
 CSP_FONT_SRC = ("'self'", "data:", "fonts.gstatic.com")
 
