@@ -292,7 +292,7 @@ class NewEventWizardFinishView(WizardViewMixin, DetailView):
 
 @staff_member_required
 def export_slides(request, event_slug):
-    template_name = 'AKModel/export/slides.tex'
+    template_name = 'admin/AKModel/export/slides.tex'
 
     event = get_object_or_404(Event, slug=event_slug)
 
