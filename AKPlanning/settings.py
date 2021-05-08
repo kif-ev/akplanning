@@ -63,6 +63,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'csp.middleware.CSPMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
 ]
@@ -193,5 +194,14 @@ DASHBOARD_RECENT_MAX = 25
 # Registration/login behavior
 SIMPLE_BACKEND_REDIRECT_URL = "/user/"
 LOGIN_REDIRECT_URL = SIMPLE_BACKEND_REDIRECT_URL
+
+# Content Security Policy
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "fonts.googleapis.com")
+CSP_IMG_SRC = ("*", "data:")
+CSP_MEDIA_SRC = ("*", )
+CSP_FRAME_SRC = ("'self'", )
+CSP_FONT_SRC = ("'self'", "data:", "fonts.gstatic.com")
 
 include(optional("settings/*.py"))
