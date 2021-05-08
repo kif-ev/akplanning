@@ -1,4 +1,4 @@
-\documentclass{beamer}
+\documentclass[aspectratio=169]{beamer}
 \usetheme[numbering=fraction, progressbar=foot]{metropolis}
 
 \usepackage[utf8]{inputenc}
@@ -12,6 +12,19 @@
 
 \begin{frame}
 \maketitle
+\end{frame}
+
+\begin{frame}
+    \frametitle{ {{- translations.symbols -}} }
+
+    \faUser~ {{ translations.who }}
+
+    \faClock~ {{ translations.duration }}
+
+    \faScroll~{{ translations.reso }}
+
+    \faFilter~ {{ translations.category }}
+
 \end{frame}
 
 
@@ -49,7 +62,7 @@
 {% endfor %}
 
 
-\section{ {{- wish_category_title -}} }
+\section{ {{- translations.wishes -}} }
 
 {% for ak in wishes %}
 
@@ -61,6 +74,10 @@
         \vspace{1em}
 
         \faFilter~ {{ ak.category.name | latex_escape_utf8 }}
+
+        \faUser~
+
+        \faClock~
 
         {{ ak.description | truncatechars(500) | latex_escape_utf8 }}
 

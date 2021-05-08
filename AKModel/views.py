@@ -296,12 +296,21 @@ def export_slides(request, event_slug):
 
     event = get_object_or_404(Event, slug=event_slug)
 
+    translations = {
+        'symbols': _("Symbols"),
+        'who': _("Who?"),
+        'duration': _("Duration(s)"),
+        'reso': _("Reso intention?"),
+        'category': _("Category (for Wishes)"),
+        'wishes': _("Wishes"),
+    }
+
     context = {
         'title': event.name,
         'categories': event.akcategory_set.all(),
         'subtitle': _("AKs"),
-        'wish_category_title': _("Wishes"),
-        "wishes": [ak for ak in event.ak_set.order_by('category') if ak.wish]
+        "wishes": [ak for ak in event.ak_set.order_by('category') if ak.wish],
+        "translations": translations,
         }
 
     return render_to_pdf(request, template_name, context, filename='slides.pdf')
