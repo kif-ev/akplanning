@@ -1,3 +1,5 @@
+from itertools import zip_longest
+
 from django.contrib import admin, messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponseRedirect
@@ -296,6 +298,8 @@ def export_slides(request, event_slug):
 
     event = get_object_or_404(Event, slug=event_slug)
 
+    NEXT_AK_LIST_LENGTH = 4
+
     translations = {
         'symbols': _("Symbols"),
         'who': _("Who?"),
@@ -305,11 +309,27 @@ def export_slides(request, event_slug):
         'wishes': _("Wishes"),
     }
 
+    def build_ak_list_with_next_aks(ak_list):
+        next_aks_list = zip_longest(*[ak_list[i + 1:] for i in range(NEXT_AK_LIST_LENGTH)], fillvalue=None)
+        return [(ak, next_aks) for ak, next_aks in zip_longest(ak_list, next_aks_list, fillvalue=list())]
+
+    categories = event.akcategory_set.all()
+    categories_with_aks = []
+    ak_wishes = []
+    for category in categories:
+        ak_list = []
+        for ak in category.ak_set.all(): # order_by("owners").distinct():
+            if ak.wish:
+                ak_wishes.append(ak)
+            else:
+                ak_list.append(ak)
+        categories_with_aks.append((category, build_ak_list_with_next_aks(ak_list)))
+
     context = {
         'title': event.name,
-        'categories': event.akcategory_set.all(),
+        'categories_with_aks': categories_with_aks,
         'subtitle': _("AKs"),
-        "wishes": [ak for ak in event.ak_set.order_by('category') if ak.wish],
+        "wishes": build_ak_list_with_next_aks(ak_wishes),
         "translations": translations,
         }
 

@@ -28,11 +28,11 @@
 \end{frame}
 
 
-{%for category in categories %}
+{%for category, ak_list in categories_with_aks %}
 
     \section{ {{- category.name | latex_escape_utf8 -}} }
 
-    {% for ak in category.ak_set.all() %}
+    {% for ak, next_aks in ak_list %}
 
         {% if not ak.wish %}
 
@@ -51,7 +51,15 @@
                     \faScroll
                 {% endif %}
 
-                {{ ak.description | truncatechars(500) | latex_escape_utf8 }}
+                {{ ak.description | truncatechars(400) | latex_escape_utf8 }}
+
+                \vspace{2em}
+
+                \begin{scriptsize}
+                    {% for n_ak in next_aks %}
+                        {% if n_ak %}\hfill \faAngleDoubleRight~ {{- n_ak.name | latex_escape_utf8 -}}{% endif %}
+                    {% endfor %}
+                \end{scriptsize}
 
             \end{frame}
 
@@ -64,7 +72,7 @@
 
 \section{ {{- translations.wishes -}} }
 
-{% for ak in wishes %}
+{% for ak, next_aks in wishes %}
 
     %\setbeamertemplate{frame footer}{}
 
@@ -79,7 +87,15 @@
 
         \faClock~
 
-        {{ ak.description | truncatechars(500) | latex_escape_utf8 }}
+        {{ ak.description | truncatechars(400) | latex_escape_utf8 }}
+
+        \vspace{2em}
+
+        \begin{scriptsize}
+            {% for n_ak in next_aks %}
+                {% if n_ak %}\hfill \faAngleDoubleRight~ {{- n_ak.name | latex_escape_utf8 -}}{% endif %}
+            {% endfor %}
+        \end{scriptsize}
 
     \end{frame}
 
