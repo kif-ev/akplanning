@@ -298,7 +298,8 @@ def export_slides(request, event_slug):
 
     event = get_object_or_404(Event, slug=event_slug)
 
-    NEXT_AK_LIST_LENGTH = 4
+    NEXT_AK_LIST_LENGTH = int(request.GET["num_next"]) if "num_next" in request.GET else 3
+    RESULT_PRESENTATION_MODE = True if "presentation_mode" in request.GET else False
 
     translations = {
         'symbols': _("Symbols"),
@@ -322,7 +323,8 @@ def export_slides(request, event_slug):
             if ak.wish:
                 ak_wishes.append(ak)
             else:
-                ak_list.append(ak)
+                if not RESULT_PRESENTATION_MODE or ak.present:
+                    ak_list.append(ak)
         categories_with_aks.append((category, build_ak_list_with_next_aks(ak_list)))
 
     context = {
@@ -331,6 +333,7 @@ def export_slides(request, event_slug):
         'subtitle': _("AKs"),
         "wishes": build_ak_list_with_next_aks(ak_wishes),
         "translations": translations,
+        "result_presentation_mode": RESULT_PRESENTATION_MODE,
         }
 
     return render_to_pdf(request, template_name, context, filename='slides.pdf')
