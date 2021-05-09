@@ -117,12 +117,8 @@ class AKTrackAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         custom_urls = []
         if apps.is_installed("AKScheduling"):
-            from AKScheduling.views import TrackAdminView
-
-            custom_urls.extend([
-                path('<slug:event_slug>/manage/', self.admin_site.admin_view(TrackAdminView.as_view()),
-                     name="tracks_manage"),
-            ])
+            from AKScheduling.urls import get_admin_urls_track
+            custom_urls.extend(get_admin_urls_track(self.admin_site))
         return custom_urls + urls
 
 
@@ -282,14 +278,8 @@ class AKSlotAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         custom_urls = []
         if apps.is_installed("AKScheduling"):
-            from AKScheduling.views import SchedulingAdminView, UnscheduledSlotsAdminView
-
-            custom_urls.extend([
-                path('<slug:event_slug>/schedule/', self.admin_site.admin_view(SchedulingAdminView.as_view()),
-                     name="schedule"),
-                path('<slug:event_slug>/unscheduled/', self.admin_site.admin_view(UnscheduledSlotsAdminView.as_view()),
-                     name="slots_unscheduled"),
-            ])
+            from AKScheduling.urls import get_admin_urls_slot
+            custom_urls.extend(get_admin_urls_slot(self.admin_site))
         return custom_urls + urls
 
     def get_form(self, request, obj=None, change=False, **kwargs):
@@ -307,7 +297,7 @@ class AKSlotAdmin(admin.ModelAdmin):
         return super(AKSlotAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     def ak_details_link(self, akslot):
-        if apps.is_installed("AKScheduling") and akslot.ak is not None:
+        if apps.is_installed("AKSubmission") and akslot.ak is not None:
             link = f"<a href={reverse('submit:ak_detail', args=[akslot.event.slug, akslot.ak.pk])}>{str(akslot.ak)}</a>"
             return mark_safe(link)
         return "-"
