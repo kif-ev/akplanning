@@ -74,6 +74,10 @@
 
                     <a class="btn btn-success"
                        href="{% url 'admin:schedule' event_slug=event.slug %}">{% trans "Scheduling" %}</a>
+                    {% if "AKScheduling | is_installed" %}
+                        <a class="btn btn-success"
+                       href="{% url 'admin:constraint-violations' slug=event.slug %}">{% trans "Constraint Violations" %} <span class="badge badge-secondary">{{ event.constraintviolation_set.count }}</span></a>
+                    {% endif %}
                     <a class="btn btn-success"
                        href="{% url 'admin:tracks_manage' event_slug=event.slug %}">{% trans "Manage ak tracks" %}</a>
                     <a class="btn btn-success"
