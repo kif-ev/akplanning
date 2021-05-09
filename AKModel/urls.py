@@ -17,10 +17,12 @@ api_router.register('akslot', views.AKSlotViewSet, basename='AKSlot')
 
 extra_paths = []
 if apps.is_installed("AKScheduling"):
-    from AKScheduling.api import ResourcesViewSet, RoomAvailabilitiesView, EventsView, EventsViewSet
+    from AKScheduling.api import ResourcesViewSet, RoomAvailabilitiesView, EventsView, EventsViewSet, \
+    ConstraintViolationsViewSet
 
     api_router.register('scheduling-resources', ResourcesViewSet, basename='scheduling-resources')
     api_router.register('scheduling-event', EventsViewSet, basename='scheduling-event')
+    api_router.register('scheduling-constraint-violations', ConstraintViolationsViewSet, basename='scheduling-constraint-violations')
 
     extra_paths = [
         path('api/scheduling-events/', EventsView.as_view(), name='scheduling-events'),

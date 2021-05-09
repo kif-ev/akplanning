@@ -7,7 +7,7 @@ from django.views.generic import ListView
 from rest_framework import viewsets, mixins, serializers, permissions
 
 from AKModel.availability.models import Availability
-from AKModel.models import Room, AKSlot
+from AKModel.models import Room, AKSlot, ConstraintViolation
 from AKModel.views import EventSlugMixin
 
 
@@ -109,3 +109,20 @@ class EventsViewSet(EventSlugMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         return AKSlot.objects.filter(event=self.event)
+
+
+class ConstraintViolationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConstraintViolation
+        fields = ['pk', 'type_display', 'aks', 'ak_slots', 'ak_owner', 'room', 'requirement', 'category', 'comment', 'timestamp_display', 'manually_resolved', 'level_display', 'details']
+
+
+class ConstraintViolationsViewSet(EventSlugMixin, viewsets.ModelViewSet):
+    permission_classes = (permissions.DjangoModelPermissions,)
+    serializer_class = ConstraintViolationSerializer
+
+    def get_object(self):
+        return get_object_or_404(ConstraintViolation, pk=self.kwargs["pk"])
+
+    def get_queryset(self):
+        return ConstraintViolation.objects.filter(event=self.event)
