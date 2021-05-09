@@ -8,5 +8,6 @@ django-simple-history==3.0.0
 django-registration-redux==2.9
 django-debug-toolbar==3.2.1
 django-bootstrap-datepicker-plus==3.0.5
+django-csp==3.7
 mysqlclient==2.0.3  # for production deployment
 pytz==2021.1
