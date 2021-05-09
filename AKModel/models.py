@@ -480,5 +480,21 @@ class ConstraintViolation(models.Model):
 
     get_details.short_description = _('Details')
 
+    @property
+    def details(self):
+        return self.get_details()
+
+    @property
+    def level_display(self):
+        return self.get_level_display()
+
+    @property
+    def type_display(self):
+        return self.get_type_display()
+
+    @property
+    def timestamp_display(self):
+        return self.timestamp.astimezone(self.event.timezone).strftime('%d.%m.%y %H:%M')
+
     def __str__(self):
         return f"{self.get_level_display()}: {self.get_type_display()} [{self.get_details()}]"
