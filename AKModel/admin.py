@@ -1,10 +1,10 @@
+from django import forms
 from django.apps import apps
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, F
-from django import forms
 from django.shortcuts import render, redirect
-from django.urls import path, reverse_lazy
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -16,9 +16,7 @@ from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation
-from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView, AKMessageDeleteView, AKRequirementOverview, \
-    NewEventWizardStartView, NewEventWizardSettingsView, NewEventWizardPrepareImportView, NewEventWizardFinishView, \
-    NewEventWizardImportView, NewEventWizardActivateView
+from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
 
 
 @admin.register(Event)
@@ -30,36 +28,15 @@ class EventAdmin(admin.ModelAdmin):
     ordering = ['-start']
 
     def add_view(self, request, form_url='', extra_context=None):
-        # Always use wizard to create new events
-        # (the built-in form wouldn't work anyways since the timezone cannot be specified before starting to fill the form)
+        # Always use wizard to create new events (the built-in form wouldn't work anyways since the timezone cannot
+        # be specified before starting to fill the form)
         return redirect("admin:new_event_wizard_start")
 
     def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('add/wizard/start/', self.admin_site.admin_view(NewEventWizardStartView.as_view()),
-                 name="new_event_wizard_start"),
-            path('add/wizard/settings/', self.admin_site.admin_view(NewEventWizardSettingsView.as_view()),
-                 name="new_event_wizard_settings"),
-            path('add/wizard/created/<slug:event_slug>/', self.admin_site.admin_view(NewEventWizardPrepareImportView.as_view()),
-                 name="new_event_wizard_prepare_import"),
-            path('add/wizard/import/<slug:event_slug>/from/<slug:import_slug>/',
-                 self.admin_site.admin_view(NewEventWizardImportView.as_view()),
-                 name="new_event_wizard_import"),
-            path('add/wizard/activate/<slug:slug>/',
-                 self.admin_site.admin_view(NewEventWizardActivateView.as_view()),
-                 name="new_event_wizard_activate"),
-            path('add/wizard/finish/<slug:slug>/',
-                 self.admin_site.admin_view(NewEventWizardFinishView.as_view()),
-                 name="new_event_wizard_finish"),
-            path('<slug:slug>/status/', self.admin_site.admin_view(EventStatusView.as_view()), name="event_status"),
-            path('<slug:event_slug>/requirements/', self.admin_site.admin_view(AKRequirementOverview.as_view()), name="event_requirement_overview"),
-            path('<slug:event_slug>/ak-csv-export/', self.admin_site.admin_view(AKCSVExportView.as_view()), name="ak_csv_export"),
-            path('<slug:event_slug>/ak-wiki-export/', self.admin_site.admin_view(AKWikiExportView.as_view()), name="ak_wiki_export"),
-            path('<slug:slug>/delete-orga-messages/', self.admin_site.admin_view(AKMessageDeleteView.as_view()),
-                 name="ak_delete_orga_messages"),
-        ]
-        return custom_urls + urls
+        urls = get_admin_urls_event_wizard(self.admin_site)
+        urls.extend(get_admin_urls_event(self.admin_site))
+        urls.extend(super().get_urls())
+        return urls
 
     def status_url(self, obj):
         return format_html("<a href='{url}'>{text}</a>",
