@@ -35,6 +35,9 @@ class EventAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = get_admin_urls_event_wizard(self.admin_site)
         urls.extend(get_admin_urls_event(self.admin_site))
+        if apps.is_installed("AKScheduling"):
+            from AKScheduling.urls import get_admin_urls_scheduling
+            urls.extend(get_admin_urls_scheduling(self.admin_site))
         urls.extend(super().get_urls())
         return urls
 
@@ -89,14 +92,6 @@ class AKTrackAdmin(admin.ModelAdmin):
         if db_field.name == 'event':
             kwargs['initial'] = Event.get_next_active()
         return super(AKTrackAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = []
-        if apps.is_installed("AKScheduling"):
-            from AKScheduling.urls import get_admin_urls_track
-            custom_urls.extend(get_admin_urls_track(self.admin_site))
-        return custom_urls + urls
 
 
 @admin.register(AKTag)
@@ -250,14 +245,6 @@ class AKSlotAdmin(admin.ModelAdmin):
     ordering = ['start']
     readonly_fields = ['ak_details_link', 'updated']
     form = AKSlotAdminForm
-
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = []
-        if apps.is_installed("AKScheduling"):
-            from AKScheduling.urls import get_admin_urls_slot
-            custom_urls.extend(get_admin_urls_slot(self.admin_site))
-        return custom_urls + urls
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of associated event
