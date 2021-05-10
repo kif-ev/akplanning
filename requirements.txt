@@ -1,5 +1,5 @@
 Django==3.1.8
-django-bootstrap4==3.0.1
+django-bootstrap4==2.3.1
 django-fontawesome-5==1.0.18
 django-split-settings==1.0.1
 django-timezone-field==4.1.2
