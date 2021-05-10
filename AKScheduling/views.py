@@ -25,7 +25,7 @@ class SchedulingAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
     context_object_name = "slots_unscheduled"
 
     def get_queryset(self):
-        return super().get_queryset().filter(start__isnull=True)
+        return super().get_queryset().filter(start__isnull=True).order_by('ak__track')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
