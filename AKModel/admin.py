@@ -1,8 +1,8 @@
+from django import forms
 from django.apps import apps
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, F
-from django import forms
 from django.shortcuts import render, redirect
 from django.urls import path, reverse_lazy
 from django.utils import timezone
@@ -16,9 +16,11 @@ from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation
-from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView, AKMessageDeleteView, AKRequirementOverview, \
+from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView, AKMessageDeleteView, \
+    AKRequirementOverview, \
     NewEventWizardStartView, NewEventWizardSettingsView, NewEventWizardPrepareImportView, NewEventWizardFinishView, \
     NewEventWizardImportView, NewEventWizardActivateView
+from AKModel.views import export_slides
 
 
 @admin.register(Event)
@@ -56,6 +58,7 @@ class EventAdmin(admin.ModelAdmin):
             path('<slug:event_slug>/requirements/', self.admin_site.admin_view(AKRequirementOverview.as_view()), name="event_requirement_overview"),
             path('<slug:event_slug>/ak-csv-export/', self.admin_site.admin_view(AKCSVExportView.as_view()), name="ak_csv_export"),
             path('<slug:event_slug>/ak-wiki-export/', self.admin_site.admin_view(AKWikiExportView.as_view()), name="ak_wiki_export"),
+            path('<slug:event_slug>/ak-slide-export/', export_slides, name="ak_slide_export"),
             path('<slug:slug>/delete-orga-messages/', self.admin_site.admin_view(AKMessageDeleteView.as_view()),
                  name="ak_delete_orga_messages"),
         ]

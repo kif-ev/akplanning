@@ -1,10 +1,15 @@
+from itertools import zip_longest
+
 from django.contrib import admin, messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, DetailView, ListView, DeleteView, CreateView, FormView, UpdateView
 from rest_framework import viewsets, permissions, mixins
+from django_tex.shortcuts import render_to_pdf
+
 
 from AKModel.forms import NewEventWizardStartForm, NewEventWizardSettingsForm, NewEventWizardPrepareImportForm, \
     NewEventWizardImportForm, NewEventWizardActivateForm
@@ -242,8 +247,6 @@ class NewEventWizardPrepareImportView(WizardViewMixin, EventSlugMixin, FormView)
     template_name = "admin/AKModel/event_wizard/created_prepare_import.html"
     wizard_step = 3
 
-
-
     def form_valid(self, form):
         # Selected a valid event to import from? Use this to go to next step of wizard
         return redirect("admin:new_event_wizard_import", event_slug=self.event.slug, import_slug=form.cleaned_data["import_event"].slug)
@@ -287,3 +290,50 @@ class NewEventWizardFinishView(WizardViewMixin, DetailView):
     model = Event
     template_name = "admin/AKModel/event_wizard/finish.html"
     wizard_step = 6
+
+
+@staff_member_required
+def export_slides(request, event_slug):
+    template_name = 'admin/AKModel/export/slides.tex'
+
+    event = get_object_or_404(Event, slug=event_slug)
+
+    NEXT_AK_LIST_LENGTH = int(request.GET["num_next"]) if "num_next" in request.GET else 3
+    RESULT_PRESENTATION_MODE = True if "presentation_mode" in request.GET else False
+
+    translations = {
+        'symbols': _("Symbols"),
+        'who': _("Who?"),
+        'duration': _("Duration(s)"),
+        'reso': _("Reso intention?"),
+        'category': _("Category (for Wishes)"),
+        'wishes': _("Wishes"),
+    }
+
+    def build_ak_list_with_next_aks(ak_list):
+        next_aks_list = zip_longest(*[ak_list[i + 1:] for i in range(NEXT_AK_LIST_LENGTH)], fillvalue=None)
+        return [(ak, next_aks) for ak, next_aks in zip_longest(ak_list, next_aks_list, fillvalue=list())]
+
+    categories = event.akcategory_set.all()
+    categories_with_aks = []
+    ak_wishes = []
+    for category in categories:
+        ak_list = []
+        for ak in category.ak_set.all(): # order_by("owners").distinct():
+            if ak.wish:
+                ak_wishes.append(ak)
+            else:
+                if not RESULT_PRESENTATION_MODE or ak.present:
+                    ak_list.append(ak)
+        categories_with_aks.append((category, build_ak_list_with_next_aks(ak_list)))
+
+    context = {
+        'title': event.name,
+        'categories_with_aks': categories_with_aks,
+        'subtitle': _("AKs"),
+        "wishes": build_ak_list_with_next_aks(ak_wishes),
+        "translations": translations,
+        "result_presentation_mode": RESULT_PRESENTATION_MODE,
+        }
+
+    return render_to_pdf(request, template_name, context, filename='slides.pdf')
