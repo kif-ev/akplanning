@@ -10,12 +10,15 @@
 {% block imports %}
     <link rel="stylesheet" href="{% static 'common/vendor/chosen-js/chosen.css' %}">
     <link rel="stylesheet" href="{% static 'common/css/bootstrap-chosen.css' %}">
-    <link href='{% static 'AKSubmission/vendor/fullcalendar3/fullcalendar.min.css' %}' rel='stylesheet'/>
+
+
     <link href='{% static 'AKSubmission/css/availabilities.css' %}' rel='stylesheet'/>
 
     <script src="{% static "AKSubmission/vendor/moment/moment-with-locales.js" %}"></script>
     <script src="{% static "AKSubmission/vendor/moment-timezone/moment-timezone-with-data-10-year-range.js" %}"></script>
-    <script src='{% static 'AKSubmission/vendor/fullcalendar3/fullcalendar.min.js' %}'></script>
+
+    {% include "AKPlan/load_fullcalendar.html" %}
+
     <script src="{% static "common/js/availabilities.js" %}"></script>
 {% endblock %}
 

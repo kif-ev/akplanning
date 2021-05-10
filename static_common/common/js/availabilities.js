@@ -6,14 +6,14 @@ document.addEventListener("DOMContentLoaded", function () {
     "use strict"
 
     $("input.availabilities-editor-data").each(function () {
-        var data_field = $(this)
-        var editor = $('<div class="availabilities-editor">')
-        editor.attr("data-name", data_field.attr("name"))
-        data_field.after(editor)
+        var data_field = $(this);
+        var editor = $('<div class="availabilities-editor">');
+        editor.attr("data-name", data_field.attr("name"));
+        data_field.after(editor);
 
         function save_events() {
             data = {
-                availabilities: editor.fullCalendar("clientEvents").map(function (e) {
+                availabilities: availability_editor.getEvents().map(function (e) {
                     if (e.allDay) {
                         return {
                             start: e.start.format("YYYY-MM-DD HH:mm:ss"),
@@ -43,8 +43,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             return e
         })
-        editor.fullCalendar({
-            views: {
+        let availability_editor = new FullCalendar.Calendar(editor, {
+            /*views: {
                 agendaVariableDays: {
                     type: "agenda",
                     duration: {
@@ -55,25 +55,27 @@ document.addEventListener("DOMContentLoaded", function () {
                             ) + 1,
                     },
                 },
-            },
-            defaultView: "agendaVariableDays",
-            defaultDate: data.event.date_from,
+            },*/
+            initialView: 'timeGrid',
+            //defaultDate: data.event.date_from,
             visibleRange: {
                 start: data.event.date_from,
                 end: data.event.date_to,
             },
-            events: events,
+            events: [], //events,
             nowIndicator: false,
             navLinks: false,
-            header: false,
-            timeFormat: "H:mm",
-            slotLabelFormat: "H:mm",
-            scrollTime: "09:00:00",
+            // No header, not buttons
+            headerToolbar: false,
+            //timeFormat: "H:mm",
+            //slotLabelFormat: "H:mm",
+            scrollTime: "08:00:00",
+            schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
             selectable: editable,
-            selectHelper: true,
-            select: function (start, end) {
+            //selectHelper: true,
+            /*select: function (start, end) {
                 var wasInDeleteMode = false
-                editor.fullCalendar("clientEvents").forEach(function (e) {
+                availability_editor.getEvents().forEach(function (e) {
                     if (e.className.indexOf("delete") >= 0) {
                         wasInDeleteMode = true
                     }
@@ -95,12 +97,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 save_events()
             },
             eventResize: save_events,
-            eventDrop: save_events,
+            eventDrop: save_events,*/
             editable: editable,
             selectOverlap: false,
             eventOverlap: false,
             eventColor: "#00DD00",
-            eventClick: function (calEvent, jsEvent, view) {
+            /*eventClick: function (calEvent, jsEvent, view) {
                 if (!editable) {
                     return
                 }
@@ -111,16 +113,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     })
                     save_events()
                 } else {
-                    editor.fullCalendar("clientEvents").forEach(function (e) {
+                    availability_editor.getEvents().forEach(function (e) {
                         if (e._id == calEvent._id) {
                             e.className = "delete"
                         } else {
                             e.className = ""
                         }
-                        editor.fullCalendar("updateEvent", e)
+                        //editor.fullCalendar("updateEvent", e)
                     })
                 }
-            },
-        })
+            },*/
+        });
+        availability_editor.render();
     })
 })
