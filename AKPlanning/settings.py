@@ -64,6 +64,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'csp.middleware.CSPMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
 ]
@@ -165,13 +166,13 @@ BOOTSTRAP4 = {
         "href": STATIC_URL + "common/css/bootstrap.css",
     },
     "javascript_url": {
-        "url": STATIC_URL + "common/vendor/bootstrap/bootstrap-4.3.1.min.js",
+        "url": STATIC_URL + "common/vendor/bootstrap/bootstrap-4.6.0.min.js",
+    },
+    "jquery_url": {
+        "url": STATIC_URL + "common/vendor/jquery/jquery-3.5.1.min.js",
     },
     "jquery_slim_url": {
-        "url": STATIC_URL + "common/vendor/jquery/jquery-3.3.1.slim.min.js",
-    },
-    "popper_url": {
-        "url": STATIC_URL + "common/vendor/popper/popper-1.14.7.min.js",
+        "url": STATIC_URL + "common/vendor/jquery/jquery-3.5.1.slim.min.js",
     },
 }
 
@@ -205,5 +206,13 @@ DASHBOARD_RECENT_MAX = 25
 # Registration/login behavior
 SIMPLE_BACKEND_REDIRECT_URL = "/user/"
 LOGIN_REDIRECT_URL = SIMPLE_BACKEND_REDIRECT_URL
+
+# Content Security Policy
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "fonts.googleapis.com")
+CSP_IMG_SRC = ("'self'", "data:")
+CSP_FRAME_SRC = ("'self'", )
+CSP_FONT_SRC = ("'self'", "data:", "fonts.gstatic.com")
 
 include(optional("settings/*.py"))
