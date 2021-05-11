@@ -180,7 +180,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     print(f"Multiple slots in room {instance.room}: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
-    # belonging to the AK that was recently changed (important!)
+    # belonging to the slot that was recently changed (important!)
     existing_violations_to_check = list(instance.room.constraintviolation_set.filter(type=violation_type))
     print(existing_violations_to_check)
     update_constraint_violations(new_violations, existing_violations_to_check)
@@ -188,6 +188,32 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     # == Check for reso ak after reso deadline ==
 
     update_cv_reso_deadline_for_slot(instance)
+
+    # == Check for two slots of the same AK at the same time (warning) ==
+
+    violation_type = ConstraintViolation.ViolationType.AK_SLOT_COLLISION
+    new_violations = []
+
+    # For all other slots of this ak...
+    for other_slot in instance.ak.akslot_set.filter(start__isnull=False):
+        if other_slot != instance:
+            # ... find overlapping slots...
+            if instance.overlaps(other_slot):
+                # ...and create a temporary violation if necessary...
+                c = ConstraintViolation(
+                    type=violation_type,
+                    level=ConstraintViolation.ViolationLevel.WARNING,
+                    event=event,
+                )
+                c.aks_tmp.add(instance.ak)
+                c.ak_slots_tmp.add(instance)
+                c.ak_slots_tmp.add(other_slot)
+                new_violations.append(c)
+
+    # ... and compare to/update list of existing violations of this type
+    # belonging to the slot that was recently changed (important!)
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+    update_constraint_violations(new_violations, existing_violations_to_check)
 
 
 @receiver(post_save, sender=Room)
