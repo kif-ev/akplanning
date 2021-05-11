@@ -184,11 +184,17 @@
             <div id="planCalendar"></div>
         </div>
         <div class="col-md-2 col-lg-2" id="unscheduled-slots">
-            {% for slot in slots_unscheduled %}
-                <div class="unscheduled-slot badge badge-primary" style='background-color: {{ slot.ak.category.color }}'
-                     data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ slot.ak.details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}"}' data-details="{{ slot.ak.details }}">{{ slot.ak.short_name }}
-                    ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
-                </div>
+        {% regroup slots_unscheduled by ak.track as slots_unscheduled_by_track_list %}
+            {% for track_slots in slots_unscheduled_by_track_list %}
+                {% if track_slots.grouper %}
+                    <h5 class="mt-2">{{ track_slots.grouper }}</h5>
+                {% endif %}
+                {% for slot in track_slots.list %}
+                    <div class="unscheduled-slot badge badge-primary" style='background-color: {{ slot.ak.category.color }}'
+                         data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ slot.ak.details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}"}' data-details="{{ slot.ak.details }}">{{ slot.ak.short_name }}
+                        ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
+                    </div>
+                {% endfor %}
             {% endfor %}
         </div>
     </div>
