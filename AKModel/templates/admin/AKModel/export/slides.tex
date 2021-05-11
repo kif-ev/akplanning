@@ -1,7 +1,7 @@
 \documentclass[aspectratio=169]{beamer}
 \usetheme[numbering=fraction, progressbar=foot]{metropolis}
 
-\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
 \usepackage{fontawesome5}
 
 \title{ {{- title -}} }
@@ -30,7 +30,7 @@
 
 {%for category, ak_list in categories_with_aks %}
 
-    \section{ {{- category.name | latex_escape_utf8 -}} }
+    \section{ {{- category.name -}} }
 
     {% for ak, next_aks in ak_list %}
 
@@ -38,12 +38,12 @@
 
             %\setbeamertemplate{frame footer}{}
 
-            \begin{frame}[shrink=15]
-                \frametitle{ {{- ak.name | latex_escape_utf8 -}} }
+            \begin{frame}
+                \frametitle{ {{- ak.name | latex_escape -}} }
 
                 \vspace{1em}
 
-                \faUser~ {{ ak.owners_list | latex_escape_utf8 }}
+                \faUser~ {{ ak.owners_list | latex_escape }}
 
                 \faClock~ {{ak.durations_list}}
 
@@ -51,7 +51,7 @@
                     \faScroll
                 {% endif %}
 
-                {{ ak.description | truncatechars(400) | latex_escape_utf8 }}
+                {{ ak.description | truncatechars(280) | latex_escape }}
 
                 \vspace{2em}
 
@@ -77,18 +77,18 @@
 
         %\setbeamertemplate{frame footer}{}
 
-        \begin{frame}[shrink=15]
-            \frametitle{ {{- ak.name | latex_escape_utf8 -}} }
+        \begin{frame}
+            \frametitle{ {{- ak.name | latex_escape -}} }
 
             \vspace{1em}
 
-            \faFilter~ {{ ak.category.name | latex_escape_utf8 }}
+            \faFilter~ {{ ak.category.name | latex_escape }}
 
             \faUser~
 
             \faClock~
 
-            {{ ak.description | truncatechars(400) | latex_escape_utf8 }}
+            {{ ak.description | truncatechars(280) | latex_escape }}
 
             \vspace{2em}
 

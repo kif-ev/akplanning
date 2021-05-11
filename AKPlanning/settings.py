@@ -147,7 +147,7 @@ LANGUAGES = [
 
 INTERNAL_IPS = ['127.0.0.1', '::1']
 
-LATEX_INTERPRETER = 'pdflatex'
+LATEX_INTERPRETER = 'lualatex'
 LATEX_RUN_COUNT = 2
 
 # Static files (CSS, JavaScript, Images)
