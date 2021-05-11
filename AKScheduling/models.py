@@ -34,6 +34,28 @@ def update_constraint_violations(new_violations, existing_violations_to_check):
         outdated_violation.delete()
 
 
+def update_cv_reso_deadline_for_slot(slot):
+    """
+    Update constraint violation AK_AFTER_RESODEADLINE for given slot
+
+    :param slot: slot to check/update
+    :type slot: AKSlot
+    """
+    event = slot.event
+    if slot.ak.reso and slot.event.reso_deadline:
+        violation_type = ConstraintViolation.ViolationType.AK_AFTER_RESODEADLINE
+        new_violations = []
+        if slot.end > event.reso_deadline:
+            c = ConstraintViolation(
+                type=violation_type,
+                level=ConstraintViolation.ViolationLevel.VIOLATION,
+                event=event,
+            )
+            c.aks_tmp.add(slot.ak)
+            c.ak_slots_tmp.add(slot)
+            new_violations.append(c)
+        update_constraint_violations(new_violations, list(slot.constraintviolation_set.filter(type=violation_type)))
+
 @receiver(post_save, sender=AK)
 def ak_changed_handler(sender, instance: AK, **kwargs):
     # Changes might affect: Owner(s), Requirements, Conflicts, Prerequisites, Category, Interest
@@ -149,6 +171,8 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                     event=event,
                     room=instance.room
                 )
+                c.aks_tmp.add(instance.ak)
+                c.aks_tmp.add(other_slot.ak)
                 c.ak_slots_tmp.add(instance)
                 c.ak_slots_tmp.add(other_slot)
                 new_violations.append(c)
@@ -160,6 +184,10 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     existing_violations_to_check = list(instance.room.constraintviolation_set.filter(type=violation_type))
     print(existing_violations_to_check)
     update_constraint_violations(new_violations, existing_violations_to_check)
+
+    # == Check for reso ak after reso deadline ==
+
+    update_cv_reso_deadline_for_slot(instance)
 
 
 @receiver(post_save, sender=Room)
@@ -177,7 +205,8 @@ def availability_changed_handler(sender, **kwargs):
 
 
 @receiver(post_save, sender=Event)
-def room_changed_handler(sender, **kwargs):
-    # Changes might affect: Reso-Deadline
-    print(f"{sender} changed")
-    # TODO Replace with real handling
+def room_changed_handler(sender, instance, **kwargs):
+    # == Check for reso ak after reso deadline (which might have changed) ==
+    if instance.reso_deadline:
+        for slot in instance.akslot_set.filter(start__isnull=False, ak__reso=True):
+            update_cv_reso_deadline_for_slot(slot)
