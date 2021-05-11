@@ -12,7 +12,7 @@ AKPlanning has two types of requirements: System requirements are dependent on o
 
 * Python 3.7 incl. development tools
 * Virtualenv
-* pdflatex & beamer class (`texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-extra`)
+* pdflatex & beamer class (`texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-extra texlive-luatex`)
 * for production using uwsgi:
   * C compiler e.g. gcc
   * uwsgi
