@@ -26,3 +26,7 @@
     width: 150px;
 }
 
+.breakWord {
+    word-break: normal;
+    overflow-wrap: anywhere;
+}

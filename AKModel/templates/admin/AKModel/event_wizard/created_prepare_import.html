@@ -1,0 +1,52 @@
+{% extends "admin/base_site.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load bootstrap4 %}
+{% load fontawesome_5 %}
+{% load tz %}
+
+{% block title %}{% trans "New event wizard" %}: {{ wizard_step_text }}{% endblock %}
+
+{% block content %}
+    {% include "admin/AKModel/event_wizard/wizard_steps.html" %}
+
+    {% timezone event.timezone %}
+        <div class="card border-success mt-3 mb-3" style="max-width: 100%;">
+          <div class="card-header">{% trans "New event:" %}</div>
+          <div class="card-body">
+            <h4 class="card-title">{{event}}</h4>
+            <p class="card-text">{{ event.start }} - {{ event.end }}</p>
+          </div>
+        </div>
+    {% endtimezone %}
+
+    <div class="text-center btn-success disabled mb-3" style="font-size: 8em;">
+        {% fa5_icon "calendar-plus" "fas" %}
+    </div>
+
+
+
+    <h5 class="mb-3">{% trans "Your event was created and can now be further configured." %}</h5>
+
+    {{ form.media }}
+
+    <form method="post">{% csrf_token %}
+        {% bootstrap_form form %}
+
+        <div class="float-right">
+            <a href="{% url 'admin:new_event_wizard_activate' event.slug %}" class="btn btn-info">
+                {% fa5_icon "forward" 'fas' %} {% trans "Skip Import" %}
+            </a>
+
+            <button type="submit" class="save btn btn-success" value="Submit">
+            {% fa5_icon "check" 'fas' %} {% trans "Continue" %}
+        </button>
+        </div>
+
+        <a href="{% url 'admin:event_status' event.slug %}" class="btn btn-info">
+            {% fa5_icon "info" 'fas' %} {% trans "Status" %}
+        </a>
+    </form>
+
+{% endblock %}

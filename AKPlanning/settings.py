@@ -44,15 +44,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
     'bootstrap4',
     'fontawesome_5',
     'timezone_field',
     'rest_framework',
     'simple_history',
     'registration',
+    'bootstrap_datepicker_plus',
+    'django_tex',
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -60,6 +64,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'csp.middleware.CSPMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
 ]
@@ -80,6 +85,14 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+        },
+    },
+    {
+        'NAME': 'tex',
+        'BACKEND': 'django_tex.engine.TeXEngine',
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'environment': 'AKModel.environment.improved_tex_environment',
         },
     },
 ]
@@ -132,6 +145,11 @@ LANGUAGES = [
     ('en', _('English')),
 ]
 
+INTERNAL_IPS = ['127.0.0.1', '::1']
+
+LATEX_INTERPRETER = 'pdflatex'
+LATEX_RUN_COUNT = 2
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
@@ -149,6 +167,9 @@ BOOTSTRAP4 = {
     },
     "javascript_url": {
         "url": STATIC_URL + "common/vendor/bootstrap/bootstrap-4.3.1.min.js",
+    },
+    "jquery_url": {
+        "url": STATIC_URL + "common/vendor/jquery/jquery-3.3.1.min.js",
     },
     "jquery_slim_url": {
         "url": STATIC_URL + "common/vendor/jquery/jquery-3.3.1.slim.min.js",
@@ -188,5 +209,13 @@ DASHBOARD_RECENT_MAX = 25
 # Registration/login behavior
 SIMPLE_BACKEND_REDIRECT_URL = "/user/"
 LOGIN_REDIRECT_URL = SIMPLE_BACKEND_REDIRECT_URL
+
+# Content Security Policy
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "fonts.googleapis.com")
+CSP_IMG_SRC = ("'self'", "data:")
+CSP_FRAME_SRC = ("'self'", )
+CSP_FONT_SRC = ("'self'", "data:", "fonts.gstatic.com")
 
 include(optional("settings/*.py"))

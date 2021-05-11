@@ -23,11 +23,11 @@
                 </a>
                 {% if ak.present %}
                     <span class="badge badge-dark badge-pill"
-                          title="{% trans 'present this AK' %}">{% fa5_icon "bullhorn" 'fas' %}</span>
+                          title="{% trans 'Present results of this AK' %}">{% fa5_icon "bullhorn" 'fas' %}</span>
                 {% endif %}
                 {% if ak.reso %}
                     <span class="badge badge-dark badge-pill"
-                          title="{% trans 'Reso' %}">{% fa5_icon "scroll" 'fas' %}</span>
+                          title="{% trans 'Intends to submit a resolution' %}">{% fa5_icon "scroll" 'fas' %}</span>
                 {% endif %}
             </td>
             <td>
@@ -52,6 +52,9 @@
                     <a href="{% url 'submit:ak_edit' event_slug=event.slug pk=ak.pk %}" data-toggle="tooltip"
                        title="{% trans 'Edit' %}"
                        class="btn btn-success">{% fa5_icon 'pencil-alt' 'fas' %}</a>
+                     <a href="{% url 'submit:overview_inc_interest' event_slug=event.slug pk=ak.pk %}" data-toggle="tooltip"
+                       title="{% trans 'Show Interest' %}"
+                       class="btn btn-primary">{% fa5_icon 'thumbs-up' 'fas' %}</a>
                 {% endif %}
             </td>
         </tr>

@@ -18,8 +18,8 @@
 
 {% block content %}
     {% block headline %}
-        <h2>{{ ak }}</h2>
-        <h3>{% trans 'Add confidential message to organizers' %}</h3>
+        <h2>{{ ak.name }}</h2>
+        <h4 class="mt-3">{% trans 'Add confidential message to organizers' %}</h4>
     {% endblock %}
     <form method="POST" class="post-form">{% csrf_token %}
         {% bootstrap_form form %}

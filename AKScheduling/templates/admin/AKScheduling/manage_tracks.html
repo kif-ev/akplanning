@@ -1,0 +1,244 @@
+{% extends "admin/base_site.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load l10n %}
+{% load tz %}
+{% load static %}
+{% load tags_AKPlan %}
+{% load fontawesome_5 %}
+
+{% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+
+    <script src="{% static "common/vendor/sortable/Sortable.min.js" %}"></script>
+    <script src="{% static "common/vendor/sortable/jquery-sortable.js" %}"></script>
+
+    <style>
+        .ak-list {
+            padding-left: 5px;
+            user-select: none;
+            height: 100%;
+        }
+
+        .ak-list > li {
+            cursor: move;
+        }
+
+        .track-delete {
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // CSRF Protection/Authentication
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            const csrftoken = getCookie('csrftoken');
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            $.ajaxSetup({
+                beforeSend: function (xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
+
+
+            function mark_dirty(container) {
+                container.removeClass("border-success").addClass("border-warning")
+            }
+
+            function mark_clean(container) {
+                container.removeClass("border-warning").addClass("border-success");
+            }
+
+            function update_ak_track(ak_id, track_id, container) {
+                if(container!==undefined)
+                    mark_dirty(container);
+
+                $.ajax({
+                       url: "{% url "model:AK-list" event_slug=event.slug %}" + ak_id + "/",
+                        type: 'PATCH',
+                        data: {
+                            track: track_id,
+                        },
+                        success: function (response) {
+                           if(container!==undefined)
+                               mark_clean(container);
+                        },
+                        error: function (response) {
+                            alert("ERROR. Did not update " + changeInfo.event.title)
+                        }
+                   });
+            }
+
+            sortable_options = {
+                "group": 'ak-lists',
+                'sort': false,
+
+                // Element is dropped into the list from another list
+                onAdd: function (/**Event*/evt) {
+                    // same properties as onEnd
+                    var ak_id = evt.item.dataset["akId"];
+
+                    // For lists that should stay in sync with server (all except 'without track')
+                    if(evt.to.dataset["sync"]==="true") {
+                        var container = $(evt.to).parents(".track-container");
+                        var track_id = evt.to.dataset["trackId"];
+                        update_ak_track(ak_id, track_id, container);
+                    }
+                    else {
+                        update_ak_track(ak_id, "", undefined);
+                    }
+                },
+            };
+
+            $('.ak-list').sortable(sortable_options);
+
+            // Display tooltips containing the tags for each list item (if available)
+            $('.ak-list li').each(function() {
+                $(this).tooltip({title: $(this).attr('data-title'), trigger: 'hover'});
+            });
+
+            // Add a new track container (and make usable for dragging)
+            $('#btn-add-track').click(function () {
+                var new_track_name = prompt("{% trans 'Name of new ak track' %}");
+                $.ajax({
+                       url: "{% url "model:AKTrack-list" event_slug=event.slug %}",
+                        type: 'POST',
+                        data: {
+                            name: new_track_name,
+                            event: "{{ event.pk }}"
+                        },
+                        success: function (response) {
+                           console.log(response);
+                            $('<div class="card border-success mb-3 track-container" style="width: 20rem;margin-right:20px;margin-bottom: 20px;"><div class="card-header"><span class="btn btn-danger float-right track-delete" data-track-id="' + response["id"] + '">{% fa5_icon "trash" "fas" %}</span><input class="track-name" data-track-id="None" type="text" value="' + response["name"] + '"></div><div class="card-body"><ul data-track-id="' + response["id"] + '" data-name="' + response["name"] + '" data-sync="true" class="ak-list"></ul></div></div>')
+                            .appendTo($("#workspace"))
+                            .find("ul").sortable(sortable_options)
+                        },
+                        error: function (response) {
+                           console.error(response);
+                           alert("{% trans 'Could not create ak track' %}");
+                        }
+                   });
+            });
+
+            $('#workspace')
+                // React to track name changes
+                .on('change', '.track-name', function () {
+                    var track_name_field = $(this);
+                    var new_track_name = track_name_field.val();
+                    var track_id = track_name_field.attr("data-track-id");
+                    var container = track_name_field.parents(".track-container")
+                    mark_dirty(container);
+
+                    $.ajax({
+                           url: "{% url "model:AKTrack-list" event_slug=event.slug %}" + track_id + "/",
+                            type: 'PATCH',
+                            data: {
+                                name: new_track_name,
+                            },
+                            success: function (response) {
+                               console.log(response);
+                               mark_clean(container);
+                            },
+                            error: function (response) {
+                               console.error(response);
+                               alert("{% trans 'Could not update ak track name' %}");
+                            }
+                       });
+                })
+                // Allow to delete a track
+                .on('click', '.track-delete', function () {
+                if(confirm("{% trans 'Do you really want to delete this ak track?' %}")) {
+                    var track_delete_button = $(this);
+                    var track_id = track_delete_button.data("trackId");
+
+                    $.ajax({
+                           url: "{% url "model:AKTrack-list" event_slug=event.slug %}" + track_id + "/",
+                            type: 'DELETE',
+                            data: {},
+                            success: function (response) {
+                               console.log(response);
+                               track_delete_button.parents(".track-container").remove();
+                            },
+                            error: function (response) {
+                               console.error(response);
+                               alert("{% trans 'Could not delete ak track' %}");
+                            }
+                       });
+                    }
+            });
+        });
+    </script>
+{% endblock extrahead %}
+
+{% block content %}
+
+    <div class="mb-5">
+        <h3>{{ event }}: {% trans "Manage AK Tracks" %}</h3>
+        <a id="btn-add-track" href="#" class="btn btn-primary">{% fa5_icon "plus" "fas" %} {% trans "Add ak track" %}</a>
+    </div>
+
+    <div id="workspace" class="row" style="">
+        <div class="card border-primary mb-3" style="width: 20rem;margin-right:20px;margin-bottom: 20px;">
+          <div class="card-header">{% trans "AKs without track" %}</div>
+          <div class="card-body">
+            <ul data-id="None" data-sync="false" class="ak-list">
+                {% for ak in aks_without_track %}
+                    <li data-ak-id="{{ ak.pk }}" data-toggle="tooltip" data-placement="top" title="" data-title="{{ ak.tags_list }}">
+                        {{ ak.name }} ({{ ak.category }})
+                    </li>
+                {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        {% for track in tracks %}
+        <div class="card border-success mb-3 track-container" style="width: 20rem;margin-right:20px;margin-bottom: 20px;">
+          <div class="card-header">
+              <span class="btn btn-danger float-right track-delete" data-track-id="{{ track.pk }}">
+                  {% fa5_icon "trash" "fas" %}
+              </span>
+              <input class="track-name" data-track-id="{{ track.pk }}" type="text" value="{{ track }}">
+          </div>
+          <div class="card-body">
+            <ul data-track-id="{{ track.pk }}" data-name="{{ track }}" data-sync="true" class="ak-list">
+                {% for ak in track.ak_set.all %}
+                    <li data-ak-id="{{ ak.pk }}" data-toggle="tooltip" data-placement="top" title="" data-title="{{ ak.tags_list }}">
+                        {{ ak.name }} ({{ ak.category }})
+                    </li>
+                {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% endfor %}
+    </div>
+
+
+    <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %}</a>
+{% endblock %}

@@ -25,7 +25,7 @@ class Event(models.Model):
     start = models.DateTimeField(verbose_name=_('Start'), help_text=_('Time the event begins'))
     end = models.DateTimeField(verbose_name=_('End'), help_text=_('Time the event ends'))
     reso_deadline = models.DateTimeField(verbose_name=_('Resolution Deadline'), blank=True, null=True,
-                               help_text=_('When should AKs with intention to submit a resolution be done?'))
+                                         help_text=_('When should AKs with intention to submit a resolution be done?'))
 
     public = models.BooleanField(verbose_name=_('Public event'), default=True,
                                  help_text=_('Show this event on overview page.'))
@@ -63,6 +63,41 @@ class Event(models.Model):
         if event is None:
             event = Event.objects.order_by('start').filter(start__gt=datetime.now()).first()
         return event
+
+    def get_categories_with_aks(self, wishes_seperately=False, filter=lambda ak: True):
+        """
+        Get AKCategories as well as a list of AKs belonging to the category for this event
+
+        :param wishes_seperately: Return wishes as individual list.
+        :type wishes_seperately: bool
+        :param filter: Optional filter predicate, only include AK in list if filter returns True
+        :type filter: (AK)->bool
+        :return: list of category-AK-list-tuples, optionally the additional list of AK wishes
+        :rtype: list[(AKCategory, list[AK])] [, list[AK]]
+        """
+        categories = self.akcategory_set.all()
+        categories_with_aks = []
+        ak_wishes = []
+
+        if wishes_seperately:
+            for category in categories:
+                ak_list = []
+                for ak in category.ak_set.all():
+                    if ak.wish:
+                        ak_wishes.append(ak)
+                    else:
+                        if filter(ak):
+                            ak_list.append(ak)
+                categories_with_aks.append((category, ak_list))
+            return categories_with_aks, ak_wishes
+        else:
+            for category in categories:
+                ak_list = []
+                for ak in category.ak_set.all():
+                    if filter(ak):
+                        ak_list.append(ak)
+                categories_with_aks.append((category, ak_list))
+            return categories_with_aks
 
 
 class AKOwner(models.Model):
@@ -233,7 +268,7 @@ class AK(models.Model):
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
-    history = HistoricalRecords()
+    history = HistoricalRecords(excluded_fields=['interest_counter'])
 
     class Meta:
         verbose_name = _('AK')
@@ -246,12 +281,29 @@ class AK(models.Model):
         return self.name
 
     @property
+    def details(self):
+        from AKModel.availability.models import Availability
+        availabilities = ', \n'.join(f'{a.simplified}' for a in Availability.objects.filter(ak=self))
+        return f"""{self.name}{" (R)" if self.reso else ""}:
+        
+        {self.owners_list}
+
+        {_("Requirements")}: {", ".join(str(r) for r in self.requirements.all())}  
+        {_("Conflicts")}: {", ".join(str(c) for c in self.conflicts.all())}  
+        {_("Prerequisites")}: {", ".join(str(p) for p in self.prerequisites.all())}
+        {_("Availabilities")}: \n{availabilities}"""
+
+    @property
     def owners_list(self):
         return ", ".join(str(owner) for owner in self.owners.all())
 
     @property
     def durations_list(self):
-        return ", ".join(str(slot.duration) for slot in self.akslot_set.all())
+        return ", ".join(str(slot.duration_simplified) for slot in self.akslot_set.all())
+
+    @property
+    def tags_list(self):
+        return ", ".join(str(tag) for tag in self.tags.all())
 
     @property
     def wish(self):
@@ -259,7 +311,9 @@ class AK(models.Model):
 
     def increment_interest(self):
         self.interest_counter += 1
+        self.skip_history_when_saving = True
         self.save()
+        del self.skip_history_when_saving
 
     @property
     def availabilities(self):
@@ -306,6 +360,8 @@ class AKSlot(models.Model):
     duration = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Duration'),
                                    help_text=_('Length in hours'))
 
+    fixed = models.BooleanField(default=False, verbose_name=_('Scheduling fixed'), help_text=_('Length and time of this AK should not be changed'))
+
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
@@ -322,6 +378,14 @@ class AKSlot(models.Model):
         return f"{self.ak} @ {self.start_simplified}"
 
     @property
+    def duration_simplified(self):
+        """
+        Display duration of slot in format hours:minutes, e.g. 1.5 -> "1:30"
+        """
+        hours, minutes = divmod(self.duration * 60, 60)
+        return f"{int(hours)}:{int(minutes):02}"
+
+    @property
     def start_simplified(self):
         """
         Display start time of slot in format weekday + time, e.g. "Fri 14:00"
@@ -329,6 +393,19 @@ class AKSlot(models.Model):
         if self.start is None:
             return _("Not scheduled yet")
         return self.start.astimezone(self.event.timezone).strftime('%a %H:%M')
+
+    @property
+    def time_simplified(self):
+        """
+        Display start and end time of slot in format weekday + time, e.g. "Fri 14:00 - 15:30" or "Fri 22:00 - Sat 02:00"
+        """
+        if self.start is None:
+            return _("Not scheduled yet")
+
+        start = self.start.astimezone(self.event.timezone)
+        end = self.end.astimezone(self.event.timezone)
+
+        return f"{start.strftime('%a %H:%M')} - {end.strftime('%H:%M') if start.day == end.day else end.strftime('%a %H:%M')}"
 
     @property
     def end(self):
@@ -351,8 +428,10 @@ class AKSlot(models.Model):
 
 
 class AKOrgaMessage(models.Model):
-    ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'), help_text=_('AK this message belongs to'))
-    text = models.TextField(verbose_name=_("Message text"), help_text=_("Message to the organizers. This is not publicly visible."))
+    ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'),
+                           help_text=_('AK this message belongs to'))
+    text = models.TextField(verbose_name=_("Message text"),
+                            help_text=_("Message to the organizers. This is not publicly visible."))
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -377,7 +456,8 @@ class ConstraintViolation(models.Model):
         REQUIRE_NOT_GIVEN = 'rng', _('Room does not satisfy the requirement of the scheduled AK')
         AK_CONFLICT_COLLISION = 'acc', _('AK Slot is scheduled at the same time as an AK listed as a conflict')
         AK_BEFORE_PREREQUISITE = 'abp', _('AK Slot is scheduled before an AK listed as a prerequisite')
-        AK_AFTER_RESODEADLINE = 'aar', _('AK Slot for AK with intention to submit a resolution is scheduled after resolution deadline')
+        AK_AFTER_RESODEADLINE = 'aar', _(
+            'AK Slot for AK with intention to submit a resolution is scheduled after resolution deadline')
         AK_CATEGORY_MISMATCH = 'acm', _('AK Slot in a category is outside that categories availabilities')
         AK_SLOT_COLLISION = 'asc', _('Two AK Slots for the same AK scheduled at the same time')
         ROOM_CAPACITY_EXCEEDED = 'rce', _('AK Slot is scheduled in a room with less space than interest')
@@ -387,25 +467,37 @@ class ConstraintViolation(models.Model):
         WARNING = 1, _('Warning')
         VIOLATION = 10, _('Violation')
 
-    type = models.CharField(verbose_name=_('Type'), max_length=3, choices=ViolationType.choices, help_text=_('Type of violation, i.e. what kind of constraint was violated'))
-    level = models.PositiveSmallIntegerField(verbose_name=_('Level'), choices=ViolationLevel.choices, help_text=_('Severity level of the violation'))
+    type = models.CharField(verbose_name=_('Type'), max_length=3, choices=ViolationType.choices,
+                            help_text=_('Type of violation, i.e. what kind of constraint was violated'))
+    level = models.PositiveSmallIntegerField(verbose_name=_('Level'), choices=ViolationLevel.choices,
+                                             help_text=_('Severity level of the violation'))
 
-    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'), help_text=_('Associated event'))
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
+                              help_text=_('Associated event'))
 
-    aks = models.ManyToManyField(to=AK, blank=True, verbose_name=_('AKs'), help_text=_('AK(s) belonging to this constraint'))
-    ak_slots = models.ManyToManyField(to=AKSlot, blank=True, verbose_name=_('AK Slots'), help_text=_('AK Slot(s) belonging to this constraint'))
-    ak_owner = models.ForeignKey(to=AKOwner, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('AK Owner'), help_text=_('AK Owner belonging to this constraint'))
-    room = models.ForeignKey(to=Room, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('Room'), help_text=_('Room belonging to this constraint'))
-    requirement = models.ForeignKey(to=AKRequirement, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('AK Requirement'), help_text=_('AK Requirement belonging to this constraint'))
-    category = models.ForeignKey(to=AKCategory, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('AK Category'), help_text=_('AK Category belonging to this constraint'))
+    aks = models.ManyToManyField(to=AK, blank=True, verbose_name=_('AKs'),
+                                 help_text=_('AK(s) belonging to this constraint'))
+    ak_slots = models.ManyToManyField(to=AKSlot, blank=True, verbose_name=_('AK Slots'),
+                                      help_text=_('AK Slot(s) belonging to this constraint'))
+    ak_owner = models.ForeignKey(to=AKOwner, on_delete=models.CASCADE, blank=True, null=True,
+                                 verbose_name=_('AK Owner'), help_text=_('AK Owner belonging to this constraint'))
+    room = models.ForeignKey(to=Room, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_('Room'),
+                             help_text=_('Room belonging to this constraint'))
+    requirement = models.ForeignKey(to=AKRequirement, on_delete=models.CASCADE, blank=True, null=True,
+                                    verbose_name=_('AK Requirement'),
+                                    help_text=_('AK Requirement belonging to this constraint'))
+    category = models.ForeignKey(to=AKCategory, on_delete=models.CASCADE, blank=True, null=True,
+                                 verbose_name=_('AK Category'), help_text=_('AK Category belonging to this constraint'))
 
-    comment = models.TextField(verbose_name=_('Comment'), help_text=_('Comment or further details for this violation'), blank=True)
+    comment = models.TextField(verbose_name=_('Comment'), help_text=_('Comment or further details for this violation'),
+                               blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_('Timestamp'), help_text=_('Time of creation'))
-    manually_resolved = models.BooleanField(verbose_name=_('Manually Resolved'), default=False, help_text=_('Mark this violation manually as resolved'))
+    manually_resolved = models.BooleanField(verbose_name=_('Manually Resolved'), default=False,
+                                            help_text=_('Mark this violation manually as resolved'))
 
-    FIELDS = ['ak_owner', 'room', 'requirement', 'category']
-    FIELDS_MM = ['_aks', '_ak_slots']
+    fields = ['ak_owner', 'room', 'requirement', 'category']
+    fields_mm = ['aks', 'ak_slots']
 
     def get_details(self):
         """
@@ -415,14 +507,15 @@ class ConstraintViolation(models.Model):
         """
         output = []
         # Stringify all ManyToMany fields
-        for field_mm in self.FIELDS_MM:
-            output.append(f"{field_mm[1:]}: {', '.join(str(a) for a in getattr(self, field_mm))}")
+        for field_mm in self.fields_mm:
+            output.append(f"{field_mm}: {', '.join(str(a) for a in getattr(self, field_mm).all())}")
         # Stringify all other fields
-        for field in self.FIELDS:
+        for field in self.fields:
             a = getattr(self, field, None)
             if a is not None:
                 output.append(f"{field}: {a}")
         return ", ".join(output)
+
     get_details.short_description = _('Details')
 
     aks_tmp = set()

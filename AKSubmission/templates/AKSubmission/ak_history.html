@@ -45,11 +45,11 @@
                     <b>{{ h.name }}</b>
                     {% if h.present %}
                         <span class="badge badge-dark badge-pill"
-                              title="{% trans 'present this AK' %}">{% fa5_icon "bullhorn" 'fas' %}</span>
+                              title="{% trans 'Present results of this AK' %}">{% fa5_icon "bullhorn" 'fas' %}</span>
                     {% endif %}
                     {% if h.reso %}
                         <span class="badge badge-dark badge-pill"
-                              title="{% trans 'Reso' %}">{% fa5_icon "scroll" 'fas' %}</span>
+                              title="{% trans 'Intends to submit a resolution' %}">{% fa5_icon "scroll" 'fas' %}</span>
                     {% endif %}
                 </td>
                 <td>{% category_linked_badge h.category event.slug %}</td>

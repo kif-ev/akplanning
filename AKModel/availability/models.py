@@ -231,6 +231,10 @@ class Availability(models.Model):
             result = cls._pair_intersection(result, availset)
         return result
 
+    @property
+    def simplified(self):
+        return f'{self.start.astimezone(self.event.timezone).strftime("%a %H:%M")}-{self.end.astimezone(self.event.timezone).strftime("%a %H:%M")}'
+
     class Meta:
         verbose_name = _('Availability')
         verbose_name_plural = _('Availabilities')

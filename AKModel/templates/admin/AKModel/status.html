@@ -1,4 +1,4 @@
-{% extends "admin_base.html" %}
+{% extends "admin/base_site.html" %}
 {% load tags_AKModel %}
 
 {% load i18n %}
@@ -15,7 +15,7 @@
             <div class="col-md-8">
                 <h3 class="block-header">{% trans "Categories" %}</h3>
                 {% if event.akcategory_set.count == 0 %}
-                    <p class="text-danger">{% trans "No categroies yet" %}</p>
+                    <p class="text-danger">{% trans "No categories yet" %}</p>
                 {% else %}
                     <p>
                         {{ event.akcategory_set.count }}:
@@ -72,8 +72,16 @@
                         </tbody>
                     </table>
 
-                    <a class="btn btn-success" href="{% url 'admin:ak_csv_export' event_slug=event.slug %}">{% trans "Export AKs as CSV" %}</a>
-                    <a class="btn btn-success" href="{% url 'admin:ak_wiki_export' event_slug=event.slug %}">{% trans "Export AKs for Wiki" %}</a>
+                    <a class="btn btn-success"
+                       href="{% url 'admin:schedule' event_slug=event.slug %}">{% trans "Scheduling" %}</a>
+                    <a class="btn btn-success"
+                       href="{% url 'admin:tracks_manage' event_slug=event.slug %}">{% trans "Manage ak tracks" %}</a>
+                    <a class="btn btn-success"
+                       href="{% url 'admin:ak_csv_export' event_slug=event.slug %}">{% trans "Export AKs as CSV" %}</a>
+                    <a class="btn btn-success"
+                       href="{% url 'admin:ak_wiki_export' slug=event.slug %}">{% trans "Export AKs for Wiki" %}</a>
+                    <a class="btn btn-success"
+                       href="{% url 'admin:ak_slide_export' event_slug=event.slug %}">{% trans "Export AK Slides" %}</a>
                 {% endif %}
 
                 <h3 class="block-header">{% trans "Requirements" %}</h3>
@@ -91,6 +99,7 @@
                         {% endfor %}
                     </p>
                 {% endif %}
+                <a class="btn btn-success" href="{% url 'admin:event_requirement_overview' event.slug %}">{% trans "Show AKs for requirements" %}</a>
                 <a class="btn btn-success" href="{% url 'admin:AKModel_akrequirement_add' %}">{% trans "Add Requirement" %}</a>
             </div>
             <div class="col-md-4">

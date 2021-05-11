@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-03 17:40+0000\n"
+"POT-Creation-Date: 2021-04-29 22:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,18 +34,6 @@ msgstr "Virtueller Raum"
 msgid "Virtual Rooms"
 msgstr "Virtuelle Räume"
 
-#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:7
-msgid "Unscheduled AK Slots"
-msgstr "Noch nicht geschedulte AK-Slots"
-
-#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:11
-msgid "Count"
-msgstr "Anzahl"
-
-#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:34
-msgid "Event Status"
-msgstr "Event-Status"
-
 #: templates/base.html:29
 msgid ""
 "Are you sure you want to change the language now? This will clear the form!"
@@ -58,3 +46,30 @@ msgstr "Impressum"
 #: templates/base.html:102
 msgid "This software is open source"
 msgstr "Diese Software ist Open Source"
+
+#~ msgid "Scheduling for"
+#~ msgstr "Scheduling für"
+
+#~ msgid "Day (Horizontal)"
+#~ msgstr "Tag (horizontal)"
+
+#~ msgid "Day (Vertical)"
+#~ msgstr "Tag (vertikal)"
+
+#~ msgid "Event (Horizontal)"
+#~ msgstr "Event (horizontal)"
+
+#~ msgid "Event (Vertical)"
+#~ msgstr "Event (vertikal)"
+
+#~ msgid "Room"
+#~ msgstr "Raum"
+
+#~ msgid "Event Status"
+#~ msgstr "Event-Status"
+
+#~ msgid "Unscheduled AK Slots"
+#~ msgstr "Noch nicht geschedulte AK-Slots"
+
+#~ msgid "Count"
+#~ msgstr "Anzahl"

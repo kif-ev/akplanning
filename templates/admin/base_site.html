@@ -1,0 +1,28 @@
+{% extends "admin/base_site.html" %}
+
+{% load bootstrap4 %}
+{% load fontawesome_5 %}
+{% load static %}
+
+{% block extrastyle %}
+    {% if not debug %}
+        <link rel="stylesheet" type="text/css" href="{% static "common/css/admin-color.css" %}"/>
+    {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+    <!-- Load bootstrap, jquery and fontawesome-->
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery=True %}
+    {% fontawesome_5_static %}
+
+    <style>
+        a.btn {
+            color: #FFFFFF;
+        }
+
+        .block-header {
+            margin-top: 20px;
+        }
+    </style>
+{% endblock %}
