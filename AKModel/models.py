@@ -465,6 +465,11 @@ class ConstraintViolation(models.Model):
     fields = ['ak_owner', 'room', 'requirement', 'category']
     fields_mm = ['_aks', '_ak_slots']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.aks_tmp = set()
+        self.ak_slots_tmp = set()
+
     def get_details(self):
         """
         Get details of this constraint (all fields connected to it)
@@ -500,8 +505,6 @@ class ConstraintViolation(models.Model):
     def timestamp_display(self):
         return self.timestamp.astimezone(self.event.timezone).strftime('%d.%m.%y %H:%M')
 
-    aks_tmp = set()
-
     @property
     def _aks(self):
         """
@@ -516,8 +519,6 @@ class ConstraintViolation(models.Model):
         if self.pk and self.pk > 0:
             return set(self.aks.all())
         return self.aks_tmp
-
-    ak_slots_tmp = set()
 
     @property
     def _aks_str(self):
