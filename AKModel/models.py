@@ -64,6 +64,41 @@ class Event(models.Model):
             event = Event.objects.order_by('start').filter(start__gt=datetime.now()).first()
         return event
 
+    def get_categories_with_aks(self, wishes_seperately=False, filter=lambda ak: True):
+        """
+        Get AKCategories as well as a list of AKs belonging to the category for this event
+
+        :param wishes_seperately: Return wishes as individual list.
+        :type wishes_seperately: bool
+        :param filter: Optional filter predicate, only include AK in list if filter returns True
+        :type filter: (AK)->bool
+        :return: list of category-AK-list-tuples, optionally the additional list of AK wishes
+        :rtype: list[(AKCategory, list[AK])] [, list[AK]]
+        """
+        categories = self.akcategory_set.all()
+        categories_with_aks = []
+        ak_wishes = []
+
+        if wishes_seperately:
+            for category in categories:
+                ak_list = []
+                for ak in category.ak_set.all():
+                    if ak.wish:
+                        ak_wishes.append(ak)
+                    else:
+                        if filter(ak):
+                            ak_list.append(ak)
+                categories_with_aks.append((category, ak_list))
+            return categories_with_aks, ak_wishes
+        else:
+            for category in categories:
+                ak_list = []
+                for ak in category.ak_set.all():
+                    if filter(ak):
+                        ak_list.append(ak)
+                categories_with_aks.append((category, ak_list))
+            return categories_with_aks
+
 
 class AKOwner(models.Model):
     """ An AKOwner describes the person organizing/holding an AK.

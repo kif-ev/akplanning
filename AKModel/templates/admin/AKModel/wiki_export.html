@@ -4,11 +4,9 @@
 
 {% block content %}
 
-{% regroup AKs by category as ak_list %}
-
-{% for category_aks in ak_list %}
-<h3>{{ category_aks.grouper }}</h3>
-<textarea style="width: 100%;height:30vh;">{% for ak in category_aks.list %}
+{% for category_name, ak_list in categories_with_aks %}
+<h3>{{ category_name }}</h3>
+<textarea style="width: 100%;height:30vh;" class="mb-3">{% for ak in ak_list %}
 {% verbatim %}{{{% endverbatim %}
 {{ ak.event.wiki_export_template_name }}
 | name={{ ak.name }}
