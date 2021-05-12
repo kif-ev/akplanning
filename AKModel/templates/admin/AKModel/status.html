@@ -83,7 +83,9 @@
                     <a class="btn btn-success"
                        href="{% url 'admin:ak_csv_export' event_slug=event.slug %}">{% trans "Export AKs as CSV" %}</a>
                     <a class="btn btn-success"
-                       href="{% url 'admin:ak_wiki_export' event_slug=event.slug %}">{% trans "Export AKs for Wiki" %}</a>
+                       href="{% url 'admin:ak_wiki_export' slug=event.slug %}">{% trans "Export AKs for Wiki" %}</a>
+                    <a class="btn btn-success"
+                       href="{% url 'admin:ak_slide_export' event_slug=event.slug %}">{% trans "Export AK Slides" %}</a>
                 {% endif %}
 
                 <h3 class="block-header">{% trans "Requirements" %}</h3>

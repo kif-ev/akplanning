@@ -1,5 +1,5 @@
 Django==3.1.8
-django-bootstrap4==3.0.1
+django-bootstrap4==2.3.1
 django-fontawesome-5==1.0.18
 django-split-settings==1.0.1
 django-timezone-field==4.1.2
@@ -8,6 +8,7 @@ django-simple-history==3.0.0
 django-registration-redux==2.9
 django-debug-toolbar==3.2.1
 django-bootstrap-datepicker-plus==3.0.5
+django-tex @ git+https://github.com/bhaettasch/django-tex.git@66cc6567acde4db2ac971b7707652067e664392c
 django-csp==3.7
 mysqlclient==2.0.3  # for production deployment
 pytz==2021.1

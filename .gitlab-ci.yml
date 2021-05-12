@@ -24,4 +24,4 @@ before_script:
 test:
   script:
     - source venv/bin/activate
-    - python manage.py test --settings AKPlanning.settings_ci
+    - python manage.py test --settings AKPlanning.settings_ci --keepdb

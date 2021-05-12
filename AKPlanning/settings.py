@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'simple_history',
     'registration',
     'bootstrap_datepicker_plus',
+    'django_tex',
 ]
 
 MIDDLEWARE = [
@@ -84,6 +85,14 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+        },
+    },
+    {
+        'NAME': 'tex',
+        'BACKEND': 'django_tex.engine.TeXEngine',
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'environment': 'AKModel.environment.improved_tex_environment',
         },
     },
 ]
@@ -138,6 +147,9 @@ LANGUAGES = [
 
 INTERNAL_IPS = ['127.0.0.1', '::1']
 
+LATEX_INTERPRETER = 'lualatex'
+LATEX_RUN_COUNT = 2
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
@@ -154,13 +166,16 @@ BOOTSTRAP4 = {
         "href": STATIC_URL + "common/css/bootstrap.css",
     },
     "javascript_url": {
-        "url": STATIC_URL + "common/vendor/bootstrap/bootstrap-4.6.0.min.js",
+        "url": STATIC_URL + "common/vendor/bootstrap/bootstrap-4.3.1.min.js",
     },
     "jquery_url": {
-        "url": STATIC_URL + "common/vendor/jquery/jquery-3.5.1.min.js",
+        "url": STATIC_URL + "common/vendor/jquery/jquery-3.3.1.min.js",
     },
     "jquery_slim_url": {
-        "url": STATIC_URL + "common/vendor/jquery/jquery-3.5.1.slim.min.js",
+        "url": STATIC_URL + "common/vendor/jquery/jquery-3.3.1.slim.min.js",
+    },
+    "popper_url": {
+        "url": STATIC_URL + "common/vendor/popper/popper-1.14.7.min.js",
     },
 }
 

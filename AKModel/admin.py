@@ -44,7 +44,8 @@ class EventAdmin(admin.ModelAdmin):
     def status_url(self, obj):
         return format_html("<a href='{url}'>{text}</a>",
                            url=reverse_lazy('admin:event_status', kwargs={'slug': obj.slug}), text=_("Status"))
-    status_url.short_description = text=_("Status")
+
+    status_url.short_description = _("Status")
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of event
@@ -205,7 +206,6 @@ class RoomForm(AvailabilitiesFormMixin, forms.ModelForm):
             self.fields["properties"].queryset = AKRequirement.objects.filter(event=self.instance.event)
 
 
-
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
     model = Room
@@ -265,6 +265,7 @@ class AKSlotAdmin(admin.ModelAdmin):
             link = f"<a href={reverse('submit:ak_detail', args=[akslot.event.slug, akslot.ak.pk])}>{str(akslot.ak)}</a>"
             return mark_safe(link)
         return "-"
+
     ak_details_link.short_description = _('AK Details')
 
 

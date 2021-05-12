@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 from AKModel import views
 from AKModel.views import NewEventWizardStartView, NewEventWizardSettingsView, NewEventWizardPrepareImportView, \
     NewEventWizardImportView, NewEventWizardActivateView, NewEventWizardFinishView, EventStatusView, \
-    AKRequirementOverview, AKCSVExportView, AKWikiExportView, AKMessageDeleteView
+    AKRequirementOverview, AKCSVExportView, AKWikiExportView, AKMessageDeleteView, export_slides
 
 api_router = DefaultRouter()
 api_router.register('akowner', views.AKOwnerViewSet, basename='AKOwner')
@@ -18,11 +18,12 @@ api_router.register('akslot', views.AKSlotViewSet, basename='AKSlot')
 extra_paths = []
 if apps.is_installed("AKScheduling"):
     from AKScheduling.api import ResourcesViewSet, RoomAvailabilitiesView, EventsView, EventsViewSet, \
-    ConstraintViolationsViewSet
+        ConstraintViolationsViewSet
 
     api_router.register('scheduling-resources', ResourcesViewSet, basename='scheduling-resources')
     api_router.register('scheduling-event', EventsViewSet, basename='scheduling-event')
-    api_router.register('scheduling-constraint-violations', ConstraintViolationsViewSet, basename='scheduling-constraint-violations')
+    api_router.register('scheduling-constraint-violations', ConstraintViolationsViewSet,
+                        basename='scheduling-constraint-violations')
 
     extra_paths = [
         path('api/scheduling-events/', EventsView.as_view(), name='scheduling-events'),
@@ -77,4 +78,6 @@ def get_admin_urls_event(admin_site):
              name="ak_wiki_export"),
         path('<slug:slug>/delete-orga-messages/', admin_site.admin_view(AKMessageDeleteView.as_view()),
              name="ak_delete_orga_messages"),
+        path('<slug:event_slug>/ak-slide-export/', export_slides, name="ak_slide_export"),
+
     ]
