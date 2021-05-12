@@ -7,6 +7,7 @@ from django_tex.environment import environment
 # and would hence cause compilation errors
 utf8_replace_pattern = re.compile(u'[^\u0000-\u206F]', re.UNICODE)
 
+
 def latex_escape_utf8(value):
     """
     Escape latex special chars and remove invalid utf-8 values
@@ -16,7 +17,10 @@ def latex_escape_utf8(value):
     :return: escaped string
     :rtype: str
     """
-    return utf8_replace_pattern.sub('', value).replace('&', '\&').replace('_', '\_').replace('#', '\#').replace('$', '\$').replace('%', '\%').replace('{', '\{').replace('}', '\}')
+    return utf8_replace_pattern.sub('', value).replace('&', '\&').replace('_', '\_').replace('#', '\#').replace('$',
+                                                                                                                '\$').replace(
+        '%', '\%').replace('{', '\{').replace('}', '\}')
+
 
 def improved_tex_environment(**options):
     env = environment(**options)

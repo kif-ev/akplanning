@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, F
 from django.shortcuts import render, redirect
-from django.urls import path, reverse_lazy
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -16,11 +16,7 @@ from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation
-from AKModel.views import EventStatusView, AKCSVExportView, AKWikiExportView, AKMessageDeleteView, \
-    AKRequirementOverview, \
-    NewEventWizardStartView, NewEventWizardSettingsView, NewEventWizardPrepareImportView, NewEventWizardFinishView, \
-    NewEventWizardImportView, NewEventWizardActivateView
-from AKModel.views import export_slides
+from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
 
 
 @admin.register(Event)
@@ -32,42 +28,24 @@ class EventAdmin(admin.ModelAdmin):
     ordering = ['-start']
 
     def add_view(self, request, form_url='', extra_context=None):
-        # Always use wizard to create new events
-        # (the built-in form wouldn't work anyways since the timezone cannot be specified before starting to fill the form)
+        # Always use wizard to create new events (the built-in form wouldn't work anyways since the timezone cannot
+        # be specified before starting to fill the form)
         return redirect("admin:new_event_wizard_start")
 
     def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('add/wizard/start/', self.admin_site.admin_view(NewEventWizardStartView.as_view()),
-                 name="new_event_wizard_start"),
-            path('add/wizard/settings/', self.admin_site.admin_view(NewEventWizardSettingsView.as_view()),
-                 name="new_event_wizard_settings"),
-            path('add/wizard/created/<slug:event_slug>/', self.admin_site.admin_view(NewEventWizardPrepareImportView.as_view()),
-                 name="new_event_wizard_prepare_import"),
-            path('add/wizard/import/<slug:event_slug>/from/<slug:import_slug>/',
-                 self.admin_site.admin_view(NewEventWizardImportView.as_view()),
-                 name="new_event_wizard_import"),
-            path('add/wizard/activate/<slug:slug>/',
-                 self.admin_site.admin_view(NewEventWizardActivateView.as_view()),
-                 name="new_event_wizard_activate"),
-            path('add/wizard/finish/<slug:slug>/',
-                 self.admin_site.admin_view(NewEventWizardFinishView.as_view()),
-                 name="new_event_wizard_finish"),
-            path('<slug:slug>/status/', self.admin_site.admin_view(EventStatusView.as_view()), name="event_status"),
-            path('<slug:event_slug>/requirements/', self.admin_site.admin_view(AKRequirementOverview.as_view()), name="event_requirement_overview"),
-            path('<slug:event_slug>/ak-csv-export/', self.admin_site.admin_view(AKCSVExportView.as_view()), name="ak_csv_export"),
-            path('<slug:slug>/ak-wiki-export/', self.admin_site.admin_view(AKWikiExportView.as_view()), name="ak_wiki_export"),
-            path('<slug:event_slug>/ak-slide-export/', export_slides, name="ak_slide_export"),
-            path('<slug:slug>/delete-orga-messages/', self.admin_site.admin_view(AKMessageDeleteView.as_view()),
-                 name="ak_delete_orga_messages"),
-        ]
-        return custom_urls + urls
+        urls = get_admin_urls_event_wizard(self.admin_site)
+        urls.extend(get_admin_urls_event(self.admin_site))
+        if apps.is_installed("AKScheduling"):
+            from AKScheduling.urls import get_admin_urls_scheduling
+            urls.extend(get_admin_urls_scheduling(self.admin_site))
+        urls.extend(super().get_urls())
+        return urls
 
     def status_url(self, obj):
         return format_html("<a href='{url}'>{text}</a>",
                            url=reverse_lazy('admin:event_status', kwargs={'slug': obj.slug}), text=_("Status"))
-    status_url.short_description = text=_("Status")
+
+    status_url.short_description = _("Status")
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of event
@@ -115,18 +93,6 @@ class AKTrackAdmin(admin.ModelAdmin):
         if db_field.name == 'event':
             kwargs['initial'] = Event.get_next_active()
         return super(AKTrackAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = []
-        if apps.is_installed("AKScheduling"):
-            from AKScheduling.views import TrackAdminView
-
-            custom_urls.extend([
-                path('<slug:event_slug>/manage/', self.admin_site.admin_view(TrackAdminView.as_view()),
-                     name="tracks_manage"),
-            ])
-        return custom_urls + urls
 
 
 @admin.register(AKTag)
@@ -240,7 +206,6 @@ class RoomForm(AvailabilitiesFormMixin, forms.ModelForm):
             self.fields["properties"].queryset = AKRequirement.objects.filter(event=self.instance.event)
 
 
-
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
     model = Room
@@ -281,20 +246,6 @@ class AKSlotAdmin(admin.ModelAdmin):
     readonly_fields = ['ak_details_link', 'updated']
     form = AKSlotAdminForm
 
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = []
-        if apps.is_installed("AKScheduling"):
-            from AKScheduling.views import SchedulingAdminView, UnscheduledSlotsAdminView
-
-            custom_urls.extend([
-                path('<slug:event_slug>/schedule/', self.admin_site.admin_view(SchedulingAdminView.as_view()),
-                     name="schedule"),
-                path('<slug:event_slug>/unscheduled/', self.admin_site.admin_view(UnscheduledSlotsAdminView.as_view()),
-                     name="slots_unscheduled"),
-            ])
-        return custom_urls + urls
-
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of associated event
         if obj is not None and obj.event.timezone:
@@ -310,10 +261,11 @@ class AKSlotAdmin(admin.ModelAdmin):
         return super(AKSlotAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     def ak_details_link(self, akslot):
-        if apps.is_installed("AKScheduling") and akslot.ak is not None:
+        if apps.is_installed("AKSubmission") and akslot.ak is not None:
             link = f"<a href={reverse('submit:ak_detail', args=[akslot.event.slug, akslot.ak.pk])}>{str(akslot.ak)}</a>"
             return mark_safe(link)
         return "-"
+
     ak_details_link.short_description = _('AK Details')
 
 

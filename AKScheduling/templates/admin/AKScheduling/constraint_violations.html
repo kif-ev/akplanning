@@ -1,0 +1,137 @@
+{% extends "admin/base_site.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load l10n %}
+{% load tz %}
+{% load static %}
+{% load tags_AKPlan %}
+{% load fontawesome_5 %}
+
+{% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // CSRF Protection/Authentication
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            const csrftoken = getCookie('csrftoken');
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            $.ajaxSetup({
+                beforeSend: function (xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
+            // (Re-)Load constraint violations using AJAX and visualize using violation count badge and violation table
+            function reload() {
+                $.ajax({
+                       url: "{% url "model:scheduling-constraint-violations-list" event_slug=event.slug %}",
+                        type: 'GET',
+                        success: function (response) {
+                           console.log(response);
+
+                           let table_html = '';
+
+                           if(response.length > 0) {
+                               // Update violation count badge
+                               $('#violationCountBadge').html(response.length).removeClass('badge-success').addClass('badge-warning');
+
+                               // Update violations table
+                               for(let i=0;i<response.length;i++) {
+                                   table_html += "<tr><td>" + response[i].level_display + "</td><td>" + response[i].type_display + "</td><td>" + response[i].details + "</td><td>" + response[i].timestamp_display + "</td><td></td></tr>";
+                               }
+                           }
+                           else {
+                               // Update violation count badge
+                               $('#violationCountBadge').html(0).removeClass('badge-warning').addClass('badge-success');
+
+                               // Update violations table
+                               table_html ='<tr class="text-muted"><td colspan="5" class="text-center">{% trans "No violations" %}</td></tr>'
+                           }
+
+                           // Show violation list (potentially empty) in violations table
+                           $('#violationsTableBody').html(table_html);
+                        },
+                        error: function (response) {
+                           alert("{% trans 'Cannot load current violations from server' %}");
+                        }
+                   });
+            }
+            reload();
+
+            // Bind reload button
+            $('#btnReloadNow').click(reload);
+
+            // Toggle automatic reloading (every 30 s) based on checkbox
+            let autoReloadInterval = undefined;
+            $('#cbxAutoReload').change(function () {
+                if(this.checked) {
+                    autoReloadInterval = setInterval(reload, 30*1000);
+                }
+                else {
+                    if(autoReloadInterval !== undefined)
+                        clearInterval(autoReloadInterval);
+                }
+            });
+        });
+    </script>
+{% endblock extrahead %}
+
+{% block content %}
+    <h4 class="mt-4 mb-4"><span id="violationCountBadge" class="badge badge-success">0</span> {% trans "Violation(s)" %}</h4>
+
+    <input type="checkbox" id="cbxAutoReload">
+    <label for="cbxAutoReload">{% trans "Auto reload?" %}</label>
+
+    <br>
+
+    <a href="#" id="btnReloadNow" class="btn btn-info">{% fa5_icon "sync-alt" "fas" %} {% trans "Reload now" %}</a>
+
+    <table class="table table-striped mt-4 mb-4">
+        <thead>
+            <tr>
+                <th>{% trans "Violation" %}</th>
+                <th>{% trans "Problem" %}</th>
+                <th>{% trans "Details" %}</th>
+                <th>{% trans "Since" %}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="violationsTableBody">
+        <tr class="text-muted">
+            <td colspan="5" class="text-center">
+                {% trans "No violations" %}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %}</a>
+    &middot;
+    <a href="{% url 'admin:schedule' event.slug %}">{% trans "Scheduling" %}</a>
+{% endblock %}

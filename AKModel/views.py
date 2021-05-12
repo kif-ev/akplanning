@@ -7,8 +7,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, DetailView, ListView, DeleteView, CreateView, FormView, UpdateView
-from rest_framework import viewsets, permissions, mixins
 from django_tex.shortcuts import render_to_pdf
+from rest_framework import viewsets, permissions, mixins
 
 from AKModel.forms import NewEventWizardStartForm, NewEventWizardSettingsForm, NewEventWizardPrepareImportForm, \
     NewEventWizardImportForm, NewEventWizardActivateForm
