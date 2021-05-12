@@ -74,7 +74,7 @@ def get_admin_urls_event(admin_site):
              name="event_requirement_overview"),
         path('<slug:event_slug>/ak-csv-export/', admin_site.admin_view(AKCSVExportView.as_view()),
              name="ak_csv_export"),
-        path('<slug:event_slug>/ak-wiki-export/', admin_site.admin_view(AKWikiExportView.as_view()),
+        path('<slug:slug>/ak-wiki-export/', admin_site.admin_view(AKWikiExportView.as_view()),
              name="ak_wiki_export"),
         path('<slug:slug>/delete-orga-messages/', admin_site.admin_view(AKMessageDeleteView.as_view()),
              name="ak_delete_orga_messages"),
