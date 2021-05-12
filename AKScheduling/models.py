@@ -42,7 +42,7 @@ def update_cv_reso_deadline_for_slot(slot):
     :type slot: AKSlot
     """
     event = slot.event
-    if slot.ak.reso and slot.event.reso_deadline:
+    if slot.ak.reso and slot.event.reso_deadline and slot.start:
         violation_type = ConstraintViolation.ViolationType.AK_AFTER_RESODEADLINE
         new_violations = []
         if slot.end > event.reso_deadline:
@@ -56,14 +56,17 @@ def update_cv_reso_deadline_for_slot(slot):
             new_violations.append(c)
         update_constraint_violations(new_violations, list(slot.constraintviolation_set.filter(type=violation_type)))
 
+
 @receiver(post_save, sender=AK)
 def ak_changed_handler(sender, instance: AK, **kwargs):
-    # Changes might affect: Owner(s), Requirements, Conflicts, Prerequisites, Category, Interest
+    # Changes might affect: Reso intention, Category, Interest
+    # TODO Reso intention changes
     pass
 
 
+# TODO adapt for Room's reauirements
 @receiver(m2m_changed, sender=AK.owners.through)
-def ak_changed_handler(sender, instance: AK, action: str, **kwargs):
+def ak_owners_changed_handler(sender, instance: AK, action: str, **kwargs):
     """
     Owners of AK changed
     """
@@ -104,7 +107,148 @@ def ak_changed_handler(sender, instance: AK, action: str, **kwargs):
                             c.ak_slots_tmp.add(other_slot)
                             new_violations.append(c)
 
-        # print(f"{owner} has the following conflicts: {new_violations}")
+        print(f"{owner} has the following conflicts: {new_violations}")
+
+    # ... and compare to/update list of existing violations of this type
+    # belonging to the AK that was recently changed (important!)
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+    # print(existing_violations_to_check)
+    update_constraint_violations(new_violations, existing_violations_to_check)
+
+
+@receiver(m2m_changed, sender=AK.conflicts.through)
+def ak_conflicts_changed_handler(sender, instance: AK, action: str, **kwargs):
+    """
+    Conflicts of AK changed
+    """
+    # Only signal after change (post_add, post_delete, post_clear) are relevant
+    if not action.startswith("post"):
+        return
+
+    # print(f"{instance} changed")
+
+    event = instance.event
+
+    # Conflict(s) changed: Might affect multiple AKs that are conflicts of each other
+    violation_type = ConstraintViolation.ViolationType.AK_CONFLICT_COLLISION
+    new_violations = []
+
+    slots_of_this_ak: [AKSlot] = instance.akslot_set.filter(start__isnull=False)
+    conflicts_of_this_ak: [AK] = instance.conflicts.all()
+
+    for ak in conflicts_of_this_ak:
+        if ak != instance:
+            for other_slot in ak.akslot_set.filter(start__isnull=False):
+                for slot in slots_of_this_ak:
+                    # ...find overlapping slots...
+                    if slot.overlaps(other_slot):
+                        # ...and create a temporary violation if necessary...
+                        c = ConstraintViolation(
+                            type=violation_type,
+                            level=ConstraintViolation.ViolationLevel.VIOLATION,
+                            event=event,
+                        )
+                        c.aks_tmp.add(instance)
+                        c.ak_slots_tmp.add(slot)
+                        c.ak_slots_tmp.add(other_slot)
+                        new_violations.append(c)
+
+        print(f"{instance} has the following conflicts: {new_violations}")
+
+    # ... and compare to/update list of existing violations of this type
+    # belonging to the AK that was recently changed (important!)
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+    # print(existing_violations_to_check)
+    update_constraint_violations(new_violations, existing_violations_to_check)
+
+
+@receiver(m2m_changed, sender=AK.prerequisites.through)
+def ak_prerequisites_changed_handler(sender, instance: AK, action: str, **kwargs):
+    """
+    Prerequisites of AK changed
+    """
+    # Only signal after change (post_add, post_delete, post_clear) are relevant
+    if not action.startswith("post"):
+        return
+
+    # print(f"{instance} changed")
+
+    event = instance.event
+
+    # Conflict(s) changed: Might affect multiple AKs that are conflicts of each other
+    violation_type = ConstraintViolation.ViolationType.AK_BEFORE_PREREQUISITE
+    new_violations = []
+
+    slots_of_this_ak: [AKSlot] = instance.akslot_set.filter(start__isnull=False)
+    prerequisites_of_this_ak: [AK] = instance.prerequisites.all()
+
+    for ak in prerequisites_of_this_ak:
+        if ak != instance:
+            for other_slot in ak.akslot_set.filter(start__isnull=False):
+                for slot in slots_of_this_ak:
+                    # ...find overlapping slots...
+                    if other_slot.end > slot.start:
+                        # ...and create a temporary violation if necessary...
+                        c = ConstraintViolation(
+                            type=violation_type,
+                            level=ConstraintViolation.ViolationLevel.VIOLATION,
+                            event=event,
+                        )
+                        c.aks_tmp.add(instance)
+                        c.ak_slots_tmp.add(slot)
+                        c.ak_slots_tmp.add(other_slot)
+                        new_violations.append(c)
+
+        print(f"{instance} has the following conflicts: {new_violations}")
+
+    # ... and compare to/update list of existing violations of this type
+    # belonging to the AK that was recently changed (important!)
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+    # print(existing_violations_to_check)
+    update_constraint_violations(new_violations, existing_violations_to_check)
+
+
+@receiver(m2m_changed, sender=AK.requirements.through)
+def ak_requirements_changed_handler(sender, instance: AK, action: str, **kwargs):
+    """
+    Requirements of AK changed
+    """
+    # Only signal after change (post_add, post_delete, post_clear) are relevant
+    if not action.startswith("post"):
+        return
+
+    # print(f"{instance} changed")
+
+    event = instance.event
+
+    # Requirement(s) changed: Might affect slots and rooms
+    violation_type = ConstraintViolation.ViolationType.REQUIRE_NOT_GIVEN
+    new_violations = []
+
+    slots_of_this_ak: [AKSlot] = instance.akslot_set.filter(start__isnull=False)
+
+    # For all requirements (after recent change)...
+    for slot in slots_of_this_ak:
+
+        room = slot.room
+        room_requirements = room.properties.all()
+
+        for requirement in instance.requirements.all():
+
+            if not requirement in room_requirements:
+                # ...and create a temporary violation if necessary...
+                c = ConstraintViolation(
+                    type=violation_type,
+                    level=ConstraintViolation.ViolationLevel.VIOLATION,
+                    event=event,
+                    requirement=requirement,
+                    room=room,
+                )
+                c.aks_tmp.add(instance)
+                c.ak_slots_tmp.add(slot)
+                new_violations.append(c)
+
+    print(f"{instance} has the following conflicts: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -151,7 +295,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
     existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
-    print(existing_violations_to_check)
+    # print(existing_violations_to_check)
     update_constraint_violations(new_violations, existing_violations_to_check)
 
     # == Check for two aks in the same room at the same time ==
@@ -160,30 +304,31 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     new_violations = []
 
     # For all slots in this room...
-    for other_slot in instance.room.akslot_set.all():
-        if other_slot != instance:
-            # ... find overlapping slots...
-            if instance.overlaps(other_slot):
-                # ...and create a temporary violation if necessary...
-                c = ConstraintViolation(
-                    type=violation_type,
-                    level=ConstraintViolation.ViolationLevel.WARNING,
-                    event=event,
-                    room=instance.room
-                )
-                c.aks_tmp.add(instance.ak)
-                c.aks_tmp.add(other_slot.ak)
-                c.ak_slots_tmp.add(instance)
-                c.ak_slots_tmp.add(other_slot)
-                new_violations.append(c)
+    if instance.room:
+        for other_slot in instance.room.akslot_set.all():
+            if other_slot != instance:
+                # ... find overlapping slots...
+                if instance.overlaps(other_slot):
+                    # ...and create a temporary violation if necessary...
+                    c = ConstraintViolation(
+                        type=violation_type,
+                        level=ConstraintViolation.ViolationLevel.WARNING,
+                        event=event,
+                        room=instance.room
+                    )
+                    c.aks_tmp.add(instance.ak)
+                    c.aks_tmp.add(other_slot.ak)
+                    c.ak_slots_tmp.add(instance)
+                    c.ak_slots_tmp.add(other_slot)
+                    new_violations.append(c)
 
-    print(f"Multiple slots in room {instance.room}: {new_violations}")
+        print(f"Multiple slots in room {instance.room}: {new_violations}")
 
-    # ... and compare to/update list of existing violations of this type
-    # belonging to the slot that was recently changed (important!)
-    existing_violations_to_check = list(instance.room.constraintviolation_set.filter(type=violation_type))
-    print(existing_violations_to_check)
-    update_constraint_violations(new_violations, existing_violations_to_check)
+        # ... and compare to/update list of existing violations of this type
+        # belonging to the slot that was recently changed (important!)
+        existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+        # print(existing_violations_to_check)
+        update_constraint_violations(new_violations, existing_violations_to_check)
 
     # == Check for reso ak after reso deadline ==
 
@@ -215,23 +360,185 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
     update_constraint_violations(new_violations, existing_violations_to_check)
 
+    # == Check for slot outside availability ==
+
+    # An AK's availability changed: Might affect AK slots scheduled outside the permitted time
+    violation_type = ConstraintViolation.ViolationType.SLOT_OUTSIDE_AVAIL
+    new_violations = []
+
+    if instance.start:
+        availabilities_of_this_ak: [Availability] = instance.ak.availabilities.all()
+
+        covered = False
+
+        for availability in availabilities_of_this_ak:
+            covered = availability.start <= instance.start and availability.end >= instance.end
+            if covered:
+                break
+        if not covered:
+            c = ConstraintViolation(
+                type=violation_type,
+                level=ConstraintViolation.ViolationLevel.VIOLATION,
+                event=event
+            )
+            c.aks_tmp.add(instance.ak)
+            c.ak_slots_tmp.add(instance)
+            new_violations.append(c)
+
+    print(f"{instance.ak} has the following slots outside availabilities: {new_violations}")
+
+    # ... and compare to/update list of existing violations of this type
+    # belonging to the AK that was recently changed (important!)
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+    # print(existing_violations_to_check)
+    update_constraint_violations(new_violations, existing_violations_to_check)
+
+    # == Check for requirement not fulfilled by room ==
+
+    # Room(s) changed: Might affect slots and rooms
+    violation_type = ConstraintViolation.ViolationType.REQUIRE_NOT_GIVEN
+    new_violations = []
+
+    if instance.room:
+
+        room_requirements = instance.room.properties.all()
+
+        for requirement in instance.ak.requirements.all():
+
+            if requirement not in room_requirements:
+                # ...and create a temporary violation if necessary...
+                c = ConstraintViolation(
+                    type=violation_type,
+                    level=ConstraintViolation.ViolationLevel.VIOLATION,
+                    event=event,
+                    requirement=requirement,
+                    room=instance.room,
+                )
+                c.aks_tmp.add(instance.ak)
+                c.ak_slots_tmp.add(instance)
+                new_violations.append(c)
+
+    print(f"{instance} has the following conflicts: {new_violations}")
+
+    # ... and compare to/update list of existing violations of this type
+    # belonging to the AK that was recently changed (important!)
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+    # print(existing_violations_to_check)
+    update_constraint_violations(new_violations, existing_violations_to_check)
+
+    # == check for simultaneous slots of conflicting AKs ==
+
+    violation_type = ConstraintViolation.ViolationType.AK_CONFLICT_COLLISION
+    new_violations = []
+
+    if instance.start:
+        conflicts_of_this_ak: [AK] = instance.ak.conflicts.all()
+
+        for ak in conflicts_of_this_ak:
+            if ak != instance.ak:
+                for other_slot in ak.akslot_set.filter(start__isnull=False):
+                    # ...find overlapping slots...
+                    if instance.overlaps(other_slot):
+                        # ...and create a temporary violation if necessary...
+                        c = ConstraintViolation(
+                            type=violation_type,
+                            level=ConstraintViolation.ViolationLevel.VIOLATION,
+                            event=event,
+                        )
+                        c.aks_tmp.add(instance.ak)
+                        c.ak_slots_tmp.add(instance)
+                        c.ak_slots_tmp.add(other_slot)
+                        new_violations.append(c)
+
+            print(f"{instance} has the following conflicts: {new_violations}")
+
+    # ... and compare to/update list of existing violations of this type
+    # belonging to the AK that was recently changed (important!)
+    existing_violations_to_check = list(instance.ak.constraintviolation_set.filter(type=violation_type))
+    # print(existing_violations_to_check)
+    update_constraint_violations(new_violations, existing_violations_to_check)
+
+    # == check for missing prerequisites ==
+
+    violation_type = ConstraintViolation.ViolationType.AK_BEFORE_PREREQUISITE
+    new_violations = []
+
+    if instance.start:
+        prerequisites_of_this_ak: [AK] = instance.ak.prerequisites.all()
+
+        for ak in prerequisites_of_this_ak:
+            if ak != instance.ak:
+                for other_slot in ak.akslot_set.filter(start__isnull=False):
+                    # ...find slots in the wrong order...
+                    if other_slot.end > instance.start:
+                        # ...and create a temporary violation if necessary...
+                        c = ConstraintViolation(
+                            type=violation_type,
+                            level=ConstraintViolation.ViolationLevel.VIOLATION,
+                            event=event,
+                        )
+                        c.aks_tmp.add(instance.ak)
+                        c.ak_slots_tmp.add(instance)
+                        c.ak_slots_tmp.add(other_slot)
+                        new_violations.append(c)
+
+            print(f"{instance} has the following conflicts: {new_violations}")
+
+    # ... and compare to/update list of existing violations of this type
+    # belonging to the AK that was recently changed (important!)
+    existing_violations_to_check = list(instance.ak.constraintviolation_set.filter(type=violation_type))
+    # print(existing_violations_to_check)
+    update_constraint_violations(new_violations, existing_violations_to_check)
+
 
 @receiver(post_save, sender=Room)
 def room_changed_handler(sender, **kwargs):
-    # Changes might affect: Room size, Requirement
+    # Changes might affect: Room size
     print(f"{sender} changed")
-    # TODO Replace with real handling
 
 
 @receiver(post_save, sender=Availability)
-def availability_changed_handler(sender, **kwargs):
+def availability_changed_handler(sender, instance: Availability, **kwargs):
     # Changes might affect: category availability, AK availability, Room availability
-    print(f"{sender} changed")
-    # TODO Replace with real handling
+    print(f"{instance} changed")
+
+    event = instance.event
+
+    # An AK's availability changed: Might affect AK slots scheduled outside the permitted time
+    if instance.ak:
+        violation_type = ConstraintViolation.ViolationType.SLOT_OUTSIDE_AVAIL
+        new_violations = []
+
+        availabilities_of_this_ak: [Availability] = instance.ak.availabilities.all()
+        slots_of_this_ak: [AKSlot] = instance.ak.akslot_set.filter(start__isnull=False)
+
+        for slot in slots_of_this_ak:
+            covered = False
+            for availability in availabilities_of_this_ak:
+                covered = availability.start <= slot.start and availability.end >= slot.end
+                if covered:
+                    break
+            if not covered:
+                c = ConstraintViolation(
+                    type=violation_type,
+                    level=ConstraintViolation.ViolationLevel.VIOLATION,
+                    event=event
+                )
+                c.aks_tmp.add(instance.ak)
+                c.ak_slots_tmp.add(slot)
+                new_violations.append(c)
+
+        print(f"{instance.ak} has the following slots putside availabilities: {new_violations}")
+
+        # ... and compare to/update list of existing violations of this type
+        # belonging to the AK that was recently changed (important!)
+        existing_violations_to_check = list(instance.ak.constraintviolation_set.filter(type=violation_type))
+        # print(existing_violations_to_check)
+        update_constraint_violations(new_violations, existing_violations_to_check)
 
 
 @receiver(post_save, sender=Event)
-def room_changed_handler(sender, instance, **kwargs):
+def event_changed_handler(sender, instance, **kwargs):
     # == Check for reso ak after reso deadline (which might have changed) ==
     if instance.reso_deadline:
         for slot in instance.akslot_set.filter(start__isnull=False, ak__reso=True):
