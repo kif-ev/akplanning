@@ -48,7 +48,7 @@ class EventsView(LoginRequiredMixin, EventSlugMixin, ListView):
                 "start": timezone.localtime(slot.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
                 "end": timezone.localtime(slot.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
                 "backgroundColor": slot.ak.category.color,
-                "borderColor": "#ff291d" if slot.fixed else slot.ak.category.color,
+                "borderColor": "#2c3e50" if slot.fixed else '#e74c3c' if slot.constraintviolation_set.count() > 0 else slot.ak.category.color,
                 "constraint": 'roomAvailable',
                 "editable": not slot.fixed,
                 'url': str(reverse('admin:AKModel_akslot_change', args=[slot.pk])),
