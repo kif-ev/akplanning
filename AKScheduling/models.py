@@ -268,29 +268,30 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     violation_type = ConstraintViolation.ViolationType.OWNER_TWO_SLOTS
     new_violations = []
 
-    # For all owners (after recent change)...
-    for owner in instance.ak.owners.all():
-        # ...find other slots that might be overlapping...
+    if instance.start:
+        # For all owners (after recent change)...
+        for owner in instance.ak.owners.all():
+            # ...find other slots that might be overlapping...
 
-        for ak in owner.ak_set.all():
-            # ...find overlapping slots...
-            if ak != instance.ak:
-                for other_slot in ak.akslot_set.filter(start__isnull=False):
-                    if instance.overlaps(other_slot):
-                        # ...and create a temporary violation if necessary...
-                        c = ConstraintViolation(
-                            type=violation_type,
-                            level=ConstraintViolation.ViolationLevel.VIOLATION,
-                            event=event,
-                            ak_owner=owner
-                        )
-                        c.aks_tmp.add(instance.ak)
-                        c.aks_tmp.add(other_slot.ak)
-                        c.ak_slots_tmp.add(instance)
-                        c.ak_slots_tmp.add(other_slot)
-                        new_violations.append(c)
+            for ak in owner.ak_set.all():
+                # ...find overlapping slots...
+                if ak != instance.ak:
+                    for other_slot in ak.akslot_set.filter(start__isnull=False):
+                        if instance.overlaps(other_slot):
+                            # ...and create a temporary violation if necessary...
+                            c = ConstraintViolation(
+                                type=violation_type,
+                                level=ConstraintViolation.ViolationLevel.VIOLATION,
+                                event=event,
+                                ak_owner=owner
+                            )
+                            c.aks_tmp.add(instance.ak)
+                            c.aks_tmp.add(other_slot.ak)
+                            c.ak_slots_tmp.add(instance)
+                            c.ak_slots_tmp.add(other_slot)
+                            new_violations.append(c)
 
-        print(f"{owner} has the following conflicts: {new_violations}")
+            print(f"{owner} has the following conflicts: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -339,21 +340,22 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     violation_type = ConstraintViolation.ViolationType.AK_SLOT_COLLISION
     new_violations = []
 
-    # For all other slots of this ak...
-    for other_slot in instance.ak.akslot_set.filter(start__isnull=False):
-        if other_slot != instance:
-            # ... find overlapping slots...
-            if instance.overlaps(other_slot):
-                # ...and create a temporary violation if necessary...
-                c = ConstraintViolation(
-                    type=violation_type,
-                    level=ConstraintViolation.ViolationLevel.WARNING,
-                    event=event,
-                )
-                c.aks_tmp.add(instance.ak)
-                c.ak_slots_tmp.add(instance)
-                c.ak_slots_tmp.add(other_slot)
-                new_violations.append(c)
+    if instance.start:
+        # For all other slots of this ak...
+        for other_slot in instance.ak.akslot_set.filter(start__isnull=False):
+            if other_slot != instance:
+                # ... find overlapping slots...
+                if instance.overlaps(other_slot):
+                    # ...and create a temporary violation if necessary...
+                    c = ConstraintViolation(
+                        type=violation_type,
+                        level=ConstraintViolation.ViolationLevel.WARNING,
+                        event=event,
+                    )
+                    c.aks_tmp.add(instance.ak)
+                    c.ak_slots_tmp.add(instance)
+                    c.ak_slots_tmp.add(other_slot)
+                    new_violations.append(c)
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the slot that was recently changed (important!)
