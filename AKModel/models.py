@@ -425,7 +425,7 @@ class AKSlot(models.Model):
         return (timezone.now() - self.updated).total_seconds()
 
     def overlaps(self, other: "AKSlot"):
-        return self.start <= other.end <= self.end or self.start <= other.start <= self.end
+        return self.start < other.end <= self.end or self.start <= other.start < self.end
 
 
 class AKOrgaMessage(models.Model):

@@ -325,11 +325,11 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
 
         print(f"Multiple slots in room {instance.room}: {new_violations}")
 
-        # ... and compare to/update list of existing violations of this type
-        # belonging to the slot that was recently changed (important!)
-        existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
-        # print(existing_violations_to_check)
-        update_constraint_violations(new_violations, existing_violations_to_check)
+    # ... and compare to/update list of existing violations of this type
+    # belonging to the slot that was recently changed (important!)
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+    # print(existing_violations_to_check)
+    update_constraint_violations(new_violations, existing_violations_to_check)
 
     # == Check for reso ak after reso deadline ==
 
