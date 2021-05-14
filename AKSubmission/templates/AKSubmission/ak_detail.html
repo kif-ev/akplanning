@@ -8,7 +8,7 @@
 {% load tags_AKModel %}
 
 
-{% block title %}{% trans "AKs" %}: {{ ak.event.name }} - {% trans "AK" %}: {{ ak.name }}{% endblock %}
+{% block title %}{{ ak.name }} ({{ ak.event.name }}) {% endblock %}
 
 {% block meta %}
     <meta name="twitter:card" content="summary" />
