@@ -36,7 +36,7 @@ class DashboardEventView(DetailView):
 
             # Newest AKs
             if apps.is_installed("AKSubmission"):
-                submission_changes = AK.history.filter(event=context['event'])[:50]
+                submission_changes = AK.history.filter(event=context['event'])[:int(settings.DASHBOARD_RECENT_MAX)]
                 for s in submission_changes:
                     if s.history_type == '+':
                         text = _('New AK: %(ak)s.') % {'ak': s.name}
@@ -48,20 +48,25 @@ class DashboardEventView(DetailView):
                         text = _('AK "%(ak)s" deleted.') % {'ak': s.name}
                         icon = ('times', 'fas')
 
-                    recent_changes.append({'icon': icon, 'text': text, 'link': reverse_lazy('submit:ak_detail', kwargs={'event_slug': context['event'].slug, 'pk': s.id}), 'timestamp': s.history_date})
+                    recent_changes.append({'icon': icon, 'text': text, 'link': reverse_lazy('submit:ak_detail', kwargs={
+                        'event_slug': context['event'].slug, 'pk': s.id}), 'timestamp': s.history_date})
 
             # Changes in plan
             if apps.is_installed("AKPlan"):
                 if not context['event'].plan_hidden:
-                    last_changed_slots = AKSlot.objects.filter(event=context['event']).order_by('-updated')[:50]
+                    last_changed_slots = AKSlot.objects.filter(event=context['event']).order_by('-updated')[
+                                         :int(settings.DASHBOARD_RECENT_MAX)]
                     for changed_slot in last_changed_slots:
-                        recent_changes.append({'icon': ('clock', 'far'), 'text': _('AK "%(ak)s" (re-)scheduled.') % {'ak': changed_slot.ak.name}, 'link': reverse_lazy('submit:ak_detail', kwargs={
-                            'event_slug': context['event'].slug, 'pk': changed_slot.ak.id}), 'timestamp': changed_slot.updated})
+                        recent_changes.append({'icon': ('clock', 'far'),
+                                               'text': _('AK "%(ak)s" (re-)scheduled.') % {'ak': changed_slot.ak.name},
+                                               'link': reverse_lazy('submit:ak_detail', kwargs={
+                                                   'event_slug': context['event'].slug, 'pk': changed_slot.ak.id}),
+                                               'timestamp': changed_slot.updated})
 
             # Sort by change date...
             recent_changes.sort(key=lambda x: x['timestamp'], reverse=True)
             # ... and restrict to the latest 25 changes
-            context['recent_changes'] = recent_changes[:settings.DASHBOARD_RECENT_MAX]
+            context['recent_changes'] = recent_changes[:int(settings.DASHBOARD_RECENT_MAX)]
         else:
             context['recent_changes'] = []
 
