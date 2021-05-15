@@ -7,12 +7,12 @@ from AKModel.models import AKCategory, Event, AKTrack
 
 
 def migrate_data_forward(apps, schema_editor):
-    for instance in AKCategory.objects.all():
+    for instance in AKCategory.objects.only('event').all():
         if not instance.event:
             instance.event = Event.objects.filter(active=True).last()
         instance.save()
 
-    for instance in AKTrack.objects.all():
+    for instance in AKTrack.objects.only('event').all():
         if not instance.event:
             instance.event = Event.objects.filter(active=True).last()
         instance.save()
