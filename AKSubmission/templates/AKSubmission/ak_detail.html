@@ -110,10 +110,18 @@
                 <td>{{ ak.track }}</td>
             </tr>
         {% endif %}
-        <tr>
-            <td>{% trans "Present this AK" %}</td>
-            <td>{{ ak.present | bool_symbol }}</td>
-        </tr>
+        {% if not ak.wish %}
+            <tr>
+                <td>{% trans "Present this AK" %}</td>
+                <td>
+                    {% if ak.present != None %}
+                        {{ ak.present | bool_symbol }}
+                    {% else %}
+                        {{ ak.category.present_by_default | bool_symbol }} <span class="text-muted">{% trans "(Category Default)" %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endif %}
         <tr>
             <td>{% trans "Tags" %}</td>
             <td>

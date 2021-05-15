@@ -326,7 +326,7 @@ def export_slides(request, event_slug):
         return [(ak, next_aks) for ak, next_aks in zip_longest(ak_list, next_aks_list, fillvalue=list())]
 
     categories_with_aks, ak_wishes = event.get_categories_with_aks(wishes_seperately=True, filter=lambda
-        ak: not RESULT_PRESENTATION_MODE or ak.present)
+        ak: not RESULT_PRESENTATION_MODE or (ak.present or (ak.present is None and ak.category.present_by_default)))
 
     context = {
         'title': event.name,

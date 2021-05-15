@@ -159,6 +159,8 @@ class AKCategory(models.Model):
     color = models.CharField(max_length=7, blank=True, verbose_name=_('Color'), help_text=_('Color for displaying'))
     description = models.TextField(blank=True, verbose_name=_("Description"),
                                    help_text=_("Short description of this AK Category"))
+    present_by_default = models.BooleanField(blank=True, default=True, verbose_name=_("Present by default"),
+        help_text=_("Present AKs of this category by default if AK owner did not specify whether this AK should be presented?"))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
