@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-29 22:48+0000\n"
+"POT-Creation-Date: 2021-05-15 14:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -112,7 +112,7 @@ msgid "Add confidential message to organizers"
 msgstr "Sende eine private Nachricht an das Organisationsteam"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:62
-#: AKSubmission/templates/AKSubmission/ak_detail.html:210
+#: AKSubmission/templates/AKSubmission/ak_detail.html:213
 #: AKSubmission/templates/AKSubmission/ak_edit.html:16
 #: AKSubmission/templates/AKSubmission/ak_table.html:53
 msgid "Edit"
@@ -152,7 +152,7 @@ msgstr ""
 "                    "
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:87
-#: AKSubmission/templates/AKSubmission/ak_detail.html:218
+#: AKSubmission/templates/AKSubmission/ak_detail.html:221
 msgid "Go to virtual room"
 msgstr "Zum virtuellen Raum"
 
@@ -172,71 +172,75 @@ msgstr "Kategorie"
 msgid "Track"
 msgstr "Track"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:114
+#: AKSubmission/templates/AKSubmission/ak_detail.html:115
 #, fuzzy
 #| msgid "Present results of this AK"
 msgid "Present this AK"
 msgstr "Die Ergebnisse dieses AKs vorstellen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:118
+#: AKSubmission/templates/AKSubmission/ak_detail.html:120
+msgid "(Category Default)"
+msgstr "(Kategorievoreinstellung)"
+
+#: AKSubmission/templates/AKSubmission/ak_detail.html:126
 #: AKSubmission/templates/AKSubmission/ak_table.html:12
 msgid "Tags"
 msgstr "Tags"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:124
+#: AKSubmission/templates/AKSubmission/ak_detail.html:132
 msgid "Reso intention?"
 msgstr "Resoabsicht?"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:131
+#: AKSubmission/templates/AKSubmission/ak_detail.html:139
 msgid "Requirements"
 msgstr "Anforderungen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:144
+#: AKSubmission/templates/AKSubmission/ak_detail.html:152
 msgid "Conflicting AKs"
 msgstr "AK-Konflikte"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:152
+#: AKSubmission/templates/AKSubmission/ak_detail.html:160
 msgid "Prerequisite AKs"
 msgstr "Vorausgesetzte AKs"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:160
+#: AKSubmission/templates/AKSubmission/ak_detail.html:168
 msgid "Notes"
 msgstr "Notizen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:178
+#: AKSubmission/templates/AKSubmission/ak_detail.html:181
 msgid "When?"
 msgstr "Wann?"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:180
+#: AKSubmission/templates/AKSubmission/ak_detail.html:183
 #: AKSubmission/templates/AKSubmission/akslot_delete.html:35
 msgid "Duration"
 msgstr "Dauer"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:182
+#: AKSubmission/templates/AKSubmission/ak_detail.html:185
 msgid "Room"
 msgstr "Raum"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:213
+#: AKSubmission/templates/AKSubmission/ak_detail.html:216
 msgid "Delete"
 msgstr "Löschen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:224
+#: AKSubmission/templates/AKSubmission/ak_detail.html:227
 msgid "Schedule"
 msgstr "Schedule"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:236
+#: AKSubmission/templates/AKSubmission/ak_detail.html:239
 msgid "Add another slot"
 msgstr "Einen neuen AK-Slot hinzufügen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:240
+#: AKSubmission/templates/AKSubmission/ak_detail.html:249
 msgid "Possible Times"
 msgstr "Mögliche Zeiten"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:244
+#: AKSubmission/templates/AKSubmission/ak_detail.html:253
 msgid "Start"
 msgstr "Start"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:245
+#: AKSubmission/templates/AKSubmission/ak_detail.html:254
 msgid "End"
 msgstr "Ende"
 
