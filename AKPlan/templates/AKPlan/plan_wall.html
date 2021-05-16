@@ -3,6 +3,7 @@
 {% load bootstrap4 %}
 {% load fontawesome_5 %}
 {% load tags_AKModel %}
+{% load tags_AKPlan %}
 {% load tz %}
 
 
@@ -43,6 +44,7 @@
                 editable: false,
                 allDaySlot: false,
                 nowIndicator: true,
+                now: "{% timestamp_now event.timezone %}",
                 eventTextColor: '#fff',
                 eventColor: '#127ba3',
                 height: '90%',

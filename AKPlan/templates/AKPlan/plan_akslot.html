@@ -1,6 +1,7 @@
 {% load static %}
 {% load tz %}
 {% load i18n %}
+{% load tags_AKPlan %}
 
 {% include "AKPlan/load_fullcalendar.html" %}
 
@@ -27,6 +28,7 @@
             scrollTime: '08:00:00',
             allDaySlot: false,
             nowIndicator: true,
+            now: "{% timestamp_now event.timezone %}",
             eventTextColor: '#fff',
             eventColor: '#127ba3',
             // Create entries for all scheduled slots
