@@ -4,6 +4,7 @@
 {% load i18n %}
 {% load static %}
 {% load tz %}
+{% load tags_AKPlan %}
 
 
 {% block fullcalendar %}
@@ -47,6 +48,7 @@
                     editable: false,
                     allDaySlot: false,
                     nowIndicator: true,
+                    now: "{% timestamp_now event.timezone %}",
                     eventTextColor: '#fff',
                     eventColor: '#127ba3',
                     resourceAreaWidth: '15%',

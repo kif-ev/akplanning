@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from django import template
+from django.utils.formats import date_format
 
 from AKPlan.templatetags.color_gradients import darken
 from AKPlanning import settings
@@ -18,3 +21,8 @@ def highlight_change_colors(akslot):
     recentness = seconds_since_update / settings.PLAN_MAX_HIGHLIGHT_UPDATE_SECONDS
     return darken("#b71540", recentness)
     # return linear_blend("#b71540", "#000000", recentness)
+
+
+@register.simple_tag
+def timestamp_now(tz):
+    return date_format(datetime.now().astimezone(tz), "c")
