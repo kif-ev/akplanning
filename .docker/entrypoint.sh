@@ -13,6 +13,7 @@ if [ "$SECRET_KEY" == "" ] ;then
   exit 1
 fi
 
+echo "" > ./AKPlanning/settings_secrets.py # Reset file in case we ran before
 echo "SECRET_KEY = '$SECRET_KEY'" >> ./AKPlanning/settings_secrets.py
 echo "HOSTS = $HOSTS" >> ./AKPlanning/settings_secrets.py
 echo "DB_NAME = '$DB_NAME'" >> ./AKPlanning/settings_secrets.py
