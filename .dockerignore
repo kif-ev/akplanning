@@ -1,0 +1,11 @@
+apache-akplanning.conf
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+CONTRIBUTORS.md
+.git
+.gitignore
+.gitlab-ci.yml
+INSTALL.md
+LICENSE.md
+README.md
+uwsgi-akplanning.ini
