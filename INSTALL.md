@@ -208,7 +208,7 @@ On the first start, the database must be initialized (the Tables created and so 
 When updating the project the database must be migrated.
 Both are done using the `migrate` command.
 
-This can be done manually by runningthe following command after the container has started:
+This can be done manually by running the following command after the container has started:
 `docker-compose exec -it akplanning-server ./manage.py migrate`
 
 It can also be done automatically on each container start by setting `AUTO_MIGRATE_DB` to the string `true`
@@ -227,7 +227,7 @@ Using the environment variables `DJANGO_SUPERUSER_{USERNAME,EMAIL,PASSWORD}`.
 The second way is to run the following command after the container has started:
 `docker-compose exec -it akplanning-server ./manage.py createsuperuser`
 
-### Extra djnago settings
+### Extra django settings
 For simple cases you can pass environment variables starting with `EXTRA_DJANGO_SETTING`.
 The content of such variables is written into python files, which are loaded as settings.
 
