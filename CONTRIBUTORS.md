@@ -16,3 +16,4 @@ Further contributions  in the form of code, testing, documentation etc. were mad
 
 * R. Zameitat [xayomer](https://gitlab.fachschaften.org/xayomer)
 * N. Steinger [voidptr](https://gitlab.fachschaften.org/voidptr)
+* T. Neumann [neumantm](https://gitlab.fachschaften.org/neumantm)
