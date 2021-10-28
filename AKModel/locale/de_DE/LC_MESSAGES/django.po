@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-28 16:39+0000\n"
+"POT-Creation-Date: 2021-10-28 20:45+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -652,10 +652,8 @@ msgid "Two AK Slots for the same AK scheduled at the same time"
 msgstr "Zwei AK Slots eines AKs wurden zur selben Zeit platziert"
 
 #: AKModel/models.py:466
-msgid "AK Slot is scheduled in a room with less space than interest"
-msgstr ""
-"AK Slot wurde in einem Raum mit weniger Plätzen als am AK Interessierten "
-"platziert"
+msgid "Room does not have enough space for interest in scheduled AK Slot"
+msgstr "Room hat nicht genug Platz für das Interesse am geplanten AK-Slot"
 
 #: AKModel/models.py:467
 msgid "AK Slot is scheduled outside the event's availabilities"
@@ -1006,6 +1004,11 @@ msgstr "Resolutionsabsicht?"
 #: AKModel/views.py:320
 msgid "Category (for Wishes)"
 msgstr "Kategorie (für Wünsche)"
+
+#~ msgid "AK Slot is scheduled in a room with less space than interest"
+#~ msgstr ""
+#~ "AK Slot wurde in einem Raum mit weniger Plätzen als am AK Interessierten "
+#~ "platziert"
 
 #~ msgid "Confirm"
 #~ msgstr "Bestätigen"

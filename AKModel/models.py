@@ -463,7 +463,7 @@ class ConstraintViolation(models.Model):
             'AK Slot for AK with intention to submit a resolution is scheduled after resolution deadline')
         AK_CATEGORY_MISMATCH = 'acm', _('AK Slot in a category is outside that categories availabilities')
         AK_SLOT_COLLISION = 'asc', _('Two AK Slots for the same AK scheduled at the same time')
-        ROOM_CAPACITY_EXCEEDED = 'rce', _('AK Slot is scheduled in a room with less space than interest')
+        ROOM_CAPACITY_EXCEEDED = 'rce', _('Room does not have enough space for interest in scheduled AK Slot')
         SLOT_OUTSIDE_EVENT = 'soe', _('AK Slot is scheduled outside the event\'s availabilities')
 
     class ViolationLevel(models.IntegerChoices):
@@ -499,7 +499,7 @@ class ConstraintViolation(models.Model):
     manually_resolved = models.BooleanField(verbose_name=_('Manually Resolved'), default=False,
                                             help_text=_('Mark this violation manually as resolved'))
 
-    fields = ['ak_owner', 'room', 'requirement', 'category']
+    fields = ['ak_owner', 'room', 'requirement', 'category', 'comment']
     fields_mm = ['_aks', '_ak_slots']
 
     def __init__(self, *args, **kwargs):
