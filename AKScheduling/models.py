@@ -100,7 +100,17 @@ def check_capacity_for_slot(slot: AKSlot):
 def ak_changed_handler(sender, instance: AK, **kwargs):
     # Changes might affect: Reso intention, Category, Interest
     # TODO Reso intention changes
-    pass
+
+    # Check room capacities
+    violation_type = ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED
+    new_violations = []
+    for slot in instance.akslot_set.all():
+        cv = check_capacity_for_slot(slot)
+        if cv is not None:
+            new_violations.append(cv)
+
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+    update_constraint_violations(new_violations, existing_violations_to_check)
 
 
 @receiver(m2m_changed, sender=AK.owners.through)
@@ -540,9 +550,19 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
 
 
 @receiver(post_save, sender=Room)
-def room_changed_handler(sender, **kwargs):
+def room_changed_handler(sender, instance: Room, **kwargs):
     # Changes might affect: Room size
-    print(f"{sender} changed")
+
+    # Check room capacities
+    violation_type = ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED
+    new_violations = []
+    for slot in instance.akslot_set.all():
+        cv = check_capacity_for_slot(slot)
+        if cv is not None:
+            new_violations.append(cv)
+
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+    update_constraint_violations(new_violations, existing_violations_to_check)
 
 
 @receiver(m2m_changed, sender=Room.properties.through)
