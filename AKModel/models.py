@@ -328,7 +328,7 @@ class Room(models.Model):
     name = models.CharField(max_length=64, verbose_name=_('Name'), help_text=_('Name or number of the room'))
     location = models.CharField(max_length=256, blank=True, verbose_name=_('Location'),
                                 help_text=_('Name or number of the location'))
-    capacity = models.IntegerField(verbose_name=_('Capacity'), help_text=_('Maximum number of people'))
+    capacity = models.IntegerField(verbose_name=_('Capacity'), help_text=_('Maximum number of people (-1 for unlimited).'))
     properties = models.ManyToManyField(to=AKRequirement, blank=True, verbose_name=_('Properties'),
                                         help_text=_('AK requirements fulfilled by the room'))
 

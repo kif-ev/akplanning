@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-15 14:34+0000\n"
+"POT-Creation-Date: 2021-10-28 16:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -519,8 +519,8 @@ msgid "Capacity"
 msgstr "Kapazität"
 
 #: AKModel/models.py:331
-msgid "Maximum number of people"
-msgstr "Maximale Personenzahl"
+msgid "Maximum number of people (-1 for unlimited)."
+msgstr "Maximale Personenzahl (-1 wenn unbeschränkt)."
 
 #: AKModel/models.py:332
 msgid "Properties"
