@@ -10,12 +10,13 @@ from django.urls import reverse_lazy
 from django.utils.datetime_safe import datetime
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, RedirectView, TemplateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 
 from AKModel.availability.models import Availability
 from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot, AKTrack, AKOrgaMessage
 from AKModel.views import EventSlugMixin
 from AKModel.views import FilterByEventSlugMixin
+from AKSubmission.api import ak_interest_indication_active
 from AKSubmission.forms import AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm, AKDurationForm, AKOrgaMessageForm
 
 
@@ -72,6 +73,10 @@ class AKOverviewView(FilterByEventSlugMixin, ListView):
         context["categories_with_aks"] = categories_with_aks
         context["active_category"] = self.get_active_category_name(context)
         context['table_title'] = self.get_table_title(context)
+
+        # Display interest indication button?
+        current_timestamp = datetime.now().astimezone(self.event.timezone)
+        context['interest_indication_active'] = ak_interest_indication_active(self.event, current_timestamp)
 
         return context
 
@@ -136,10 +141,11 @@ class AKDetailView(EventSlugMixin, DetailView):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context["availabilities"] = Availability.objects.filter(ak=context["ak"])
 
+        current_timestamp = datetime.now().astimezone(self.event.timezone)
+
         # Is this AK taking place now or soon (used for top page visualization)
         context["featured_slot_type"] = "NONE"
         if apps.is_installed("AKPlan"):
-            current_timestamp = datetime.now().astimezone(self.event.timezone)
             in_two_hours = current_timestamp + timedelta(hours=2)
             slots = context["ak"].akslot_set.filter(start__isnull=False, room__isnull=False)
             for slot in slots:
@@ -156,6 +162,9 @@ class AKDetailView(EventSlugMixin, DetailView):
                     context["featured_slot"] = slot
                     context["featured_slot_remaining"] = floor(remaining.days * 24 * 60 + remaining.seconds / 60)
                     break
+
+        # Display interest indication button?
+        context['interest_indication_active'] = ak_interest_indication_active(self.event, current_timestamp)
 
         return context
 
@@ -275,29 +284,6 @@ class AKEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
             self.object.tags.add(tag)
 
         return super_form_valid
-
-
-class AKInterestView(RedirectView):
-    permanent = False
-    pattern_name = 'submit:ak_detail'
-
-    def get(self, request, *args, **kwargs):
-        # Increase interest counter for given AK
-        ak = get_object_or_404(AK, pk=kwargs['pk'])
-        if ak.event.active:
-            ak.increment_interest()
-            messages.add_message(self.request, messages.SUCCESS, _("Interest saved"))
-        return super().get(request, *args, **kwargs)
-
-
-# when the interest increase request comes from the AK overview page, redirect to that instead of the AK overview page
-class AKOverviewInterestView(AKInterestView):
-    pattern_name = 'submit:submission_overview'
-
-    def get_redirect_url(self, *args, **kwargs):
-        # No PK needed for overview page of all AKs
-        del kwargs['pk']
-        return super().get_redirect_url(*args, **kwargs)
 
 
 class AKOwnerCreateView(EventSlugMixin, EventInactiveRedirectMixin, CreateView):

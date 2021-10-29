@@ -1,0 +1,62 @@
+{% load i18n %}
+{% load fontawesome_5 %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // CSRF Protection/Authentication
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+        function indicate_interest(ak_id, btn) {
+            $.ajax({
+                   url: "{% url "model:AK-list" event_slug=event.slug %}" + ak_id + "/indicate-interest/",
+                    type: 'POST',
+                    data: {
+                    },
+                    success: function (response) {
+                       btn.html('{% fa5_icon 'check' 'fas' %}');
+                       btn.off('click');
+                    },
+                    error: function (response) {
+                       if(response.status === 403)
+                            alert("{% trans 'Interest indication currently not allowed. Sorry.' %}");
+                       else
+                           alert("{% trans 'Could not save your interest. Sorry.' %}");
+                    }
+               });
+        }
+
+        // Update counter
+        $('.btn-interest').click(function () {
+            indicate_interest($(this).data('ak_id'), $(this));
+        });
+    });
+</script>

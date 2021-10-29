@@ -27,6 +27,11 @@ class Event(models.Model):
     reso_deadline = models.DateTimeField(verbose_name=_('Resolution Deadline'), blank=True, null=True,
                                          help_text=_('When should AKs with intention to submit a resolution be done?'))
 
+    interest_start = models.DateTimeField(verbose_name=_('Interest Window Start'), blank=True, null=True,
+                                          help_text=_('Opening time for expression of interest.'))
+    interest_end = models.DateTimeField(verbose_name=_('Interest Window End'), blank=True, null=True,
+                                        help_text=_('Closing time for expression of interest.'))
+
     public = models.BooleanField(verbose_name=_('Public event'), default=True,
                                  help_text=_('Show this event on overview page.'))
 
@@ -160,7 +165,8 @@ class AKCategory(models.Model):
     description = models.TextField(blank=True, verbose_name=_("Description"),
                                    help_text=_("Short description of this AK Category"))
     present_by_default = models.BooleanField(blank=True, default=True, verbose_name=_("Present by default"),
-        help_text=_("Present AKs of this category by default if AK owner did not specify whether this AK should be presented?"))
+                                             help_text=_(
+                                                 "Present AKs of this category by default if AK owner did not specify whether this AK should be presented?"))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
@@ -328,7 +334,8 @@ class Room(models.Model):
     name = models.CharField(max_length=64, verbose_name=_('Name'), help_text=_('Name or number of the room'))
     location = models.CharField(max_length=256, blank=True, verbose_name=_('Location'),
                                 help_text=_('Name or number of the location'))
-    capacity = models.IntegerField(verbose_name=_('Capacity'), help_text=_('Maximum number of people (-1 for unlimited).'))
+    capacity = models.IntegerField(verbose_name=_('Capacity'),
+                                   help_text=_('Maximum number of people (-1 for unlimited).'))
     properties = models.ManyToManyField(to=AKRequirement, blank=True, verbose_name=_('Properties'),
                                         help_text=_('AK requirements fulfilled by the room'))
 

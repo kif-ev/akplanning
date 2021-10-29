@@ -52,9 +52,11 @@
                     <a href="{% url 'submit:ak_edit' event_slug=event.slug pk=ak.pk %}" data-toggle="tooltip"
                        title="{% trans 'Edit' %}"
                        class="btn btn-success">{% fa5_icon 'pencil-alt' 'fas' %}</a>
-                     <a href="{% url 'submit:overview_inc_interest' event_slug=event.slug pk=ak.pk %}" data-toggle="tooltip"
-                       title="{% trans 'Show Interest' %}"
-                       class="btn btn-primary">{% fa5_icon 'thumbs-up' 'fas' %}</a>
+                    {% if interest_indication_active %}
+                        <span data-ak_id="{{ ak.pk }}" data-toggle="tooltip"
+                           title="{% trans 'Show Interest' %}"
+                           class="btn btn-primary btn-interest" style="cursor: pointer">{% fa5_icon 'thumbs-up' 'fas' %}</span>
+                    {% endif %}
                 {% endif %}
             </td>
         </tr>
