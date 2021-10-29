@@ -74,6 +74,10 @@ class AKOverviewView(FilterByEventSlugMixin, ListView):
         context["active_category"] = self.get_active_category_name(context)
         context['table_title'] = self.get_table_title(context)
 
+        # Display interest indication button?
+        current_timestamp = datetime.now().astimezone(self.event.timezone)
+        context['interest_indication_active'] = ak_interest_indication_active(self.event, current_timestamp)
+
         return context
 
 
@@ -137,10 +141,11 @@ class AKDetailView(EventSlugMixin, DetailView):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context["availabilities"] = Availability.objects.filter(ak=context["ak"])
 
+        current_timestamp = datetime.now().astimezone(self.event.timezone)
+
         # Is this AK taking place now or soon (used for top page visualization)
         context["featured_slot_type"] = "NONE"
         if apps.is_installed("AKPlan"):
-            current_timestamp = datetime.now().astimezone(self.event.timezone)
             in_two_hours = current_timestamp + timedelta(hours=2)
             slots = context["ak"].akslot_set.filter(start__isnull=False, room__isnull=False)
             for slot in slots:
