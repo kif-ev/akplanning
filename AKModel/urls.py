@@ -26,11 +26,13 @@ if apps.is_installed("AKScheduling"):
     api_router.register('scheduling-constraint-violations', ConstraintViolationsViewSet,
                         basename='scheduling-constraint-violations')
 
-    extra_paths = [
-        path('api/scheduling-events/', EventsView.as_view(), name='scheduling-events'),
-        path('api/scheduling-room-availabilities/', RoomAvailabilitiesView.as_view(),
-             name='scheduling-room-availabilities'),
-    ]
+    extra_paths.append(path('api/scheduling-events/', EventsView.as_view(), name='scheduling-events'))
+    extra_paths.append(path('api/scheduling-room-availabilities/', RoomAvailabilitiesView.as_view(),
+             name='scheduling-room-availabilities'))
+if apps.is_installed("AKSubmission"):
+    from AKSubmission.api import increment_interest_counter
+
+    extra_paths.append(path('api/ak/<pk>/indicate-interest/', increment_interest_counter, name='submission-ak-indicate-interest'))
 
 event_specific_paths = [
     path('api/', include(api_router.urls), name='api'),
