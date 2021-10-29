@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-28 20:45+0000\n"
+"POT-Creation-Date: 2021-10-29 09:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKScheduling/models.py:507
+#: AKScheduling/models.py:80
 #, python-format
 msgid ""
 "Not enough space for AK interest (Interest: %(interest)d, Capacity: "
@@ -26,7 +26,7 @@ msgstr ""
 "Nicht genug Platz für AK-Interesse (Interesse: %(interest)d, Kapazität: "
 "%(capacity)d)"
 
-#: AKScheduling/models.py:519
+#: AKScheduling/models.py:92
 #, python-format
 msgid ""
 "Space is too close to AK interest (Interest: %(interest)d, Capacity: "

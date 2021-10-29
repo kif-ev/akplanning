@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-15 14:34+0000\n"
+"POT-Creation-Date: 2021-10-29 09:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,30 +37,6 @@ msgid ""
 msgstr ""
 "Mindestens eine geplante Dauer (in Stunden) angeben. Wenn der AK mehrere "
 "Slots haben soll, mehrere Zeilen verwenden"
-
-#: AKSubmission/templates/AKSubmission/ak_detail.html:11
-#: AKSubmission/templates/AKSubmission/ak_edit.html:8
-#: AKSubmission/templates/AKSubmission/ak_history.html:11
-#: AKSubmission/templates/AKSubmission/ak_overview.html:8
-#: AKSubmission/templates/AKSubmission/ak_overview.html:12
-#: AKSubmission/templates/AKSubmission/ak_overview.html:38
-#: AKSubmission/templates/AKSubmission/akmessage_add.html:7
-#: AKSubmission/templates/AKSubmission/akowner_create_update.html:7
-#: AKSubmission/templates/AKSubmission/akslot_add_update.html:7
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:7
-#: AKSubmission/templates/AKSubmission/submission_not_configured.html:7
-#: AKSubmission/templates/AKSubmission/submission_overview.html:7
-#: AKSubmission/templates/AKSubmission/submission_overview.html:43
-#: AKSubmission/templates/AKSubmission/submit_new.html:8
-#: AKSubmission/templates/AKSubmission/submit_new_wish.html:7
-msgid "AKs"
-msgstr "AKs"
-
-#: AKSubmission/templates/AKSubmission/ak_detail.html:11
-#: AKSubmission/templates/AKSubmission/ak_history.html:11
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:31
-msgid "AK"
-msgstr "AK"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:22
 #: AKSubmission/templates/AKSubmission/ak_edit.html:13
@@ -245,9 +221,31 @@ msgid "End"
 msgstr "Ende"
 
 #: AKSubmission/templates/AKSubmission/ak_edit.html:8
+#: AKSubmission/templates/AKSubmission/ak_history.html:11
+#: AKSubmission/templates/AKSubmission/ak_overview.html:8
+#: AKSubmission/templates/AKSubmission/ak_overview.html:12
+#: AKSubmission/templates/AKSubmission/ak_overview.html:38
+#: AKSubmission/templates/AKSubmission/akmessage_add.html:7
+#: AKSubmission/templates/AKSubmission/akowner_create_update.html:7
+#: AKSubmission/templates/AKSubmission/akslot_add_update.html:7
+#: AKSubmission/templates/AKSubmission/akslot_delete.html:7
+#: AKSubmission/templates/AKSubmission/submission_not_configured.html:7
+#: AKSubmission/templates/AKSubmission/submission_overview.html:7
+#: AKSubmission/templates/AKSubmission/submission_overview.html:43
+#: AKSubmission/templates/AKSubmission/submit_new.html:8
+#: AKSubmission/templates/AKSubmission/submit_new_wish.html:7
+msgid "AKs"
+msgstr "AKs"
+
+#: AKSubmission/templates/AKSubmission/ak_edit.html:8
 #: AKSubmission/templates/AKSubmission/ak_edit.html:21
 msgid "Edit AK"
 msgstr "AK bearbeiten"
+
+#: AKSubmission/templates/AKSubmission/ak_history.html:11
+#: AKSubmission/templates/AKSubmission/akslot_delete.html:31
+msgid "AK"
+msgstr "AK"
 
 #: AKSubmission/templates/AKSubmission/ak_history.html:27
 msgid "Back"
