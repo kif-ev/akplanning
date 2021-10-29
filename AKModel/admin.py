@@ -159,9 +159,9 @@ class AKAdminForm(forms.ModelForm):
 @admin.register(AK)
 class AKAdmin(SimpleHistoryAdmin):
     model = AK
-    list_display = ['name', 'short_name', 'category', 'track', 'is_wish', 'interest', 'event']
+    list_display = ['name', 'short_name', 'category', 'track', 'is_wish', 'interest', 'interest_counter', 'event']
     list_filter = ['category', WishFilter, 'event']
-    list_editable = ['short_name', 'track', 'interest']
+    list_editable = ['short_name', 'track', 'interest', 'interest_counter']
     ordering = ['pk']
     actions = ['wiki_export']
     form = AKAdminForm
