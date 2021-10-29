@@ -44,6 +44,8 @@ def update_cv_reso_deadline_for_slot(slot):
     """
     event = slot.event
     if slot.ak.reso and slot.event.reso_deadline and slot.start:
+        # Update only if reso_deadline exists
+        # if event was changed and reso_deadline is removed, CVs will be deleted by event changed handler
         violation_type = ConstraintViolation.ViolationType.AK_AFTER_RESODEADLINE
         new_violations = []
         if slot.end > event.reso_deadline:
@@ -612,7 +614,7 @@ def availability_changed_handler(sender, instance: Availability, **kwargs):
                 c.ak_slots_tmp.add(slot)
                 new_violations.append(c)
 
-        print(f"{instance.ak} has the following slots putside availabilities: {new_violations}")
+        print(f"{instance.ak} has the following slots outside availabilities: {new_violations}")
 
         # ... and compare to/update list of existing violations of this type
         # belonging to the AK that was recently changed (important!)
@@ -622,8 +624,13 @@ def availability_changed_handler(sender, instance: Availability, **kwargs):
 
 
 @receiver(post_save, sender=Event)
-def event_changed_handler(sender, instance, **kwargs):
+def event_changed_handler(sender, instance: Event, **kwargs):
     # == Check for reso ak after reso deadline (which might have changed) ==
     if instance.reso_deadline:
         for slot in instance.akslot_set.filter(start__isnull=False, ak__reso=True):
             update_cv_reso_deadline_for_slot(slot)
+    else:
+        # No reso deadline, delete all violations
+        violation_type = ConstraintViolation.ViolationType.AK_AFTER_RESODEADLINE
+        existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+        update_constraint_violations([], existing_violations_to_check)
