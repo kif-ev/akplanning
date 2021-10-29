@@ -1,5 +1,6 @@
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
+from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.models import Availability
 from AKModel.models import AK, AKSlot, Room, Event, AKOwner, ConstraintViolation
@@ -43,6 +44,8 @@ def update_cv_reso_deadline_for_slot(slot):
     """
     event = slot.event
     if slot.ak.reso and slot.event.reso_deadline and slot.start:
+        # Update only if reso_deadline exists
+        # if event was changed and reso_deadline is removed, CVs will be deleted by event changed handler
         violation_type = ConstraintViolation.ViolationType.AK_AFTER_RESODEADLINE
         new_violations = []
         if slot.end > event.reso_deadline:
@@ -57,14 +60,61 @@ def update_cv_reso_deadline_for_slot(slot):
         update_constraint_violations(new_violations, list(slot.constraintviolation_set.filter(type=violation_type)))
 
 
+def check_capacity_for_slot(slot: AKSlot):
+    """
+    Check whether this slot violates the capacity requirement
+
+    :param slot: slot to check
+    :type slot: AKSlot
+    :return: Violation (if any) or None
+    :rtype: ConstraintViolation or None
+    """
+    if slot.room:
+        if slot.room.capacity >= 0:
+            if slot.room.capacity < slot.ak.interest:
+                c = ConstraintViolation(
+                    type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED,
+                    level=ConstraintViolation.ViolationLevel.VIOLATION,
+                    event=slot.event,
+                    room=slot.room,
+                    comment=_("Not enough space for AK interest (Interest: %(interest)d, Capacity: %(capacity)d)")
+                            % {'interest': slot.ak.interest, 'capacity': slot.room.capacity},
+                )
+                c.ak_slots_tmp.add(slot)
+                c.aks_tmp.add(slot.ak)
+                return c
+            elif slot.room.capacity < slot.ak.interest + 5 or slot.room.capacity < slot.ak.interest * 1.25:
+                c = ConstraintViolation(
+                    type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED,
+                    level=ConstraintViolation.ViolationLevel.WARNING,
+                    event=slot.event,
+                    room=slot.room,
+                    comment=_("Space is too close to AK interest (Interest: %(interest)d, Capacity: %(capacity)d)")
+                            % {'interest': slot.ak.interest, 'capacity': slot.room.capacity}
+                )
+                c.ak_slots_tmp.add(slot)
+                c.aks_tmp.add(slot.ak)
+                return c
+        return None
+
+
 @receiver(post_save, sender=AK)
 def ak_changed_handler(sender, instance: AK, **kwargs):
     # Changes might affect: Reso intention, Category, Interest
     # TODO Reso intention changes
-    pass
+
+    # Check room capacities
+    violation_type = ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED
+    new_violations = []
+    for slot in instance.akslot_set.all():
+        cv = check_capacity_for_slot(slot)
+        if cv is not None:
+            new_violations.append(cv)
+
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+    update_constraint_violations(new_violations, existing_violations_to_check)
 
 
-# TODO adapt for Room's reauirements
 @receiver(m2m_changed, sender=AK.owners.through)
 def ak_owners_changed_handler(sender, instance: AK, action: str, **kwargs):
     """
@@ -492,11 +542,45 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     # print(existing_violations_to_check)
     update_constraint_violations(new_violations, existing_violations_to_check)
 
+    # == Check for room capacity ==
+    cv = check_capacity_for_slot(instance)
+    new_violations = [cv] if cv is not None else []
+
+    # Compare to/update list of existing violations of this type for this slot
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED))
+    update_constraint_violations(new_violations, existing_violations_to_check)
+
 
 @receiver(post_save, sender=Room)
-def room_changed_handler(sender, **kwargs):
+def room_changed_handler(sender, instance: Room, **kwargs):
     # Changes might affect: Room size
-    print(f"{sender} changed")
+
+    # Check room capacities
+    violation_type = ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED
+    new_violations = []
+    for slot in instance.akslot_set.all():
+        cv = check_capacity_for_slot(slot)
+        if cv is not None:
+            new_violations.append(cv)
+
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+    update_constraint_violations(new_violations, existing_violations_to_check)
+
+
+@receiver(m2m_changed, sender=Room.properties.through)
+def room_requirements_changed_handler(sender, instance: Room, action: str, **kwargs):
+    """
+    Requirements of room changed
+    """
+    # Only signal after change (post_add, post_delete, post_clear) are relevant
+    if not action.startswith("post"):
+        return
+
+    # print(f"{instance} changed")
+
+    event = instance.event
+
+    # TODO React to changes
 
 
 @receiver(post_save, sender=Availability)
@@ -530,7 +614,7 @@ def availability_changed_handler(sender, instance: Availability, **kwargs):
                 c.ak_slots_tmp.add(slot)
                 new_violations.append(c)
 
-        print(f"{instance.ak} has the following slots putside availabilities: {new_violations}")
+        print(f"{instance.ak} has the following slots outside availabilities: {new_violations}")
 
         # ... and compare to/update list of existing violations of this type
         # belonging to the AK that was recently changed (important!)
@@ -540,8 +624,13 @@ def availability_changed_handler(sender, instance: Availability, **kwargs):
 
 
 @receiver(post_save, sender=Event)
-def event_changed_handler(sender, instance, **kwargs):
+def event_changed_handler(sender, instance: Event, **kwargs):
     # == Check for reso ak after reso deadline (which might have changed) ==
     if instance.reso_deadline:
         for slot in instance.akslot_set.filter(start__isnull=False, ak__reso=True):
             update_cv_reso_deadline_for_slot(slot)
+    else:
+        # No reso deadline, delete all violations
+        violation_type = ConstraintViolation.ViolationType.AK_AFTER_RESODEADLINE
+        existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+        update_constraint_violations([], existing_violations_to_check)

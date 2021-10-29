@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-09 18:23+0000\n"
+"POT-Creation-Date: 2021-10-28 20:45+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,24 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: AKScheduling/models.py:507
+#, python-format
+msgid ""
+"Not enough space for AK interest (Interest: %(interest)d, Capacity: "
+"%(capacity)d)"
+msgstr ""
+"Nicht genug Platz für AK-Interesse (Interesse: %(interest)d, Kapazität: "
+"%(capacity)d)"
+
+#: AKScheduling/models.py:519
+#, python-format
+msgid ""
+"Space is too close to AK interest (Interest: %(interest)d, Capacity: "
+"%(capacity)d)"
+msgstr ""
+"Verfügbarer Platz zu dicht an Interesse (Interesse: %(interest)d, Kapazität: "
+"%(capacity)d)"
 
 #: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:11
 #: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:11
@@ -62,7 +80,7 @@ msgstr "Seit"
 
 #: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:134
 #: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:243
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:197
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:208
 #: AKScheduling/templates/admin/AKScheduling/unscheduled.html:34
 msgid "Event Status"
 msgstr "Event-Status"
@@ -103,23 +121,23 @@ msgstr "AK-Track hinzufügen"
 msgid "AKs without track"
 msgstr "AKs ohne Track"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:87
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:91
 msgid "Day (Horizontal)"
 msgstr "Tag (horizontal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:94
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:98
 msgid "Day (Vertical)"
 msgstr "Tag (vertikal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:105
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:109
 msgid "Event (Horizontal)"
 msgstr "Event (horizontal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:114
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:118
 msgid "Event (Vertical)"
 msgstr "Event (vertikal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:141
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:146
 msgid "Room"
 msgstr "Raum"
 
