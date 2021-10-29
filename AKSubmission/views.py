@@ -16,6 +16,7 @@ from AKModel.availability.models import Availability
 from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot, AKTrack, AKOrgaMessage
 from AKModel.views import EventSlugMixin
 from AKModel.views import FilterByEventSlugMixin
+from AKSubmission.api import ak_interest_indication_active
 from AKSubmission.forms import AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm, AKDurationForm, AKOrgaMessageForm
 
 
@@ -156,6 +157,9 @@ class AKDetailView(EventSlugMixin, DetailView):
                     context["featured_slot"] = slot
                     context["featured_slot_remaining"] = floor(remaining.days * 24 * 60 + remaining.seconds / 60)
                     break
+
+        # Display interest indication button?
+        context['interest_indication_active'] = ak_interest_indication_active(self.event, current_timestamp)
 
         return context
 

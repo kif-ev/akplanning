@@ -33,6 +33,6 @@ def increment_interest_counter(request, event_slug, pk, **kwargs):
         if ak_interest_indication_active(ak.event, current_timestamp):
             ak.interest_counter += 1
             ak.save()
-            return Response(status=status.HTTP_200_OK)
+            return Response({'interest_counter': ak.interest_counter}, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_403_FORBIDDEN)
     return Response(status=status.HTTP_404_NOT_FOUND)

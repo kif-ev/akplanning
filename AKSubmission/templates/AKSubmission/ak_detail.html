@@ -26,6 +26,69 @@
 {% if 'AKPlan'|check_app_installed %}
     {% block imports %}
         {% include "AKPlan/plan_akslot.html" %}
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // CSRF Protection/Authentication
+                function getCookie(name) {
+                    let cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        const cookies = document.cookie.split(';');
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i].trim();
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+
+                const csrftoken = getCookie('csrftoken');
+
+                function csrfSafeMethod(method) {
+                    // these HTTP methods do not require CSRF protection
+                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+                }
+
+                $.ajaxSetup({
+                    beforeSend: function (xhr, settings) {
+                        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        }
+                    }
+                });
+
+                function indicate_interest(ak_id, btn) {
+                    $.ajax({
+                           url: "{% url "model:AK-list" event_slug=event.slug %}" + ak_id + "/indicate-interest/",
+                            type: 'POST',
+                            data: {
+                            },
+                            success: function (response) {
+                               console.log(response);
+                               btn.html('{% fa5_icon 'check' 'fas' %}');
+                               btn.off('click');
+                               $('#interest-counter').html(response.interest_counter);
+                            },
+                            error: function (response) {
+                               if(response.status === 403)
+                                    alert("{% trans 'Interest indication currently not allowed. Sorry.' %}");
+                               else
+                                   alert("{% trans 'Could not save your interest. Sorry.' %}");
+                            }
+                       });
+                }
+
+                // Update counter
+                $('#btn-indicate-interest').click(function () {
+                    indicate_interest({{ ak.pk }}, $(this));
+                });
+            });
+        </script>
+
     {% endblock %}
 {% endif %}
 
@@ -34,11 +97,11 @@
 
     <div class="text-right">
         {% if ak.interest_counter >= 0 %}
-            {% trans 'Interest' %}: <b class='mx-1 text-muted'>{{ ak.interest_counter }}</b>
-            {% if ak.event.active %}
-                <a href="{% url 'submit:inc_interest' event_slug=ak.event.slug pk=ak.pk %}" data-toggle="tooltip"
+            {% if ak.event.active and interest_indication_active %}
+                {% trans 'Interest' %}: <b class='mx-1 text-muted' id="interest-counter">{{ ak.interest_counter }}</b>
+                <a href="#" data-toggle="tooltip"
                    title="{% trans 'Show Interest' %}"
-                   class="btn btn-primary">{% fa5_icon 'thumbs-up' 'fas' %}</a>
+                   class="btn btn-primary" id="btn-indicate-interest">{% fa5_icon 'thumbs-up' 'fas' %}</a>
             {% endif %}
         {% endif %}
         {% if ak.link != "" %}
