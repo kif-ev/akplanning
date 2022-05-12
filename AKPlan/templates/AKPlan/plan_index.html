@@ -81,7 +81,7 @@
 {% block content %}
     <div class="float-right">
         <ul class="nav nav-pills">
-            {% if event.room_set.count > 0 %}
+            {% if rooms|length > 0 %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
                        aria-haspopup="true"
@@ -94,13 +94,13 @@
                     </div>
                 </li>
             {% endif %}
-            {% if event.aktrack_set.count > 0 %}
+            {% if tracks|length > 0 %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
                        aria-haspopup="true"
                        aria-expanded="false">{% trans "Tracks" %}</a>
                     <div class="dropdown-menu">
-                        {% for t in event.aktrack_set.all %}
+                        {% for t in tracks %}
                             <a class="dropdown-item"
                                href="{% url "plan:plan_track" event_slug=event.slug pk=t.pk %}">{{ t }}</a>
                         {% endfor %}
