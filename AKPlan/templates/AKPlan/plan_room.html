@@ -16,7 +16,7 @@
 
 {% block encode %}
 [
-    {% for slot in room.akslot_set.all %}
+    {% for slot in slots %}
         {% if slot.start %}
             {'title': '{{ slot.ak }}',
             'start': '{{ slot.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
