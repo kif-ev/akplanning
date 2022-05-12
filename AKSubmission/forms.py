@@ -175,8 +175,9 @@ class AKDurationForm(forms.ModelForm):
 class AKOrgaMessageForm(forms.ModelForm):
     class Meta:
         model = AKOrgaMessage
-        fields = ['ak', 'text']
+        fields = ['ak', 'text', 'event']
         widgets = {
             'ak': forms.HiddenInput,
+            'event': forms.HiddenInput,
             'text': forms.Textarea,
         }

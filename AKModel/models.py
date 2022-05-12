@@ -443,6 +443,8 @@ class AKOrgaMessage(models.Model):
     text = models.TextField(verbose_name=_("Message text"),
                             help_text=_("Message to the organizers. This is not publicly visible."))
     timestamp = models.DateTimeField(auto_now_add=True)
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
+                              help_text=_('Associated event'))
 
     class Meta:
         verbose_name = _('AK Orga Message')
