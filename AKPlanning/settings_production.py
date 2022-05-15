@@ -35,4 +35,8 @@ DATABASES = {
     }
 }
 
+### EMAILS ###
+SEND_MAILS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 # TODO: caching
