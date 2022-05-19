@@ -114,7 +114,7 @@ class EventsViewSet(EventSlugMixin, viewsets.ModelViewSet):
 class ConstraintViolationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConstraintViolation
-        fields = ['pk', 'type_display', 'aks', 'ak_slots', 'ak_owner', 'room', 'requirement', 'category', 'comment', 'timestamp_display', 'manually_resolved', 'level_display', 'details']
+        fields = ['pk', 'type_display', 'aks', 'ak_slots', 'ak_owner', 'room', 'requirement', 'category', 'comment', 'timestamp_display', 'manually_resolved', 'level_display', 'details', 'edit_url']
 
 
 class ConstraintViolationsViewSet(EventSlugMixin, viewsets.ModelViewSet):

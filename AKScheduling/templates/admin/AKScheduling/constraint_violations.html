@@ -63,7 +63,7 @@
 
                                // Update violations table
                                for(let i=0;i<response.length;i++) {
-                                   table_html += "<tr><td>" + response[i].level_display + "</td><td>" + response[i].type_display + "</td><td>" + response[i].details + "</td><td>" + response[i].timestamp_display + "</td><td></td></tr>";
+                                   table_html += "<tr><td>" + response[i].level_display + "</td><td>" + response[i].type_display + "</td><td>" + response[i].details + "</td><td class='nowrap'>" + response[i].timestamp_display + "</td><td><a href='" + response[i].edit_url + "'><i class='btn btn-primary fa fa-pen'></i></a></td></tr>";
                                }
                            }
                            else {
