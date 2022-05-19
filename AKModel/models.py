@@ -527,7 +527,7 @@ class ConstraintViolation(models.Model):
         # Stringify all other fields
         for field in self.fields:
             a = getattr(self, field, None)
-            if a is not None:
+            if a is not None and str(a) != '':
                 output.append(f"{field}: {a}")
         return ", ".join(output)
 
