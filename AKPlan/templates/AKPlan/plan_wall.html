@@ -69,8 +69,7 @@
                     $('.fc-scroller').scrollLeft($('.fc-timeline-now-indicator-line').position().left);
                 }
         });
-    </script>
-    <script>
+
         // function from: https://stackoverflow.com/questions/5448545/how-to-retrieve-get-parameters-from-javascript/
         function findGetParameter(parameterName) {
             var result = null,
@@ -84,8 +83,11 @@
                 });
             return result;
         }
-        if(findGetParameter("autoreload")==1) {
-            window.setTimeout ( function() { window.location.reload(true);  }, 300000);
+
+        // Check whether an autoreload frequency was specified and treat it as minutes
+        var autoreload_frequency = findGetParameter("autoreload");
+        if(autoreload_frequency>0) {
+            window.setTimeout ( function() { window.location.reload(true);  }, autoreload_frequency * 60 * 1000);
             console.log("Autoreload active");
         }
     </script>
