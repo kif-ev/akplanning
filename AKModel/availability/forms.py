@@ -7,6 +7,7 @@ import json
 
 from django import forms
 from django.db import transaction
+from django.db.models.signals import post_save
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 
@@ -142,11 +143,16 @@ class AvailabilitiesFormMixin(forms.Form):
         for avail in availabilities:
             setattr(avail, reference_name, instance.id)
 
-    def _replace_availabilities(self, instance, availabilities):
+    def _replace_availabilities(self, instance, availabilities: [Availability]):
         with transaction.atomic():
             # TODO: do not recreate objects unnecessarily, give the client the IDs, so we can track modifications and leave unchanged objects alone
             instance.availabilities.all().delete()
             Availability.objects.bulk_create(availabilities)
+            # Trigger post save signal manually to make sure constraints are updated accordingly
+            # Doing this one time is sufficient, since this will nevertheless update all availability constraint
+            # violations of the corresponding AK
+            if len(availabilities) > 0:
+                post_save.send(Availability, instance=availabilities[0], created=True)
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
