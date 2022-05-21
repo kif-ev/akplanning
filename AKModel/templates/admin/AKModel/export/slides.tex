@@ -45,7 +45,9 @@
 
                 \faUser~ {{ ak.owners_list | latex_escape }}
 
-                \faClock~ {{ak.durations_list}}
+                {% if not result_presentation_mode %}
+                    \faClock~ {{ak.durations_list}}
+                {% endif %}
 
                 {% if ak.reso %}
                     \faScroll
