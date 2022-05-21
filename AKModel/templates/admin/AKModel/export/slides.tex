@@ -86,9 +86,11 @@
 
             \faFilter~ {{ ak.category.name | latex_escape }}
 
+            {% if space_for_notes_in_wishes %}
             \faUser~
 
             \faClock~
+            {% endif %}
 
             {{ ak.description | truncatechars(280) | latex_escape }}
 
