@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save, m2m_changed, pre_delete
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
@@ -549,6 +549,19 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     # Compare to/update list of existing violations of this type for this slot
     existing_violations_to_check = list(instance.constraintviolation_set.filter(type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED))
     update_constraint_violations(new_violations, existing_violations_to_check)
+
+
+@receiver(pre_delete, sender=AKSlot)
+def akslot_deleted_handler(sender, instance: AKSlot, **kwargs):
+    # Manually clean up or remove constraint violations that belong to this slot since there is no cascade deletion
+    # for many2many relationships. Explicitly listening for AK deletion signals is not necessary since they will
+    # transitively trigger this signal and we always set both AK and AKSlot references in a constraint violation
+    print(f"{instance} deleted")
+
+    for cv in instance.constraintviolation_set.all():
+        # Make sure not delete CVs that e.g., show three parallel slots in a single room
+        if cv.ak_slots.count() <= 2:
+            cv.delete()
 
 
 @receiver(post_save, sender=Room)
