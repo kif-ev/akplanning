@@ -1,7 +1,7 @@
 from django import forms
 from django.apps import apps
 from django.contrib import admin
-from django.contrib.admin import SimpleListFilter
+from django.contrib.admin import SimpleListFilter, RelatedFieldListFilter
 from django.db.models import Count, F
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -17,6 +17,15 @@ from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
+
+
+class EventRelatedFieldListFilter(RelatedFieldListFilter):
+    def field_choices(self, field, request, model_admin):
+        ordering = self.field_admin_ordering(field, request, model_admin)
+        limit_choices = {}
+        if "event__id__exact" in request.GET:
+            limit_choices['event__id__exact'] = request.GET["event__id__exact"]
+        return field.get_choices(include_blank=False, limit_choices_to=limit_choices, ordering=ordering)
 
 
 @admin.register(Event)
@@ -57,7 +66,7 @@ class EventAdmin(admin.ModelAdmin):
 class AKOwnerAdmin(admin.ModelAdmin):
     model = AKOwner
     list_display = ['name', 'institution', 'event']
-    list_filter = ['institution', 'event']
+    list_filter = ['event', 'institution']
     list_editable = []
     ordering = ['name']
 
@@ -160,7 +169,7 @@ class AKAdminForm(forms.ModelForm):
 class AKAdmin(SimpleHistoryAdmin):
     model = AK
     list_display = ['name', 'short_name', 'category', 'track', 'is_wish', 'interest', 'interest_counter', 'event']
-    list_filter = ['category', WishFilter, 'event']
+    list_filter = ['event', WishFilter, ('category', EventRelatedFieldListFilter), ('requirements', EventRelatedFieldListFilter)]
     list_editable = ['short_name', 'track', 'interest', 'interest_counter']
     ordering = ['pk']
     actions = ['wiki_export']
@@ -210,7 +219,7 @@ class RoomForm(AvailabilitiesFormMixin, forms.ModelForm):
 class RoomAdmin(admin.ModelAdmin):
     model = Room
     list_display = ['name', 'location', 'capacity', 'event']
-    list_filter = ['location', 'properties', 'event']
+    list_filter = ['event', ('properties', EventRelatedFieldListFilter), 'location']
     list_editable = []
     ordering = ['location', 'name']
     change_form_template = "admin/AKModel/room_change_form.html"
@@ -241,7 +250,7 @@ class AKSlotAdminForm(forms.ModelForm):
 class AKSlotAdmin(admin.ModelAdmin):
     model = AKSlot
     list_display = ['id', 'ak', 'room', 'start', 'duration', 'event']
-    list_filter = ['room', 'event']
+    list_filter = ['event', ('room', EventRelatedFieldListFilter)]
     ordering = ['start']
     readonly_fields = ['ak_details_link', 'updated']
     form = AKSlotAdminForm
