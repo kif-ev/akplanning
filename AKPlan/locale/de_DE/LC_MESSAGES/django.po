@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-29 13:36+0000\n"
+"POT-Creation-Date: 2022-05-22 08:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -63,12 +63,12 @@ msgid "AK Wall"
 msgstr "AK-Wall"
 
 #: AKPlan/templates/AKPlan/plan_index.html:126
-#: AKPlan/templates/AKPlan/plan_wall.html:81
+#: AKPlan/templates/AKPlan/plan_wall.html:116
 msgid "Current AKs"
 msgstr "Aktuelle AKs"
 
 #: AKPlan/templates/AKPlan/plan_index.html:133
-#: AKPlan/templates/AKPlan/plan_wall.html:86
+#: AKPlan/templates/AKPlan/plan_wall.html:121
 msgid "Next AKs"
 msgstr "Nächste AKs"
 
@@ -98,6 +98,10 @@ msgstr "Eigenschaften"
 #: AKPlan/templates/AKPlan/plan_track.html:46
 msgid "Track"
 msgstr "Track"
+
+#: AKPlan/templates/AKPlan/plan_wall.html:131
+msgid "Reload page automatically?"
+msgstr "Seite automatisch neu laden?"
 
 #: AKPlan/templates/AKPlan/slots_table.html:14
 msgid "No AKs"
