@@ -18,7 +18,7 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
 
     def get_queryset(self):
         # Ignore slots not scheduled yet
-        return super().get_queryset().filter(start__isnull=False)
+        return super().get_queryset().filter(start__isnull=False).select_related('ak', 'room', 'ak__category')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
@@ -53,6 +53,8 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
         context["rooms"] = sorted(rooms, key=lambda x: x.title)
         if settings.PLAN_SHOW_HIERARCHY:
             context["buildings"] = sorted(buildings)
+
+        context["tracks"] = self.event.aktrack_set.all()
 
         return context
 
@@ -94,6 +96,11 @@ class PlanRoomView(FilterByEventSlugMixin, DetailView):
     model = Room
     context_object_name = "room"
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context["slots"] = AKSlot.objects.filter(room=context['room']).select_related('ak', 'ak__category', 'ak__track')
+        return context
+
 
 class PlanTrackView(FilterByEventSlugMixin, DetailView):
     template_name = "AKPlan/plan_track.html"
@@ -102,9 +109,5 @@ class PlanTrackView(FilterByEventSlugMixin, DetailView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
-
-        context["slots"] = []
-        for ak in context["track"].ak_set.all():
-            context["slots"].extend(ak.akslot_set.all())
-
+        context["slots"] = AKSlot.objects.filter(event=self.event, ak__track=context['track']).select_related('ak', 'room', 'ak__category')
         return context

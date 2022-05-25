@@ -25,7 +25,8 @@ class EventSlugMixin:
 
     def _load_event(self):
         # Find event based on event slug
-        self.event = get_object_or_404(Event, slug=self.kwargs.get("event_slug", None))
+        if self.event is None:
+            self.event = get_object_or_404(Event, slug=self.kwargs.get("event_slug", None))
 
     def get(self, request, *args, **kwargs):
         self._load_event()
