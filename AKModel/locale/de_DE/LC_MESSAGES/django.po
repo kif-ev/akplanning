@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-29 13:36+0000\n"
+"POT-Creation-Date: 2022-05-21 16:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -459,7 +459,7 @@ msgstr "AK präsentieren"
 msgid "Present results of this AK"
 msgstr "Die Ergebnisse dieses AKs vorstellen"
 
-#: AKModel/models.py:261 AKModel/templates/admin/AKModel/status.html:91
+#: AKModel/models.py:261 AKModel/templates/admin/AKModel/status.html:93
 msgid "Requirements"
 msgstr "Anforderungen"
 
@@ -872,7 +872,7 @@ msgid "No AKs with this requirement"
 msgstr "Kein AK mit dieser Anforderung"
 
 #: AKModel/templates/admin/AKModel/requirements_overview.html:45
-#: AKModel/templates/admin/AKModel/status.html:107
+#: AKModel/templates/admin/AKModel/status.html:109
 msgid "Add Requirement"
 msgstr "Anforderung hinzufügen"
 
@@ -929,19 +929,23 @@ msgstr "AKs im Wiki-Format exportieren"
 msgid "Export AK Slides"
 msgstr "AK-Folien exportieren"
 
-#: AKModel/templates/admin/AKModel/status.html:93
+#: AKModel/templates/admin/AKModel/status.html:90
+msgid "Export AK Slides (Presentation AKs only)"
+msgstr "AK-Folien exportieren (Nur zu präsentierende AKs)"
+
+#: AKModel/templates/admin/AKModel/status.html:95
 msgid "No requirements yet"
 msgstr "Bisher keine Anforderungen"
 
-#: AKModel/templates/admin/AKModel/status.html:106
+#: AKModel/templates/admin/AKModel/status.html:108
 msgid "Show AKs for requirements"
 msgstr "Zu Anforderungen gehörige AKs anzeigen"
 
-#: AKModel/templates/admin/AKModel/status.html:110
+#: AKModel/templates/admin/AKModel/status.html:112
 msgid "Messages"
 msgstr "Nachrichten"
 
-#: AKModel/templates/admin/AKModel/status.html:112
+#: AKModel/templates/admin/AKModel/status.html:114
 msgid "Delete all messages"
 msgstr "Alle Nachrichten löschen"
 

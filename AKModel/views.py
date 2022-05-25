@@ -312,6 +312,7 @@ def export_slides(request, event_slug):
 
     NEXT_AK_LIST_LENGTH = int(request.GET["num_next"]) if "num_next" in request.GET else 3
     RESULT_PRESENTATION_MODE = True if "presentation_mode" in request.GET else False
+    SPACE_FOR_NOTES_IN_WISHES = request.GET["wish_notes"] == "True" if "wish_notes" in request.GET else False
 
     translations = {
         'symbols': _("Symbols"),
@@ -337,6 +338,7 @@ def export_slides(request, event_slug):
         "wishes": build_ak_list_with_next_aks(ak_wishes),
         "translations": translations,
         "result_presentation_mode": RESULT_PRESENTATION_MODE,
+        "space_for_notes_in_wishes": SPACE_FOR_NOTES_IN_WISHES,
     }
 
     return render_to_pdf(request, template_name, context, filename='slides.pdf')
