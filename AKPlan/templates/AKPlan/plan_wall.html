@@ -65,12 +65,48 @@
             plan.render();
 
             // Scroll to current time
-                if($(".fc-timeline-now-indicator-line").length) {
-                    $('.fc-scroller').scrollLeft($('.fc-timeline-now-indicator-line').position().left);
+            if($(".fc-timeline-now-indicator-line").length) {
+                $('.fc-scroller').scrollLeft($('.fc-timeline-now-indicator-line').position().left);
+            }
+
+            // == Auto Reload ==
+
+            // function from: https://stackoverflow.com/questions/5448545/how-to-retrieve-get-parameters-from-javascript/
+            function findGetParameter(parameterName) {
+                var result = null,
+                    tmp = [];
+                location.search
+                    .substr(1)
+                    .split("&")
+                    .forEach(function (item) {
+                    tmp = item.split("=");
+                    if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+                    });
+                return result;
+            }
+
+            // Check whether an autoreload frequency was specified and treat it as full minutes
+            const autoreload_frequency = Math.ceil(findGetParameter("autoreload"));
+            const cbxAutoReload = $('#cbxAutoReload');
+
+            if(autoreload_frequency>0) {
+                window.setTimeout ( function() { window.location.reload();  }, autoreload_frequency * 60 * 1000);
+                console.log("Autoreload active");
+                cbxAutoReload.prop('checked', true);
+            }
+            else {
+                cbxAutoReload.prop('checked', false);
+            }
+
+            cbxAutoReload.change(function () {
+                let url = window.location.href.split('?')[0];
+                if(cbxAutoReload.prop('checked')) {
+                    url = url + "?autoreload=5";
                 }
+                window.location.replace(url);
+            });
         });
     </script>
-
 </head>
 <body>
 {% timezone event.timezone %}
@@ -91,6 +127,9 @@
         <div class="col-md-9" style="height:98vh;">
             <div id="planCalendar"></div>
         </div>
+    </div>
+    <div style="position: absolute;bottom: 1vh;left:1vw;background-color: #FFFFFF;padding: 1vh;">
+        <input type="checkbox" name="autoreload" id="cbxAutoReload"> <label for="cbxAutoReload">{% trans "Reload page automatically?" %}</label>
     </div>
 {% endtimezone %}
 
