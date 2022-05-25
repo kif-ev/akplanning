@@ -218,4 +218,8 @@ CSP_IMG_SRC = ("'self'", "data:")
 CSP_FRAME_SRC = ("'self'", )
 CSP_FONT_SRC = ("'self'", "data:", "fonts.gstatic.com")
 
+# Emails
+SEND_MAILS = True
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 include(optional("settings/*.py"))
