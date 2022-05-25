@@ -2,6 +2,7 @@ import itertools
 from datetime import timedelta
 
 from django.db import models
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.datetime_safe import datetime
 from django.utils.text import slugify
@@ -529,7 +530,7 @@ class ConstraintViolation(models.Model):
         # Stringify all other fields
         for field in self.fields:
             a = getattr(self, field, None)
-            if a is not None:
+            if a is not None and str(a) != '':
                 output.append(f"{field}: {a}")
         return ", ".join(output)
 
@@ -538,6 +539,10 @@ class ConstraintViolation(models.Model):
     @property
     def details(self):
         return self.get_details()
+
+    @property
+    def edit_url(self):
+        return reverse_lazy('admin:AKModel_constraintviolation_change', kwargs={'object_id': self.pk})
 
     @property
     def level_display(self):
