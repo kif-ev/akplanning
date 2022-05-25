@@ -437,6 +437,7 @@ class AKAddOrgaMessageView(EventSlugMixin, CreateView):
     def get_initial(self):
         initials = super(AKAddOrgaMessageView, self).get_initial()
         initials['ak'] = get_object_or_404(AK, pk=self.kwargs['pk'])
+        initials['event'] = initials['ak'].event
         return initials
 
     def get_context_data(self, *, object_list=None, **kwargs):
