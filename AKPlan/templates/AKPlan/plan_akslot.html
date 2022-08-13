@@ -6,6 +6,7 @@
 {% include "AKPlan/load_fullcalendar.html" %}
 
 <script>
+    {% get_current_language as LANGUAGE_CODE %}
 
     document.addEventListener('DOMContentLoaded', function () {
         var calendarEl = document.getElementById('akSlotCalendar');
