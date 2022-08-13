@@ -35,6 +35,7 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = ['active']
     list_editable = ['active']
     ordering = ['-start']
+    readonly_fields = ['status_url']
 
     def add_view(self, request, form_url='', extra_context=None):
         # Always use wizard to create new events (the built-in form wouldn't work anyways since the timezone cannot
