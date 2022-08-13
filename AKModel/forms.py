@@ -9,7 +9,10 @@ from AKModel.models import Event, AKCategory, AKRequirement
 class NewEventWizardStartForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = ['name', 'slug', 'timezone']
+        fields = ['name', 'slug', 'timezone', 'plan_hidden']
+        widgets = {
+            'plan_hidden': forms.HiddenInput(),
+        }
 
     is_init = forms.BooleanField(initial=True, widget=forms.HiddenInput)
 
@@ -23,7 +26,6 @@ class NewEventWizardSettingsForm(forms.ModelForm):
             'slug': forms.HiddenInput(),
             'timezone': forms.HiddenInput(),
             'active': forms.HiddenInput(),
-            'plan_hidden': forms.HiddenInput(),
             'start': DateTimePickerInput(options={"format": "YYYY-MM-DD HH:mm"}),
             'end': DateTimePickerInput(options={"format": "YYYY-MM-DD HH:mm"}),
             'reso_deadline': DateTimePickerInput(options={"format": "YYYY-MM-DD HH:mm"}),
