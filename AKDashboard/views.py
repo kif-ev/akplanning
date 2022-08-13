@@ -54,7 +54,7 @@ class DashboardEventView(DetailView):
             # Changes in plan
             if apps.is_installed("AKPlan"):
                 if not context['event'].plan_hidden:
-                    last_changed_slots = AKSlot.objects.filter(event=context['event']).order_by('-updated')[
+                    last_changed_slots = AKSlot.objects.filter(event=context['event'], start__isnull=False).order_by('-updated')[
                                          :int(settings.DASHBOARD_RECENT_MAX)]
                     for changed_slot in last_changed_slots:
                         recent_changes.append({'icon': ('clock', 'far'),

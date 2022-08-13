@@ -215,7 +215,8 @@ class AKAndAKWishSubmissionView(EventSlugMixin, EventInactiveRedirectMixin, Crea
             return redirect(reverse_lazy('submit:submission_overview',
                                          kwargs={'event_slug': form.cleaned_data["event"].slug}))
 
-        super_form_valid = super().form_valid(form)
+        # Generate object but don't store it in the database yet
+        self.object = form.save(commit=False)
 
         # Generate wiki link
         if form.cleaned_data["event"].base_url:
@@ -225,7 +226,9 @@ class AKAndAKWishSubmissionView(EventSlugMixin, EventInactiveRedirectMixin, Crea
             if len(link) > 200:
                 messages.add_message(self.request, messages.WARNING,
                     _("Due to technical reasons, the link you entered was truncated to a length of 200 characters"))
-        self.object.save()
+
+        # Try to save AK and get redirect URL
+        super_form_valid = super().form_valid(form)
 
         # Set tags (and generate them if necessary)
         for tag_name in form.cleaned_data["tag_names"]:
