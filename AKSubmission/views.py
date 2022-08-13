@@ -219,12 +219,17 @@ class AKAndAKWishSubmissionView(EventSlugMixin, EventInactiveRedirectMixin, Crea
 
         # Generate wiki link
         if form.cleaned_data["event"].base_url:
-            self.object.link = form.cleaned_data["event"].base_url + form.cleaned_data["name"].replace(" ", "_")
+            link = form.cleaned_data["event"].base_url + form.cleaned_data["name"].replace(" ", "_")
+            # Truncate links longer than 200 characters (default length of URL fields in django)
+            self.object.link = link[:200]
+            if len(link) > 200:
+                messages.add_message(self.request, messages.WARNING,
+                    _("Due to technical reasons, the link you entered was truncated to a length of 200 characters"))
         self.object.save()
 
         # Set tags (and generate them if necessary)
         for tag_name in form.cleaned_data["tag_names"]:
-            tag, _ = AKTag.objects.get_or_create(name=tag_name)
+            tag, was_created = AKTag.objects.get_or_create(name=tag_name)
             self.object.tags.add(tag)
 
         # Generate slot(s)
@@ -280,7 +285,7 @@ class AKEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
 
         # Set tags (and generate them if necessary)
         for tag_name in form.cleaned_data["tag_names"]:
-            tag, _ = AKTag.objects.get_or_create(name=tag_name)
+            tag, was_created = AKTag.objects.get_or_create(name=tag_name)
             self.object.tags.add(tag)
 
         return super_form_valid
