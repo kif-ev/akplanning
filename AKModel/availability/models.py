@@ -235,6 +235,15 @@ class Availability(models.Model):
     def simplified(self):
         return f'{self.start.astimezone(self.event.timezone).strftime("%a %H:%M")}-{self.end.astimezone(self.event.timezone).strftime("%a %H:%M")}'
 
+    @classmethod
+    def with_event_length(cls, event, person=None, room=None, ak=None, ak_category=None):
+        timeframe_start = event.start  # adapt to our event model
+        # add 1 day, not 24 hours, https://stackoverflow.com/a/25427822/2486196
+        timeframe_end = event.end  # adapt to our event model
+        timeframe_end = timeframe_end + datetime.timedelta(days=1)
+        return Availability(start=timeframe_start, end=timeframe_end, event=event, person=person,
+                                    room=room, ak=ak, ak_category=ak_category)
+
     class Meta:
         verbose_name = _('Availability')
         verbose_name_plural = _('Availabilities')

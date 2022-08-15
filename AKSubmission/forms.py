@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
+from AKModel.availability.models import Availability
 from AKModel.models import AK, AKOwner, AKCategory, AKRequirement, AKSlot, AKOrgaMessage, Event
 
 
@@ -132,6 +133,13 @@ class AKSubmissionForm(AKForm):
             initial=
             self.initial.get('event').default_slot
         )
+
+    def clean_availabilities(self):
+        availabilities = super().clean_availabilities()
+        # If the user did not specify availabilities assume the full event duration is possible
+        if len(availabilities) == 0:
+            availabilities.append(Availability.with_event_length(event=self.cleaned_data["event"]))
+        return availabilities
 
 
 class AKEditForm(AKForm):
