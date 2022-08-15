@@ -91,6 +91,7 @@
         <div id="footer" style="padding-top:10px;padding-bottom:10px;border-top:1px solid grey;">
             {% block footer_custom %}
             {% endblock %}
+            <a href="{% url "admin:index" %}">{% trans "Go to backend" %}</a> &middot;
             {% footer_info as FI %}
             {% if FI.impress_text %}
                 {{ FI.impress_text }} &middot;
