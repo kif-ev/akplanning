@@ -2,7 +2,6 @@ import itertools
 import re
 
 from django import forms
-from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
@@ -106,9 +105,6 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
             link = self.cleaned_data["event"].base_url + self.cleaned_data["name"].replace(" ", "_")
             # Truncate links longer than 200 characters (default length of URL fields in django)
             self.cleaned_data["link"] = link[:200]
-            if len(link) > 200:
-                messages.add_message(self.request, messages.WARNING,
-                    _("Due to technical reasons, the link you entered was truncated to a length of 200 characters"))
 
         # Get tag names from raw tags
         cleaned_data["tag_names"] = [name.strip().lower() for name
