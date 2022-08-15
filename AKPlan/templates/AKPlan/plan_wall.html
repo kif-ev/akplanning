@@ -22,6 +22,8 @@
 
     {% include "AKPlan/load_fullcalendar.html" %}
 
+    {% get_current_language as LANGUAGE_CODE %}
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var planEl = document.getElementById('planCalendar');

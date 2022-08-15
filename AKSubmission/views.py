@@ -215,16 +215,12 @@ class AKAndAKWishSubmissionView(EventSlugMixin, EventInactiveRedirectMixin, Crea
             return redirect(reverse_lazy('submit:submission_overview',
                                          kwargs={'event_slug': form.cleaned_data["event"].slug}))
 
+        # Try to save AK and get redirect URL
         super_form_valid = super().form_valid(form)
-
-        # Generate wiki link
-        if form.cleaned_data["event"].base_url:
-            self.object.link = form.cleaned_data["event"].base_url + form.cleaned_data["name"].replace(" ", "_")
-        self.object.save()
 
         # Set tags (and generate them if necessary)
         for tag_name in form.cleaned_data["tag_names"]:
-            tag, _ = AKTag.objects.get_or_create(name=tag_name)
+            tag, was_created = AKTag.objects.get_or_create(name=tag_name)
             self.object.tags.add(tag)
 
         # Generate slot(s)
@@ -280,7 +276,7 @@ class AKEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
 
         # Set tags (and generate them if necessary)
         for tag_name in form.cleaned_data["tag_names"]:
-            tag, _ = AKTag.objects.get_or_create(name=tag_name)
+            tag, was_created = AKTag.objects.get_or_create(name=tag_name)
             self.object.tags.add(tag)
 
         return super_form_valid

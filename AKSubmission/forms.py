@@ -100,6 +100,12 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
                 short_name = '{}-{}'.format(short_name[:-(digits + 1)], i)
             cleaned_data["short_name"] = short_name
 
+        # Generate wiki link
+        if self.cleaned_data["event"].base_url:
+            link = self.cleaned_data["event"].base_url + self.cleaned_data["name"].replace(" ", "_")
+            # Truncate links longer than 200 characters (default length of URL fields in django)
+            self.cleaned_data["link"] = link[:200]
+
         # Get tag names from raw tags
         cleaned_data["tag_names"] = [name.strip().lower() for name
                                      in self.split_string.split(cleaned_data["tags_raw"])
