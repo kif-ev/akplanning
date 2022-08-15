@@ -176,15 +176,6 @@ class AKDurationForm(forms.ModelForm):
             'event': forms.HiddenInput
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.initial = {**self.initial, **kwargs['initial']}
-        if self.initial.get('duration') == 0:
-            event_id = self.initial.get('event')
-            if event_id is not None:
-                event = Event.objects.get(pk=event_id)
-                self.initial['duration'] = event.default_slot
-
 
 class AKOrgaMessageForm(forms.ModelForm):
     class Meta:
