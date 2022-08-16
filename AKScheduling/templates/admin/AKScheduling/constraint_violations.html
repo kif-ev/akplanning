@@ -63,7 +63,11 @@
 
                                // Update violations table
                                for(let i=0;i<response.length;i++) {
-                                   table_html += "<tr><td>" + response[i].level_display + "</td><td>" + response[i].type_display + "</td><td>" + response[i].details + "</td><td class='nowrap'>" + response[i].timestamp_display + "</td><td><a href='" + response[i].edit_url + "'><i class='btn btn-primary fa fa-pen'></i></a></td></tr>";
+                                   if(response[i].manually_resolved)
+                                       table_html += '<tr class="text-muted"><td class="nowrap">{% fa5_icon "check" "fas" %}</td>';
+                                   else
+                                       table_html += '<tr><td></td>';
+                                   table_html += "<td>" + response[i].level_display + "</td><td>" + response[i].type_display + "</td><td>" + response[i].details + "</td><td class='nowrap'>" + response[i].timestamp_display + "</td><td><a href='" + response[i].edit_url + "'><i class='btn btn-primary fa fa-pen'></i></a></td></tr>";
                                }
                            }
                            else {
@@ -115,6 +119,7 @@
     <table class="table table-striped mt-4 mb-4">
         <thead>
             <tr>
+                <th></th>
                 <th>{% trans "Violation" %}</th>
                 <th>{% trans "Problem" %}</th>
                 <th>{% trans "Details" %}</th>

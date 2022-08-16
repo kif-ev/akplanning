@@ -125,4 +125,4 @@ class ConstraintViolationsViewSet(EventSlugMixin, viewsets.ModelViewSet):
         return get_object_or_404(ConstraintViolation, pk=self.kwargs["pk"])
 
     def get_queryset(self):
-        return ConstraintViolation.objects.filter(event=self.event)
+        return ConstraintViolation.objects.filter(event=self.event).order_by('manually_resolved', '-type', '-timestamp')
