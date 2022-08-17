@@ -1,0 +1,45 @@
+{% extends "admin/base_site.html" %}
+{% load bootstrap4 %}
+
+{% load i18n %}
+{% load l10n %}
+{% load tz %}
+{% load static %}
+{% load fontawesome_5 %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <div class="text-center text-md-center">
+        <h5>
+            {% if previous_ak %}
+                <a href="{% url "admin:enter-interest" event.slug previous_ak.pk %}" class="pull-left">&lt;-{{ previous_ak.name }}</a> |
+            {% endif %}
+            {% if next_ak %}
+                <a href="{% url "admin:enter-interest" event.slug next_ak.pk %}">{{ next_ak.name }} -&gt;</a>
+            {% endif %}
+        </h5>
+    </div>
+
+
+    <h4>{{ ak.name }}</h4>
+    <h5>{{ ak.short_name }}</h5>
+
+    <div class="mb-3">
+        <form method="POST" class="post-form">{% csrf_token %}
+            {% bootstrap_form form %}
+            {% buttons %}
+                <button type="submit" class="save btn btn-primary float-right">
+                    {% fa5_icon "check" 'fas' %} {% trans "Submit" %}
+                </button>
+            {% endbuttons %}
+        </form>
+    </div>
+
+    {% for category, aks in categories_with_aks %}
+        <h5 class="mt-4">{{ category.name }}</h5>
+        {% for link_ak in aks %}
+            <a href="{% url "admin:enter-interest" event.slug link_ak.pk %}">{{ link_ak.name }}</a> &middot;
+        {% endfor %}
+    {% endfor %}
+{% endblock %}
