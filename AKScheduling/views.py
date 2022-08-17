@@ -78,14 +78,17 @@ class SpecialAttentionAKsAdminView(AdminViewMixin, DetailView):
         aks_without_slots = []
 
         for ak in aks:
-            if ak.wish and ak.akslot_set.count() > 0:
-                ak_wishes_with_slots.append(ak)
-            if not ak.wish and ak.akslot_set.count() == 0:
-                aks_without_slots.append(ak)
             if ak.notes != "":
                 aks_with_comment.append(ak)
-            if ak.availabilities.count() == 0:
-                aks_without_availabilities.append(ak)
+
+            if ak.wish:
+                if ak.akslot_set.count() > 0:
+                    ak_wishes_with_slots.append(ak)
+            else:
+                if ak.akslot_set.count() == 0:
+                    aks_without_slots.append(ak)
+                if ak.availabilities.count() == 0:
+                    aks_without_availabilities.append(ak)
 
         context["aks_with_comment"] = aks_with_comment
         context["ak_wishes_with_slots"] = ak_wishes_with_slots
