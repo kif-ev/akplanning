@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-17 17:35+0200\n"
+"POT-Creation-Date: 2022-08-17 22:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -459,7 +459,7 @@ msgstr "AK präsentieren"
 msgid "Present results of this AK"
 msgstr "Die Ergebnisse dieses AKs vorstellen"
 
-#: .\AKModel\models.py:262 .\AKModel\templates\admin\AKModel\status.html:95
+#: .\AKModel\models.py:262 .\AKModel\templates\admin\AKModel\status.html:97
 msgid "Requirements"
 msgstr "Anforderungen"
 
@@ -878,7 +878,7 @@ msgid "No AKs with this requirement"
 msgstr "Kein AK mit dieser Anforderung"
 
 #: .\AKModel\templates\admin\AKModel\requirements_overview.html:45
-#: .\AKModel\templates\admin\AKModel\status.html:111
+#: .\AKModel\templates\admin\AKModel\status.html:113
 msgid "Add Requirement"
 msgstr "Anforderung hinzufügen"
 
@@ -923,39 +923,43 @@ msgstr "Scheduling"
 msgid "AKs requiring special attention"
 msgstr ""
 
-#: .\AKModel\templates\admin\AKModel\status.html:84
+#: .\AKModel\templates\admin\AKModel\status.html:83
+msgid "Enter Interest"
+msgstr "Interesse erfassen"
+
+#: .\AKModel\templates\admin\AKModel\status.html:86
 msgid "Manage ak tracks"
 msgstr "AK-Tracks verwalten"
 
-#: .\AKModel\templates\admin\AKModel\status.html:86
+#: .\AKModel\templates\admin\AKModel\status.html:88
 msgid "Export AKs as CSV"
 msgstr "AKs als CSV exportieren"
 
-#: .\AKModel\templates\admin\AKModel\status.html:88
+#: .\AKModel\templates\admin\AKModel\status.html:90
 msgid "Export AKs for Wiki"
 msgstr "AKs im Wiki-Format exportieren"
 
-#: .\AKModel\templates\admin\AKModel\status.html:90
+#: .\AKModel\templates\admin\AKModel\status.html:92
 msgid "Export AK Slides"
 msgstr "AK-Folien exportieren"
 
-#: .\AKModel\templates\admin\AKModel\status.html:92
+#: .\AKModel\templates\admin\AKModel\status.html:94
 msgid "Export AK Slides (Presentation AKs only)"
 msgstr "AK-Folien exportieren (Nur zu präsentierende AKs)"
 
-#: .\AKModel\templates\admin\AKModel\status.html:97
+#: .\AKModel\templates\admin\AKModel\status.html:99
 msgid "No requirements yet"
 msgstr "Bisher keine Anforderungen"
 
-#: .\AKModel\templates\admin\AKModel\status.html:110
+#: .\AKModel\templates\admin\AKModel\status.html:112
 msgid "Show AKs for requirements"
 msgstr "Zu Anforderungen gehörige AKs anzeigen"
 
-#: .\AKModel\templates\admin\AKModel\status.html:114
+#: .\AKModel\templates\admin\AKModel\status.html:116
 msgid "Messages"
 msgstr "Nachrichten"
 
-#: .\AKModel\templates\admin\AKModel\status.html:116
+#: .\AKModel\templates\admin\AKModel\status.html:118
 msgid "Delete all messages"
 msgstr "Alle Nachrichten löschen"
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-29 13:36+0000\n"
+"POT-Creation-Date: 2022-08-17 22:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKScheduling/models.py:80
+#: .\AKScheduling\models.py:80
 #, python-format
 msgid ""
 "Not enough space for AK interest (Interest: %(interest)d, Capacity: "
@@ -26,7 +26,7 @@ msgstr ""
 "Nicht genug Platz für AK-Interesse (Interesse: %(interest)d, Kapazität: "
 "%(capacity)d)"
 
-#: AKScheduling/models.py:92
+#: .\AKScheduling\models.py:92
 #, python-format
 msgid ""
 "Space is too close to AK interest (Interest: %(interest)d, Capacity: "
@@ -35,116 +35,148 @@ msgstr ""
 "Verfügbarer Platz zu dicht an Interesse (Interesse: %(interest)d, Kapazität: "
 "%(capacity)d)"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:11
-#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:11
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:10
-msgid "Scheduling for"
-msgstr "Scheduling für"
+#: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:11
+msgid "Constraint Violations for"
+msgstr ""
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:74
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:128
+#: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:78
+#: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:133
 msgid "No violations"
 msgstr "Keine Verletzungen"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:81
+#: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:85
 msgid "Cannot load current violations from server"
 msgstr "Kann die aktuellen Verletzungen nicht vom Server laden"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:106
+#: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:110
 msgid "Violation(s)"
 msgstr "Verletzung(en)"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:109
+#: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:113
 msgid "Auto reload?"
 msgstr "Automatisch neu laden?"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:113
+#: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:117
 msgid "Reload now"
 msgstr "Jetzt neu laden"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:118
+#: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:123
 msgid "Violation"
 msgstr "Verletzung"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:119
+#: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:124
 msgid "Problem"
 msgstr "Problem"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:120
+#: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:125
 msgid "Details"
 msgstr "Details"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:121
+#: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:126
 msgid "Since"
 msgstr "Seit"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:134
-#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:243
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:208
-#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:34
+#: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:139
+#: .\AKScheduling\templates\admin\AKScheduling\manage_tracks.html:243
+#: .\AKScheduling\templates\admin\AKScheduling\scheduling.html:208
+#: .\AKScheduling\templates\admin\AKScheduling\special_attention.html:43
+#: .\AKScheduling\templates\admin\AKScheduling\unscheduled.html:34
 msgid "Event Status"
 msgstr "Event-Status"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:136
+#: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:141
 msgid "Scheduling"
 msgstr "Scheduling"
 
-#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:129
+#: .\AKScheduling\templates\admin\AKScheduling\interest.html:33
+msgid "Submit"
+msgstr "Abschicken"
+
+#: .\AKScheduling\templates\admin\AKScheduling\manage_tracks.html:11
+#: .\AKScheduling\templates\admin\AKScheduling\scheduling.html:10
+msgid "Scheduling for"
+msgstr "Scheduling für"
+
+#: .\AKScheduling\templates\admin\AKScheduling\manage_tracks.html:129
 msgid "Name of new ak track"
 msgstr "Name des neuen AK-Tracks"
 
-#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:145
+#: .\AKScheduling\templates\admin\AKScheduling\manage_tracks.html:145
 msgid "Could not create ak track"
 msgstr "Konnte neuen AK-Track nicht anlegen"
 
-#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:171
+#: .\AKScheduling\templates\admin\AKScheduling\manage_tracks.html:171
 msgid "Could not update ak track name"
 msgstr "Konnte Namen des AK-Tracks nicht ändern"
 
-#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:177
+#: .\AKScheduling\templates\admin\AKScheduling\manage_tracks.html:177
 msgid "Do you really want to delete this ak track?"
 msgstr "Soll dieser AK-Track wirklich gelöscht werden?"
 
-#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:191
+#: .\AKScheduling\templates\admin\AKScheduling\manage_tracks.html:191
 msgid "Could not delete ak track"
 msgstr "AK-Track konnte nicht gelöscht werden"
 
-#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:203
+#: .\AKScheduling\templates\admin\AKScheduling\manage_tracks.html:203
 msgid "Manage AK Tracks"
 msgstr "AK-Tracks verwalten"
 
-#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:204
+#: .\AKScheduling\templates\admin\AKScheduling\manage_tracks.html:204
 msgid "Add ak track"
 msgstr "AK-Track hinzufügen"
 
-#: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:209
+#: .\AKScheduling\templates\admin\AKScheduling\manage_tracks.html:209
 msgid "AKs without track"
 msgstr "AKs ohne Track"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:91
+#: .\AKScheduling\templates\admin\AKScheduling\scheduling.html:91
 msgid "Day (Horizontal)"
 msgstr "Tag (horizontal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:98
+#: .\AKScheduling\templates\admin\AKScheduling\scheduling.html:98
 msgid "Day (Vertical)"
 msgstr "Tag (vertikal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:109
+#: .\AKScheduling\templates\admin\AKScheduling\scheduling.html:109
 msgid "Event (Horizontal)"
 msgstr "Event (horizontal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:118
+#: .\AKScheduling\templates\admin\AKScheduling\scheduling.html:118
 msgid "Event (Vertical)"
 msgstr "Event (vertikal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:146
+#: .\AKScheduling\templates\admin\AKScheduling\scheduling.html:146
 msgid "Room"
 msgstr "Raum"
 
-#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:7
+#: .\AKScheduling\templates\admin\AKScheduling\special_attention.html:14
+msgid "AKs with public notes"
+msgstr "AKs mit öffentlichen Kommentaren"
+
+#: .\AKScheduling\templates\admin\AKScheduling\special_attention.html:21
+msgid "AKs without availabilities"
+msgstr "AKs ohne Verfügbarkeiten"
+
+#: .\AKScheduling\templates\admin\AKScheduling\special_attention.html:28
+msgid "AK wishes with slots"
+msgstr "AK-Wünsche mit Slots"
+
+#: .\AKScheduling\templates\admin\AKScheduling\special_attention.html:35
+msgid "AKs without slots"
+msgstr "AKs ohne Slots"
+
+#: .\AKScheduling\templates\admin\AKScheduling\unscheduled.html:7
 msgid "Unscheduled AK Slots"
 msgstr "Noch nicht geschedulte AK-Slots"
 
-#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:11
+#: .\AKScheduling\templates\admin\AKScheduling\unscheduled.html:11
 msgid "Count"
 msgstr "Anzahl"
+
+#: .\AKScheduling\views.py:103
+msgid "Interest updated"
+msgstr "Interesse aktualisiert"
+
+#: .\AKScheduling\views.py:141
+msgid "Wishes"
+msgstr "Wünsche"

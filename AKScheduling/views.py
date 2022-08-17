@@ -1,8 +1,10 @@
+from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, UpdateView
 
-from AKModel.models import AKSlot, AKTrack, Event, AK
-from AKModel.views import AdminViewMixin, FilterByEventSlugMixin
+from AKModel.models import AKSlot, AKTrack, Event, AK, AKCategory
+from AKModel.views import AdminViewMixin, FilterByEventSlugMixin, EventSlugMixin
+from AKScheduling.forms import AKInterestForm
 
 
 class UnscheduledSlotsAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
@@ -89,5 +91,55 @@ class SpecialAttentionAKsAdminView(AdminViewMixin, DetailView):
         context["ak_wishes_with_slots"] = ak_wishes_with_slots
         context["aks_without_slots"] = aks_without_slots
         context["aks_without_availabilities"] = aks_without_availabilities
+
+        return context
+
+
+class InterestEnteringAdminView(SuccessMessageMixin, AdminViewMixin, EventSlugMixin, UpdateView):
+    template_name = "admin/AKScheduling/interest.html"
+    model = AK
+    context_object_name = "ak"
+    form_class = AKInterestForm
+    success_message = _("Interest updated")
+
+    def get_success_url(self):
+        return self.request.path
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = f"{_('Enter interest')}"
+
+        # Sort AKs into different lists (by their category)
+        ak_wishes = []
+        categories_with_aks = []
+
+        context["previous_ak"] = None
+        context["next_ak"] = None
+        last_ak = None
+        next_is_next = False
+        for other_ak in context['ak'].category.ak_set.all():
+            if other_ak.wish:
+                continue
+            if next_is_next:
+                context['next_ak'] = other_ak
+                next_is_next = False
+            elif other_ak.pk == context['ak'].pk :
+                context['previous_ak'] = last_ak
+                next_is_next = True
+            last_ak = other_ak
+
+        for category in context['event'].akcategory_set.all():
+            aks_for_category = []
+            for ak in category.ak_set.all():
+                if ak.wish:
+                    ak_wishes.append(ak)
+                else:
+                    aks_for_category.append(ak)
+            categories_with_aks.append((category, aks_for_category))
+
+        categories_with_aks.append(
+                (AKCategory(name=_("Wishes"), pk=0, description="-"), ak_wishes))
+
+        context["categories_with_aks"] = categories_with_aks
 
         return context
