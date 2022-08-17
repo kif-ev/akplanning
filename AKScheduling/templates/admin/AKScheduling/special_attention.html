@@ -1,0 +1,45 @@
+{% extends "admin/base_site.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load l10n %}
+{% load tz %}
+{% load static %}
+{% load tags_AKPlan %}
+{% load fontawesome_5 %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h4 class="mt-4 mb-4">{% trans "AKs with public notes" %}</h4>
+    {% for ak in aks_with_comment %}
+        <a href="{% url "submit:ak_edit" event_slug=event.slug pk=ak.pk %}">{{ ak }}</a><br>{{ ak.notes }}<br><br>
+    {% empty %}
+        -
+    {% endfor %}
+
+    <h4 class="mt-4 mb-4">{% trans "AKs without availabilities" %}</h4>
+    {% for ak in aks_without_availabilities %}
+        <a href="{% url "submit:ak_edit" event_slug=event.slug pk=ak.pk %}">{{ ak }}</a><br>
+    {% empty %}
+        -
+    {% endfor %}
+
+    <h4 class="mt-4 mb-4">{% trans "AK wishes with slots" %}</h4>
+    {% for ak in ak_wishes_with_slots %}
+        <a href="{% url "submit:ak_detail" event_slug=event.slug pk=ak.pk %}">{{ ak }}</a><br>
+    {% empty %}
+        -
+    {% endfor %}
+
+    <h4 class="mt-4 mb-4">{% trans "AKs without slots" %}</h4>
+    {% for ak in aks_without_slots %}
+        <a href="{% url "submit:ak_detail" event_slug=event.slug pk=ak.pk %}">{{ ak }}</a><br>
+    {% empty %}
+        -
+    {% endfor %}
+
+    <div class="mt-5">
+        <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %}</a>
+    </div>
+{% endblock %}
