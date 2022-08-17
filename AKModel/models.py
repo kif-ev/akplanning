@@ -268,7 +268,7 @@ class AK(models.Model):
                                            help_text=_('AKs that should precede this AK in the schedule'))
 
     notes = models.TextField(blank=True, verbose_name=_('Organizational Notes'), help_text=_(
-        'Notes to organizers. These are public. For private notes, please send an e-mail.'))
+        'Notes to organizers. These are public. For private notes, please use the button for private messages on the detail page of this AK (after creation/editing).'))
 
     interest = models.IntegerField(default=-1, verbose_name=_('Interest'), help_text=_('Expected number of people'))
     interest_counter = models.IntegerField(default=0, verbose_name=_('Interest Counter'),

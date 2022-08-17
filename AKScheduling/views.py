@@ -1,7 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView
 
-from AKModel.models import AKSlot, AKTrack, Event
+from AKModel.models import AKSlot, AKTrack, Event, AK
 from AKModel.views import AdminViewMixin, FilterByEventSlugMixin
 
 
@@ -57,4 +57,37 @@ class ConstraintViolationsAdminView(AdminViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = f"{_('Constraint violations for')} {context['event']}"
+        return context
+
+
+class SpecialAttentionAKsAdminView(AdminViewMixin, DetailView):
+    template_name = "admin/AKScheduling/special_attention.html"
+    model = Event
+    context_object_name = "event"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = f"{_('AKs requiring special attention for')} {context['event']}"
+
+        aks = AK.objects.filter(event=context["event"])
+        aks_with_comment = []
+        ak_wishes_with_slots = []
+        aks_without_availabilities = []
+        aks_without_slots = []
+
+        for ak in aks:
+            if ak.wish and ak.akslot_set.count() > 0:
+                ak_wishes_with_slots.append(ak)
+            if not ak.wish and ak.akslot_set.count() == 0:
+                aks_without_slots.append(ak)
+            if ak.notes != "":
+                aks_with_comment.append(ak)
+            if ak.availabilities.count() == 0:
+                aks_without_availabilities.append(ak)
+
+        context["aks_with_comment"] = aks_with_comment
+        context["ak_wishes_with_slots"] = ak_wishes_with_slots
+        context["aks_without_slots"] = aks_without_slots
+        context["aks_without_availabilities"] = aks_without_availabilities
+
         return context
