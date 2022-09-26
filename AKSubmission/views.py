@@ -223,10 +223,11 @@ class AKAndAKWishSubmissionView(EventSlugMixin, EventInactiveRedirectMixin, Crea
             tag, was_created = AKTag.objects.get_or_create(name=tag_name)
             self.object.tags.add(tag)
 
-        # Generate slot(s)
-        for duration in form.cleaned_data["durations"]:
-            new_slot = AKSlot(ak=self.object, duration=duration, event=self.object.event)
-            new_slot.save()
+        # Generate slot(s) (but not for wishes)
+        if "durations" in form.cleaned_data:
+            for duration in form.cleaned_data["durations"]:
+                new_slot = AKSlot(ak=self.object, duration=duration, event=self.object.event)
+                new_slot.save()
 
         return super_form_valid
 
@@ -269,6 +270,8 @@ class AKEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
             return redirect(reverse_lazy('submit:submission_overview',
                                          kwargs={'event_slug': form.cleaned_data["event"].slug}))
 
+        previous_owner_count = self.object.owners.count()
+
         super_form_valid = super().form_valid(form)
 
         # Detach existing tags
@@ -278,6 +281,17 @@ class AKEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
         for tag_name in form.cleaned_data["tag_names"]:
             tag, was_created = AKTag.objects.get_or_create(name=tag_name)
             self.object.tags.add(tag)
+
+        # Did this AK change from wish to AK or vice versa?
+        new_owner_count = self.object.owners.count()
+        # Now AK:
+        if previous_owner_count == 0 and new_owner_count > 0 and self.object.akslot_set.count() == 0:
+            # Create one slot with default length
+            AKSlot.objects.create(ak=self.object, duration=self.object.event.default_slot, event=self.object.event)
+        # Now wish:
+        elif previous_owner_count > 0 and new_owner_count == 0:
+            # Delete all unscheduled slots
+            self.object.akslot_set.filter(start__isnull=True).delete()
 
         return super_form_valid
 

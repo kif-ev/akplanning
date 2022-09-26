@@ -151,7 +151,7 @@ class AKEditForm(AKForm):
         self.fields["tags_raw"].initial = "; ".join(str(tag) for tag in self.instance.tags.all())
 
 
-class AKWishForm(AKSubmissionForm):
+class AKWishForm(AKForm):
     class Meta(AKForm.Meta):
         exclude = ['owners', 'link', 'protocol_link']
 
