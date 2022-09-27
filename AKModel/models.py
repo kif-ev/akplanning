@@ -2,6 +2,7 @@ import itertools
 from datetime import timedelta
 
 from django.db import models
+from django.db.models import Count
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.datetime_safe import datetime
@@ -105,6 +106,8 @@ class Event(models.Model):
                 categories_with_aks.append((category, ak_list))
             return categories_with_aks
 
+    def get_unscheduled_wish_slots(self):
+        return self.akslot_set.filter(start__isnull=True).annotate(Count('ak__owners')).filter(ak__owners__count=0)
 
 class AKOwner(models.Model):
     """ An AKOwner describes the person organizing/holding an AK.
@@ -328,6 +331,14 @@ class AK(models.Model):
     def availabilities(self):
         return "Availability".objects.filter(ak=self)
 
+    @property
+    def availabilities_total_duration(self):
+        from AKModel.availability.models import Availability
+        for a in Availability.objects.filter(ak=self):
+            print(a)
+            print(a.end)
+            #        [a.end - a.start for a in ]
+        return 0
 
 class Room(models.Model):
     """ A room describes where an AK can be held.

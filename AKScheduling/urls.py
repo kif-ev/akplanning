@@ -1,7 +1,7 @@
 from django.urls import path
 
 from AKScheduling.views import SchedulingAdminView, UnscheduledSlotsAdminView, TrackAdminView, \
-    ConstraintViolationsAdminView, SpecialAttentionAKsAdminView, InterestEnteringAdminView
+    ConstraintViolationsAdminView, SpecialAttentionAKsAdminView, InterestEnteringAdminView, WishSlotCleanupView
 
 
 def get_admin_urls_scheduling(admin_site):
@@ -14,6 +14,8 @@ def get_admin_urls_scheduling(admin_site):
              name="constraint-violations"),
         path('<slug:slug>/special-attention/', admin_site.admin_view(SpecialAttentionAKsAdminView.as_view()),
              name="special-attention"),
+        path('<slug:event_slug>/cleanup-wish-slots/', admin_site.admin_view(WishSlotCleanupView.as_view()),
+             name="cleanup-wish-slots"),
         path('<slug:event_slug>/tracks/', admin_site.admin_view(TrackAdminView.as_view()),
              name="tracks_manage"),
         path('<slug:event_slug>/enter-interest/<int:pk>', admin_site.admin_view(InterestEnteringAdminView.as_view()),

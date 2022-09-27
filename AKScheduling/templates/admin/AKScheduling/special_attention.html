@@ -31,6 +31,7 @@
     {% empty %}
         -
     {% endfor %}
+    <a class="btn btn-warning" href="{% url "admin:cleanup-wish-slots" event_slug=event.slug %}">{% trans "Delete slots for wishes" %}</a>
 
     <h4 class="mt-4 mb-4">{% trans "AKs without slots" %}</h4>
     {% for ak in aks_without_slots %}

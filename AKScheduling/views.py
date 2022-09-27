@@ -1,9 +1,11 @@
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView, UpdateView
 
 from AKModel.models import AKSlot, AKTrack, Event, AK, AKCategory
-from AKModel.views import AdminViewMixin, FilterByEventSlugMixin, EventSlugMixin
+from AKModel.views import AdminViewMixin, FilterByEventSlugMixin, EventSlugMixin, IntermediateAdminView
 from AKScheduling.forms import AKInterestForm
 
 
@@ -153,3 +155,21 @@ class InterestEnteringAdminView(SuccessMessageMixin, AdminViewMixin, EventSlugMi
         context["categories_with_aks"] = categories_with_aks
 
         return context
+
+
+class WishSlotCleanupView(EventSlugMixin, IntermediateAdminView):
+    title = _('Cleanup: Delete unscheduled slots for wishes')
+    def get_success_url(self):
+        return reverse_lazy('admin:special-attention', kwargs={'slug': self.event.slug})
+
+    def get_preview(self):
+        slots = self.event.get_unscheduled_wish_slots()
+        return _("The following {count} unscheduled slots of wishes will be deleted:\n\n {slots}").format(
+            count=len(slots),
+            slots=", ".join(str(s.ak) for s in slots)
+        )
+
+    def form_valid(self, form):
+        self.event.get_unscheduled_wish_slots().delete()
+        messages.add_message(self.request, messages.SUCCESS, _("Unscheduled slots for wishes successfully deleted"))
+        return super().form_valid(form)
