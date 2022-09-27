@@ -120,9 +120,15 @@ class InterestEnteringAdminView(SuccessMessageMixin, AdminViewMixin, EventSlugMi
         context["next_ak"] = None
         last_ak = None
         next_is_next = False
-        for other_ak in context['ak'].category.ak_set.all():
-            if other_ak.wish:
-                continue
+
+        # Find other AK wishes (regardless of the category)...
+        if context['ak'].wish:
+            other_aks = [ak for ak in context['event'].ak_set.all() if ak.wish]
+        # or other AKs of this category
+        else:
+            other_aks = [ak for ak in context['ak'].category.ak_set.all() if not ak.wish]
+
+        for other_ak in other_aks:
             if next_is_next:
                 context['next_ak'] = other_ak
                 next_is_next = False
@@ -140,6 +146,7 @@ class InterestEnteringAdminView(SuccessMessageMixin, AdminViewMixin, EventSlugMi
                     aks_for_category.append(ak)
             categories_with_aks.append((category, aks_for_category))
 
+        ak_wishes.sort(key=lambda x: x.pk)
         categories_with_aks.append(
                 (AKCategory(name=_("Wishes"), pk=0, description="-"), ak_wishes))
 

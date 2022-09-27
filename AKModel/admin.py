@@ -171,7 +171,7 @@ class AKAdmin(SimpleHistoryAdmin):
     model = AK
     list_display = ['name', 'short_name', 'category', 'track', 'is_wish', 'interest', 'interest_counter', 'event']
     list_filter = ['event', WishFilter, ('category', EventRelatedFieldListFilter), ('requirements', EventRelatedFieldListFilter)]
-    list_editable = ['short_name', 'track', 'interest', 'interest_counter']
+    list_editable = ['short_name', 'track', 'interest_counter']
     ordering = ['pk']
     actions = ['wiki_export']
     form = AKAdminForm
