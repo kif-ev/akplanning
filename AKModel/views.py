@@ -1,10 +1,11 @@
 import os
 import tempfile
+from abc import ABC, abstractmethod
 from itertools import zip_longest
 
 from django.contrib import admin, messages
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, DetailView, ListView, DeleteView, CreateView, FormView, UpdateView
 from django_tex.core import render_template_with_context, run_tex_in_directory
@@ -12,8 +13,10 @@ from django_tex.response import PDFResponse
 from rest_framework import viewsets, permissions, mixins
 
 from AKModel.forms import NewEventWizardStartForm, NewEventWizardSettingsForm, NewEventWizardPrepareImportForm, \
-    NewEventWizardImportForm, NewEventWizardActivateForm, AdminIntermediateForm, SlideExportForm
-from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner, AKOrgaMessage, AKRequirement
+    NewEventWizardImportForm, NewEventWizardActivateForm, AdminIntermediateForm, SlideExportForm, \
+    AdminIntermediateActionForm
+from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner, AKOrgaMessage, AKRequirement, \
+    ConstraintViolation
 from AKModel.serializers import AKSerializer, AKSlotSerializer, RoomSerializer, AKTrackSerializer, AKCategorySerializer, \
     AKOwnerSerializer
 
@@ -369,3 +372,67 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             pdf = run_tex_in_directory(source, tempdir, template_name=self.template_name)
 
         return PDFResponse(pdf, filename='slides.pdf')
+
+
+class IntermediateAdminActionView(IntermediateAdminView, ABC):
+    form_class = AdminIntermediateActionForm
+
+    def get_queryset(self, pks=None):
+        if pks is None:
+            pks = self.request.GET['pks']
+        return self.model.objects.filter(pk__in=pks.split(","))
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['pks'] = self.request.GET['pks']
+        return initial
+
+    def get_preview(self):
+        entities = self.get_queryset()
+        joined_entities = '\n'.join(str(e) for e in entities)
+        return f"{self.confirmation_message}:\n\n {joined_entities}"
+
+    def get_success_url(self):
+        return reverse(f"admin:{self.model._meta.app_label}_{self.model._meta.model_name}_changelist")
+
+    @abstractmethod
+    def perform_action(self, entity):
+        pass
+
+    def form_valid(self, form):
+        entities = self.get_queryset(pks=form.cleaned_data['pks'])
+        for entity in entities:
+            self.perform_action(entity)
+            entity.save()
+        messages.add_message(self.request, messages.SUCCESS, self.success_message)
+        return super().form_valid(form)
+
+
+class CVMarkResolvedView(IntermediateAdminActionView):
+    title = _('Mark Constraint Violations as manually resolved')
+    model = ConstraintViolation
+    confirmation_message = _("The following Constraint Violations will be marked as manually resolved")
+    success_message = _("Constraint Violations marked as resolved")
+
+    def perform_action(self, entity):
+        entity.manually_resolved = True
+
+
+class CVSetLevelViolationView(IntermediateAdminActionView):
+    title = _('Set Constraint Violations to level "violation"')
+    model = ConstraintViolation
+    confirmation_message = _("The following Constraint Violations will be set to level 'violation'")
+    success_message = _("Constraint Violations set to level 'violation'")
+
+    def perform_action(self, entity):
+        entity.level = ConstraintViolation.ViolationLevel.VIOLATION
+
+
+class CVSetLevelWarningView(IntermediateAdminActionView):
+    title = _('Set Constraint Violations to level "warning"')
+    model = ConstraintViolation
+    confirmation_message = _("The following Constraint Violations will be set to level 'warning'")
+    success_message = _("Constraint Violations set to level 'warning'")
+
+    def perform_action(self, entity):
+        entity.level = ConstraintViolation.ViolationLevel.WARNING

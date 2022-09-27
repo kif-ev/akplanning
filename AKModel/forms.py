@@ -75,6 +75,10 @@ class AdminIntermediateForm(forms.Form):
     pass
 
 
+class AdminIntermediateActionForm(AdminIntermediateForm):
+    pks = forms.CharField(widget=forms.HiddenInput)
+
+
 class SlideExportForm(AdminIntermediateForm):
     num_next = forms.IntegerField(
         min_value=0,

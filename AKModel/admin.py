@@ -4,8 +4,9 @@ from django.contrib import admin, messages
 from django.contrib.admin import SimpleListFilter, RelatedFieldListFilter, action
 from django.db.models import Count, F
 from django.db.models.functions import Now
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, path
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -18,6 +19,7 @@ from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
+from AKModel.views import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -329,3 +331,28 @@ class ConstraintViolationAdmin(admin.ModelAdmin):
     list_filter = ['event']
     readonly_fields = ['timestamp']
     form = ConstraintViolationAdminForm
+    actions = ['mark_resolved', 'set_violation', 'set_warning']
+
+    def get_urls(self):
+        urls = [
+            path('mark-resolved/', CVMarkResolvedView.as_view(), name="cv-mark-resolved"),
+            path('set-violation/', CVSetLevelViolationView.as_view(), name="cv-set-violation"),
+            path('set-warning/', CVSetLevelWarningView.as_view(), name="cv-set-warning"),
+        ]
+        urls.extend(super().get_urls())
+        return urls
+
+    def mark_resolved(self, request, queryset):
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:cv-mark-resolved')}?pks={','.join(str(pk) for pk in selected)}")
+    mark_resolved.short_description = _("Mark Constraint Violations as manually resolved")
+
+    def set_violation(self, request, queryset):
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:cv-set-violation')}?pks={','.join(str(pk) for pk in selected)}")
+    set_violation.short_description = _('Set to Constraint Violations to level "violation"')
+
+    def set_warning(self, request, queryset):
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:cv-set-warning')}?pks={','.join(str(pk) for pk in selected)}")
+    set_warning.short_description = _('Set Constraint Violations to level "warning"')
