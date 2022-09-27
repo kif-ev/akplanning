@@ -109,6 +109,10 @@ class Event(models.Model):
     def get_unscheduled_wish_slots(self):
         return self.akslot_set.filter(start__isnull=True).annotate(Count('ak__owners')).filter(ak__owners__count=0)
 
+    def get_aks_without_availabilities(self):
+        return self.ak_set.annotate(Count('availabilities', distinct=True)).annotate(Count('owners', distinct=True)).filter(availabilities__count=0, owners__count__gt=0)
+
+
 class AKOwner(models.Model):
     """ An AKOwner describes the person organizing/holding an AK.
     """
@@ -331,14 +335,6 @@ class AK(models.Model):
     def availabilities(self):
         return "Availability".objects.filter(ak=self)
 
-    @property
-    def availabilities_total_duration(self):
-        from AKModel.availability.models import Availability
-        for a in Availability.objects.filter(ak=self):
-            print(a)
-            print(a.end)
-            #        [a.end - a.start for a in ]
-        return 0
 
 class Room(models.Model):
     """ A room describes where an AK can be held.

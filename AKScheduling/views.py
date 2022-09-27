@@ -160,6 +160,7 @@ class InterestEnteringAdminView(SuccessMessageMixin, AdminViewMixin, EventSlugMi
 
 class WishSlotCleanupView(EventSlugMixin, IntermediateAdminView):
     title = _('Cleanup: Delete unscheduled slots for wishes')
+
     def get_success_url(self):
         return reverse_lazy('admin:special-attention', kwargs={'slug': self.event.slug})
 
@@ -173,4 +174,40 @@ class WishSlotCleanupView(EventSlugMixin, IntermediateAdminView):
     def form_valid(self, form):
         self.event.get_unscheduled_wish_slots().delete()
         messages.add_message(self.request, messages.SUCCESS, _("Unscheduled slots for wishes successfully deleted"))
+        return super().form_valid(form)
+
+
+class AvailabilityAutocreateView(EventSlugMixin, IntermediateAdminView):
+    title = _('Create default availabilities for AKs')
+
+    def get_success_url(self):
+        return reverse_lazy('admin:special-attention', kwargs={'slug': self.event.slug})
+
+    def get_preview(self):
+        aks = self.event.get_aks_without_availabilities()
+        return _("The following {count} AKs don't have any availability information. "
+                 "Create default availability for them:\n\n {aks}").format(
+            count=len(aks),
+            aks=", ".join(str(ak) for ak in aks)
+        )
+
+    def form_valid(self, form):
+        from AKModel.availability.models import Availability
+
+        success_count = 0
+        for ak in self.event.get_aks_without_availabilities():
+            try:
+                availability = Availability.with_event_length(event=self.event, ak=ak)
+                availability.save()
+                success_count += 1
+            except:
+                messages.add_message(
+                    self.request, messages.WARNING,
+                    _("Could not create default availabilities for AK: {ak}").format(ak=ak)
+                )
+
+        messages.add_message(
+            self.request, messages.SUCCESS,
+            _("Created default availabilities for {count} AKs").format(count=success_count)
+        )
         return super().form_valid(form)
