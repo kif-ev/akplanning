@@ -157,7 +157,7 @@ def ak_owners_changed_handler(sender, instance: AK, action: str, **kwargs):
                             c.ak_slots_tmp.add(other_slot)
                             new_violations.append(c)
 
-        print(f"{owner} has the following conflicts: {new_violations}")
+        #print(f"{owner} has the following conflicts: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -203,7 +203,7 @@ def ak_conflicts_changed_handler(sender, instance: AK, action: str, **kwargs):
                         c.ak_slots_tmp.add(other_slot)
                         new_violations.append(c)
 
-        print(f"{instance} has the following conflicts: {new_violations}")
+        # print(f"{instance} has the following conflicts: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -249,7 +249,7 @@ def ak_prerequisites_changed_handler(sender, instance: AK, action: str, **kwargs
                         c.ak_slots_tmp.add(other_slot)
                         new_violations.append(c)
 
-        print(f"{instance} has the following conflicts: {new_violations}")
+        # print(f"{instance} has the following conflicts: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -298,7 +298,7 @@ def ak_requirements_changed_handler(sender, instance: AK, action: str, **kwargs)
                 c.ak_slots_tmp.add(slot)
                 new_violations.append(c)
 
-    print(f"{instance} has the following conflicts: {new_violations}")
+    # print(f"{instance} has the following conflicts: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -310,7 +310,7 @@ def ak_requirements_changed_handler(sender, instance: AK, action: str, **kwargs)
 @receiver(post_save, sender=AKSlot)
 def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     # Changes might affect: Duplicate parallel, Two in room, Resodeadline
-    print(f"{sender} changed")
+    # print(f"{sender} changed")
     event = instance.event
 
     # == Check for two parallel slots by one of the owners ==
@@ -341,7 +341,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                             c.ak_slots_tmp.add(other_slot)
                             new_violations.append(c)
 
-            print(f"{owner} has the following conflicts: {new_violations}")
+            # print(f"{owner} has the following conflicts: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -373,7 +373,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                     c.ak_slots_tmp.add(other_slot)
                     new_violations.append(c)
 
-        print(f"Multiple slots in room {instance.room}: {new_violations}")
+        # print(f"Multiple slots in room {instance.room}: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the slot that was recently changed (important!)
@@ -437,7 +437,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
             c.ak_slots_tmp.add(instance)
             new_violations.append(c)
 
-    print(f"{instance.ak} has the following slots outside availabilities: {new_violations}")
+    # print(f"{instance.ak} has the following slots outside availabilities: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -470,7 +470,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                 c.ak_slots_tmp.add(instance)
                 new_violations.append(c)
 
-    print(f"{instance} has the following conflicts: {new_violations}")
+    # print(f"{instance} has the following conflicts: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -502,7 +502,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                         c.ak_slots_tmp.add(other_slot)
                         new_violations.append(c)
 
-            print(f"{instance} has the following conflicts: {new_violations}")
+            # print(f"{instance} has the following conflicts: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -534,7 +534,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                         c.ak_slots_tmp.add(other_slot)
                         new_violations.append(c)
 
-            print(f"{instance} has the following conflicts: {new_violations}")
+            # print(f"{instance} has the following conflicts: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -556,7 +556,7 @@ def akslot_deleted_handler(sender, instance: AKSlot, **kwargs):
     # Manually clean up or remove constraint violations that belong to this slot since there is no cascade deletion
     # for many2many relationships. Explicitly listening for AK deletion signals is not necessary since they will
     # transitively trigger this signal and we always set both AK and AKSlot references in a constraint violation
-    print(f"{instance} deleted")
+    # print(f"{instance} deleted")
 
     for cv in instance.constraintviolation_set.all():
         # Make sure not delete CVs that e.g., show three parallel slots in a single room
@@ -599,7 +599,7 @@ def room_requirements_changed_handler(sender, instance: Room, action: str, **kwa
 @receiver(post_save, sender=Availability)
 def availability_changed_handler(sender, instance: Availability, **kwargs):
     # Changes might affect: category availability, AK availability, Room availability
-    print(f"{instance} changed")
+    # print(f"{instance} changed")
 
     event = instance.event
 
@@ -627,7 +627,7 @@ def availability_changed_handler(sender, instance: Availability, **kwargs):
                 c.ak_slots_tmp.add(slot)
                 new_violations.append(c)
 
-        print(f"{instance.ak} has the following slots outside availabilities: {new_violations}")
+        # print(f"{instance.ak} has the following slots outside availabilities: {new_violations}")
 
         # ... and compare to/update list of existing violations of this type
         # belonging to the AK that was recently changed (important!)
