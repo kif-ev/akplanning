@@ -6,7 +6,7 @@ from rest_framework.routers import DefaultRouter
 from AKModel import views
 from AKModel.views import NewEventWizardStartView, NewEventWizardSettingsView, NewEventWizardPrepareImportView, \
     NewEventWizardImportView, NewEventWizardActivateView, NewEventWizardFinishView, EventStatusView, \
-    AKRequirementOverview, AKCSVExportView, AKWikiExportView, AKMessageDeleteView, export_slides
+    AKRequirementOverview, AKCSVExportView, AKWikiExportView, AKMessageDeleteView, ExportSlidesView
 
 api_router = DefaultRouter()
 api_router.register('akowner', views.AKOwnerViewSet, basename='AKOwner')
@@ -81,6 +81,5 @@ def get_admin_urls_event(admin_site):
              name="ak_wiki_export"),
         path('<slug:event_slug>/delete-orga-messages/', admin_site.admin_view(AKMessageDeleteView.as_view()),
              name="ak_delete_orga_messages"),
-        path('<slug:event_slug>/ak-slide-export/', export_slides, name="ak_slide_export"),
-
+        path('<slug:event_slug>/ak-slide-export/', ExportSlidesView.as_view(), name="ak_slide_export"),
     ]
