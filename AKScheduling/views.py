@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Count
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView, UpdateView
@@ -73,7 +74,7 @@ class SpecialAttentionAKsAdminView(AdminViewMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["title"] = f"{_('AKs requiring special attention for')} {context['event']}"
 
-        aks = AK.objects.filter(event=context["event"])
+        aks = AK.objects.filter(event=context["event"]).annotate(Count('owners', distinct=True)).annotate(Count('akslot', distinct=True)).annotate(Count('availabilities', distinct=True))
         aks_with_comment = []
         ak_wishes_with_slots = []
         aks_without_availabilities = []
@@ -83,13 +84,13 @@ class SpecialAttentionAKsAdminView(AdminViewMixin, DetailView):
             if ak.notes != "":
                 aks_with_comment.append(ak)
 
-            if ak.wish:
-                if ak.akslot_set.count() > 0:
+            if ak.owners__count == 0:
+                if ak.akslot__count > 0:
                     ak_wishes_with_slots.append(ak)
             else:
-                if ak.akslot_set.count() == 0:
+                if ak.akslot__count == 0:
                     aks_without_slots.append(ak)
-                if ak.availabilities.count() == 0:
+                if ak.availabilities__count == 0:
                     aks_without_availabilities.append(ak)
 
         context["aks_with_comment"] = aks_with_comment
