@@ -68,3 +68,7 @@ class NewEventWizardActivateForm(forms.ModelForm):
     class Meta:
         fields = ["active"]
         model = Event
+
+
+class AdminIntermediateForm(forms.Form):
+    pass

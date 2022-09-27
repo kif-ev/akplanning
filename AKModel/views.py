@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from itertools import zip_longest
 
 from django.contrib import admin, messages
@@ -11,7 +12,7 @@ from django_tex.shortcuts import render_to_pdf
 from rest_framework import viewsets, permissions, mixins
 
 from AKModel.forms import NewEventWizardStartForm, NewEventWizardSettingsForm, NewEventWizardPrepareImportForm, \
-    NewEventWizardImportForm, NewEventWizardActivateForm
+    NewEventWizardImportForm, NewEventWizardActivateForm, AdminIntermediateForm
 from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner, AKOrgaMessage, AKRequirement
 from AKModel.serializers import AKSerializer, AKSlotSerializer, RoomSerializer, AKTrackSerializer, AKCategorySerializer, \
     AKOwnerSerializer
@@ -194,22 +195,43 @@ class AKWikiExportView(AdminViewMixin, DetailView):
         return context
 
 
-class AKMessageDeleteView(AdminViewMixin, DeleteView):
-    model = Event
+class IntermediateAdminView(AdminViewMixin, FormView, ABC):
+    template_name = "admin/AKModel/action_intermediate.html"
+    form_class = AdminIntermediateForm
+
+    @abstractmethod
+    def get_preview(self):
+        pass
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = self.title
+        context["preview"] = self.get_preview()
+        return context
+
+
+class AKMessageDeleteView(EventSlugMixin, IntermediateAdminView):
     template_name = "admin/AKModel/message_delete.html"
+    title = _("Delete AK Orga Messages")
 
     def get_orga_messages_for_event(self, event):
         return AKOrgaMessage.objects.filter(ak__event=event)
 
+    def get_preview(self):
+        return None
+
+    def get_success_url(self):
+        return reverse_lazy('admin:event_status', kwargs={'slug': self.event.slug})
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["ak_messages"] = self.get_orga_messages_for_event(self.get_object())
+        context["ak_messages"] = self.get_orga_messages_for_event(self.event)
         return context
 
-    def post(self, request, *args, **kwargs):
-        self.get_orga_messages_for_event(self.get_object()).delete()
+    def form_valid(self, form):
+        self.get_orga_messages_for_event(self.event).delete()
         messages.add_message(self.request, messages.SUCCESS, _("AK Orga Messages successfully deleted"))
-        return HttpResponseRedirect(reverse_lazy('admin:event_status', kwargs={'slug': self.get_object().slug}))
+        return super().form_valid(form)
 
 
 class WizardViewMixin:
