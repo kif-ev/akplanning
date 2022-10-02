@@ -19,7 +19,8 @@ from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
-from AKModel.views import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView
+from AKModel.views import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView, AKResetInterestView, \
+    AKResetInterestCounterView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -187,7 +188,7 @@ class AKAdmin(SimpleHistoryAdmin):
     list_filter = ['event', WishFilter, ('category', EventRelatedFieldListFilter), ('requirements', EventRelatedFieldListFilter)]
     list_editable = ['short_name', 'track', 'interest_counter']
     ordering = ['pk']
-    actions = ['wiki_export']
+    actions = ['wiki_export', 'reset_interest', 'reset_interest_counter']
     form = AKAdminForm
 
     def is_wish(self, obj):
@@ -204,6 +205,24 @@ class AKAdmin(SimpleHistoryAdmin):
         if db_field.name == 'event':
             kwargs['initial'] = Event.get_next_active()
         return super(AKAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def get_urls(self):
+        urls = [
+            path('reset-interest/', AKResetInterestView.as_view(), name="ak-reset-interest"),
+            path('reset-interest-counter/', AKResetInterestCounterView.as_view(), name="ak-reset-interest-counter"),
+        ]
+        urls.extend(super().get_urls())
+        return urls
+
+    def reset_interest(self, request, queryset):
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:ak-reset-interest')}?pks={','.join(str(pk) for pk in selected)}")
+    reset_interest.short_description = _("Reset interest in AKs")
+
+    def reset_interest_counter(self, request, queryset):
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:ak-reset-interest-counter')}?pks={','.join(str(pk) for pk in selected)}")
+    reset_interest_counter.short_description = _("Reset AKs' interest counters")
 
 
 class RoomForm(AvailabilitiesFormMixin, forms.ModelForm):

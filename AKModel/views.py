@@ -436,3 +436,23 @@ class CVSetLevelWarningView(IntermediateAdminActionView):
 
     def perform_action(self, entity):
         entity.level = ConstraintViolation.ViolationLevel.WARNING
+
+
+class AKResetInterestView(IntermediateAdminActionView):
+    title = _("Reset interest in AKs")
+    model = AK
+    confirmation_message = _("Interest of the following AKs will be set to not filled (-1):")
+    success_message = _("Reset of interest in AKs successful.")
+
+    def perform_action(self, entity):
+        entity.interest = -1
+
+
+class AKResetInterestCounterView(IntermediateAdminActionView):
+    title = _("Reset AKs' interest counters")
+    model = AK
+    confirmation_message = _("Interest counter of the following AKs will be set to 0:")
+    success_message = _("AKs' interest counters set back to 0.")
+
+    def perform_action(self, entity):
+        entity.interest_counter = 0
