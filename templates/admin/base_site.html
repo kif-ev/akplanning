@@ -4,6 +4,8 @@
 {% load fontawesome_5 %}
 {% load static %}
 
+{% block stylesheet %}{% static "common/css/admin-bootstrap.css" %}{% endblock %}
+
 {% block extrastyle %}
     {% if not debug %}
         <link rel="stylesheet" type="text/css" href="{% static "common/css/admin-color.css" %}"/>
@@ -12,7 +14,6 @@
 
 {% block extrahead %}
     <!-- Load bootstrap, jquery and fontawesome-->
-    {% bootstrap_css %}
     {% bootstrap_javascript jquery=True %}
     {% fontawesome_5_static %}
 
