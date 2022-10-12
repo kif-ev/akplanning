@@ -1,4 +1,4 @@
-Django==3.1.8
+Django==3.2.16
 django-bootstrap4==2.3.1
 django-fontawesome-5==1.0.18
 django-split-settings==1.0.1
