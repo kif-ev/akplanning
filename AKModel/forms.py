@@ -29,6 +29,7 @@ class NewEventWizardSettingsForm(forms.ModelForm):
             'start': DateTimePickerInput(options={"format": "YYYY-MM-DD HH:mm"}),
             'end': DateTimePickerInput(options={"format": "YYYY-MM-DD HH:mm"}),
             'reso_deadline': DateTimePickerInput(options={"format": "YYYY-MM-DD HH:mm"}),
+            'plan_hidden': forms.HiddenInput(),
         }
 
 
