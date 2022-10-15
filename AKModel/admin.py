@@ -327,6 +327,8 @@ class AKSlotAdmin(admin.ModelAdmin):
             return mark_safe(link)
         return "-"
 
+    ak_details_link.short_description = _('AK Details')
+
 
 @admin.register(Availability)
 class AvailabilityAdmin(admin.ModelAdmin):
