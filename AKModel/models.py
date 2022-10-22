@@ -650,3 +650,30 @@ class ConstraintViolation(models.Model):
             if getattr(self, field) != getattr(other, field):
                 return False
         return True
+
+
+class DefaultSlot(models.Model):
+    class Meta:
+        verbose_name = _('Default Slot')
+        verbose_name_plural = _('Default Slots')
+        ordering = ['-start']
+
+    start = models.DateTimeField(verbose_name=_('Slot Begin'), help_text=_('Time and date the slot begins'))
+    end = models.DateTimeField(verbose_name=_('Slot End'), help_text=_('Time and date the slot ends'))
+
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
+                              help_text=_('Associated event'))
+
+    primary_categories = models.ManyToManyField(to=AKCategory, verbose_name=_('Primary categories'), blank=True,
+                                            help_text=_('Categories that should be assigned to this slot primarily'))
+
+    @property
+    def start_simplified(self):
+        return self.start.astimezone(self.event.timezone).strftime('%a %H:%M')
+
+    @property
+    def end_simplified(self):
+        return self.end.astimezone(self.event.timezone).strftime('%a %H:%M')
+
+    def __str__(self):
+        return f"{self.event}: {self.start_simplified} - {self.end_simplified}"
