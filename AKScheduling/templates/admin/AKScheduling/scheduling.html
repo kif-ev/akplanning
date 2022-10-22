@@ -147,7 +147,8 @@
                 resources: '{% url "model:scheduling-resources-list" event_slug=event.slug %}',
                 eventSources: [
                     '{% url "model:scheduling-events" event_slug=event.slug %}',
-                    '{% url "model:scheduling-room-availabilities" event_slug=event.slug %}'
+                    '{% url "model:scheduling-room-availabilities" event_slug=event.slug %}',
+                    '{% url "model:scheduling-default-slots" event_slug=event.slug %}'
                 ],
                 schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
                 dayMinWidth: 100,

@@ -7,7 +7,7 @@ from django.views.generic import ListView
 from rest_framework import viewsets, mixins, serializers, permissions
 
 from AKModel.availability.models import Availability
-from AKModel.models import Room, AKSlot, ConstraintViolation
+from AKModel.models import Room, AKSlot, ConstraintViolation, DefaultSlot
 from AKModel.views import EventSlugMixin
 
 
@@ -75,6 +75,30 @@ class RoomAvailabilitiesView(LoginRequiredMixin, EventSlugMixin, ListView):
                 "display": 'background',
                 "groupId": 'roomAvailable',
             } for a in context["availabilities"]],
+            safe=False,
+            **response_kwargs
+        )
+
+
+class DefaultSlotsView(LoginRequiredMixin, EventSlugMixin, ListView):
+    model = DefaultSlot
+    context_object_name = "default_slots"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(event=self.event)
+
+    def render_to_response(self, context, **response_kwargs):
+        all_room_ids = [r.pk for r in self.event.room_set.all()]
+        return JsonResponse(
+            [{
+                "title": "",
+                "resourceIds": all_room_ids,
+                "start": timezone.localtime(a.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                "end": timezone.localtime(a.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                "display": 'background',
+                "groupId": 'defaultSlot',
+                "backgroundColor": '#69b6d4'
+            } for a in context["default_slots"]],
             safe=False,
             **response_kwargs
         )
