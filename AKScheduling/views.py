@@ -1,9 +1,12 @@
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Count
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView, UpdateView
 
 from AKModel.models import AKSlot, AKTrack, Event, AK, AKCategory
-from AKModel.views import AdminViewMixin, FilterByEventSlugMixin, EventSlugMixin
+from AKModel.views import AdminViewMixin, FilterByEventSlugMixin, EventSlugMixin, IntermediateAdminView
 from AKScheduling.forms import AKInterestForm
 
 
@@ -71,7 +74,7 @@ class SpecialAttentionAKsAdminView(AdminViewMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["title"] = f"{_('AKs requiring special attention for')} {context['event']}"
 
-        aks = AK.objects.filter(event=context["event"])
+        aks = AK.objects.filter(event=context["event"]).annotate(Count('owners', distinct=True)).annotate(Count('akslot', distinct=True)).annotate(Count('availabilities', distinct=True))
         aks_with_comment = []
         ak_wishes_with_slots = []
         aks_without_availabilities = []
@@ -81,13 +84,13 @@ class SpecialAttentionAKsAdminView(AdminViewMixin, DetailView):
             if ak.notes != "":
                 aks_with_comment.append(ak)
 
-            if ak.wish:
-                if ak.akslot_set.count() > 0:
+            if ak.owners__count == 0:
+                if ak.akslot__count > 0:
                     ak_wishes_with_slots.append(ak)
             else:
-                if ak.akslot_set.count() == 0:
+                if ak.akslot__count == 0:
                     aks_without_slots.append(ak)
-                if ak.availabilities.count() == 0:
+                if ak.availabilities__count == 0:
                     aks_without_availabilities.append(ak)
 
         context["aks_with_comment"] = aks_with_comment
@@ -153,3 +156,58 @@ class InterestEnteringAdminView(SuccessMessageMixin, AdminViewMixin, EventSlugMi
         context["categories_with_aks"] = categories_with_aks
 
         return context
+
+
+class WishSlotCleanupView(EventSlugMixin, IntermediateAdminView):
+    title = _('Cleanup: Delete unscheduled slots for wishes')
+
+    def get_success_url(self):
+        return reverse_lazy('admin:special-attention', kwargs={'slug': self.event.slug})
+
+    def get_preview(self):
+        slots = self.event.get_unscheduled_wish_slots()
+        return _("The following {count} unscheduled slots of wishes will be deleted:\n\n {slots}").format(
+            count=len(slots),
+            slots=", ".join(str(s.ak) for s in slots)
+        )
+
+    def form_valid(self, form):
+        self.event.get_unscheduled_wish_slots().delete()
+        messages.add_message(self.request, messages.SUCCESS, _("Unscheduled slots for wishes successfully deleted"))
+        return super().form_valid(form)
+
+
+class AvailabilityAutocreateView(EventSlugMixin, IntermediateAdminView):
+    title = _('Create default availabilities for AKs')
+
+    def get_success_url(self):
+        return reverse_lazy('admin:special-attention', kwargs={'slug': self.event.slug})
+
+    def get_preview(self):
+        aks = self.event.get_aks_without_availabilities()
+        return _("The following {count} AKs don't have any availability information. "
+                 "Create default availability for them:\n\n {aks}").format(
+            count=len(aks),
+            aks=", ".join(str(ak) for ak in aks)
+        )
+
+    def form_valid(self, form):
+        from AKModel.availability.models import Availability
+
+        success_count = 0
+        for ak in self.event.get_aks_without_availabilities():
+            try:
+                availability = Availability.with_event_length(event=self.event, ak=ak)
+                availability.save()
+                success_count += 1
+            except:
+                messages.add_message(
+                    self.request, messages.WARNING,
+                    _("Could not create default availabilities for AK: {ak}").format(ak=ak)
+                )
+
+        messages.add_message(
+            self.request, messages.SUCCESS,
+            _("Created default availabilities for {count} AKs").format(count=success_count)
+        )
+        return super().form_valid(form)

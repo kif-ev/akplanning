@@ -1,24 +1,11 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/AKModel/action_intermediate.html" %}
 {% load tags_AKModel %}
 
 {% load i18n %}
 {% load fontawesome_5 %}
 
-{% block title %}{{event}}: {% trans "Delete Orga-Messages" %}{% endblock %}
-
-{% block content %}
-    <h2>{% trans "Delete AK Orga Messages" %}</h2>
+{% block action_preview %}
     <p>{% blocktrans with message_count=ak_messages.count %}Are you sure you want to delete all orga messages for {{ event }}? This will permanently delete {{ message_count }} message(s):{% endblocktrans %}</p>
 
     {% include "admin/AKModel/render_ak_messages.html" %}
-
-    <form method="post">{% csrf_token %}
-        <button type="submit" class="save btn btn-danger float-right" value="Confirm">
-            {% fa5_icon "check" 'fas' %} {% trans "Delete" %}
-        </button>
-
-        <a href="{% url 'admin:event_status' slug=event.slug %}" class="btn btn-info">
-            {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
-        </a>
-    </form>
 {% endblock %}

@@ -115,7 +115,7 @@
             <div class="col-md-4">
                 <h3 class="block-header">{% trans "Messages" %}</h3>
                 {% include "admin/AKModel/render_ak_messages.html" %}
-                <a class="btn btn-danger" href="{% url 'admin:ak_delete_orga_messages' slug=event.slug %}">{% trans "Delete all messages" %}</a>
+                <a class="btn btn-danger" href="{% url 'admin:ak_delete_orga_messages' event_slug=event.slug %}">{% trans "Delete all messages" %}</a>
             </div>
         </div>
     {% endtimezone %}

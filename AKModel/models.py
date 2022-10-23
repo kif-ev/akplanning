@@ -2,6 +2,7 @@ import itertools
 from datetime import timedelta
 
 from django.db import models
+from django.db.models import Count
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.datetime_safe import datetime
@@ -104,6 +105,12 @@ class Event(models.Model):
                         ak_list.append(ak)
                 categories_with_aks.append((category, ak_list))
             return categories_with_aks
+
+    def get_unscheduled_wish_slots(self):
+        return self.akslot_set.filter(start__isnull=True).annotate(Count('ak__owners')).filter(ak__owners__count=0)
+
+    def get_aks_without_availabilities(self):
+        return self.ak_set.annotate(Count('availabilities', distinct=True)).annotate(Count('owners', distinct=True)).filter(availabilities__count=0, owners__count__gt=0)
 
 
 class AKOwner(models.Model):

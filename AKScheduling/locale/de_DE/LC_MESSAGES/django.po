@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-17 22:41+0200\n"
+"POT-Creation-Date: 2022-09-27 17:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -79,7 +79,7 @@ msgstr "Seit"
 #: .\AKScheduling\templates\admin\AKScheduling\constraint_violations.html:139
 #: .\AKScheduling\templates\admin\AKScheduling\manage_tracks.html:243
 #: .\AKScheduling\templates\admin\AKScheduling\scheduling.html:208
-#: .\AKScheduling\templates\admin\AKScheduling\special_attention.html:43
+#: .\AKScheduling\templates\admin\AKScheduling\special_attention.html:48
 #: .\AKScheduling\templates\admin\AKScheduling\unscheduled.html:34
 msgid "Event Status"
 msgstr "Event-Status"
@@ -158,10 +158,18 @@ msgid "AKs without availabilities"
 msgstr "AKs ohne Verfügbarkeiten"
 
 #: .\AKScheduling\templates\admin\AKScheduling\special_attention.html:28
+msgid "Create default availabilities"
+msgstr "Standardverfügbarkeiten anlegen"
+
+#: .\AKScheduling\templates\admin\AKScheduling\special_attention.html:31
 msgid "AK wishes with slots"
 msgstr "AK-Wünsche mit Slots"
 
-#: .\AKScheduling\templates\admin\AKScheduling\special_attention.html:35
+#: .\AKScheduling\templates\admin\AKScheduling\special_attention.html:38
+msgid "Delete slots for wishes"
+msgstr ""
+
+#: .\AKScheduling\templates\admin\AKScheduling\special_attention.html:40
 msgid "AKs without slots"
 msgstr "AKs ohne Slots"
 
@@ -173,10 +181,57 @@ msgstr "Noch nicht geschedulte AK-Slots"
 msgid "Count"
 msgstr "Anzahl"
 
-#: .\AKScheduling\views.py:103
+#: .\AKScheduling\views.py:109
 msgid "Interest updated"
 msgstr "Interesse aktualisiert"
 
-#: .\AKScheduling\views.py:141
+#: .\AKScheduling\views.py:147
 msgid "Wishes"
 msgstr "Wünsche"
+
+#: .\AKScheduling\views.py:155
+msgid "Cleanup: Delete unscheduled slots for wishes"
+msgstr "Aufräumen: Noch nicht geplante Slots für Wünsche löschen"
+
+#: .\AKScheduling\views.py:162
+#, python-brace-format
+msgid ""
+"The following {count} unscheduled slots of wishes will be deleted:\n"
+"\n"
+" {slots}"
+msgstr ""
+"Die folgenden {count} noch nicht geplanten Slots von Wünschen werden "
+"gelöscht:\n"
+"\n"
+" {slots}"
+
+#: .\AKScheduling\views.py:169
+msgid "Unscheduled slots for wishes successfully deleted"
+msgstr "Noch nicht geplante Slots für Wünsche erfolgreich gelöscht"
+
+#: .\AKScheduling\views.py:174
+msgid "Create default availabilities for AKs"
+msgstr "Standardverfügbarkeiten für AKs anlegen"
+
+#: .\AKScheduling\views.py:181
+#, python-brace-format
+msgid ""
+"The following {count} AKs don't have any availability information. Create "
+"default availability for them:\n"
+"\n"
+" {aks}"
+msgstr ""
+"Die folgenden {count} AKs haben keine Verfügbarkeitsinformationen. "
+"Standardverfügbarkeiten für sie anlegen:\n"
+"\n"
+" {aks}"
+
+#: .\AKScheduling\views.py:199
+#, python-brace-format
+msgid "Could not create default availabilities for AK: {ak}"
+msgstr "Konnte keine Verfügbarkeit anlegen für AK: {ak}"
+
+#: .\AKScheduling\views.py:204
+#, python-brace-format
+msgid "Created default availabilities for {count} AKs"
+msgstr "Standardverfügbarkeiten für {count} AKs angelegt"
