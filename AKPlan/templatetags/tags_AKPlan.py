@@ -11,6 +11,11 @@ register = template.Library()
 
 @register.filter
 def highlight_change_colors(akslot):
+    # Do not highlight in preview mode or when changes occurred before the plan was published
+    if akslot.event.plan_hidden or (akslot.event.plan_published_at is not None
+                                    and akslot.event.plan_published_at > akslot.updated):
+        return akslot.ak.category.color
+
     seconds_since_update = akslot.seconds_since_last_update
 
     # Last change long ago? Use default color

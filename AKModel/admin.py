@@ -1,8 +1,9 @@
 from django import forms
 from django.apps import apps
-from django.contrib import admin
-from django.contrib.admin import SimpleListFilter, RelatedFieldListFilter
+from django.contrib import admin, messages
+from django.contrib.admin import SimpleListFilter, RelatedFieldListFilter, action
 from django.db.models import Count, F
+from django.db.models.functions import Now
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -31,11 +32,12 @@ class EventRelatedFieldListFilter(RelatedFieldListFilter):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     model = Event
-    list_display = ['name', 'status_url', 'place', 'start', 'end', 'active']
+    list_display = ['name', 'status_url', 'place', 'start', 'end', 'active', 'plan_hidden']
     list_filter = ['active']
     list_editable = ['active']
     ordering = ['-start']
-    readonly_fields = ['status_url']
+    readonly_fields = ['status_url', 'plan_hidden', 'plan_published_at']
+    actions = ['publish', 'unpublish']
 
     def add_view(self, request, form_url='', extra_context=None):
         # Always use wizard to create new events (the built-in form wouldn't work anyways since the timezone cannot
@@ -61,6 +63,16 @@ class EventAdmin(admin.ModelAdmin):
         # Use timezone of event
         timezone.activate(obj.timezone)
         return super().get_form(request, obj, change, **kwargs)
+
+    @action(description=_('Publish plan'))
+    def publish(self, request, queryset):
+        queryset.update(plan_published_at=Now(), plan_hidden=False)
+        self.message_user(request, _('Plan published'), messages.SUCCESS)
+
+    @action(description=_('Unpublish plan'))
+    def unpublish(self, request, queryset):
+        queryset.update(plan_published_at=None, plan_hidden=True)
+        self.message_user(request, _('Plan unpublished'), messages.SUCCESS)
 
 
 @admin.register(AKOwner)
