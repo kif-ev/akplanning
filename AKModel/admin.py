@@ -1,7 +1,7 @@
 from django import forms
 from django.apps import apps
 from django.contrib import admin, messages
-from django.contrib.admin import SimpleListFilter, RelatedFieldListFilter, action
+from django.contrib.admin import SimpleListFilter, RelatedFieldListFilter, action, display
 from django.db.models import Count, F
 from django.db.models.functions import Now
 from django.http import HttpResponseRedirect
@@ -56,11 +56,10 @@ class EventAdmin(admin.ModelAdmin):
         urls.extend(super().get_urls())
         return urls
 
+    @display(description=_("Status"))
     def status_url(self, obj):
         return format_html("<a href='{url}'>{text}</a>",
                            url=reverse_lazy('admin:event_status', kwargs={'slug': obj.slug}), text=_("Status"))
-
-    status_url.short_description = _("Status")
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of event
@@ -191,15 +190,13 @@ class AKAdmin(SimpleHistoryAdmin):
     actions = ['wiki_export', 'reset_interest', 'reset_interest_counter']
     form = AKAdminForm
 
+    @display(boolean=True)
     def is_wish(self, obj):
         return obj.wish
 
+    @action(description=_("Export to wiki syntax"))
     def wiki_export(self, request, queryset):
         return render(request, 'admin/AKModel/wiki_export.html', context={"AKs": queryset})
-
-    wiki_export.short_description = _("Export to wiki syntax")
-
-    is_wish.boolean = True
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'event':
@@ -214,15 +211,15 @@ class AKAdmin(SimpleHistoryAdmin):
         urls.extend(super().get_urls())
         return urls
 
+    @action(description=_("Reset interest in AKs"))
     def reset_interest(self, request, queryset):
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(f"{reverse_lazy('admin:ak-reset-interest')}?pks={','.join(str(pk) for pk in selected)}")
-    reset_interest.short_description = _("Reset interest in AKs")
 
+    @action(description=_("Reset AKs' interest counters"))
     def reset_interest_counter(self, request, queryset):
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(f"{reverse_lazy('admin:ak-reset-interest-counter')}?pks={','.join(str(pk) for pk in selected)}")
-    reset_interest_counter.short_description = _("Reset AKs' interest counters")
 
 
 class RoomForm(AvailabilitiesFormMixin, forms.ModelForm):
@@ -303,13 +300,12 @@ class AKSlotAdmin(admin.ModelAdmin):
             kwargs['initial'] = Event.get_next_active()
         return super(AKSlotAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
+    @display(description=_('AK Details'))
     def ak_details_link(self, akslot):
         if apps.is_installed("AKSubmission") and akslot.ak is not None:
             link = f"<a href={reverse('submit:ak_detail', args=[akslot.event.slug, akslot.ak.pk])}>{str(akslot.ak)}</a>"
             return mark_safe(link)
         return "-"
-
-    ak_details_link.short_description = _('AK Details')
 
 
 @admin.register(Availability)
@@ -361,17 +357,17 @@ class ConstraintViolationAdmin(admin.ModelAdmin):
         urls.extend(super().get_urls())
         return urls
 
+    @action(description=_("Mark Constraint Violations as manually resolved"))
     def mark_resolved(self, request, queryset):
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(f"{reverse_lazy('admin:cv-mark-resolved')}?pks={','.join(str(pk) for pk in selected)}")
-    mark_resolved.short_description = _("Mark Constraint Violations as manually resolved")
 
+    @action(description=_('Set Constraint Violations to level "violation"'))
     def set_violation(self, request, queryset):
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(f"{reverse_lazy('admin:cv-set-violation')}?pks={','.join(str(pk) for pk in selected)}")
-    set_violation.short_description = _('Set Constraint Violations to level "violation"')
 
+    @action(description=_('Set Constraint Violations to level "warning"'))
     def set_warning(self, request, queryset):
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(f"{reverse_lazy('admin:cv-set-warning')}?pks={','.join(str(pk) for pk in selected)}")
-    set_warning.short_description = _('Set Constraint Violations to level "warning"')
