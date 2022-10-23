@@ -11,6 +11,13 @@
         <h2><a href="{% url 'admin:AKModel_event_change' event.pk %}">{{event}}</a></h2>
         <h5>{{ event.start }} - {{ event.end }}</h5>
 
+        <div class="custom-control custom-switch mt-2 mb-2">
+          <input type="checkbox" class="custom-control-input" id="planPublishedSwitch"
+                 {% if not event.plan_hidden %}checked{% endif %}
+                 onclick="location.href='{% if event.plan_hidden %}{% url 'admin:plan-publish' %}{% else %}{% url 'admin:plan-unpublish' %}{% endif %}?pks={{event.pk}}';">
+          <label class="custom-control-label" for="planPublishedSwitch">{% trans "Plan published?" %}</label>
+        </div>
+
         <div class="row">
             <div class="col-md-8">
                 <h3 class="block-header">{% trans "Categories" %}</h3>

@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from itertools import zip_longest
 
 from django.contrib import admin, messages
+from django.db.models.functions import Now
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils.translation import gettext_lazy as _
@@ -474,3 +475,23 @@ class AKResetInterestCounterView(IntermediateAdminActionView):
 
     def action(self, form):
         self.entities.update(interest_counter=0)
+
+
+class PlanPublishView(IntermediateAdminActionView):
+    title = _('Publish plan')
+    model = Event
+    confirmation_message = _('Publish the plan(s) of:')
+    success_message = _('Plan published')
+
+    def action(self, form):
+        self.entities.update(plan_published_at=Now(), plan_hidden=False)
+
+
+class PlanUnpublishView(IntermediateAdminActionView):
+    title = _('Unpublish plan')
+    model = Event
+    confirmation_message = _('Unpublish the plan(s) of:')
+    success_message = _('Plan unpublished')
+
+    def action(self, form):
+        self.entities.update(plan_published_at=None, plan_hidden=True)

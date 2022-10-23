@@ -3,7 +3,6 @@ from django.apps import apps
 from django.contrib import admin, messages
 from django.contrib.admin import SimpleListFilter, RelatedFieldListFilter, action, display
 from django.db.models import Count, F
-from django.db.models.functions import Now
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, path
@@ -20,7 +19,7 @@ from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequire
     ConstraintViolation
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
 from AKModel.views import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView, AKResetInterestView, \
-    AKResetInterestCounterView
+    AKResetInterestCounterView, PlanPublishView, PlanUnpublishView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -39,7 +38,7 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = ['active']
     list_editable = ['active']
     ordering = ['-start']
-    readonly_fields = ['status_url', 'plan_hidden', 'plan_published_at']
+    readonly_fields = ['status_url', 'plan_hidden', 'plan_published_at', 'toggle_plan_visibility']
     actions = ['publish', 'unpublish']
 
     def add_view(self, request, form_url='', extra_context=None):
@@ -53,6 +52,10 @@ class EventAdmin(admin.ModelAdmin):
         if apps.is_installed("AKScheduling"):
             from AKScheduling.urls import get_admin_urls_scheduling
             urls.extend(get_admin_urls_scheduling(self.admin_site))
+        urls.extend([
+            path('plan/publish/', PlanPublishView.as_view(), name="plan-publish"),
+            path('plan/unpublish/', PlanUnpublishView.as_view(), name="plan-unpublish"),
+        ])
         urls.extend(super().get_urls())
         return urls
 
@@ -61,6 +64,16 @@ class EventAdmin(admin.ModelAdmin):
         return format_html("<a href='{url}'>{text}</a>",
                            url=reverse_lazy('admin:event_status', kwargs={'slug': obj.slug}), text=_("Status"))
 
+    @display(description=_("Toggle plan visibility"))
+    def toggle_plan_visibility(self, obj):
+        if obj.plan_hidden:
+            url = f"{reverse_lazy('admin:plan-publish')}?pks={obj.pk}"
+            text = _('Publish plan')
+        else:
+            url = f"{reverse_lazy('admin:plan-unpublish')}?pks={obj.pk}"
+            text = _('Unpublish plan')
+        return format_html("<a href='{url}'>{text}</a>", url=url, text=text)
+
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of event
         timezone.activate(obj.timezone)
@@ -68,13 +81,13 @@ class EventAdmin(admin.ModelAdmin):
 
     @action(description=_('Publish plan'))
     def publish(self, request, queryset):
-        queryset.update(plan_published_at=Now(), plan_hidden=False)
-        self.message_user(request, _('Plan published'), messages.SUCCESS)
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:plan-publish')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_('Unpublish plan'))
     def unpublish(self, request, queryset):
-        queryset.update(plan_published_at=None, plan_hidden=True)
-        self.message_user(request, _('Plan unpublished'), messages.SUCCESS)
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:plan-unpublish')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 @admin.register(AKOwner)
