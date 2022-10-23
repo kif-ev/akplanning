@@ -369,7 +369,7 @@ class ConstraintViolationAdmin(admin.ModelAdmin):
     def set_violation(self, request, queryset):
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(f"{reverse_lazy('admin:cv-set-violation')}?pks={','.join(str(pk) for pk in selected)}")
-    set_violation.short_description = _('Set to Constraint Violations to level "violation"')
+    set_violation.short_description = _('Set Constraint Violations to level "violation"')
 
     def set_warning(self, request, queryset):
         selected = queryset.values_list('pk', flat=True)
