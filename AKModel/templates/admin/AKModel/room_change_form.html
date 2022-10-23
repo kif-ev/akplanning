@@ -2,15 +2,23 @@
 {% load i18n admin_urls %}
 {% load static %}
 {% load bootstrap4 %}
+{% load tz %}
 
 {% block extrahead %}
     {{ block.super }}
     {% bootstrap_javascript jquery='slim' %}
-    <link href='{% static 'AKSubmission/vendor/fullcalendar3/fullcalendar.min.css' %}' rel='stylesheet'/>
-    <link href='{% static 'AKSubmission/css/availabilities.css' %}' rel='stylesheet'/>
-
-    <script src="{% static "AKSubmission/vendor/moment/moment-with-locales.js" %}"></script>
-    <script src="{% static "AKSubmission/vendor/moment-timezone/moment-timezone-with-data-10-year-range.js" %}"></script>
-    <script src='{% static 'AKSubmission/vendor/fullcalendar3/fullcalendar.min.js' %}'></script>
+    {% include "AKPlan/load_fullcalendar.html" %}
     <script src="{% static "common/js/availabilities.js" %}"></script>
+    <script>
+        {% get_current_language as LANGUAGE_CODE %}
+
+        document.addEventListener('DOMContentLoaded', function () {
+            createAvailabilityEditors(
+                '{{ original.event.timezone }}',
+                '{{ LANGUAGE_CODE }}',
+                '{{ original.event.start | timezone:original.event.timezone | date:"Y-m-d H:i:s" }}',
+                '{{ original.event.end | timezone:original.event.timezone | date:"Y-m-d H:i:s" }}'
+            );
+        });
+    </script>
 {% endblock %}
