@@ -349,7 +349,7 @@ class ConstraintViolationAdminForm(forms.ModelForm):
 
 @admin.register(ConstraintViolation)
 class ConstraintViolationAdmin(admin.ModelAdmin):
-    list_display = ['type', 'level', 'get_details']
+    list_display = ['type', 'level', 'get_details', 'manually_resolved']
     list_filter = ['event']
     readonly_fields = ['timestamp']
     form = ConstraintViolationAdminForm

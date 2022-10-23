@@ -376,6 +376,7 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
 
 class IntermediateAdminActionView(IntermediateAdminView, ABC):
     form_class = AdminIntermediateActionForm
+    entities = None
 
     def get_queryset(self, pks=None):
         if pks is None:
@@ -388,24 +389,41 @@ class IntermediateAdminActionView(IntermediateAdminView, ABC):
         return initial
 
     def get_preview(self):
-        entities = self.get_queryset()
-        joined_entities = '\n'.join(str(e) for e in entities)
+        self.entities = self.get_queryset()
+        joined_entities = '\n'.join(str(e) for e in self.entities)
         return f"{self.confirmation_message}:\n\n {joined_entities}"
 
     def get_success_url(self):
         return reverse(f"admin:{self.model._meta.app_label}_{self.model._meta.model_name}_changelist")
 
     @abstractmethod
-    def perform_action(self, entity):
+    def action(self, form):
         pass
 
     def form_valid(self, form):
-        entities = self.get_queryset(pks=form.cleaned_data['pks'])
-        for entity in entities:
-            self.perform_action(entity)
-            entity.save()
+        self.entities = self.get_queryset(pks=form.cleaned_data['pks'])
+        self.action(form)
         messages.add_message(self.request, messages.SUCCESS, self.success_message)
         return super().form_valid(form)
+
+
+class LoopActionMixin(ABC):
+    def action(self, form):
+        self.pre_action()
+        for entity in self.entities:
+            self.perform_action(entity)
+            entity.save()
+        self.post_action()
+
+    @abstractmethod
+    def perform_action(self, entity):
+        pass
+
+    def pre_action(self):
+        pass
+
+    def post_action(self):
+        pass
 
 
 class CVMarkResolvedView(IntermediateAdminActionView):
@@ -414,8 +432,8 @@ class CVMarkResolvedView(IntermediateAdminActionView):
     confirmation_message = _("The following Constraint Violations will be marked as manually resolved")
     success_message = _("Constraint Violations marked as resolved")
 
-    def perform_action(self, entity):
-        entity.manually_resolved = True
+    def action(self, form):
+        self.entities.update(manually_resolved=True)
 
 
 class CVSetLevelViolationView(IntermediateAdminActionView):
@@ -424,8 +442,8 @@ class CVSetLevelViolationView(IntermediateAdminActionView):
     confirmation_message = _("The following Constraint Violations will be set to level 'violation'")
     success_message = _("Constraint Violations set to level 'violation'")
 
-    def perform_action(self, entity):
-        entity.level = ConstraintViolation.ViolationLevel.VIOLATION
+    def action(self, form):
+        self.entities.update(level=ConstraintViolation.ViolationLevel.VIOLATION)
 
 
 class CVSetLevelWarningView(IntermediateAdminActionView):
@@ -434,8 +452,8 @@ class CVSetLevelWarningView(IntermediateAdminActionView):
     confirmation_message = _("The following Constraint Violations will be set to level 'warning'")
     success_message = _("Constraint Violations set to level 'warning'")
 
-    def perform_action(self, entity):
-        entity.level = ConstraintViolation.ViolationLevel.WARNING
+    def action(self, form):
+        self.entities.update(level=ConstraintViolation.ViolationLevel.WARNING)
 
 
 class AKResetInterestView(IntermediateAdminActionView):
@@ -444,8 +462,8 @@ class AKResetInterestView(IntermediateAdminActionView):
     confirmation_message = _("Interest of the following AKs will be set to not filled (-1):")
     success_message = _("Reset of interest in AKs successful.")
 
-    def perform_action(self, entity):
-        entity.interest = -1
+    def action(self, form):
+        self.entities.update(interest=-1)
 
 
 class AKResetInterestCounterView(IntermediateAdminActionView):
@@ -454,5 +472,5 @@ class AKResetInterestCounterView(IntermediateAdminActionView):
     confirmation_message = _("Interest counter of the following AKs will be set to 0:")
     success_message = _("AKs' interest counters set back to 0.")
 
-    def perform_action(self, entity):
-        entity.interest_counter = 0
+    def action(self, form):
+        self.entities.update(interest_counter=0)
