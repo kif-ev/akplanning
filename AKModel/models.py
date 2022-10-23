@@ -73,7 +73,7 @@ class Event(models.Model):
             event = Event.objects.order_by('start').filter(start__gt=datetime.now()).first()
         return event
 
-    def get_categories_with_aks(self, wishes_seperately=False, filter=lambda ak: True):
+    def get_categories_with_aks(self, wishes_seperately=False, filter=lambda ak: True, hide_empty_categories=False):
         """
         Get AKCategories as well as a list of AKs belonging to the category for this event
 
@@ -97,7 +97,8 @@ class Event(models.Model):
                     else:
                         if filter(ak):
                             ak_list.append(ak)
-                categories_with_aks.append((category, ak_list))
+                if not hide_empty_categories or len(ak_list) > 0:
+                    categories_with_aks.append((category, ak_list))
             return categories_with_aks, ak_wishes
         else:
             for category in categories:
@@ -105,7 +106,8 @@ class Event(models.Model):
                 for ak in category.ak_set.all():
                     if filter(ak):
                         ak_list.append(ak)
-                categories_with_aks.append((category, ak_list))
+                if not hide_empty_categories or len(ak_list) > 0:
+                    categories_with_aks.append((category, ak_list))
             return categories_with_aks
 
     def get_unscheduled_wish_slots(self):

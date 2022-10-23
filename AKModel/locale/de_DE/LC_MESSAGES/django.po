@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-23 19:20+0000\n"
+"POT-Creation-Date: 2022-10-23 23:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKModel/admin.py:61 AKModel/admin.py:63
+#: AKModel/admin.py:59 AKModel/admin.py:62
 #: AKModel/templates/admin/AKModel/event_wizard/activate.html:32
 #: AKModel/templates/admin/AKModel/event_wizard/created_prepare_import.html:48
 #: AKModel/templates/admin/AKModel/event_wizard/finish.html:21
@@ -21,37 +21,41 @@ msgstr ""
 msgid "Status"
 msgstr "Status"
 
-#: AKModel/admin.py:70
+#: AKModel/admin.py:69
 msgid "Publish plan"
 msgstr "Plan veröffentlichen"
 
-#: AKModel/admin.py:73
+#: AKModel/admin.py:72
 msgid "Plan published"
 msgstr "Plan veröffentlicht"
 
-#: AKModel/admin.py:75
+#: AKModel/admin.py:74
 msgid "Unpublish plan"
 msgstr "Plan verbergen"
 
-#: AKModel/admin.py:78
+#: AKModel/admin.py:77
 msgid "Plan unpublished"
 msgstr "Plan verborgen"
 
-#: AKModel/admin.py:147
+#: AKModel/admin.py:146
 msgid "Wish"
 msgstr "AK-Wunsch"
 
-#: AKModel/admin.py:153
+#: AKModel/admin.py:152
 msgid "Is wish"
 msgstr "Ist ein Wunsch"
 
-#: AKModel/admin.py:154
+#: AKModel/admin.py:153
 msgid "Is not a wish"
 msgstr "Ist kein Wunsch"
 
-#: AKModel/admin.py:200
+#: AKModel/admin.py:197
 msgid "Export to wiki syntax"
 msgstr "In Wiki-Syntax exportieren"
+
+#: AKModel/admin.py:205
+msgid "Cannot export AKs from more than one event at the same time."
+msgstr "Kann nicht AKs von mehreren Events zur selben Zeit exportieren."
 
 #: AKModel/admin.py:220 AKModel/views.py:442
 msgid "Reset interest in AKs"
@@ -61,19 +65,19 @@ msgstr "Interesse an AKs zurücksetzen"
 msgid "Reset AKs' interest counters"
 msgstr "Interessenszähler der AKs zurücksetzen"
 
-#: AKModel/admin.py:312
+#: AKModel/admin.py:309
 msgid "AK Details"
 msgstr "AK-Details"
 
-#: AKModel/admin.py:367 AKModel/views.py:412
+#: AKModel/admin.py:366 AKModel/views.py:412
 msgid "Mark Constraint Violations as manually resolved"
 msgstr "Markiere Constraintverletzungen als manuell behoben"
 
-#: AKModel/admin.py:372 AKModel/views.py:422
+#: AKModel/admin.py:371 AKModel/views.py:422
 msgid "Set Constraint Violations to level \"violation\""
 msgstr "Constraintverletzungen auf Level \"Violation\" setzen"
 
-#: AKModel/admin.py:377 AKModel/views.py:432
+#: AKModel/admin.py:376 AKModel/views.py:432
 msgid "Set Constraint Violations to level \"warning\""
 msgstr "Constraintverletzungen auf Level \"Warning\" setzen"
 

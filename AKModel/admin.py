@@ -196,7 +196,14 @@ class AKAdmin(SimpleHistoryAdmin):
 
     @action(description=_("Export to wiki syntax"))
     def wiki_export(self, request, queryset):
-        return render(request, 'admin/AKModel/wiki_export.html', context={"AKs": queryset})
+        # Only export when all AKs belong to the same event
+        if queryset.values("event").distinct().count() == 1:
+            event = queryset.first().event
+            pks = set(ak.pk for ak in queryset.all())
+            categories_with_aks = event.get_categories_with_aks(wishes_seperately=False, filter=lambda ak: ak.pk in pks,
+                                                                hide_empty_categories=True)
+            return render(request, 'admin/AKModel/wiki_export.html', context={"categories_with_aks": categories_with_aks})
+        self.message_user(request, _("Cannot export AKs from more than one event at the same time."), messages.ERROR)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'event':
