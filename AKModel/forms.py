@@ -73,3 +73,31 @@ class NewEventWizardActivateForm(forms.ModelForm):
 
 class AdminIntermediateForm(forms.Form):
     pass
+
+
+class AdminIntermediateActionForm(AdminIntermediateForm):
+    pks = forms.CharField(widget=forms.HiddenInput)
+
+
+class SlideExportForm(AdminIntermediateForm):
+    num_next = forms.IntegerField(
+        min_value=0,
+        max_value=6,
+        initial=3,
+        label=_("# next AKs"),
+        help_text=_("How many next AKs should be shown on a slide?"))
+    presentation_mode = forms.TypedChoiceField(
+        initial=False,
+        label=_("Presentation only?"),
+        widget=forms.RadioSelect,
+        choices=((True, _('Yes')), (False, _('No'))),
+        coerce=lambda x: x == "True",
+        help_text=_("Restrict AKs to those that asked for chance to be presented?"))
+    wish_notes = forms.TypedChoiceField(
+        initial=False,
+        label=_("Space for notes in wishes?"),
+        widget=forms.RadioSelect,
+        choices=((True, _('Yes')), (False, _('No'))),
+        coerce=lambda x: x == "True",
+        help_text=_("Create symbols indicating space to note down owners and timeslots for wishes, e.g., to be filled "
+                    "out on a touch screen while presenting?"))

@@ -1,19 +1,23 @@
+import os
+import tempfile
 from abc import ABC, abstractmethod
 from itertools import zip_longest
 
 from django.contrib import admin, messages
-from django.contrib.admin.views.decorators import staff_member_required
-from django.http import HttpResponseRedirect
+from django.db.models.functions import Now
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, DetailView, ListView, DeleteView, CreateView, FormView, UpdateView
-from django_tex.shortcuts import render_to_pdf
+from django_tex.core import render_template_with_context, run_tex_in_directory
+from django_tex.response import PDFResponse
 from rest_framework import viewsets, permissions, mixins
 
 from AKModel.forms import NewEventWizardStartForm, NewEventWizardSettingsForm, NewEventWizardPrepareImportForm, \
-    NewEventWizardImportForm, NewEventWizardActivateForm, AdminIntermediateForm
-from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner, AKOrgaMessage, AKRequirement
+    NewEventWizardImportForm, NewEventWizardActivateForm, AdminIntermediateForm, SlideExportForm, \
+    AdminIntermediateActionForm
+from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner, AKOrgaMessage, AKRequirement, \
+    ConstraintViolation
 from AKModel.serializers import AKSerializer, AKSlotSerializer, RoomSerializer, AKTrackSerializer, AKCategorySerializer, \
     AKOwnerSerializer
 
@@ -195,13 +199,12 @@ class AKWikiExportView(AdminViewMixin, DetailView):
         return context
 
 
-class IntermediateAdminView(AdminViewMixin, FormView, ABC):
+class IntermediateAdminView(AdminViewMixin, FormView):
     template_name = "admin/AKModel/action_intermediate.html"
     form_class = AdminIntermediateForm
 
-    @abstractmethod
     def get_preview(self):
-        pass
+        return ""
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -216,9 +219,6 @@ class AKMessageDeleteView(EventSlugMixin, IntermediateAdminView):
 
     def get_orga_messages_for_event(self, event):
         return AKOrgaMessage.objects.filter(ak__event=event)
-
-    def get_preview(self):
-        return None
 
     def get_success_url(self):
         return reverse_lazy('admin:event_status', kwargs={'slug': self.event.slug})
@@ -326,41 +326,172 @@ class NewEventWizardFinishView(WizardViewMixin, DetailView):
     wizard_step = 6
 
 
-@staff_member_required
-def export_slides(request, event_slug):
-    template_name = 'admin/AKModel/export/slides.tex'
+class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
+    title = _('Export AK Slides')
+    form_class = SlideExportForm
 
-    event = get_object_or_404(Event, slug=event_slug)
+    def form_valid(self, form):
+        template_name = 'admin/AKModel/export/slides.tex'
 
-    NEXT_AK_LIST_LENGTH = int(request.GET["num_next"]) if "num_next" in request.GET else 3
-    RESULT_PRESENTATION_MODE = True if "presentation_mode" in request.GET else False
-    SPACE_FOR_NOTES_IN_WISHES = request.GET["wish_notes"] == "True" if "wish_notes" in request.GET else False
+        NEXT_AK_LIST_LENGTH = form.cleaned_data['num_next']
+        RESULT_PRESENTATION_MODE = form.cleaned_data["presentation_mode"]
+        SPACE_FOR_NOTES_IN_WISHES = form.cleaned_data["wish_notes"]
 
-    translations = {
-        'symbols': _("Symbols"),
-        'who': _("Who?"),
-        'duration': _("Duration(s)"),
-        'reso': _("Reso intention?"),
-        'category': _("Category (for Wishes)"),
-        'wishes': _("Wishes"),
-    }
+        translations = {
+            'symbols': _("Symbols"),
+            'who': _("Who?"),
+            'duration': _("Duration(s)"),
+            'reso': _("Reso intention?"),
+            'category': _("Category (for Wishes)"),
+            'wishes': _("Wishes"),
+        }
 
-    def build_ak_list_with_next_aks(ak_list):
-        next_aks_list = zip_longest(*[ak_list[i + 1:] for i in range(NEXT_AK_LIST_LENGTH)], fillvalue=None)
-        return [(ak, next_aks) for ak, next_aks in zip_longest(ak_list, next_aks_list, fillvalue=list())]
+        def build_ak_list_with_next_aks(ak_list):
+            next_aks_list = zip_longest(*[ak_list[i + 1:] for i in range(NEXT_AK_LIST_LENGTH)], fillvalue=None)
+            return [(ak, next_aks) for ak, next_aks in zip_longest(ak_list, next_aks_list, fillvalue=list())]
 
-    categories_with_aks, ak_wishes = event.get_categories_with_aks(wishes_seperately=True, filter=lambda
-        ak: not RESULT_PRESENTATION_MODE or (ak.present or (ak.present is None and ak.category.present_by_default)))
+        categories_with_aks, ak_wishes = self.event.get_categories_with_aks(wishes_seperately=True, filter=lambda
+            ak: not RESULT_PRESENTATION_MODE or (ak.present or (ak.present is None and ak.category.present_by_default)))
 
-    context = {
-        'title': event.name,
-        'categories_with_aks': [(category, build_ak_list_with_next_aks(ak_list)) for category, ak_list in
-                                categories_with_aks],
-        'subtitle': _("AKs"),
-        "wishes": build_ak_list_with_next_aks(ak_wishes),
-        "translations": translations,
-        "result_presentation_mode": RESULT_PRESENTATION_MODE,
-        "space_for_notes_in_wishes": SPACE_FOR_NOTES_IN_WISHES,
-    }
+        context = {
+            'title': self.event.name,
+            'categories_with_aks': [(category, build_ak_list_with_next_aks(ak_list)) for category, ak_list in
+                                    categories_with_aks],
+            'subtitle': _("AKs"),
+            "wishes": build_ak_list_with_next_aks(ak_wishes),
+            "translations": translations,
+            "result_presentation_mode": RESULT_PRESENTATION_MODE,
+            "space_for_notes_in_wishes": SPACE_FOR_NOTES_IN_WISHES,
+        }
 
-    return render_to_pdf(request, template_name, context, filename='slides.pdf')
+        source = render_template_with_context(template_name, context)
+
+        # Perform real compilation (run latex twice for correct page numbers)
+        with tempfile.TemporaryDirectory() as tempdir:
+            run_tex_in_directory(source, tempdir, template_name=self.template_name)
+            os.remove(f'{tempdir}/texput.tex')
+            pdf = run_tex_in_directory(source, tempdir, template_name=self.template_name)
+
+        return PDFResponse(pdf, filename='slides.pdf')
+
+
+class IntermediateAdminActionView(IntermediateAdminView, ABC):
+    form_class = AdminIntermediateActionForm
+    entities = None
+
+    def get_queryset(self, pks=None):
+        if pks is None:
+            pks = self.request.GET['pks']
+        return self.model.objects.filter(pk__in=pks.split(","))
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['pks'] = self.request.GET['pks']
+        return initial
+
+    def get_preview(self):
+        self.entities = self.get_queryset()
+        joined_entities = '\n'.join(str(e) for e in self.entities)
+        return f"{self.confirmation_message}:\n\n {joined_entities}"
+
+    def get_success_url(self):
+        return reverse(f"admin:{self.model._meta.app_label}_{self.model._meta.model_name}_changelist")
+
+    @abstractmethod
+    def action(self, form):
+        pass
+
+    def form_valid(self, form):
+        self.entities = self.get_queryset(pks=form.cleaned_data['pks'])
+        self.action(form)
+        messages.add_message(self.request, messages.SUCCESS, self.success_message)
+        return super().form_valid(form)
+
+
+class LoopActionMixin(ABC):
+    def action(self, form):
+        self.pre_action()
+        for entity in self.entities:
+            self.perform_action(entity)
+            entity.save()
+        self.post_action()
+
+    @abstractmethod
+    def perform_action(self, entity):
+        pass
+
+    def pre_action(self):
+        pass
+
+    def post_action(self):
+        pass
+
+
+class CVMarkResolvedView(IntermediateAdminActionView):
+    title = _('Mark Constraint Violations as manually resolved')
+    model = ConstraintViolation
+    confirmation_message = _("The following Constraint Violations will be marked as manually resolved")
+    success_message = _("Constraint Violations marked as resolved")
+
+    def action(self, form):
+        self.entities.update(manually_resolved=True)
+
+
+class CVSetLevelViolationView(IntermediateAdminActionView):
+    title = _('Set Constraint Violations to level "violation"')
+    model = ConstraintViolation
+    confirmation_message = _("The following Constraint Violations will be set to level 'violation'")
+    success_message = _("Constraint Violations set to level 'violation'")
+
+    def action(self, form):
+        self.entities.update(level=ConstraintViolation.ViolationLevel.VIOLATION)
+
+
+class CVSetLevelWarningView(IntermediateAdminActionView):
+    title = _('Set Constraint Violations to level "warning"')
+    model = ConstraintViolation
+    confirmation_message = _("The following Constraint Violations will be set to level 'warning'")
+    success_message = _("Constraint Violations set to level 'warning'")
+
+    def action(self, form):
+        self.entities.update(level=ConstraintViolation.ViolationLevel.WARNING)
+
+
+class AKResetInterestView(IntermediateAdminActionView):
+    title = _("Reset interest in AKs")
+    model = AK
+    confirmation_message = _("Interest of the following AKs will be set to not filled (-1):")
+    success_message = _("Reset of interest in AKs successful.")
+
+    def action(self, form):
+        self.entities.update(interest=-1)
+
+
+class AKResetInterestCounterView(IntermediateAdminActionView):
+    title = _("Reset AKs' interest counters")
+    model = AK
+    confirmation_message = _("Interest counter of the following AKs will be set to 0:")
+    success_message = _("AKs' interest counters set back to 0.")
+
+    def action(self, form):
+        self.entities.update(interest_counter=0)
+
+
+class PlanPublishView(IntermediateAdminActionView):
+    title = _('Publish plan')
+    model = Event
+    confirmation_message = _('Publish the plan(s) of:')
+    success_message = _('Plan published')
+
+    def action(self, form):
+        self.entities.update(plan_published_at=Now(), plan_hidden=False)
+
+
+class PlanUnpublishView(IntermediateAdminActionView):
+    title = _('Unpublish plan')
+    model = Event
+    confirmation_message = _('Unpublish the plan(s) of:')
+    success_message = _('Plan unpublished')
+
+    def action(self, form):
+        self.entities.update(plan_published_at=None, plan_hidden=True)

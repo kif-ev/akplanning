@@ -1,11 +1,11 @@
 from django import forms
 from django.apps import apps
 from django.contrib import admin, messages
-from django.contrib.admin import SimpleListFilter, RelatedFieldListFilter, action
+from django.contrib.admin import SimpleListFilter, RelatedFieldListFilter, action, display
 from django.db.models import Count, F
-from django.db.models.functions import Now
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, path
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -18,6 +18,8 @@ from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
+from AKModel.views import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView, AKResetInterestView, \
+    AKResetInterestCounterView, PlanPublishView, PlanUnpublishView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -36,7 +38,7 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = ['active']
     list_editable = ['active']
     ordering = ['-start']
-    readonly_fields = ['status_url', 'plan_hidden', 'plan_published_at']
+    readonly_fields = ['status_url', 'plan_hidden', 'plan_published_at', 'toggle_plan_visibility']
     actions = ['publish', 'unpublish']
 
     def add_view(self, request, form_url='', extra_context=None):
@@ -50,14 +52,27 @@ class EventAdmin(admin.ModelAdmin):
         if apps.is_installed("AKScheduling"):
             from AKScheduling.urls import get_admin_urls_scheduling
             urls.extend(get_admin_urls_scheduling(self.admin_site))
+        urls.extend([
+            path('plan/publish/', PlanPublishView.as_view(), name="plan-publish"),
+            path('plan/unpublish/', PlanUnpublishView.as_view(), name="plan-unpublish"),
+        ])
         urls.extend(super().get_urls())
         return urls
 
+    @display(description=_("Status"))
     def status_url(self, obj):
         return format_html("<a href='{url}'>{text}</a>",
                            url=reverse_lazy('admin:event_status', kwargs={'slug': obj.slug}), text=_("Status"))
 
-    status_url.short_description = _("Status")
+    @display(description=_("Toggle plan visibility"))
+    def toggle_plan_visibility(self, obj):
+        if obj.plan_hidden:
+            url = f"{reverse_lazy('admin:plan-publish')}?pks={obj.pk}"
+            text = _('Publish plan')
+        else:
+            url = f"{reverse_lazy('admin:plan-unpublish')}?pks={obj.pk}"
+            text = _('Unpublish plan')
+        return format_html("<a href='{url}'>{text}</a>", url=url, text=text)
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Use timezone of event
@@ -66,13 +81,13 @@ class EventAdmin(admin.ModelAdmin):
 
     @action(description=_('Publish plan'))
     def publish(self, request, queryset):
-        queryset.update(plan_published_at=Now(), plan_hidden=False)
-        self.message_user(request, _('Plan published'), messages.SUCCESS)
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:plan-publish')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_('Unpublish plan'))
     def unpublish(self, request, queryset):
-        queryset.update(plan_published_at=None, plan_hidden=True)
-        self.message_user(request, _('Plan unpublished'), messages.SUCCESS)
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:plan-unpublish')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 @admin.register(AKOwner)
@@ -185,23 +200,46 @@ class AKAdmin(SimpleHistoryAdmin):
     list_filter = ['event', WishFilter, ('category', EventRelatedFieldListFilter), ('requirements', EventRelatedFieldListFilter)]
     list_editable = ['short_name', 'track', 'interest_counter']
     ordering = ['pk']
-    actions = ['wiki_export']
+    actions = ['wiki_export', 'reset_interest', 'reset_interest_counter']
     form = AKAdminForm
 
+    @display(boolean=True)
     def is_wish(self, obj):
         return obj.wish
 
+    @action(description=_("Export to wiki syntax"))
     def wiki_export(self, request, queryset):
-        return render(request, 'admin/AKModel/wiki_export.html', context={"AKs": queryset})
-
-    wiki_export.short_description = _("Export to wiki syntax")
-
-    is_wish.boolean = True
+        # Only export when all AKs belong to the same event
+        if queryset.values("event").distinct().count() == 1:
+            event = queryset.first().event
+            pks = set(ak.pk for ak in queryset.all())
+            categories_with_aks = event.get_categories_with_aks(wishes_seperately=False, filter=lambda ak: ak.pk in pks,
+                                                                hide_empty_categories=True)
+            return render(request, 'admin/AKModel/wiki_export.html', context={"categories_with_aks": categories_with_aks})
+        self.message_user(request, _("Cannot export AKs from more than one event at the same time."), messages.ERROR)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'event':
             kwargs['initial'] = Event.get_next_active()
         return super(AKAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def get_urls(self):
+        urls = [
+            path('reset-interest/', AKResetInterestView.as_view(), name="ak-reset-interest"),
+            path('reset-interest-counter/', AKResetInterestCounterView.as_view(), name="ak-reset-interest-counter"),
+        ]
+        urls.extend(super().get_urls())
+        return urls
+
+    @action(description=_("Reset interest in AKs"))
+    def reset_interest(self, request, queryset):
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:ak-reset-interest')}?pks={','.join(str(pk) for pk in selected)}")
+
+    @action(description=_("Reset AKs' interest counters"))
+    def reset_interest_counter(self, request, queryset):
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:ak-reset-interest-counter')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 class RoomForm(AvailabilitiesFormMixin, forms.ModelForm):
@@ -282,13 +320,12 @@ class AKSlotAdmin(admin.ModelAdmin):
             kwargs['initial'] = Event.get_next_active()
         return super(AKSlotAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
+    @display(description=_('AK Details'))
     def ak_details_link(self, akslot):
         if apps.is_installed("AKSubmission") and akslot.ak is not None:
             link = f"<a href={reverse('submit:ak_detail', args=[akslot.event.slug, akslot.ak.pk])}>{str(akslot.ak)}</a>"
             return mark_safe(link)
         return "-"
-
-    ak_details_link.short_description = _('AK Details')
 
 
 @admin.register(Availability)
@@ -325,7 +362,32 @@ class ConstraintViolationAdminForm(forms.ModelForm):
 
 @admin.register(ConstraintViolation)
 class ConstraintViolationAdmin(admin.ModelAdmin):
-    list_display = ['type', 'level', 'get_details']
+    list_display = ['type', 'level', 'get_details', 'manually_resolved']
     list_filter = ['event']
     readonly_fields = ['timestamp']
     form = ConstraintViolationAdminForm
+    actions = ['mark_resolved', 'set_violation', 'set_warning']
+
+    def get_urls(self):
+        urls = [
+            path('mark-resolved/', CVMarkResolvedView.as_view(), name="cv-mark-resolved"),
+            path('set-violation/', CVSetLevelViolationView.as_view(), name="cv-set-violation"),
+            path('set-warning/', CVSetLevelWarningView.as_view(), name="cv-set-warning"),
+        ]
+        urls.extend(super().get_urls())
+        return urls
+
+    @action(description=_("Mark Constraint Violations as manually resolved"))
+    def mark_resolved(self, request, queryset):
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:cv-mark-resolved')}?pks={','.join(str(pk) for pk in selected)}")
+
+    @action(description=_('Set Constraint Violations to level "violation"'))
+    def set_violation(self, request, queryset):
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:cv-set-violation')}?pks={','.join(str(pk) for pk in selected)}")
+
+    @action(description=_('Set Constraint Violations to level "warning"'))
+    def set_warning(self, request, queryset):
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:cv-set-warning')}?pks={','.join(str(pk) for pk in selected)}")
