@@ -7,8 +7,8 @@
 {% block extrahead %}
     {{ block.super }}
     {% bootstrap_javascript jquery='slim' %}
-    {% include "AKPlan/load_fullcalendar.html" %}
-    <script src="{% static "common/js/availabilities.js" %}"></script>
+    {% include "AKModel/load_fullcalendar_availabilities.html" %}
+
     <script>
         {% get_current_language as LANGUAGE_CODE %}
 

@@ -2,8 +2,8 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 
-<link href='{% static 'AKPlan/vendor/fullcalendar-scheduler/main.css' %}' rel='stylesheet'/>
-<script src='{% static 'AKPlan/vendor/fullcalendar-scheduler/main.js' %}'></script>
+<link href='{% static 'common/vendor/fullcalendar-scheduler/main.css' %}' rel='stylesheet'/>
+<script src='{% static 'common/vendor/fullcalendar-scheduler/main.js' %}'></script>
 
 {% with 'AKPlan/vendor/fullcalendar-scheduler/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
     {% if LANGUAGE_CODE != "en" %}
