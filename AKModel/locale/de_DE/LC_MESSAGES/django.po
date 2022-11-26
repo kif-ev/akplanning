@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-24 00:20+0200\n"
+"POT-Creation-Date: 2022-11-26 23:16+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,19 +61,19 @@ msgstr "Interesse an AKs zurücksetzen"
 msgid "Reset AKs' interest counters"
 msgstr "Interessenszähler der AKs zurücksetzen"
 
-#: AKModel/admin.py:323
+#: AKModel/admin.py:323 AKModel/admin.py:330
 msgid "AK Details"
 msgstr "AK-Details"
 
-#: AKModel/admin.py:380 AKModel/views.py:431
+#: AKModel/admin.py:382 AKModel/views.py:431
 msgid "Mark Constraint Violations as manually resolved"
 msgstr "Markiere Constraintverletzungen als manuell behoben"
 
-#: AKModel/admin.py:385 AKModel/views.py:441
+#: AKModel/admin.py:387 AKModel/views.py:441
 msgid "Set Constraint Violations to level \"violation\""
 msgstr "Constraintverletzungen auf Level \"Violation\" setzen"
 
-#: AKModel/admin.py:390 AKModel/views.py:451
+#: AKModel/admin.py:392 AKModel/views.py:451
 msgid "Set Constraint Violations to level \"warning\""
 msgstr "Constraintverletzungen auf Level \"Warning\" setzen"
 
@@ -104,14 +104,14 @@ msgstr "Bitte Verfügbarkeiten eintragen!"
 #: AKModel/availability/models.py:38 AKModel/models.py:56 AKModel/models.py:128
 #: AKModel/models.py:183 AKModel/models.py:202 AKModel/models.py:234
 #: AKModel/models.py:288 AKModel/models.py:354 AKModel/models.py:387
-#: AKModel/models.py:458 AKModel/models.py:499
+#: AKModel/models.py:458 AKModel/models.py:499 AKModel/models.py:664
 msgid "Event"
 msgstr "Event"
 
 #: AKModel/availability/models.py:39 AKModel/models.py:129
 #: AKModel/models.py:184 AKModel/models.py:203 AKModel/models.py:235
 #: AKModel/models.py:289 AKModel/models.py:355 AKModel/models.py:388
-#: AKModel/models.py:459 AKModel/models.py:500
+#: AKModel/models.py:459 AKModel/models.py:500 AKModel/models.py:665
 msgid "Associated event"
 msgstr "Zugehöriges Event"
 
@@ -641,11 +641,11 @@ msgstr "AK, der zugeordnet wird"
 msgid "Room the AK will take place in"
 msgstr "Raum in dem der AK stattfindet"
 
-#: AKModel/models.py:379
+#: AKModel/models.py:379 AKModel/models.py:661
 msgid "Slot Begin"
 msgstr "Beginn des Slots"
 
-#: AKModel/models.py:379
+#: AKModel/models.py:379 AKModel/models.py:661
 msgid "Time and date the slot begins"
 msgstr "Zeit und Datum zu der der AK beginnt"
 
@@ -834,6 +834,30 @@ msgstr "Markiere diese Verletzung manuell als behoben"
 #: AKModel/templates/admin/AKModel/requirements_overview.html:27
 msgid "Details"
 msgstr "Details"
+
+#: AKModel/models.py:657
+msgid "Default Slot"
+msgstr "Standardslot"
+
+#: AKModel/models.py:658
+msgid "Default Slots"
+msgstr "Standardslots"
+
+#: AKModel/models.py:662
+msgid "Slot End"
+msgstr "Ende des Slots"
+
+#: AKModel/models.py:662
+msgid "Time and date the slot ends"
+msgstr "Zeit und Datum zu der der Slot endet"
+
+#: AKModel/models.py:667
+msgid "Primary categories"
+msgstr "Primäre Kategorien"
+
+#: AKModel/models.py:668
+msgid "Categories that should be assigned to this slot primarily"
+msgstr "Kategorieren, die diesem Slot primär zugewiesen werden sollen"
 
 #: AKModel/site.py:10
 msgid "Administration"
