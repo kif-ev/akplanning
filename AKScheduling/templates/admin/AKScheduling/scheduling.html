@@ -1,16 +1,28 @@
-{% extends "admin/base_site.html" %}
 {% load tags_AKModel %}
+{% load tags_AKPlan %}
 
 {% load i18n %}
 {% load l10n %}
 {% load tz %}
 {% load static %}
-{% load tags_AKPlan %}
 
-{% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}
+{% load bootstrap4 %}
+{% load fontawesome_5 %}
 
-{% block extrahead %}
-    {{ block.super }}
+{% get_current_language as LANGUAGE_CODE %}
+
+{% localize on %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}</title>
+
+    {# Load Bootstrap CSS and JavaScript as well as font awesome #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery=True %}
+    {% fontawesome_5_static %}
+
     {% include "AKModel/load_fullcalendar.html" %}
 
     <style>
@@ -25,6 +37,25 @@
 
         .fc-v-event {
             border-width: 4px;
+        }
+
+        html, body {
+          height: 100%;
+          margin: 0;
+        }
+
+        .box {
+          display: flex;
+          flex-flow: column;
+          height: 100%;
+        }
+
+        .box .row.header, .box .row.footer {
+          flex: 0 1 auto;
+        }
+
+        .box .row.content {
+          flex: 1 1 auto;
         }
     </style>
 
@@ -81,6 +112,7 @@
                     right: 'resourceTimelineDayVert,resourceTimelineDayHoriz,resourceTimelineEventVert,resourceTimelineEventHoriz'
                 },
                 //aspectRatio: 2,
+                height: '100%',
                 themeSystem: 'bootstrap',
                 // Adapt to user selected locale
                 locale: '{{ LANGUAGE_CODE }}',
@@ -181,11 +213,17 @@
             });
         });
     </script>
-{% endblock extrahead %}
 
-{% block content %}
-
-    <div class="row" style="margin-bottom: 50px;">
+</head>
+<body>
+    <div class="box p-3">
+      <div class="row header pb-2">
+          <div class="col-sm-10">
+              <h2 class="d-inline">{% trans "Scheduling for" %} {{event}}</h2> <h5 class="d-inline ml-2"><a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %} {% fa5_icon "level-up-alt" "fas" %}</a></h5>
+          </div>
+          <div class="col-sm-2"></div>
+      </div>
+      <div class="row content">
         <div class="col-md-10 col-lg-10">
             <div id="planCalendar"></div>
         </div>
@@ -203,8 +241,11 @@
                 {% endfor %}
             {% endfor %}
         </div>
+      </div>
+      <div class="row footer">
+        <!-- Currently not used -->
+      </div>
     </div>
-
-
-    <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %}</a>
-{% endblock %}
+</body>
+</html>
+{% endlocalize %}
