@@ -1,0 +1,30 @@
+{% extends "admin/AKModel/action_intermediate.html" %}
+{% load tags_AKModel %}
+{% load i18n admin_urls %}
+{% load static %}
+{% load bootstrap4 %}
+{% load tz %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {% bootstrap_javascript jquery='slim' %}
+    {% include "AKModel/load_fullcalendar_availabilities.html" %}
+
+    <script>
+        {% get_current_language as LANGUAGE_CODE %}
+
+        document.addEventListener('DOMContentLoaded', function () {
+            createAvailabilityEditors(
+                '{{ event.timezone }}',
+                '{{ LANGUAGE_CODE }}',
+                '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                '{{ event.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}'
+            );
+        });
+    </script>
+{% endblock %}
+
+{% block action_preview %}
+    <h3>{{ event.name }}</h3>
+{% endblock %}
+

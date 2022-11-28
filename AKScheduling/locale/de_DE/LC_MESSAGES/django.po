@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-26 23:16+0100\n"
+"POT-Creation-Date: 2022-11-29 00:13+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,52 +39,53 @@ msgstr ""
 msgid "Constraint Violations for"
 msgstr ""
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:78
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:133
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:44
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:100
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:214
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:293
 msgid "No violations"
 msgstr "Keine Verletzungen"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:85
-msgid "Cannot load current violations from server"
-msgstr "Kann die aktuellen Verletzungen nicht vom Server laden"
-
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:110
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:77
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:264
 msgid "Violation(s)"
 msgstr "Verletzung(en)"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:113
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:80
 msgid "Auto reload?"
 msgstr "Automatisch neu laden?"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:117
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:84
 msgid "Reload now"
 msgstr "Jetzt neu laden"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:123
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:90
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:200
 msgid "Violation"
 msgstr "Verletzung"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:124
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:91
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:287
 msgid "Problem"
 msgstr "Problem"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:125
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:92
 msgid "Details"
 msgstr "Details"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:126
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:93
 msgid "Since"
 msgstr "Seit"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:139
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:106
 #: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:243
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:209
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:250
 #: AKScheduling/templates/admin/AKScheduling/special_attention.html:48
 #: AKScheduling/templates/admin/AKScheduling/unscheduled.html:34
 msgid "Event Status"
 msgstr "Event-Status"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:141
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:108
 msgid "Scheduling"
 msgstr "Scheduling"
 
@@ -93,7 +94,8 @@ msgid "Submit"
 msgstr "Abschicken"
 
 #: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:11
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:10
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:19
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:247
 msgid "Scheduling for"
 msgstr "Scheduling für"
 
@@ -129,25 +131,33 @@ msgstr "AK-Track hinzufügen"
 msgid "AKs without track"
 msgstr "AKs ohne Track"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:91
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:92
 msgid "Day (Horizontal)"
 msgstr "Tag (horizontal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:98
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:99
 msgid "Day (Vertical)"
 msgstr "Tag (vertikal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:109
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:110
 msgid "Event (Horizontal)"
 msgstr "Event (horizontal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:118
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:119
 msgid "Event (Vertical)"
 msgstr "Event (vertikal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:146
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:147
 msgid "Room"
 msgstr "Raum"
+
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:261
+msgid "Unscheduled"
+msgstr "Micht gescheduled"
+
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:286
+msgid "Level"
+msgstr "Level"
 
 #: AKScheduling/templates/admin/AKScheduling/special_attention.html:14
 msgid "AKs with public notes"
@@ -235,3 +245,6 @@ msgstr "Konnte keine Verfügbarkeit anlegen für AK: {ak}"
 #, python-brace-format
 msgid "Created default availabilities for {count} AKs"
 msgstr "Standardverfügbarkeiten für {count} AKs angelegt"
+
+#~ msgid "Cannot load current violations from server"
+#~ msgstr "Kann die aktuellen Verletzungen nicht vom Server laden"

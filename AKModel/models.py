@@ -672,8 +672,16 @@ class DefaultSlot(models.Model):
         return self.start.astimezone(self.event.timezone).strftime('%a %H:%M')
 
     @property
+    def start_iso(self):
+        return timezone.localtime(self.start, self.event.timezone).strftime("%Y-%m-%dT%H:%M:%S")
+
+    @property
     def end_simplified(self):
         return self.end.astimezone(self.event.timezone).strftime('%a %H:%M')
+
+    @property
+    def end_iso(self):
+        return timezone.localtime(self.end, self.event.timezone).strftime("%Y-%m-%dT%H:%M:%S")
 
     def __str__(self):
         return f"{self.event}: {self.start_simplified} - {self.end_simplified}"

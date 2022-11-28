@@ -90,6 +90,8 @@
                             href="{% url 'admin:enter-interest' event_slug=event.slug pk=event.ak_set.all.first.pk %}">{% trans "Enter Interest" %}</a>
                     {% endif %}
                     <a class="btn btn-success"
+                       href="{% url 'admin:default-slots-editor' event_slug=event.slug %}">{% trans "Edit Default Slots" %}</a>
+                    <a class="btn btn-success"
                        href="{% url 'admin:tracks_manage' event_slug=event.slug %}">{% trans "Manage ak tracks" %}</a>
                     <a class="btn btn-success"
                        href="{% url 'admin:ak_csv_export' event_slug=event.slug %}">{% trans "Export AKs as CSV" %}</a>
