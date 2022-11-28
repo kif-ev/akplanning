@@ -7,7 +7,7 @@
 <script src="{% static "common/vendor/moment/moment-with-locales.js" %}"></script>
 <script src="{% static "common/js/availabilities.js" %}"></script>
 
-{% with 'common/vendor/fullcalendar/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
+{% with 'common/vendor/fullcalendar-scheduler/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
     {% if LANGUAGE_CODE != "en" %}
         {# Locale 'en' is included in main.js and does not exist separately #}
         <script src="{% static locale_file %}"></script>
