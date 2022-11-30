@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 from abc import ABC, abstractmethod
@@ -7,6 +8,7 @@ from django.contrib import admin, messages
 from django.db.models.functions import Now
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
+from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, DetailView, ListView, DeleteView, CreateView, FormView, UpdateView
 from django_tex.core import render_template_with_context, run_tex_in_directory
@@ -15,9 +17,9 @@ from rest_framework import viewsets, permissions, mixins
 
 from AKModel.forms import NewEventWizardStartForm, NewEventWizardSettingsForm, NewEventWizardPrepareImportForm, \
     NewEventWizardImportForm, NewEventWizardActivateForm, AdminIntermediateForm, SlideExportForm, \
-    AdminIntermediateActionForm
+    AdminIntermediateActionForm, DefaultSlotEditorForm
 from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner, AKOrgaMessage, AKRequirement, \
-    ConstraintViolation
+    ConstraintViolation, DefaultSlot
 from AKModel.serializers import AKSerializer, AKSlotSerializer, RoomSerializer, AKTrackSerializer, AKCategorySerializer, \
     AKOwnerSerializer
 
@@ -495,3 +497,79 @@ class PlanUnpublishView(IntermediateAdminActionView):
 
     def action(self, form):
         self.entities.update(plan_published_at=None, plan_hidden=True)
+
+
+class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
+    template_name = "admin/AKModel/default_slot_editor.html"
+    form_class = DefaultSlotEditorForm
+    title = _("Edit Default Slots")
+
+    def get_success_url(self):
+        return self.request.path
+
+    def get_initial(self):
+        initial = super().get_initial()
+        default_slots = [
+            {"id": s.id, "start": s.start_iso, "end": s.end_iso, "allDay": False}
+            for s in self.event.defaultslot_set.all()
+        ]
+        initial['availabilities'] = json.dumps({
+            'availabilities': default_slots
+        })
+        return initial
+
+    def form_valid(self, form):
+        default_slots_raw = json.loads(form.cleaned_data['availabilities'])["availabilities"]
+        tz = self.event.timezone
+
+        created_count = 0
+        updated_count = 0
+
+        previous_slot_ids = set(s.id for s in self.event.defaultslot_set.all())
+
+        for slot in default_slots_raw:
+            start = tz.localize(parse_datetime(slot["start"]))
+            end = tz.localize(parse_datetime(slot["end"]))
+
+            if slot["id"] != '':
+                id = int(slot["id"])
+                if id not in previous_slot_ids:
+                    # Make sure only slots (currently) belonging to this event are edited
+                    # (user did not manipulate IDs and slots have not been deleted in another session in the meantime)
+                    messages.add_message(
+                        self.request,
+                        messages.WARNING,
+                        _("Could not update slot {id} since it does not belong to {event}")
+                        .format(id=slot['id'], event=self.event.name)
+                    )
+                else:
+                    # Update existing entries
+                    previous_slot_ids.remove(id)
+                    original_slot = DefaultSlot.objects.get(id=id)
+                    if original_slot.start != start or original_slot.end != end:
+                        original_slot.start = start
+                        original_slot.end = end
+                        original_slot.save()
+                        updated_count += 1
+            else:
+                # Create new entries
+                DefaultSlot.objects.create(
+                    start=start,
+                    end=end,
+                    event=self.event
+                )
+                created_count += 1
+
+        # Delete all slots not re-submitted by the user (and hence deleted in editor)
+        deleted_count = len(previous_slot_ids)
+        for d_id in previous_slot_ids:
+            DefaultSlot.objects.get(id=d_id).delete()
+
+        if created_count + updated_count + deleted_count > 0:
+            messages.add_message(
+                self.request,
+                messages.SUCCESS,
+                _("Updated {u} slot(s). created {c} new slot(s) and deleted {d} slot(s)")
+                .format(u=str(updated_count), c=str(created_count), d=str(deleted_count))
+            )
+        return super().form_valid(form)

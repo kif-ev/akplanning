@@ -21,7 +21,7 @@ zero_time = datetime.time(0, 0)
 # remove serialization as requirements are not covered
 # add translation
 # add meta class
-# enable availabilites for AKs and AKCategories
+# enable availabilities for AKs and AKCategories
 # add verbose names and help texts to model attributes
 class Availability(models.Model):
     """The Availability class models when people or rooms are available for.

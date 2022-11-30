@@ -30,3 +30,12 @@
     word-break: normal;
     overflow-wrap: anywhere;
 }
+
+.deleteEvent {
+    background-color: #6a6a6a !important;
+}
+
+.deleteEvent .fc-event-title {
+    font-size: 5vw;
+    text-align: center;
+}

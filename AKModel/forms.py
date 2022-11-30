@@ -101,3 +101,14 @@ class SlideExportForm(AdminIntermediateForm):
         coerce=lambda x: x == "True",
         help_text=_("Create symbols indicating space to note down owners and timeslots for wishes, e.g., to be filled "
                     "out on a touch screen while presenting?"))
+
+
+class DefaultSlotEditorForm(AdminIntermediateForm):
+    availabilities = forms.CharField(
+        label=_('Default Slots'),
+        help_text=_(
+            'Click and drag to mark the availability during the event, double-click to delete.'  # Adapted help text
+        ),
+        widget=forms.TextInput(attrs={'class': 'availabilities-editor-data'}),
+        required=True,
+    )

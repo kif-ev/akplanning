@@ -16,10 +16,10 @@ from simple_history.admin import SimpleHistoryAdmin
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
-    ConstraintViolation
+    ConstraintViolation, DefaultSlot
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
 from AKModel.views import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView, AKResetInterestView, \
-    AKResetInterestCounterView, PlanPublishView, PlanUnpublishView
+    AKResetInterestCounterView, PlanPublishView, PlanUnpublishView, DefaultSlotEditorView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -55,6 +55,7 @@ class EventAdmin(admin.ModelAdmin):
         urls.extend([
             path('plan/publish/', PlanPublishView.as_view(), name="plan-publish"),
             path('plan/unpublish/', PlanUnpublishView.as_view(), name="plan-unpublish"),
+            path('<slug:event_slug>/defaultSlots/', DefaultSlotEditorView.as_view(), name="default-slots-editor"),
         ])
         urls.extend(super().get_urls())
         return urls
@@ -327,6 +328,8 @@ class AKSlotAdmin(admin.ModelAdmin):
             return mark_safe(link)
         return "-"
 
+    ak_details_link.short_description = _('AK Details')
+
 
 @admin.register(Availability)
 class AvailabilityAdmin(admin.ModelAdmin):
@@ -391,3 +394,23 @@ class ConstraintViolationAdmin(admin.ModelAdmin):
     def set_warning(self, request, queryset):
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(f"{reverse_lazy('admin:cv-set-warning')}?pks={','.join(str(pk) for pk in selected)}")
+
+
+class DefaultSlotAdminForm(forms.ModelForm):
+    class Meta:
+        widgets = {
+            'primary_categories': forms.CheckboxSelectMultiple
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter possible values for foreign keys & m2m when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["primary_categories"].queryset = AKCategory.objects.filter(event=self.instance.event)
+
+
+@admin.register(DefaultSlot)
+class DefaultSlotAdmin(admin.ModelAdmin):
+    list_display = ['start', 'end', 'event']
+    list_filter = ['event']
+    form = DefaultSlotAdminForm

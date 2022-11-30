@@ -19,7 +19,7 @@ api_router.register('akslot', views.AKSlotViewSet, basename='AKSlot')
 extra_paths = []
 if apps.is_installed("AKScheduling"):
     from AKScheduling.api import ResourcesViewSet, RoomAvailabilitiesView, EventsView, EventsViewSet, \
-        ConstraintViolationsViewSet
+        ConstraintViolationsViewSet, DefaultSlotsView
 
     api_router.register('scheduling-resources', ResourcesViewSet, basename='scheduling-resources')
     api_router.register('scheduling-event', EventsViewSet, basename='scheduling-event')
@@ -28,7 +28,9 @@ if apps.is_installed("AKScheduling"):
 
     extra_paths.append(path('api/scheduling-events/', EventsView.as_view(), name='scheduling-events'))
     extra_paths.append(path('api/scheduling-room-availabilities/', RoomAvailabilitiesView.as_view(),
-             name='scheduling-room-availabilities'))
+             name='scheduling-room-availabilities')),
+    extra_paths.append(path('api/scheduling-default-slots/', DefaultSlotsView.as_view(),
+             name='scheduling-default-slots'))
 if apps.is_installed("AKSubmission"):
     from AKSubmission.api import increment_interest_counter
 

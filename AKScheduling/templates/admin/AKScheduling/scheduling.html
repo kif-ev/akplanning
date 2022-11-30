@@ -1,17 +1,29 @@
-{% extends "admin/base_site.html" %}
 {% load tags_AKModel %}
+{% load tags_AKPlan %}
 
 {% load i18n %}
 {% load l10n %}
 {% load tz %}
 {% load static %}
-{% load tags_AKPlan %}
 
-{% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}
+{% load bootstrap4 %}
+{% load fontawesome_5 %}
 
-{% block extrahead %}
-    {{ block.super }}
-    {% include "AKPlan/load_fullcalendar.html" %}
+{% get_current_language as LANGUAGE_CODE %}
+
+{% localize on %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}</title>
+
+    {# Load Bootstrap CSS and JavaScript as well as font awesome #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery=True %}
+    {% fontawesome_5_static %}
+
+    {% include "AKModel/load_fullcalendar.html" %}
 
     <style>
         .unscheduled-slot {
@@ -26,49 +38,37 @@
         .fc-v-event {
             border-width: 4px;
         }
+
+        html, body {
+          height: 100%;
+          margin: 0;
+        }
+
+        .box {
+          display: flex;
+          flex-flow: column;
+          height: 100%;
+        }
+
+        .box .row.header, .box .row.footer {
+          flex: 0 1 auto;
+        }
+
+        .box .row.content {
+          flex: 1 1 auto;
+        }
     </style>
+
+    <script type="application/javascript" src="{% static "common/js/api.js" %}"></script>
+    <script type="application/javascript" src="{% static "AKScheduling/js/scheduling.js" %}"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // CSRF Protection/Authentication
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        // Does this cookie string begin with the name we want?
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-
-            const csrftoken = getCookie('csrftoken');
-
-            function csrfSafeMethod(method) {
-                // these HTTP methods do not require CSRF protection
-                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-            }
-
-            $.ajaxSetup({
-                beforeSend: function (xhr, settings) {
-                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    }
-                }
-            });
-
-
             // Place slots by dropping placeholders on calendar
             var containerEl = document.getElementById('unscheduled-slots');
             new FullCalendar.Draggable(containerEl, {
                 itemSelector: '.unscheduled-slot',
             });
-
 
             // Calendar
             var planEl = document.getElementById('planCalendar');
@@ -81,6 +81,7 @@
                     right: 'resourceTimelineDayVert,resourceTimelineDayHoriz,resourceTimelineEventVert,resourceTimelineEventHoriz'
                 },
                 //aspectRatio: 2,
+                height: '100%',
                 themeSystem: 'bootstrap',
                 // Adapt to user selected locale
                 locale: '{{ LANGUAGE_CODE }}',
@@ -147,7 +148,8 @@
                 resources: '{% url "model:scheduling-resources-list" event_slug=event.slug %}',
                 eventSources: [
                     '{% url "model:scheduling-events" event_slug=event.slug %}',
-                    '{% url "model:scheduling-room-availabilities" event_slug=event.slug %}'
+                    '{% url "model:scheduling-room-availabilities" event_slug=event.slug %}',
+                    '{% url "model:scheduling-default-slots" event_slug=event.slug %}'
                 ],
                 schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
                 dayMinWidth: 100,
@@ -178,32 +180,130 @@
             $('.unscheduled-slot').each(function() {
                 $(this).tooltip({title: $(this).first().attr('data-details'), trigger: 'hover'});
             });
+
+            const cv_url = "{% url "model:scheduling-constraint-violations-list" event_slug=event.slug %}";
+
+            const cv_callback_success = function(response) {
+               let table_html = '';
+
+               if(response.length > 0) {
+                   // Update violation count badge
+                   $('#violationCountBadge').html(response.length).removeClass('badge-success').addClass('badge-warning');
+
+                   // Update violations table
+                   for(let i=0;i<response.length;i++) {
+                       if(response[i].manually_resolved)
+                           table_html += '<tr class="text-muted"><td class="nowrap">{% fa5_icon "check" "fas" %} ';
+                       else
+                           table_html += '<tr><td>';
+
+                       if(response[i].level_display==='{% trans "Violation" %}')
+                           table_html += '{% fa5_icon "exclamation-triangle" "fas" %}';
+                       else
+                           table_html += '{% fa5_icon "info-circle" "fas" %}';
+
+                       table_html += "</td><td class='small'>" + response[i].type_display + "</td></tr>";
+                       table_html += "<tr><td colspan='2' class='small'>" + response[i].details + "</td></tr>"
+                   }
+               }
+               else {
+                   // Update violation count badge
+                   $('#violationCountBadge').html(0).removeClass('badge-warning').addClass('badge-success');
+
+                   // Update violations table
+                   table_html ='<tr class="text-muted"><td colspan="2" class="text-center">{% trans "No violations" %}</td></tr>'
+               }
+
+               // Show violation list (potentially empty) in violations table
+               $('#violationsTableBody').html(table_html);
+            }
+
+            function reloadCVs() {
+                loadCVs(cv_url, cv_callback_success, default_cv_callback_error);
+            }
+            reloadCVs();
+
+            const reloadBtn = $('#reloadBtn');
+
+            function reload() {
+                plan.refetchEvents();
+                reloadCVs();
+                // TODO Reload unscheduled AKs
+            }
+
+            reloadBtn.click(reload);
         });
     </script>
-{% endblock extrahead %}
 
-{% block content %}
-
-    <div class="row" style="margin-bottom: 50px;">
-        <div class="col-md-10 col-lg-10">
+</head>
+<body>
+    <div class="box p-3">
+      <div class="row header pb-2">
+          <div class="col">
+              <h2 class="d-inline">
+                  <button class="btn btn-outline-warning" id="reloadBtn" style="vertical-align: text-bottom;">
+                      <span id="reloadBtnVisDefault">{% fa5_icon "redo" "fas" %}</span>
+                  </button>
+                  {% trans "Scheduling for" %} {{event}}
+              </h2>
+              <h5 class="d-inline ml-2">
+                  <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %} {% fa5_icon "level-up-alt" "fas" %}</a>
+              </h5>
+          </div>
+      </div>
+      <div class="row content">
+        <div class="col-md-8 col-lg-9 col-xl-10">
             <div id="planCalendar"></div>
         </div>
-        <div class="col-md-2 col-lg-2" id="unscheduled-slots">
-        {% regroup slots_unscheduled by ak.track as slots_unscheduled_by_track_list %}
-            {% for track_slots in slots_unscheduled_by_track_list %}
-                {% if track_slots.grouper %}
-                    <h5 class="mt-2">{{ track_slots.grouper }}</h5>
-                {% endif %}
-                {% for slot in track_slots.list %}
-                    <div class="unscheduled-slot badge badge-primary" style='background-color: {{ slot.ak.category.color }}'
-                         data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ slot.ak.details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}"}' data-details="{{ slot.ak.details }}">{{ slot.ak.short_name }}
-                        ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
-                    </div>
+        <div class="col-md-4 col-lg-3 col-xl-2" id="sidebar">
+            <ul class="nav nav-tabs">
+              <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#unscheduled-slots">{% trans "Unscheduled" %}</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#violations"><span id="violationCountBadge" class="badge badge-success">0</span> {% trans "Violation(s)" %}</a>
+              </li>
+            </ul>
+            <div id="sidebarContent" class="tab-content">
+              <div class="tab-pane fade show active" id="unscheduled-slots">
+                {% regroup slots_unscheduled by ak.track as slots_unscheduled_by_track_list %}
+                {% for track_slots in slots_unscheduled_by_track_list %}
+                    {% if track_slots.grouper %}
+                        <h5 class="mt-2">{{ track_slots.grouper }}</h5>
+                    {% endif %}
+                    {% for slot in track_slots.list %}
+                        <div class="unscheduled-slot badge badge-primary" style='background-color: {{ slot.ak.category.color }}'
+                             data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ slot.ak.details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}"}' data-details="{{ slot.ak.details }}">{{ slot.ak.short_name }}
+                            ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
+                        </div>
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
+              </div>
+              <div class="tab-pane fade" id="violations">
+                  <table class="table table-striped mt-4 mb-4">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Level" %}</th>
+                            <th>{% trans "Problem" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="violationsTableBody">
+                        <tr class="text-muted">
+                            <td colspan="2" class="text-center">
+                                {% trans "No violations" %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+              </div>
+            </div>
         </div>
+      </div>
+      <div class="row footer">
+        <!-- Currently not used -->
+      </div>
     </div>
-
-
-    <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %}</a>
-{% endblock %}
+</body>
+</html>
+{% endlocalize %}
