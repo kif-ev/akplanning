@@ -52,6 +52,7 @@
                     </p>
                 {% endif %}
                 <a class="btn btn-success" href="{% url 'admin:AKModel_room_add' %}">{% trans "Add Room" %}</a>
+                <a class="btn btn-success" href="{% url 'admin:room-import' event_slug=event.slug %}">{% trans "Import Rooms from CSV" %}</a>
 
                 <h3 class="block-header">{% trans "AKs" %}</h3>
                 {% if event.ak_set.count == 0 %}

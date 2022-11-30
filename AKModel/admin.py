@@ -19,7 +19,7 @@ from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequire
     ConstraintViolation, DefaultSlot
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
 from AKModel.views import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView, AKResetInterestView, \
-    AKResetInterestCounterView, PlanPublishView, PlanUnpublishView, DefaultSlotEditorView
+    AKResetInterestCounterView, PlanPublishView, PlanUnpublishView, DefaultSlotEditorView, RoomBatchCreationView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -56,6 +56,7 @@ class EventAdmin(admin.ModelAdmin):
             path('plan/publish/', PlanPublishView.as_view(), name="plan-publish"),
             path('plan/unpublish/', PlanUnpublishView.as_view(), name="plan-unpublish"),
             path('<slug:event_slug>/defaultSlots/', DefaultSlotEditorView.as_view(), name="default-slots-editor"),
+            path('<slug:event_slug>/importRooms/', RoomBatchCreationView.as_view(), name="room-import"),
         ])
         urls.extend(super().get_urls())
         return urls

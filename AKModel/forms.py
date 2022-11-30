@@ -1,3 +1,6 @@
+import csv
+import io
+
 from bootstrap_datepicker_plus import DateTimePickerInput
 from django import forms
 from django.forms.utils import ErrorList
@@ -61,8 +64,10 @@ class NewEventWizardImportForm(forms.Form):
                  renderer=None):
         super().__init__(data, files, auto_id, prefix, initial, error_class, label_suffix, empty_permitted, field_order,
                          use_required_attribute, renderer)
-        self.fields["import_categories"].queryset = self.fields["import_categories"].queryset.filter(event=self.initial["import_event"])
-        self.fields["import_requirements"].queryset = self.fields["import_requirements"].queryset.filter(event=self.initial["import_event"])
+        self.fields["import_categories"].queryset = self.fields["import_categories"].queryset.filter(
+            event=self.initial["import_event"])
+        self.fields["import_requirements"].queryset = self.fields["import_requirements"].queryset.filter(
+            event=self.initial["import_event"])
 
 
 class NewEventWizardActivateForm(forms.ModelForm):
@@ -112,3 +117,22 @@ class DefaultSlotEditorForm(AdminIntermediateForm):
         widget=forms.TextInput(attrs={'class': 'availabilities-editor-data'}),
         required=True,
     )
+
+
+class RoomBatchCreationForm(AdminIntermediateForm):
+    rooms = forms.CharField(
+        label=_('New rooms'),
+        help_text=_('Enter room details in CSV format. Required colum is "name", optional colums are "location", '
+                    '"capacity", and "url" for online/hybrid rooms. Delimiter: Semicolon'),
+        widget=forms.Textarea,
+        required=True,
+    )
+
+    def clean_rooms(self):
+        rooms_raw_text = self.cleaned_data["rooms"]
+        rooms_raw_dict = csv.DictReader(io.StringIO(rooms_raw_text), delimiter=";")
+
+        if "name" not in rooms_raw_dict.fieldnames:
+            raise forms.ValidationError(_("CSV must contain a name column"))
+
+        return rooms_raw_dict
