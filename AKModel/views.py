@@ -1,9 +1,11 @@
+import csv
 import json
 import os
 import tempfile
 from abc import ABC, abstractmethod
 from itertools import zip_longest
 
+import django.db
 from django.contrib import admin, messages
 from django.db.models.functions import Now
 from django.shortcuts import get_object_or_404, redirect
@@ -17,7 +19,7 @@ from rest_framework import viewsets, permissions, mixins
 
 from AKModel.forms import NewEventWizardStartForm, NewEventWizardSettingsForm, NewEventWizardPrepareImportForm, \
     NewEventWizardImportForm, NewEventWizardActivateForm, AdminIntermediateForm, SlideExportForm, \
-    AdminIntermediateActionForm, DefaultSlotEditorForm
+    AdminIntermediateActionForm, DefaultSlotEditorForm, RoomBatchCreationForm
 from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner, AKOrgaMessage, AKRequirement, \
     ConstraintViolation, DefaultSlot
 from AKModel.serializers import AKSerializer, AKSlotSerializer, RoomSerializer, AKTrackSerializer, AKCategorySerializer, \
@@ -572,4 +574,45 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
                 _("Updated {u} slot(s). created {c} new slot(s) and deleted {d} slot(s)")
                 .format(u=str(updated_count), c=str(created_count), d=str(deleted_count))
             )
+        return super().form_valid(form)
+
+
+class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
+    form_class = RoomBatchCreationForm
+    title = _("Import Rooms from CSV")
+
+    def get_success_url(self):
+        return reverse_lazy('admin:event_status', kwargs={'slug': self.event.slug})
+
+    def form_valid(self, form):
+        from django.apps import apps
+        VIRTUAL_ROOMS_SUPPORT = False
+        if apps.is_installed("AKOnline"):
+            VIRTUAL_ROOMS_SUPPORT = True
+            from AKOnline.models import VirtualRoom
+
+        created_count = 0
+
+        rooms_raw_dict: csv.DictReader = form.cleaned_data["rooms"]
+        for raw_room in rooms_raw_dict:
+            name = raw_room["name"]
+            location = raw_room["location"] if "location" in rooms_raw_dict.fieldnames else ""
+            capacity = raw_room["capacity"] if "capacity" in rooms_raw_dict.fieldnames else -1
+            url = raw_room["url"] if "url" in rooms_raw_dict.fieldnames else ""
+
+            try:
+                if VIRTUAL_ROOMS_SUPPORT and url != "":
+                    VirtualRoom.objects.create(name=name, location=location, capacity=capacity, url=url, event=self.event)
+                else:
+                    Room.objects.create(name=name, location=location, capacity=capacity, event=self.event)
+                created_count += 1
+            except django.db.Error as e:
+                messages.add_message(self.request, messages.WARNING,
+                                     _("Could not import room {name}: {e}").format(name=name, e=str(e)))
+
+        if created_count > 0:
+            messages.add_message(self.request, messages.SUCCESS,
+                                 _("Imported {count} room(s)").format(count=created_count))
+        else:
+            messages.add_message(self.request, messages.WARNING, _("No rooms imported"))
         return super().form_valid(form)
