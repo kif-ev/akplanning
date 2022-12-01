@@ -7,18 +7,20 @@
 {% block extrahead %}
     {{ block.super }}
     {% bootstrap_javascript jquery='slim' %}
-    {% include "AKModel/load_fullcalendar_availabilities.html" %}
+    {% if original.event %}
+        {% include "AKModel/load_fullcalendar_availabilities.html" %}
 
-    <script>
-        {% get_current_language as LANGUAGE_CODE %}
+        <script>
+            {% get_current_language as LANGUAGE_CODE %}
 
-        document.addEventListener('DOMContentLoaded', function () {
-            createAvailabilityEditors(
-                '{{ original.event.timezone }}',
-                '{{ LANGUAGE_CODE }}',
-                '{{ original.event.start | timezone:original.event.timezone | date:"Y-m-d H:i:s" }}',
-                '{{ original.event.end | timezone:original.event.timezone | date:"Y-m-d H:i:s" }}'
-            );
-        });
-    </script>
+            document.addEventListener('DOMContentLoaded', function () {
+                createAvailabilityEditors(
+                    '{{ original.event.timezone }}',
+                    '{{ LANGUAGE_CODE }}',
+                    '{{ original.event.start | timezone:original.event.timezone | date:"Y-m-d H:i:s" }}',
+                    '{{ original.event.end | timezone:original.event.timezone | date:"Y-m-d H:i:s" }}'
+                );
+            });
+        </script>
+    {% endif %}
 {% endblock %}
