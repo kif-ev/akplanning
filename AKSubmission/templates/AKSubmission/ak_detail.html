@@ -279,7 +279,7 @@
                                class="btn btn-danger">{% fa5_icon 'times' 'fas' %}</a>
                         {% else %}
                             {% if "AKOnline"|check_app_installed and slot.room and slot.room.virtualroom and slot.room.virtualroom.url != '' %}
-                                <a class="btn btn-success" href="{{ slot.room.virtualroom.url }}">
+                                <a class="btn btn-success" target="_parent" href="{{ slot.room.virtualroom.url }}">
                                     {% fa5_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
                                 </a>
                             {% endif %}
