@@ -145,7 +145,7 @@
                 {% endif %}
 
                 {% if "AKOnline"|check_app_installed and featured_slot.room.virtualroom and featured_slot.room.virtualroom.url != '' %}
-                    <a class="btn btn-success" href="{{ featured_slot.room.virtualroom.url }}">
+                    <a class="btn btn-success" target="_parent" href="{{ featured_slot.room.virtualroom.url }}">
                         {% fa5_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
                     </a>
                 {% endif %}
