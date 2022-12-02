@@ -8,6 +8,7 @@ from django.views.generic import ListView, DetailView, UpdateView
 from AKModel.models import AKSlot, AKTrack, Event, AK, AKCategory
 from AKModel.views import AdminViewMixin, FilterByEventSlugMixin, EventSlugMixin, IntermediateAdminView
 from AKScheduling.forms import AKInterestForm
+from AKSubmission.forms import AKAddSlotForm
 
 
 class UnscheduledSlotsAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
@@ -39,6 +40,8 @@ class SchedulingAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
         context["event"] = self.event
         context["start"] = self.event.start
         context["end"] = self.event.end
+
+        context["akSlotAddForm"] = AKAddSlotForm(self.event)
 
         return context
 

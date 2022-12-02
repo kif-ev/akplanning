@@ -134,8 +134,18 @@
                 eventChange: updateEvent,
                 eventReceive: updateEvent,
                 editable: true,
+                selectable: true,
                 drop: function (info) {
                     info.draggedEl.parentNode.removeChild(info.draggedEl);
+                },
+                select: function (info) {
+                    console.log(info);
+                    $('#id_start').val(info.startStr);
+                    $('#id_end').val(info.endStr);
+                    $('#id_room').val(info.resource._resource.id);
+                    $('#id_duration').val(Math.abs(info.end-info.start)/1000/60/60);
+                    $('#id_ak').val("");
+                    $('#newAKSlotModal').modal('show');
                 },
                 allDaySlot: false,
                 nowIndicator: true,
@@ -232,11 +242,63 @@
             }
 
             reloadBtn.click(reload);
+
+            function addSlot() {
+                let ak = $('#id_ak').val();
+                if(ak === "") {
+                    alert("{% trans "Bitte AK auswählen" %}");
+                }
+                else {
+                    $.ajax({
+                       url: "{% url "model:AKSlot-list" event_slug=event.slug %}",
+                        type: 'POST',
+                        data: {
+                            start: $('#id_start').val(),
+                            duration: $('#id_duration').val(),
+                            room: $('#id_room').val(),
+                            ak: ak,
+                            event: "{{ event.pk }}"
+                        },
+                        success: function (response) {
+                           $('#newAKSlotModal').modal('hide');
+                           reload();
+                        },
+                        error: function (response) {
+                           console.error(response);
+                           alert("{% trans 'Could not create slot' %}");
+                        }
+                   });
+                }
+            }
+
+            $('#newAKSlotModalSubmitButton').click(addSlot);
         });
     </script>
 
 </head>
 <body>
+    <div class="modal" id="newAKSlotModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{% trans "Add slot" %}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        {% bootstrap_form akSlotAddForm %}
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="newAKSlotModalSubmitButton">{% trans "Add" %}</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Cancel" %}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="box p-3">
       <div class="row header pb-2">
           <div class="col">

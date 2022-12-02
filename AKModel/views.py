@@ -133,7 +133,8 @@ class RoomViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMix
         return Room.objects.filter(event=self.event)
 
 
-class AKSlotViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+class AKSlotViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin,
+                    mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,)
     serializer_class = AKSlotSerializer
 
