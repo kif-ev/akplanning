@@ -586,25 +586,32 @@ class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
 
     def form_valid(self, form):
         from django.apps import apps
-        VIRTUAL_ROOMS_SUPPORT = False
-        if apps.is_installed("AKOnline"):
-            VIRTUAL_ROOMS_SUPPORT = True
-            from AKOnline.models import VirtualRoom
-
+        virtual_rooms_support = False
         created_count = 0
 
         rooms_raw_dict: csv.DictReader = form.cleaned_data["rooms"]
+
+        if apps.is_installed("AKOnline") and "url" in rooms_raw_dict.fieldnames:
+            virtual_rooms_support = True
+            from AKOnline.models import VirtualRoom
+
         for raw_room in rooms_raw_dict:
             name = raw_room["name"]
             location = raw_room["location"] if "location" in rooms_raw_dict.fieldnames else ""
             capacity = raw_room["capacity"] if "capacity" in rooms_raw_dict.fieldnames else -1
-            url = raw_room["url"] if "url" in rooms_raw_dict.fieldnames else ""
 
             try:
-                if VIRTUAL_ROOMS_SUPPORT and url != "":
-                    VirtualRoom.objects.create(name=name, location=location, capacity=capacity, url=url, event=self.event)
+                if virtual_rooms_support and raw_room["url"] != "":
+                    VirtualRoom.objects.create(name=name,
+                                               location=location,
+                                               capacity=capacity,
+                                               url=raw_room["url"],
+                                               event=self.event)
                 else:
-                    Room.objects.create(name=name, location=location, capacity=capacity, event=self.event)
+                    Room.objects.create(name=name,
+                                        location=location,
+                                        capacity=capacity,
+                                        event=self.event)
                 created_count += 1
             except django.db.Error as e:
                 messages.add_message(self.request, messages.WARNING,
