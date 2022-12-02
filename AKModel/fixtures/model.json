@@ -1,0 +1,670 @@
+[
+{
+    "model": "AKModel.event",
+    "pk": 1,
+    "fields": {
+        "name": "KIF 23",
+        "slug": "kif23",
+        "place": "Neuland",
+        "timezone": "Europe/Berlin",
+        "start": "2020-10-01T17:41:22Z",
+        "end": "2020-10-04T17:41:30Z",
+        "reso_deadline": "2020-10-03T10:00:00Z",
+        "interest_start": null,
+        "interest_end": null,
+        "public": true,
+        "active": false,
+        "plan_hidden": true,
+        "plan_published_at": null,
+        "base_url": "",
+        "wiki_export_template_name": "",
+        "default_slot": "2.00",
+        "contact_email": "dummy@eyample.org"
+    }
+},
+{
+    "model": "AKModel.event",
+    "pk": 2,
+    "fields": {
+        "name": "KIF 42",
+        "slug": "kif42",
+        "place": "Neuland noch neuer",
+        "timezone": "Europe/Berlin",
+        "start": "2020-11-06T17:51:26Z",
+        "end": "2020-11-10T17:51:27Z",
+        "reso_deadline": "2020-11-08T17:51:42Z",
+        "interest_start": null,
+        "interest_end": null,
+        "public": true,
+        "active": true,
+        "plan_hidden": false,
+        "plan_published_at": "2022-12-01T21:50:01Z",
+        "base_url": "",
+        "wiki_export_template_name": "",
+        "default_slot": "2.00",
+        "contact_email": "dummy@example.org"
+    }
+},
+{
+    "model": "AKModel.akowner",
+    "pk": 1,
+    "fields": {
+        "name": "a",
+        "slug": "a",
+        "institution": "Uni X",
+        "link": "",
+        "event": 2
+    }
+},
+{
+    "model": "AKModel.akowner",
+    "pk": 2,
+    "fields": {
+        "name": "b",
+        "slug": "b",
+        "institution": "Hochschule Y",
+        "link": "",
+        "event": 2
+    }
+},
+{
+    "model": "AKModel.akowner",
+    "pk": 3,
+    "fields": {
+        "name": "c",
+        "slug": "c",
+        "institution": "",
+        "link": "",
+        "event": 1
+    }
+},
+{
+    "model": "AKModel.akowner",
+    "pk": 4,
+    "fields": {
+        "name": "d",
+        "slug": "d",
+        "institution": "",
+        "link": "",
+        "event": 1
+    }
+},
+{
+    "model": "AKModel.akcategory",
+    "pk": 1,
+    "fields": {
+        "name": "Spa▀",
+        "color": "275246",
+        "description": "",
+        "present_by_default": true,
+        "event": 1
+    }
+},
+{
+    "model": "AKModel.akcategory",
+    "pk": 2,
+    "fields": {
+        "name": "Ernst",
+        "color": "234567",
+        "description": "",
+        "present_by_default": true,
+        "event": 1
+    }
+},
+{
+    "model": "AKModel.akcategory",
+    "pk": 3,
+    "fields": {
+        "name": "Spa▀/Kultur",
+        "color": "333333",
+        "description": "",
+        "present_by_default": true,
+        "event": 2
+    }
+},
+{
+    "model": "AKModel.akcategory",
+    "pk": 4,
+    "fields": {
+        "name": "Inhalt",
+        "color": "456789",
+        "description": "",
+        "present_by_default": true,
+        "event": 2
+    }
+},
+{
+    "model": "AKModel.akcategory",
+    "pk": 5,
+    "fields": {
+        "name": "Meta",
+        "color": "111111",
+        "description": "",
+        "present_by_default": true,
+        "event": 2
+    }
+},
+{
+    "model": "AKModel.aktrack",
+    "pk": 1,
+    "fields": {
+        "name": "Track 1",
+        "color": "",
+        "event": 2
+    }
+},
+{
+    "model": "AKModel.aktag",
+    "pk": 1,
+    "fields": {
+        "name": "metametameta"
+    }
+},
+{
+    "model": "AKModel.akrequirement",
+    "pk": 1,
+    "fields": {
+        "name": "Beamer",
+        "event": 1
+    }
+},
+{
+    "model": "AKModel.akrequirement",
+    "pk": 2,
+    "fields": {
+        "name": "Internet",
+        "event": 1
+    }
+},
+{
+    "model": "AKModel.akrequirement",
+    "pk": 3,
+    "fields": {
+        "name": "BBB",
+        "event": 2
+    }
+},
+{
+    "model": "AKModel.akrequirement",
+    "pk": 4,
+    "fields": {
+        "name": "Mumble",
+        "event": 2
+    }
+},
+{
+    "model": "AKModel.akrequirement",
+    "pk": 5,
+    "fields": {
+        "name": "Matrix",
+        "event": 2
+    }
+},
+{
+    "model": "AKModel.historicalak",
+    "pk": 1,
+    "fields": {
+        "id": 1,
+        "name": "Test AK Inhalt",
+        "short_name": "test1",
+        "description": "",
+        "link": "",
+        "protocol_link": "",
+        "reso": false,
+        "present": true,
+        "notes": "",
+        "interest": -1,
+        "category": 4,
+        "track": null,
+        "event": 2,
+        "history_date": "2021-05-04T10:28:59.265Z",
+        "history_change_reason": null,
+        "history_type": "+",
+        "history_user": null
+    }
+},
+{
+    "model": "AKModel.historicalak",
+    "pk": 2,
+    "fields": {
+        "id": 1,
+        "name": "Test AK Inhalt",
+        "short_name": "test1",
+        "description": "",
+        "link": "",
+        "protocol_link": "",
+        "reso": false,
+        "present": true,
+        "notes": "",
+        "interest": -1,
+        "category": 4,
+        "track": null,
+        "event": 2,
+        "history_date": "2021-05-04T10:28:59.305Z",
+        "history_change_reason": null,
+        "history_type": "~",
+        "history_user": null
+    }
+},
+{
+    "model": "AKModel.historicalak",
+    "pk": 3,
+    "fields": {
+        "id": 2,
+        "name": "Test AK Meta",
+        "short_name": "test2",
+        "description": "",
+        "link": "",
+        "protocol_link": "",
+        "reso": false,
+        "present": null,
+        "notes": "",
+        "interest": -1,
+        "category": 5,
+        "track": null,
+        "event": 2,
+        "history_date": "2021-05-04T10:29:40.296Z",
+        "history_change_reason": null,
+        "history_type": "+",
+        "history_user": null
+    }
+},
+{
+    "model": "AKModel.historicalak",
+    "pk": 4,
+    "fields": {
+        "id": 2,
+        "name": "Test AK Meta",
+        "short_name": "test2",
+        "description": "",
+        "link": "",
+        "protocol_link": "",
+        "reso": false,
+        "present": null,
+        "notes": "",
+        "interest": -1,
+        "category": 5,
+        "track": null,
+        "event": 2,
+        "history_date": "2021-05-04T10:29:40.355Z",
+        "history_change_reason": null,
+        "history_type": "~",
+        "history_user": null
+    }
+},
+{
+    "model": "AKModel.historicalak",
+    "pk": 5,
+    "fields": {
+        "id": 3,
+        "name": "AK Wish",
+        "short_name": "wish1",
+        "description": "Description of my Wish",
+        "link": "",
+        "protocol_link": "",
+        "reso": false,
+        "present": null,
+        "notes": "We need to find a volunteer first...",
+        "interest": -1,
+        "category": 3,
+        "track": null,
+        "event": 2,
+        "history_date": "2021-05-04T10:30:59.469Z",
+        "history_change_reason": null,
+        "history_type": "+",
+        "history_user": null
+    }
+},
+{
+    "model": "AKModel.historicalak",
+    "pk": 6,
+    "fields": {
+        "id": 3,
+        "name": "AK Wish",
+        "short_name": "wish1",
+        "description": "Description of my Wish",
+        "link": "",
+        "protocol_link": "",
+        "reso": false,
+        "present": null,
+        "notes": "We need to find a volunteer first...",
+        "interest": -1,
+        "category": 3,
+        "track": null,
+        "event": 2,
+        "history_date": "2021-05-04T10:30:59.509Z",
+        "history_change_reason": null,
+        "history_type": "~",
+        "history_user": null
+    }
+},
+{
+    "model": "AKModel.historicalak",
+    "pk": 7,
+    "fields": {
+        "id": 2,
+        "name": "Test AK Meta",
+        "short_name": "test2",
+        "description": "",
+        "link": "",
+        "protocol_link": "",
+        "reso": false,
+        "present": null,
+        "notes": "",
+        "interest": -1,
+        "category": 5,
+        "track": 1,
+        "event": 2,
+        "history_date": "2022-12-02T12:27:14.277Z",
+        "history_change_reason": null,
+        "history_type": "~",
+        "history_user": null
+    }
+},
+{
+    "model": "AKModel.ak",
+    "pk": 1,
+    "fields": {
+        "name": "Test AK Inhalt",
+        "short_name": "test1",
+        "description": "",
+        "link": "",
+        "protocol_link": "",
+        "category": 4,
+        "track": null,
+        "reso": false,
+        "present": true,
+        "notes": "",
+        "interest": -1,
+        "interest_counter": 0,
+        "event": 2,
+        "owners": [
+            1
+        ],
+        "tags": [],
+        "requirements": [
+            3
+        ],
+        "conflicts": [],
+        "prerequisites": []
+    }
+},
+{
+    "model": "AKModel.ak",
+    "pk": 2,
+    "fields": {
+        "name": "Test AK Meta",
+        "short_name": "test2",
+        "description": "",
+        "link": "",
+        "protocol_link": "",
+        "category": 5,
+        "track": 1,
+        "reso": false,
+        "present": null,
+        "notes": "",
+        "interest": -1,
+        "interest_counter": 0,
+        "event": 2,
+        "owners": [
+            2
+        ],
+        "tags": [
+            1
+        ],
+        "requirements": [],
+        "conflicts": [],
+        "prerequisites": []
+    }
+},
+{
+    "model": "AKModel.ak",
+    "pk": 3,
+    "fields": {
+        "name": "AK Wish",
+        "short_name": "wish1",
+        "description": "Description of my Wish",
+        "link": "",
+        "protocol_link": "",
+        "category": 3,
+        "track": null,
+        "reso": false,
+        "present": null,
+        "notes": "We need to find a volunteer first...",
+        "interest": -1,
+        "interest_counter": 0,
+        "event": 2,
+        "owners": [],
+        "tags": [],
+        "requirements": [
+            4
+        ],
+        "conflicts": [
+            1
+        ],
+        "prerequisites": [
+            2
+        ]
+    }
+},
+{
+    "model": "AKModel.room",
+    "pk": 1,
+    "fields": {
+        "name": "Testraum",
+        "location": "BBB",
+        "capacity": -1,
+        "event": 2,
+        "properties": [
+            3
+        ]
+    }
+},
+{
+    "model": "AKModel.room",
+    "pk": 2,
+    "fields": {
+        "name": "Testraum 2",
+        "location": "",
+        "capacity": 30,
+        "event": 2,
+        "properties": []
+    }
+},
+{
+    "model": "AKModel.akslot",
+    "pk": 1,
+    "fields": {
+        "ak": 1,
+        "room": 2,
+        "start": "2020-11-06T18:30:00Z",
+        "duration": "2.00",
+        "fixed": false,
+        "event": 2,
+        "updated": "2022-12-02T12:23:11.856Z"
+    }
+},
+{
+    "model": "AKModel.akslot",
+    "pk": 2,
+    "fields": {
+        "ak": 2,
+        "room": 1,
+        "start": "2020-11-08T12:30:00Z",
+        "duration": "2.00",
+        "fixed": false,
+        "event": 2,
+        "updated": "2022-12-02T12:23:18.279Z"
+    }
+},
+{
+    "model": "AKModel.akslot",
+    "pk": 3,
+    "fields": {
+        "ak": 3,
+        "room": null,
+        "start": null,
+        "duration": "1.50",
+        "fixed": false,
+        "event": 2,
+        "updated": "2021-05-04T10:30:59.523Z"
+    }
+},
+{
+    "model": "AKModel.akslot",
+    "pk": 4,
+    "fields": {
+        "ak": 3,
+        "room": null,
+        "start": null,
+        "duration": "3.00",
+        "fixed": false,
+        "event": 2,
+        "updated": "2021-05-04T10:30:59.528Z"
+    }
+},
+{
+    "model": "AKModel.constraintviolation",
+    "pk": 1,
+    "fields": {
+        "type": "soa",
+        "level": 10,
+        "event": 2,
+        "ak_owner": null,
+        "room": null,
+        "requirement": null,
+        "category": null,
+        "comment": "",
+        "timestamp": "2022-12-02T12:23:11.875Z",
+        "manually_resolved": false,
+        "aks": [
+            1
+        ],
+        "ak_slots": [
+            1
+        ]
+    }
+},
+{
+    "model": "AKModel.constraintviolation",
+    "pk": 2,
+    "fields": {
+        "type": "rng",
+        "level": 10,
+        "event": 2,
+        "ak_owner": null,
+        "room": 2,
+        "requirement": 3,
+        "category": null,
+        "comment": "",
+        "timestamp": "2022-12-02T12:23:11.890Z",
+        "manually_resolved": false,
+        "aks": [
+            1
+        ],
+        "ak_slots": [
+            1
+        ]
+    }
+},
+{
+    "model": "AKModel.constraintviolation",
+    "pk": 3,
+    "fields": {
+        "type": "soa",
+        "level": 10,
+        "event": 2,
+        "ak_owner": null,
+        "room": null,
+        "requirement": null,
+        "category": null,
+        "comment": "",
+        "timestamp": "2022-12-02T12:23:18.301Z",
+        "manually_resolved": false,
+        "aks": [
+            2
+        ],
+        "ak_slots": [
+            2
+        ]
+    }
+},
+{
+    "model": "AKModel.availability",
+    "pk": 1,
+    "fields": {
+        "event": 2,
+        "person": null,
+        "room": null,
+        "ak": 1,
+        "ak_category": null,
+        "start": "2020-11-07T08:00:00Z",
+        "end": "2020-11-07T18:00:00Z"
+    }
+},
+{
+    "model": "AKModel.availability",
+    "pk": 2,
+    "fields": {
+        "event": 2,
+        "person": null,
+        "room": null,
+        "ak": 1,
+        "ak_category": null,
+        "start": "2020-11-09T10:00:00Z",
+        "end": "2020-11-09T16:30:00Z"
+    }
+},
+{
+    "model": "AKModel.availability",
+    "pk": 3,
+    "fields": {
+        "event": 2,
+        "person": null,
+        "room": 1,
+        "ak": null,
+        "ak_category": null,
+        "start": "2020-11-06T17:51:26Z",
+        "end": "2020-11-10T23:00:00Z"
+    }
+},
+{
+    "model": "AKModel.availability",
+    "pk": 4,
+    "fields": {
+        "event": 2,
+        "person": null,
+        "room": 2,
+        "ak": null,
+        "ak_category": null,
+        "start": "2020-11-06T17:51:26Z",
+        "end": "2020-11-06T21:00:00Z"
+    }
+},
+{
+    "model": "AKModel.availability",
+    "pk": 5,
+    "fields": {
+        "event": 2,
+        "person": null,
+        "room": 2,
+        "ak": null,
+        "ak_category": null,
+        "start": "2020-11-08T15:30:00Z",
+        "end": "2020-11-08T19:30:00Z"
+    }
+},
+{
+    "model": "AKModel.availability",
+    "pk": 6,
+    "fields": {
+        "event": 2,
+        "person": null,
+        "room": 2,
+        "ak": null,
+        "ak_category": null,
+        "start": "2020-11-07T18:30:00Z",
+        "end": "2020-11-07T21:30:00Z"
+    }
+}
+]
