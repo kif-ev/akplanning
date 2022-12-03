@@ -29,7 +29,7 @@ class ResourcesViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListMod
     serializer_class = ResourceSerializer
 
     def get_queryset(self):
-        return Room.objects.filter(event=self.event)
+        return Room.objects.filter(event=self.event).order_by('location', 'name')
 
 
 class EventsView(LoginRequiredMixin, EventSlugMixin, ListView):
