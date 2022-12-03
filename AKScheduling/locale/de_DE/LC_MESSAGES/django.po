@@ -153,7 +153,7 @@ msgstr "Raum"
 
 #: AKScheduling/templates/admin/AKScheduling/scheduling.html:261
 msgid "Unscheduled"
-msgstr "Micht gescheduled"
+msgstr "Nicht gescheduled"
 
 #: AKScheduling/templates/admin/AKScheduling/scheduling.html:286
 msgid "Level"

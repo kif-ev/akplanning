@@ -37,3 +37,12 @@ class AKSlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = AKSlot
         fields = '__all__'
+
+    treat_as_local = serializers.BooleanField(required=False, default=False, write_only=True)
+
+    def create(self, validated_data:dict):
+        if validated_data['treat_as_local']:
+            validated_data['start'] = validated_data['start'].replace(tzinfo=None).astimezone(
+                validated_data['event'].timezone)
+        del validated_data['treat_as_local']
+        return super().create(validated_data)

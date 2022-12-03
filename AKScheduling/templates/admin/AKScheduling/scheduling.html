@@ -196,16 +196,17 @@
             const cv_callback_success = function(response) {
                let table_html = '';
 
-               if(response.length > 0) {
-                   // Update violation count badge
-                   $('#violationCountBadge').html(response.length).removeClass('badge-success').addClass('badge-warning');
+               let unresolved_violations_count = 0;
 
+               if(response.length > 0) {
                    // Update violations table
                    for(let i=0;i<response.length;i++) {
                        if(response[i].manually_resolved)
                            table_html += '<tr class="text-muted"><td class="nowrap">{% fa5_icon "check" "fas" %} ';
-                       else
+                       else {
                            table_html += '<tr><td>';
+                           unresolved_violations_count++;
+                       }
 
                        if(response[i].level_display==='{% trans "Violation" %}')
                            table_html += '{% fa5_icon "exclamation-triangle" "fas" %}';
@@ -217,12 +218,15 @@
                    }
                }
                else {
-                   // Update violation count badge
-                   $('#violationCountBadge').html(0).removeClass('badge-warning').addClass('badge-success');
-
                    // Update violations table
                    table_html ='<tr class="text-muted"><td colspan="2" class="text-center">{% trans "No violations" %}</td></tr>'
                }
+
+               // Update violation count badge
+                if(unresolved_violations_count > 0)
+                    $('#violationCountBadge').html(response.length).removeClass('badge-success').addClass('badge-warning');
+                else
+                    $('#violationCountBadge').html(0).removeClass('badge-warning').addClass('badge-success');
 
                // Show violation list (potentially empty) in violations table
                $('#violationsTableBody').html(table_html);
@@ -257,7 +261,8 @@
                             duration: $('#id_duration').val(),
                             room: $('#id_room').val(),
                             ak: ak,
-                            event: "{{ event.pk }}"
+                            event: "{{ event.pk }}",
+                            treat_as_local: true,
                         },
                         success: function (response) {
                            $('#newAKSlotModal').modal('hide');
