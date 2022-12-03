@@ -261,7 +261,8 @@
                             duration: $('#id_duration').val(),
                             room: $('#id_room').val(),
                             ak: ak,
-                            event: "{{ event.pk }}"
+                            event: "{{ event.pk }}",
+                            treat_as_local: true,
                         },
                         success: function (response) {
                            $('#newAKSlotModal').modal('hide');
