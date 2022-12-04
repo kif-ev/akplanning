@@ -1,4 +1,5 @@
 import csv
+import datetime
 import json
 import os
 import tempfile
@@ -377,7 +378,8 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             os.remove(f'{tempdir}/texput.tex')
             pdf = run_tex_in_directory(source, tempdir, template_name=self.template_name)
 
-        return PDFResponse(pdf, filename='slides.pdf')
+        timestamp = datetime.datetime.now(tz=self.event.timezone).strftime("%Y-%m-%d_%H_%M")
+        return PDFResponse(pdf, filename=f'{self.event.slug}_ak_slides_{timestamp}.pdf')
 
 
 class IntermediateAdminActionView(IntermediateAdminView, ABC):
