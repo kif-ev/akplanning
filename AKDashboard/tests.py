@@ -65,7 +65,6 @@ class DashboardTests(TestCase):
         self.event.public = False
         self.event.save()
         response = self.client.get(url_dashboard_index)
-        print(response)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(self.event in response.context["events"])
         response = self.client.get(url_event_dashboard)

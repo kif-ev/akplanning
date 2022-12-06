@@ -90,6 +90,5 @@ class ModelViewTests(BasicViewTests, TestCase):
             m = model[0].objects.first()
             if m is not None:
                 view_name_with_prefix, url = self._name_and_url((f'admin:AKModel_{model[1]}_change', {'object_id': m.pk}))
-                print(view_name_with_prefix)
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, 200, msg=f"Edit form for model {model[1]} ({url}) broken")
