@@ -38,13 +38,13 @@ class BasicViewTests:
         url = reverse_lazy(view_name_with_prefix, kwargs=view_name[1])
         return view_name_with_prefix, url
 
-    def testViewsFor200(self):
+    def test_views_for_200(self):
         for view_name in self.VIEWS:
             view_name_with_prefix, url = self._name_and_url(view_name)
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200, msg=f"{view_name_with_prefix} ({url}) broken")
 
-    def testAccessControlStaffOnly(self):
+    def test_access_control_staff_only(self):
         self.client.logout()
         for view_name in self.VIEWS_STAFF_ONLY:
             view_name_with_prefix, url = self._name_and_url(view_name)
@@ -76,7 +76,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         (DefaultSlot, 'defaultslot')
     ]
 
-    def testAdmin(self):
+    def test_admin(self):
         self.client.force_login(self.admin_user)
 
         for model in self.ADMIN_MODELS:

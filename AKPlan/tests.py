@@ -14,7 +14,7 @@ class PlanViewTests(BasicViewTests, TestCase):
         ('plan_track', {'event_slug': 'kif42', 'pk': 1}),
     ]
 
-    def testPlanHidden(self):
+    def test_plan_hidden(self):
         view_name_with_prefix, url = self._name_and_url(('plan_overview', {'event_slug': 'kif23'}))
 
         self.client.logout()
