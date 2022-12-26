@@ -119,7 +119,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         response = self.client.get(form_url)
         self.assertEqual(response.status_code, 200, msg="Could not load message form view")
         response = self.client.post(form_url, {'ak': 1, 'event': 2, 'text': 'Test message text'})
-        self.assertRedirects(response, detail_url, status_code=302, target_status_code=200,
+        self.assertRedirects(response, detail_url, status_code=304, target_status_code=200,
                              msg_prefix=f"Did not trigger redirect to ak detail page ({detail_url})")
         self._assert_message(response, "Message to organizers successfully saved")
         self.assertEqual(AK.objects.get(pk=1).akorgamessage_set.count(), count_messages + 1,
