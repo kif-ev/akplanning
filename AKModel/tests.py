@@ -110,3 +110,20 @@ class ModelViewTests(BasicViewTests, TestCase):
                 view_name_with_prefix, url = self._name_and_url((f'admin:AKModel_{model[1]}_change', {'object_id': m.pk}))
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, 200, msg=f"Edit form for model {model[1]} ({url}) broken")
+
+    def test_wiki_export(self):
+        self.client.force_login(self.admin_user)
+
+        export_url = reverse_lazy(f"admin:ak_wiki_export", kwargs={'slug': 'kif42'})
+        response = self.client.get(export_url)
+        self.assertEqual(response.status_code, 200, "Export not working at all")
+
+        export_count = 0
+        for category, aks in response.context["categories_with_aks"]:
+            for ak in aks:
+                self.assertEqual(ak.include_in_export, True, f"AK with export flag set to False (pk={ak.pk}) included in export")
+                self.assertNotEqual(ak.pk, 1, "AK known to be excluded from export (PK 1) included in export")
+                export_count += 1
+
+        self.assertEqual(export_count, AK.objects.filter(event_id=2, include_in_export=True).count(),
+                         "Wiki export contained the wrong number of AKs")

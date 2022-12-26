@@ -197,7 +197,10 @@ class AKWikiExportView(AdminViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        categories_with_aks, ak_wishes = context["event"].get_categories_with_aks(wishes_seperately=True)
+        categories_with_aks, ak_wishes = context["event"].get_categories_with_aks(
+            wishes_seperately=True,
+            filter=lambda ak: ak.include_in_export
+        )
 
         context["categories_with_aks"] = [(category.name, ak_list) for category, ak_list in categories_with_aks]
         context["categories_with_aks"].append((_("Wishes"), ak_wishes))
