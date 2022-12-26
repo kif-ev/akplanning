@@ -1,4 +1,8 @@
+from typing import List
+
 from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
+from django.contrib.messages.storage.base import Message
 from django.test import TestCase
 from django.urls import reverse_lazy
 
@@ -37,6 +41,20 @@ class BasicViewTests:
         view_name_with_prefix = f"{self.APP_NAME}:{view_name[0]}" if self.APP_NAME != "" else view_name[0]
         url = reverse_lazy(view_name_with_prefix, kwargs=view_name[1])
         return view_name_with_prefix, url
+
+    def _assert_message(self, response, expected_message, msg_prefix=""):
+        messages:List[Message] = list(get_messages(response.wsgi_request))
+
+        msg_count = "No message shown to user"
+        msg_content = "Wrong message, expected '{expected_message}'"
+        if msg_prefix != "":
+            msg_count = f"{msg_prefix}: {msg_count}"
+            msg_content = f"{msg_prefix}: {msg_content}"
+
+        # Check that the last message correctly reports the issue
+        # (there might be more messages from previous calls that were not already rendered)
+        self.assertGreater(len(messages), 0, msg=msg_count)
+        self.assertEqual(messages[-1].message, expected_message, msg=msg_content)
 
     def test_views_for_200(self):
         for view_name in self.VIEWS:

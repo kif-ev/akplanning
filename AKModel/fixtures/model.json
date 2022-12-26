@@ -524,6 +524,19 @@
     }
 },
 {
+    "model": "AKModel.akslot",
+    "pk": 5,
+    "fields": {
+        "ak": 1,
+        "room": null,
+        "start": null,
+        "duration": "2.00",
+        "fixed": false,
+        "event": 2,
+        "updated": "2022-12-02T12:23:11.856Z"
+    }
+},
+{
     "model": "AKModel.constraintviolation",
     "pk": 1,
     "fields": {
