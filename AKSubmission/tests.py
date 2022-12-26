@@ -1,7 +1,10 @@
+from datetime import timedelta
+
 from django.test import TestCase
 from django.urls import reverse_lazy
+from django.utils.datetime_safe import datetime
 
-from AKModel.models import AK, AKSlot
+from AKModel.models import AK, AKSlot, Event
 from AKModel.tests import BasicViewTests
 
 
@@ -124,3 +127,36 @@ class ModelViewTests(BasicViewTests, TestCase):
         self._assert_message(response, "Message to organizers successfully saved")
         self.assertEqual(AK.objects.get(pk=1).akorgamessage_set.count(), count_messages + 1,
                          msg="Message was not correctly saved")
+
+    def test_interest_api(self):
+        interest_api_url = "/kif42/api/ak/1/indicate-interest/"
+
+        ak = AK.objects.get(pk=1)
+        event = Event.objects.get(slug='kif42')
+        ak_interest_counter = ak.interest_counter
+
+        response = self.client.get(interest_api_url)
+        self.assertEqual(response.status_code, 405, "Should not be accessible via GET")
+
+        event.interest_start = datetime.now().astimezone(event.timezone) + timedelta(minutes=-10)
+        event.interest_end = datetime.now().astimezone(event.timezone) + timedelta(minutes=+10)
+        event.save()
+
+        response = self.client.post(interest_api_url)
+        self.assertEqual(response.status_code, 200, f"API end point not working ({interest_api_url})")
+        self.assertEqual(AK.objects.get(pk=1).interest_counter, ak_interest_counter + 1, "Counter was not increased")
+
+        event.interest_end = datetime.now().astimezone(event.timezone) + timedelta(minutes=-2)
+        event.save()
+
+        response = self.client.post(interest_api_url)
+        self.assertEqual(response.status_code, 403,
+                    "API end point still reachable even though interest indication window ended ({interest_api_url})")
+        self.assertEqual(AK.objects.get(pk=1).interest_counter, ak_interest_counter + 1,
+                         "Counter was increased even though interest indication window ended")
+
+        invalid_interest_api_url = "/kif42/api/ak/-1/indicate-interest/"
+        response = self.client.post(invalid_interest_api_url)
+        self.assertEqual(response.status_code, 404, f"Invalid URL reachable ({interest_api_url})")
+
+

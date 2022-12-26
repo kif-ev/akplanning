@@ -26,8 +26,8 @@ def increment_interest_counter(request, event_slug, pk, **kwargs):
     """
     Increment interest counter for AK
     """
-    ak = AK.objects.get(pk=pk)
-    if ak:
+    try:
+        ak = AK.objects.get(pk=pk)
         # Check whether interest indication is currently allowed
         current_timestamp = datetime.now().astimezone(ak.event.timezone)
         if ak_interest_indication_active(ak.event, current_timestamp):
@@ -35,4 +35,5 @@ def increment_interest_counter(request, event_slug, pk, **kwargs):
             ak.save()
             return Response({'interest_counter': ak.interest_counter}, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_403_FORBIDDEN)
-    return Response(status=status.HTTP_404_NOT_FOUND)
+    except AK.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
