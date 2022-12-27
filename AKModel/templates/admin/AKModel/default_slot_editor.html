@@ -18,7 +18,8 @@
                 '{{ event.timezone }}',
                 '{{ LANGUAGE_CODE }}',
                 '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-                '{{ event.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}'
+                '{{ event.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                '00:15:00'
             );
         });
     </script>

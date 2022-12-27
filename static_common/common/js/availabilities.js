@@ -6,7 +6,7 @@
 // It was significantly changed to deal with the newer fullcalendar version, event specific timezones,
 // to remove the dependency to moments timezone and improve the visualization of deletion
 
-function createAvailabilityEditors(timezone, language, startDate, endDate) {
+function createAvailabilityEditors(timezone, language, startDate, endDate, slotResolution='00:30:00') {
     $("input.availabilities-editor-data").each(function () {
         const eventColor = '#28B62C';
 
@@ -84,6 +84,7 @@ function createAvailabilityEditors(timezone, language, startDate, endDate) {
             selectOverlap: false,
             eventOverlap: false,
             eventChange: save_events,
+            slotDuration: slotResolution,
         });
         plan.render();
 
