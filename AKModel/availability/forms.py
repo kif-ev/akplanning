@@ -20,7 +20,8 @@ class AvailabilitiesFormMixin(forms.Form):
     availabilities = forms.CharField(
         label=_('Availability'),
         help_text=_(
-            'Click and drag to mark the availability during the event, double-click to delete.'  # Adapted help text
+            'Click and drag to mark the availability during the event, double-click to delete. '
+            'Or use the start and end inputs to add entries to the calendar view.'  # Adapted help text
         ),
         widget=forms.TextInput(attrs={'class': 'availabilities-editor-data'}),
         required=False,
