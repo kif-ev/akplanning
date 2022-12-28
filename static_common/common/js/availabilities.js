@@ -16,6 +16,20 @@ function createAvailabilityEditors(timezone, language, startDate, endDate, slotR
         data_field.after(editor);
         data_field.hide();
 
+        // Add inputs to add slots without the need to click and drag
+        let manualSlotAdderSource = "<form id='formManualAdd'><table class='table table-responsive mb-0'><tr>" +
+            "<td style='vertical-align: middle;'><input type='datetime-local' id='inputStart' value='" + startDate + "' min='" + startDate + "' max='" + endDate + "'></td>" +
+            "<td style='vertical-align: middle;'><i class=\"fas fa-long-arrow-alt-right\"></i></td>" +
+            "<td style='vertical-align: middle;'><input type='datetime-local' id='inputEnd' value='" + endDate + "' min='" + startDate + "' max='" + endDate + "'></td>" +
+            "<td><button class='btn btn-primary' type='submit'><i class=\"fas fa-plus\"></i></button></td></tr></table></form>";
+        let manualSlotAdder = $(manualSlotAdderSource);
+        editor.after(manualSlotAdder);
+
+        $('#formManualAdd').submit(function(event) {
+            add($('#inputStart').val(), $('#inputEnd').val());
+            event.preventDefault();
+        });
+
         let editable = !Boolean(data_field.attr("disabled"));
         let data = JSON.parse(data_field.attr("value"));
         let events = data.availabilities.map(function (e) {
@@ -58,15 +72,7 @@ function createAvailabilityEditors(timezone, language, startDate, endDate, slotR
             events: data.availabilities,
             eventBackgroundColor: eventColor,
             select: function (info) {
-                resetDeletionCandidate();
-                plan.addEvent({
-                    title: "",
-                    start: info.start,
-                    end: info.end,
-                    id: 'new' + newEventsCounter
-                })
-                newEventsCounter++;
-                save_events();
+                add(info.start, info.end);
             },
             eventClick: function (info) {
                 if (eventMarkedForDeletion !== undefined && (eventMarkedForDeletion.id === info.event.id)) {
@@ -87,6 +93,18 @@ function createAvailabilityEditors(timezone, language, startDate, endDate, slotR
             slotDuration: slotResolution,
         });
         plan.render();
+
+        function add(start, end) {
+            resetDeletionCandidate();
+            plan.addEvent({
+                title: "",
+                start: start,
+                end: end,
+                id: 'new' + newEventsCounter
+            })
+            newEventsCounter++;
+            save_events();
+        }
 
         function makeDeletionCandidate(el) {
             el.classList.add("deleteEvent");

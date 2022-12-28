@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-27 00:33+0100\n"
+"POT-Creation-Date: 2022-12-28 01:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,23 +81,24 @@ msgstr "Constraintverletzungen auf Level \"Warning\" setzen"
 msgid "Availability"
 msgstr "Verfügbarkeit"
 
-#: AKModel/availability/forms.py:23 AKModel/forms.py:115
+#: AKModel/availability/forms.py:23
 msgid ""
 "Click and drag to mark the availability during the event, double-click to "
-"delete."
+"delete. Or use the start and end inputs to add entries to the calendar view."
 msgstr ""
 "Klicken und ziehen um die Verfügbarkeiten während des Events zu markieren. "
-"Doppelt klicken um Einträge zu löschen."
+"Doppelt klicken um Einträge zu löschen. Oder Start- und End-Eingabe "
+"verwenden, um der Kalenderansicht neue Einträge hinzuzufügen."
 
-#: AKModel/availability/forms.py:87
+#: AKModel/availability/forms.py:88
 msgid "The submitted availability does not comply with the required format."
 msgstr "Die eingetragenen Verfügbarkeit haben nicht das notwendige Format."
 
-#: AKModel/availability/forms.py:100
+#: AKModel/availability/forms.py:101
 msgid "The submitted availability contains an invalid date."
 msgstr "Die eingegebene Verfügbarkeit enthält ein ungültiges Datum."
 
-#: AKModel/availability/forms.py:123 AKModel/availability/forms.py:133
+#: AKModel/availability/forms.py:124 AKModel/availability/forms.py:134
 msgid "Please fill in your availabilities!"
 msgstr "Bitte Verfügbarkeiten eintragen!"
 
@@ -212,11 +213,20 @@ msgstr ""
 msgid "Default Slots"
 msgstr "Standardslots"
 
-#: AKModel/forms.py:124
+#: AKModel/forms.py:115
+msgid ""
+"Click and drag to add default slots, double-click to delete. Or use the "
+"start and end inputs to add entries to the calendar view."
+msgstr ""
+"Klicken und ziehen um Standardslots hinzuzufügen, doppelt klicken um "
+"Einträge zu löschen. Oder Start- und End-Eingabe verwenden, um der "
+"Kalenderansicht neue Einträge hinzuzufügen."
+
+#: AKModel/forms.py:125
 msgid "New rooms"
 msgstr "Neue Räume"
 
-#: AKModel/forms.py:125
+#: AKModel/forms.py:126
 msgid ""
 "Enter room details in CSV format. Required colum is \"name\", optional "
 "colums are \"location\", \"capacity\", and \"url\" for online/hybrid rooms. "
@@ -226,7 +236,7 @@ msgstr ""
 "Spalten sind \"location\", \"capacity\", und \"url\" for Online-/"
 "HybridräumeTrennzeichen: Semikolon"
 
-#: AKModel/forms.py:136
+#: AKModel/forms.py:137
 msgid "CSV must contain a name column"
 msgstr "CSV muss eine name-Spalte enthalten"
 

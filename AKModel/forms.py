@@ -112,7 +112,8 @@ class DefaultSlotEditorForm(AdminIntermediateForm):
     availabilities = forms.CharField(
         label=_('Default Slots'),
         help_text=_(
-            'Click and drag to mark the availability during the event, double-click to delete.'  # Adapted help text
+            'Click and drag to add default slots, double-click to delete. '
+            'Or use the start and end inputs to add entries to the calendar view.'
         ),
         widget=forms.TextInput(attrs={'class': 'availabilities-editor-data'}),
         required=True,
