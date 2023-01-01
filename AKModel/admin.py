@@ -15,7 +15,7 @@ from simple_history.admin import SimpleHistoryAdmin
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
-from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKTag, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
+from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation, DefaultSlot
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
 from AKModel.views import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView, AKResetInterestView, \
@@ -132,15 +132,6 @@ class AKTrackAdmin(admin.ModelAdmin):
         if db_field.name == 'event':
             kwargs['initial'] = Event.get_next_active()
         return super(AKTrackAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
-
-@admin.register(AKTag)
-class AKTagAdmin(admin.ModelAdmin):
-    model = AKTag
-    list_display = ['name']
-    list_filter = []
-    list_editable = []
-    ordering = ['name']
 
 
 @admin.register(AKRequirement)

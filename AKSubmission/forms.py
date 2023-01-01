@@ -46,14 +46,6 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
         self.fields["conflicts"].widget.attrs = {'class': 'chosen-select'}
         self.fields["prerequisites"].widget.attrs = {'class': 'chosen-select'}
 
-        help_tags_addition = _('Separate multiple tags with comma or semicolon')
-
-        # Add text fields for tags
-        self.fields["tags_raw"] = forms.CharField(
-            required=False,
-            label=AK.tags.field.verbose_name,
-            help_text=f"{AK.tags.field.help_text} ({help_tags_addition})")
-
         self.fields['category'].queryset = AKCategory.objects.filter(event=self.initial.get('event'))
         self.fields['requirements'].queryset = AKRequirement.objects.filter(event=self.initial.get('event'))
         self.fields['prerequisites'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(
@@ -140,15 +132,6 @@ class AKSubmissionForm(AKForm):
         if len(availabilities) == 0:
             availabilities.append(Availability.with_event_length(event=self.cleaned_data["event"]))
         return availabilities
-
-
-class AKEditForm(AKForm):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Add existing tags to tag raw field
-        self.fields["tags_raw"].initial = "; ".join(str(tag) for tag in self.instance.tags.all())
 
 
 class AKWishForm(AKForm):

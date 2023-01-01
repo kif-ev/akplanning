@@ -212,20 +212,6 @@ class AKTrack(models.Model):
         return self.name
 
 
-class AKTag(models.Model):
-    """ An AKTag is a keyword given to an AK by (one of) its owner(s).
-    """
-    name = models.CharField(max_length=64, unique=True, verbose_name=_('Name'), help_text=_('Name of the AK Tag'))
-
-    class Meta:
-        verbose_name = _('AK Tag')
-        verbose_name_plural = _('AK Tags')
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
-
 class AKRequirement(models.Model):
     """ An AKRequirement describes something needed to hold an AK, e.g. infrastructure.
     """
@@ -261,7 +247,6 @@ class AK(models.Model):
 
     category = models.ForeignKey(to=AKCategory, on_delete=models.PROTECT, verbose_name=_('Category'),
                                  help_text=_('Category of the AK'))
-    tags = models.ManyToManyField(to=AKTag, blank=True, verbose_name=_('Tags'), help_text=_('Tags provided by owners'))
     track = models.ForeignKey(to=AKTrack, blank=True, on_delete=models.SET_NULL, null=True, verbose_name=_('Track'),
                               help_text=_('Track the AK belongs to'))
 
@@ -323,10 +308,6 @@ class AK(models.Model):
     @property
     def durations_list(self):
         return ", ".join(str(slot.duration_simplified) for slot in self.akslot_set.all())
-
-    @property
-    def tags_list(self):
-        return ", ".join(str(tag) for tag in self.tags.all())
 
     @property
     def wish(self):

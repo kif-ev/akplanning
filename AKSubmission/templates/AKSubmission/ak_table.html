@@ -9,7 +9,6 @@
         <th>{% trans "Name" %}</th>
         <th>{% trans "Who?" %}</th>
         <th>{% trans 'Category' %}</th>
-        <th>{% trans "Tags" %}</th>
         <th></th>
     </tr>
     </thead>
@@ -38,8 +37,7 @@
                 {% endif %}
             </td>
             <td>{% category_linked_badge ak.category event.slug %}</td>
-            <td>{% tag_list ak.tags.all event.slug %}</td>
-            <td class="text-right">
+            <td class="text-right" style="white-space: nowrap;">
                 <a href="{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}" data-toggle="tooltip"
                    title="{% trans 'Details' %}"
                    class="btn btn-primary">{% fa5_icon 'info' 'fas' %}</a>
