@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from itertools import zip_longest
 
 import django.db
+from django.apps import apps
 from django.contrib import admin, messages
 from django.db.models.functions import Now
 from django.shortcuts import get_object_or_404, redirect
@@ -304,7 +305,11 @@ class NewEventWizardImportView(EventSlugMixin, WizardViewMixin, FormView):
         return initial
 
     def form_valid(self, form):
-        for import_type in ["import_categories", "import_requirements"]:
+        import_types = ["import_categories", "import_requirements"]
+        if apps.is_installed("AKDashboard"):
+            import_types.append("import_buttons")
+
+        for import_type in import_types:
             for import_obj in form.cleaned_data.get(import_type):
                 # clone existing entry
                 try:
@@ -591,7 +596,6 @@ class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
         return reverse_lazy('admin:event_status', kwargs={'slug': self.event.slug})
 
     def form_valid(self, form):
-        from django.apps import apps
         virtual_rooms_support = False
         created_count = 0
 
