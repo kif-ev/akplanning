@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-28 01:03+0100\n"
+"POT-Creation-Date: 2023-01-01 19:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,11 +25,11 @@ msgstr "Status"
 msgid "Toggle plan visibility"
 msgstr "Plansichtbarkeit ändern"
 
-#: AKModel/admin.py:73 AKModel/admin.py:84 AKModel/views.py:491
+#: AKModel/admin.py:73 AKModel/admin.py:84 AKModel/views.py:496
 msgid "Publish plan"
 msgstr "Plan veröffentlichen"
 
-#: AKModel/admin.py:76 AKModel/admin.py:89 AKModel/views.py:501
+#: AKModel/admin.py:76 AKModel/admin.py:89 AKModel/views.py:506
 msgid "Unpublish plan"
 msgstr "Plan verbergen"
 
@@ -53,11 +53,11 @@ msgstr "In Wiki-Syntax exportieren"
 msgid "Cannot export AKs from more than one event at the same time."
 msgstr "Kann nicht AKs von mehreren Events zur selben Zeit exportieren."
 
-#: AKModel/admin.py:236 AKModel/views.py:471
+#: AKModel/admin.py:236 AKModel/views.py:476
 msgid "Reset interest in AKs"
 msgstr "Interesse an AKs zurücksetzen"
 
-#: AKModel/admin.py:241 AKModel/views.py:481
+#: AKModel/admin.py:241 AKModel/views.py:486
 msgid "Reset AKs' interest counters"
 msgstr "Interessenszähler der AKs zurücksetzen"
 
@@ -65,15 +65,15 @@ msgstr "Interessenszähler der AKs zurücksetzen"
 msgid "AK Details"
 msgstr "AK-Details"
 
-#: AKModel/admin.py:384 AKModel/views.py:441
+#: AKModel/admin.py:384 AKModel/views.py:446
 msgid "Mark Constraint Violations as manually resolved"
 msgstr "Markiere Constraintverletzungen als manuell behoben"
 
-#: AKModel/admin.py:389 AKModel/views.py:451
+#: AKModel/admin.py:389 AKModel/views.py:456
 msgid "Set Constraint Violations to level \"violation\""
 msgstr "Constraintverletzungen auf Level \"Violation\" setzen"
 
-#: AKModel/admin.py:394 AKModel/views.py:461
+#: AKModel/admin.py:394 AKModel/views.py:466
 msgid "Set Constraint Violations to level \"warning\""
 msgstr "Constraintverletzungen auf Level \"Warning\" setzen"
 
@@ -155,52 +155,56 @@ msgstr "AK-Kategorie, deren Verfügbarkeit hier abgebildet wird"
 msgid "Availabilities"
 msgstr "Verfügbarkeiten"
 
-#: AKModel/forms.py:42
+#: AKModel/forms.py:43
 msgid "Copy ak requirements and ak categories of existing event"
 msgstr "AK-Anforderungen und AK-Kategorien eines existierenden Events kopieren"
 
-#: AKModel/forms.py:43
+#: AKModel/forms.py:44
 msgid "You can choose what to copy in the next step"
 msgstr ""
 "Im nächsten Schritt kann ausgewählt werden, was genau kopiert werden soll"
 
-#: AKModel/forms.py:51
+#: AKModel/forms.py:52
 msgid "Copy ak categories"
 msgstr "AK-Kategorien kopieren"
 
-#: AKModel/forms.py:58
+#: AKModel/forms.py:59
 msgid "Copy ak requirements"
 msgstr "AK-Anforderungen kopieren"
 
-#: AKModel/forms.py:92
+#: AKModel/forms.py:78
+msgid "Copy dashboard buttons"
+msgstr "Dashboard-Buttons kopieren"
+
+#: AKModel/forms.py:102
 msgid "# next AKs"
 msgstr "# nächste AKs"
 
-#: AKModel/forms.py:93
+#: AKModel/forms.py:103
 msgid "How many next AKs should be shown on a slide?"
 msgstr "Wie viele nächste AKs sollen auf einer Folie angezeigt werden?"
 
-#: AKModel/forms.py:96
+#: AKModel/forms.py:106
 msgid "Presentation only?"
 msgstr "Nur Vorstellung?"
 
-#: AKModel/forms.py:98 AKModel/forms.py:105
+#: AKModel/forms.py:108 AKModel/forms.py:115
 msgid "Yes"
 msgstr "Ja"
 
-#: AKModel/forms.py:98 AKModel/forms.py:105
+#: AKModel/forms.py:108 AKModel/forms.py:115
 msgid "No"
 msgstr "Nein"
 
-#: AKModel/forms.py:100
+#: AKModel/forms.py:110
 msgid "Restrict AKs to those that asked for chance to be presented?"
 msgstr "AKs auf solche, die um eine Vorstellung gebeten haben, einschränken?"
 
-#: AKModel/forms.py:103
+#: AKModel/forms.py:113
 msgid "Space for notes in wishes?"
 msgstr "Platz für Notizen bei den Wünschen?"
 
-#: AKModel/forms.py:107
+#: AKModel/forms.py:117
 msgid ""
 "Create symbols indicating space to note down owners and timeslots for "
 "wishes, e.g., to be filled out on a touch screen while presenting?"
@@ -209,11 +213,11 @@ msgstr ""
 "fürWünsche markieren, z.B. um während der Präsentation auf einem Touchscreen "
 "ausgefüllt zu werden?"
 
-#: AKModel/forms.py:113 AKModel/models.py:661
+#: AKModel/forms.py:123 AKModel/models.py:661
 msgid "Default Slots"
 msgstr "Standardslots"
 
-#: AKModel/forms.py:115
+#: AKModel/forms.py:125
 msgid ""
 "Click and drag to add default slots, double-click to delete. Or use the "
 "start and end inputs to add entries to the calendar view."
@@ -222,11 +226,11 @@ msgstr ""
 "Einträge zu löschen. Oder Start- und End-Eingabe verwenden, um der "
 "Kalenderansicht neue Einträge hinzuzufügen."
 
-#: AKModel/forms.py:125
+#: AKModel/forms.py:135
 msgid "New rooms"
 msgstr "Neue Räume"
 
-#: AKModel/forms.py:126
+#: AKModel/forms.py:136
 msgid ""
 "Enter room details in CSV format. Required colum is \"name\", optional "
 "colums are \"location\", \"capacity\", and \"url\" for online/hybrid rooms. "
@@ -236,7 +240,7 @@ msgstr ""
 "Spalten sind \"location\", \"capacity\", und \"url\" for Online-/"
 "HybridräumeTrennzeichen: Semikolon"
 
-#: AKModel/forms.py:137
+#: AKModel/forms.py:147
 msgid "CSV must contain a name column"
 msgstr "CSV muss eine name-Spalte enthalten"
 
@@ -276,7 +280,7 @@ msgstr "Zeitzone"
 msgid "Time Zone where this event takes place in"
 msgstr "Zeitzone in der das Event stattfindet"
 
-#: AKModel/models.py:27 AKModel/views.py:251
+#: AKModel/models.py:27 AKModel/views.py:252
 msgid "Start"
 msgstr "Start"
 
@@ -637,7 +641,7 @@ msgstr "AK bei Wiki-Export berücksichtigen?"
 
 #: AKModel/models.py:298 AKModel/models.py:505
 #: AKModel/templates/admin/AKModel/status.html:57
-#: AKModel/templates/admin/AKModel/status.html:64 AKModel/views.py:369
+#: AKModel/templates/admin/AKModel/status.html:64 AKModel/views.py:374
 msgid "AKs"
 msgstr "AKs"
 
@@ -942,7 +946,7 @@ msgid "Successfully imported.<br><br>Do you want to activate your event now?"
 msgstr "Erfolgreich importiert.<br><br>Soll das Event jetzt aktiviert werden?"
 
 #: AKModel/templates/admin/AKModel/event_wizard/activate.html:27
-#: AKModel/views.py:256
+#: AKModel/views.py:257
 msgid "Finish"
 msgstr "Abschluss"
 
@@ -1035,7 +1039,7 @@ msgstr "Bisher keine Räume"
 msgid "Add Room"
 msgstr "Raum hinzufügen"
 
-#: AKModel/templates/admin/AKModel/status.html:55 AKModel/views.py:588
+#: AKModel/templates/admin/AKModel/status.html:55 AKModel/views.py:593
 msgid "Import Rooms from CSV"
 msgstr "Räume aus CSV importieren"
 
@@ -1064,7 +1068,7 @@ msgstr "AKs, die besondere Aufmerksamkeit benötigen"
 msgid "Enter Interest"
 msgstr "Interesse erfassen"
 
-#: AKModel/templates/admin/AKModel/status.html:94 AKModel/views.py:513
+#: AKModel/templates/admin/AKModel/status.html:94 AKModel/views.py:518
 msgid "Edit Default Slots"
 msgstr "Standardslots bearbeiten"
 
@@ -1080,7 +1084,7 @@ msgstr "AKs als CSV exportieren"
 msgid "Export AKs for Wiki"
 msgstr "AKs im Wiki-Format exportieren"
 
-#: AKModel/templates/admin/AKModel/status.html:102 AKModel/views.py:339
+#: AKModel/templates/admin/AKModel/status.html:102 AKModel/views.py:344
 msgid "Export AK Slides"
 msgstr "AK-Folien exportieren"
 
@@ -1133,162 +1137,162 @@ msgstr "Login"
 msgid "Register"
 msgstr "Registrieren"
 
-#: AKModel/views.py:154
+#: AKModel/views.py:155
 msgid "Event Status"
 msgstr "Eventstatus"
 
-#: AKModel/views.py:167
+#: AKModel/views.py:168
 msgid "Requirements for Event"
 msgstr "Anforderungen für das Event"
 
-#: AKModel/views.py:181
+#: AKModel/views.py:182
 msgid "AK CSV Export"
 msgstr "AK-CSV-Export"
 
-#: AKModel/views.py:195
+#: AKModel/views.py:196
 msgid "AK Wiki Export"
 msgstr "AK-Wiki-Export"
 
-#: AKModel/views.py:206 AKModel/views.py:355
+#: AKModel/views.py:207 AKModel/views.py:360
 msgid "Wishes"
 msgstr "Wünsche"
 
-#: AKModel/views.py:227
+#: AKModel/views.py:228
 msgid "Delete AK Orga Messages"
 msgstr "AK-Organachrichten löschen"
 
-#: AKModel/views.py:242
+#: AKModel/views.py:243
 msgid "AK Orga Messages successfully deleted"
 msgstr "AK-Organachrichten erfolgreich gelöscht"
 
-#: AKModel/views.py:252
+#: AKModel/views.py:253
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: AKModel/views.py:253
+#: AKModel/views.py:254
 msgid "Event created, Prepare Import"
 msgstr "Event angelegt, Import vorbereiten"
 
-#: AKModel/views.py:254
+#: AKModel/views.py:255
 msgid "Import categories & requirements"
 msgstr "Kategorien & Anforderungen kopieren"
 
-#: AKModel/views.py:255
+#: AKModel/views.py:256
 msgid "Activate?"
 msgstr "Aktivieren?"
 
-#: AKModel/views.py:314
+#: AKModel/views.py:319
 #, python-format
 msgid "Copied '%(obj)s'"
 msgstr "'%(obj)s' kopiert"
 
-#: AKModel/views.py:317
+#: AKModel/views.py:322
 #, python-format
 msgid "Could not copy '%(obj)s' (%(error)s)"
 msgstr "'%(obj)s' konnte nicht kopiert werden (%(error)s)"
 
-#: AKModel/views.py:350
+#: AKModel/views.py:355
 msgid "Symbols"
 msgstr "Symbole"
 
-#: AKModel/views.py:351
+#: AKModel/views.py:356
 msgid "Who?"
 msgstr "Wer?"
 
-#: AKModel/views.py:352
+#: AKModel/views.py:357
 msgid "Duration(s)"
 msgstr "Dauer(n)"
 
-#: AKModel/views.py:353
+#: AKModel/views.py:358
 msgid "Reso intention?"
 msgstr "Resolutionsabsicht?"
 
-#: AKModel/views.py:354
+#: AKModel/views.py:359
 msgid "Category (for Wishes)"
 msgstr "Kategorie (für Wünsche)"
 
-#: AKModel/views.py:443
+#: AKModel/views.py:448
 msgid "The following Constraint Violations will be marked as manually resolved"
 msgstr ""
 "Die folgenden Constraintverletzungen werden als manuell behoben markiert."
 
-#: AKModel/views.py:444
+#: AKModel/views.py:449
 msgid "Constraint Violations marked as resolved"
 msgstr "Constraintverletzungen als manuell behoben markiert"
 
-#: AKModel/views.py:453
+#: AKModel/views.py:458
 msgid "The following Constraint Violations will be set to level 'violation'"
 msgstr ""
 "Die folgenden Constraintverletzungen werden auf das Level \"Violation\" "
 "gesetzt."
 
-#: AKModel/views.py:454
+#: AKModel/views.py:459
 msgid "Constraint Violations set to level 'violation'"
 msgstr "Constraintverletzungen auf Level \"Violation\" gesetzt"
 
-#: AKModel/views.py:463
+#: AKModel/views.py:468
 msgid "The following Constraint Violations will be set to level 'warning'"
 msgstr ""
 "Die folgenden Constraintverletzungen werden auf das Level 'warning' gesetzt."
 
-#: AKModel/views.py:464
+#: AKModel/views.py:469
 msgid "Constraint Violations set to level 'warning'"
 msgstr "Constraintverletzungen auf Level \"Warning\" gesetzt"
 
-#: AKModel/views.py:473
+#: AKModel/views.py:478
 msgid "Interest of the following AKs will be set to not filled (-1):"
 msgstr "Interesse an den folgenden AKs wird auf nicht ausgefüllt (-1) gesetzt:"
 
-#: AKModel/views.py:474
+#: AKModel/views.py:479
 msgid "Reset of interest in AKs successful."
 msgstr "Interesse an AKs erfolgreich zurückgesetzt."
 
-#: AKModel/views.py:483
+#: AKModel/views.py:488
 msgid "Interest counter of the following AKs will be set to 0:"
 msgstr "Interessensbekundungszähler der folgenden AKs wird auf 0 gesetzt:"
 
-#: AKModel/views.py:484
+#: AKModel/views.py:489
 msgid "AKs' interest counters set back to 0."
 msgstr "Interessenszähler der AKs zurückgesetzt"
 
-#: AKModel/views.py:493
+#: AKModel/views.py:498
 msgid "Publish the plan(s) of:"
 msgstr "Den Plan/die Pläne veröffentlichen von:"
 
-#: AKModel/views.py:494
+#: AKModel/views.py:499
 msgid "Plan published"
 msgstr "Plan veröffentlicht"
 
-#: AKModel/views.py:503
+#: AKModel/views.py:508
 msgid "Unpublish the plan(s) of:"
 msgstr "Den Plan/die Pläne verbergen von:"
 
-#: AKModel/views.py:504
+#: AKModel/views.py:509
 msgid "Plan unpublished"
 msgstr "Plan verborgen"
 
-#: AKModel/views.py:550
+#: AKModel/views.py:555
 #, python-brace-format
 msgid "Could not update slot {id} since it does not belong to {event}"
 msgstr ""
 "Konnte  Slot {id} nicht bearbeiten, da er nicht zum Event {event} gehört"
 
-#: AKModel/views.py:580
+#: AKModel/views.py:585
 #, python-brace-format
 msgid "Updated {u} slot(s). created {c} new slot(s) and deleted {d} slot(s)"
 msgstr ""
 "{u} Slot(s) aktualisiert, {c} Slot(s) hinzugefügt und {d} Slot(s) gelöscht"
 
-#: AKModel/views.py:624
+#: AKModel/views.py:628
 #, python-brace-format
 msgid "Could not import room {name}: {e}"
 msgstr "Konnte Raum {name} nicht importieren: {e}"
 
-#: AKModel/views.py:628
+#: AKModel/views.py:632
 #, python-brace-format
 msgid "Imported {count} room(s)"
 msgstr "{count} Raum/Räume importiert"
 
-#: AKModel/views.py:630
+#: AKModel/views.py:634
 msgid "No rooms imported"
 msgstr "Keine Räume importiert"

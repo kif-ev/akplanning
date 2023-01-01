@@ -69,6 +69,17 @@ class NewEventWizardImportForm(forms.Form):
         self.fields["import_requirements"].queryset = self.fields["import_requirements"].queryset.filter(
             event=self.initial["import_event"])
 
+        from django.apps import apps
+        if apps.is_installed("AKDashboard"):
+            from AKDashboard.models import DashboardButton
+
+            self.fields["import_buttons"] = forms.ModelMultipleChoiceField(
+                queryset=DashboardButton.objects.filter(event=self.initial["import_event"]),
+                widget=forms.CheckboxSelectMultiple,
+                label=_("Copy dashboard buttons"),
+                required=False,
+            )
+
 
 class NewEventWizardActivateForm(forms.ModelForm):
     class Meta:
