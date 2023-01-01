@@ -41,10 +41,6 @@ for entry in exported_entries:
         elif entry['model'] == "AKModel.event":
             if int(entry['pk']) == event_id:
                 entries_out.append(entry)
-        # Backup tags
-        elif entry['model'] == "AKModel.aktag":
-            # No restriction needed, backup all tags
-            entries_out.append(entry)
         else:
             # This should normally not happen (all other models should have a reference to the event)
             entries_without_event += 1

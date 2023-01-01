@@ -1,3 +1,0 @@
-{% for tag in tags.all %}
-    <a href="{% url 'submit:ak_list_by_tag' event_slug=event_slug tag_pk=tag.pk %}"><span class="badge badge-info">{{ tag }}</span></a>
-{% endfor %}

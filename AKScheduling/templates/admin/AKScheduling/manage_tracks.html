@@ -210,7 +210,7 @@
           <div class="card-body">
             <ul data-id="None" data-sync="false" class="ak-list">
                 {% for ak in aks_without_track %}
-                    <li data-ak-id="{{ ak.pk }}" data-toggle="tooltip" data-placement="top" title="" data-title="{{ ak.tags_list }}">
+                    <li data-ak-id="{{ ak.pk }}" data-toggle="tooltip" data-placement="top" title=""">
                         {{ ak.name }} ({{ ak.category }})
                     </li>
                 {% endfor %}
@@ -229,7 +229,7 @@
           <div class="card-body">
             <ul data-track-id="{{ track.pk }}" data-name="{{ track }}" data-sync="true" class="ak-list">
                 {% for ak in track.ak_set.all %}
-                    <li data-ak-id="{{ ak.pk }}" data-toggle="tooltip" data-placement="top" title="" data-title="{{ ak.tags_list }}">
+                    <li data-ak-id="{{ ak.pk }}" data-toggle="tooltip" data-placement="top" title="">
                         {{ ak.name }} ({{ ak.category }})
                     </li>
                 {% endfor %}

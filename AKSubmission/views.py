@@ -13,11 +13,12 @@ from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 
 from AKModel.availability.models import Availability
-from AKModel.models import AK, AKCategory, AKTag, AKOwner, AKSlot, AKTrack, AKOrgaMessage
+from AKModel.models import AK, AKCategory, AKOwner, AKSlot, AKTrack, AKOrgaMessage
 from AKModel.views import EventSlugMixin
 from AKModel.views import FilterByEventSlugMixin
 from AKSubmission.api import ak_interest_indication_active
-from AKSubmission.forms import AKWishForm, AKOwnerForm, AKEditForm, AKSubmissionForm, AKDurationForm, AKOrgaMessageForm
+from AKSubmission.forms import AKWishForm, AKOwnerForm, AKSubmissionForm, AKDurationForm, AKOrgaMessageForm, \
+    AKForm
 
 
 class SubmissionErrorNotConfiguredView(EventSlugMixin, TemplateView):
@@ -106,18 +107,6 @@ class AKListByCategoryView(AKOverviewView):
 
     def get_active_category_name(self, context):
         return self.category.name
-
-
-class AKListByTagView(AKOverviewView):
-    def dispatch(self, request, *args, **kwargs):
-        self.tag = get_object_or_404(AKTag, pk=kwargs['tag_pk'])
-        return super().dispatch(request, *args, **kwargs)
-
-    def filter_aks(self, context, category):
-        return self.tag.ak_set.filter(event=self.event, category=category)
-
-    def get_table_title(self, context):
-        return f"{_('AKs with Tag')} = {self.tag.name}"
 
 
 class AKListByTrackView(AKOverviewView):
@@ -218,11 +207,6 @@ class AKAndAKWishSubmissionView(EventSlugMixin, EventInactiveRedirectMixin, Crea
         # Try to save AK and get redirect URL
         super_form_valid = super().form_valid(form)
 
-        # Set tags (and generate them if necessary)
-        for tag_name in form.cleaned_data["tag_names"]:
-            tag, was_created = AKTag.objects.get_or_create(name=tag_name)
-            self.object.tags.add(tag)
-
         # Generate slot(s) (but not for wishes)
         if "durations" in form.cleaned_data:
             for duration in form.cleaned_data["durations"]:
@@ -258,7 +242,7 @@ class AKWishSubmissionView(AKAndAKWishSubmissionView):
 class AKEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
     model = AK
     template_name = 'AKSubmission/ak_edit.html'
-    form_class = AKEditForm
+    form_class = AKForm
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK successfully updated"))
@@ -273,14 +257,6 @@ class AKEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
         previous_owner_count = self.object.owners.count()
 
         super_form_valid = super().form_valid(form)
-
-        # Detach existing tags
-        self.object.tags.clear()
-
-        # Set tags (and generate them if necessary)
-        for tag_name in form.cleaned_data["tag_names"]:
-            tag, was_created = AKTag.objects.get_or_create(name=tag_name)
-            self.object.tags.add(tag)
 
         # Did this AK change from wish to AK or vice versa?
         new_owner_count = self.object.owners.count()

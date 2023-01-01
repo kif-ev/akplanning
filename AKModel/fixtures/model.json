@@ -154,13 +154,6 @@
     }
 },
 {
-    "model": "AKModel.aktag",
-    "pk": 1,
-    "fields": {
-        "name": "metametameta"
-    }
-},
-{
     "model": "AKModel.akrequirement",
     "pk": 1,
     "fields": {
@@ -382,7 +375,6 @@
         "owners": [
             1
         ],
-        "tags": [],
         "requirements": [
             3
         ],
@@ -410,9 +402,6 @@
         "owners": [
             2
         ],
-        "tags": [
-            1
-        ],
         "requirements": [],
         "conflicts": [],
         "prerequisites": []
@@ -436,7 +425,6 @@
         "interest_counter": 0,
         "event": 2,
         "owners": [],
-        "tags": [],
         "requirements": [
             4
         ],
