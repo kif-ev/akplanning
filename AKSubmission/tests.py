@@ -159,4 +159,21 @@ class ModelViewTests(BasicViewTests, TestCase):
         response = self.client.post(invalid_interest_api_url)
         self.assertEqual(response.status_code, 404, f"Invalid URL reachable ({interest_api_url})")
 
+    def test_adding_of_unknown_user(self):
+        detail_url = reverse_lazy(f"{self.APP_NAME}:ak_detail", kwargs={'event_slug': 'kif42', 'pk': 1})
+        response = self.client.get(detail_url)
+        self.assertEqual(response.status_code, 200, msg="Could not load ak detail view")
 
+        edit_url = reverse_lazy(f"{self.APP_NAME}:ak_edit", kwargs={'event_slug': 'kif42', 'pk': 1})
+        response = self.client.get(edit_url)
+        self.assertEqual(response.status_code, 200, msg="Could not load ak detail view")
+        self.assertContains(response, "Add person not in the list yet",
+                            msg_prefix="Link to add unknown user not contained")
+
+        self.assertEqual(AK.objects.get(pk=1).owners.count(), 1)
+        add_new_user_to_ak_url = reverse_lazy(f"{self.APP_NAME}:akowner_create", kwargs={'event_slug': 'kif42'}) + f"?add_to_existing_ak=1"
+        response = self.client.post(add_new_user_to_ak_url, {'name': 'New test owner', 'event': Event.get_by_slug('kif42').pk})
+        self.assertRedirects(response, detail_url,
+                             msg_prefix=f"No correct redirect: {add_new_user_to_ak_url} (POST) -> {detail_url}")
+        self._assert_message(response, "Added 'New test owner' as new owner of 'Test AK Inhalt'")
+        self.assertEqual(AK.objects.get(pk=1).owners.count(), 2)

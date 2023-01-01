@@ -302,6 +302,13 @@ class AKOwnerCreateView(EventSlugMixin, EventInactiveRedirectMixin, CreateView):
     form_class = AKOwnerForm
 
     def get_success_url(self):
+        if "add_to_existing_ak" in self.request.GET:
+            ak_pk = self.request.GET['add_to_existing_ak']
+            ak = get_object_or_404(AK, pk=ak_pk)
+            ak.owners.add(self.object)
+            messages.add_message(self.request, messages.SUCCESS,
+                                 _("Added '{owner}' as new owner of '{ak.name}'").format(owner=self.object, ak=ak))
+            return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': ak.pk})
         return reverse_lazy('submit:submit_ak',
                             kwargs={'event_slug': self.kwargs['event_slug'], 'owner_slug': self.object.slug})
 
