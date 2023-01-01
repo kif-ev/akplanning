@@ -6,6 +6,7 @@ from django.utils.timezone import now
 
 from AKDashboard.models import DashboardButton
 from AKModel.models import Event, AK, AKCategory
+from AKModel.tests import BasicViewTests
 
 
 class DashboardTests(TestCase):
@@ -64,7 +65,6 @@ class DashboardTests(TestCase):
         self.event.public = False
         self.event.save()
         response = self.client.get(url_dashboard_index)
-        print(response)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(self.event in response.context["events"])
         response = self.client.get(url_event_dashboard)
@@ -126,3 +126,14 @@ class DashboardTests(TestCase):
 
         response = self.client.get(url_event_dashboard)
         self.assertContains(response, "Dashboard Button Test")
+
+
+class DashboardViewTests(BasicViewTests, TestCase):
+    fixtures = ['model.json', 'dashboard.json']
+
+    APP_NAME = 'dashboard'
+
+    VIEWS = [
+        ('dashboard', {}),
+        ('dashboard_event', {'slug': 'kif42'}),
+    ]

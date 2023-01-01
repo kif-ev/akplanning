@@ -1,0 +1,13 @@
+[
+{
+    "model": "AKDashboard.dashboardbutton",
+    "pk": 1,
+    "fields": {
+        "text": "Wiki",
+        "url": "http://wiki.kif.rocks",
+        "icon": "fab,wikipedia-w",
+        "color": 2,
+        "event": 2
+    }
+}
+]

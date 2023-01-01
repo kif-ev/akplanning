@@ -16,10 +16,14 @@ DATABASES = {
         'PASSWORD': 'mysql',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'charset': "utf8mb4",
         },
         'TEST': {
-            'NAME': 'test',
+            'NAME': 'tests',
+            'CHARSET': "utf8mb4",
+            'COLLATION': 'utf8mb4_unicode_ci',
         },
     }
 }
+
+TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'
+TEST_OUTPUT_FILE_NAME = 'unit.xml'
