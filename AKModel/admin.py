@@ -412,6 +412,12 @@ class DefaultSlotAdminForm(forms.ModelForm):
 
 @admin.register(DefaultSlot)
 class DefaultSlotAdmin(admin.ModelAdmin):
-    list_display = ['start', 'end', 'event']
+    list_display = ['start_simplified', 'end_simplified', 'event']
     list_filter = ['event']
     form = DefaultSlotAdminForm
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        # Use timezone of event
+        if obj is not None:
+            timezone.activate(obj.event.timezone)
+        return super().get_form(request, obj, change, **kwargs)
