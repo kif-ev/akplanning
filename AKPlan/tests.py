@@ -26,3 +26,11 @@ class PlanViewTests(BasicViewTests, TestCase):
         response = self.client.get(url)
         self.assertNotContains(response, "Plan is not visible (yet).",
                                msg_prefix="Plan is not visible for staff user")
+
+    def test_wall_redirect(self):
+        view_name_with_prefix, url_wall = self._name_and_url(('plan_wall', {'event_slug': 'kif23'}))
+        view_name_with_prefix, url_plan = self._name_and_url(('plan_overview', {'event_slug': 'kif23'}))
+
+        response = self.client.get(url_wall)
+        self.assertRedirects(response, url_plan,
+                             msg_prefix=f"Redirect away from wall not working ({url_wall} -> {url_plan})")

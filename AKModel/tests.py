@@ -1,3 +1,4 @@
+import traceback
 from typing import List
 
 from django.contrib.auth.models import User
@@ -59,8 +60,11 @@ class BasicViewTests:
     def test_views_for_200(self):
         for view_name in self.VIEWS:
             view_name_with_prefix, url = self._name_and_url(view_name)
-            response = self.client.get(url)
-            self.assertEqual(response.status_code, 200, msg=f"{view_name_with_prefix} ({url}) broken")
+            try:
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200, msg=f"{view_name_with_prefix} ({url}) broken")
+            except Exception as e:
+                self.fail(f"An error occurred during rendering of {view_name_with_prefix} ({url}):\n\n{traceback.format_exc()}")
 
     def test_access_control_staff_only(self):
         self.client.logout()
@@ -94,9 +98,12 @@ class ModelViewTests(BasicViewTests, TestCase):
         (DefaultSlot, 'defaultslot')
     ]
 
+    VIEWS_STAFF_ONLY = [
+        ('admin:index', {})
+    ]
+
     def test_admin(self):
         self.client.force_login(self.admin_user)
-
         for model in self.ADMIN_MODELS:
             if model[1] == "event":
                 continue
