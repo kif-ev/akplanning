@@ -16,6 +16,17 @@
     <li class="breadcrumb-item active">{% trans "Edit" %}</li>
 {% endblock %}
 
+{% block form_contents %}
+    {% bootstrap_field form.name %}
+    <div class="form-group">
+        {% bootstrap_field form.owners form_group_class="" %}
+        <a href="{% url 'submit:akowner_create' event_slug=event.slug %}?add_to_existing_ak={{ ak.pk }}">
+            {% fa5_icon "plus" "fas" %} {% trans "Add person not in the list yet. Unsaved changes in this form will be lost." %}
+        </a>
+    </div>
+    {% bootstrap_form form exclude='name,owners' %}
+{% endblock %}
+
 
 {% block headline %}
     <h2>{% trans 'Edit AK' %}</h2>
