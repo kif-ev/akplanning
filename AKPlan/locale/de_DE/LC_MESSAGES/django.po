@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-22 08:02+0000\n"
+"POT-Creation-Date: 2022-12-27 00:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,7 +38,7 @@ msgstr "Veranstaltung"
 #: AKPlan/templates/AKPlan/plan_index.html:55
 #: AKPlan/templates/AKPlan/plan_room.html:13
 #: AKPlan/templates/AKPlan/plan_room.html:59
-#: AKPlan/templates/AKPlan/plan_wall.html:52
+#: AKPlan/templates/AKPlan/plan_wall.html:54
 msgid "Room"
 msgstr "Raum"
 
@@ -63,12 +63,12 @@ msgid "AK Wall"
 msgstr "AK-Wall"
 
 #: AKPlan/templates/AKPlan/plan_index.html:126
-#: AKPlan/templates/AKPlan/plan_wall.html:116
+#: AKPlan/templates/AKPlan/plan_wall.html:119
 msgid "Current AKs"
 msgstr "Aktuelle AKs"
 
 #: AKPlan/templates/AKPlan/plan_index.html:133
-#: AKPlan/templates/AKPlan/plan_wall.html:121
+#: AKPlan/templates/AKPlan/plan_wall.html:124
 msgid "Next AKs"
 msgstr "Nächste AKs"
 
@@ -99,7 +99,7 @@ msgstr "Eigenschaften"
 msgid "Track"
 msgstr "Track"
 
-#: AKPlan/templates/AKPlan/plan_wall.html:131
+#: AKPlan/templates/AKPlan/plan_wall.html:134
 msgid "Reload page automatically?"
 msgstr "Seite automatisch neu laden?"
 

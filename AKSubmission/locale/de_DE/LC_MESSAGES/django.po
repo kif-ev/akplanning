@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-26 23:16+0100\n"
+"POT-Creation-Date: 2022-12-27 00:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,6 +37,33 @@ msgid ""
 msgstr ""
 "Mindestens eine geplante Dauer (in Stunden) angeben. Wenn der AK mehrere "
 "Slots haben soll, mehrere Zeilen verwenden"
+
+#: AKSubmission/forms.py:192
+#: AKSubmission/templates/AKSubmission/ak_detail.html:315
+msgid "Start"
+msgstr "Start"
+
+#: AKSubmission/forms.py:193
+#: AKSubmission/templates/AKSubmission/ak_detail.html:316
+msgid "End"
+msgstr "Ende"
+
+#: AKSubmission/forms.py:194
+#: AKSubmission/templates/AKSubmission/ak_detail.html:245
+#: AKSubmission/templates/AKSubmission/akslot_delete.html:35
+msgid "Duration"
+msgstr "Dauer"
+
+#: AKSubmission/forms.py:195
+#: AKSubmission/templates/AKSubmission/ak_detail.html:247
+msgid "Room"
+msgstr "Raum"
+
+#: AKSubmission/forms.py:199
+#: AKSubmission/templates/AKSubmission/ak_history.html:11
+#: AKSubmission/templates/AKSubmission/akslot_delete.html:31
+msgid "AK"
+msgstr "AK"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:22
 #: AKSubmission/templates/AKSubmission/ak_edit.html:13
@@ -197,15 +224,6 @@ msgstr "Notizen"
 msgid "When?"
 msgstr "Wann?"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:245
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:35
-msgid "Duration"
-msgstr "Dauer"
-
-#: AKSubmission/templates/AKSubmission/ak_detail.html:247
-msgid "Room"
-msgstr "Raum"
-
 #: AKSubmission/templates/AKSubmission/ak_detail.html:278
 msgid "Delete"
 msgstr "Löschen"
@@ -221,14 +239,6 @@ msgstr "Einen neuen AK-Slot hinzufügen"
 #: AKSubmission/templates/AKSubmission/ak_detail.html:311
 msgid "Possible Times"
 msgstr "Mögliche Zeiten"
-
-#: AKSubmission/templates/AKSubmission/ak_detail.html:315
-msgid "Start"
-msgstr "Start"
-
-#: AKSubmission/templates/AKSubmission/ak_detail.html:316
-msgid "End"
-msgstr "Ende"
 
 #: AKSubmission/templates/AKSubmission/ak_edit.html:8
 #: AKSubmission/templates/AKSubmission/ak_history.html:11
@@ -251,11 +261,6 @@ msgstr "AKs"
 #: AKSubmission/templates/AKSubmission/ak_edit.html:21
 msgid "Edit AK"
 msgstr "AK bearbeiten"
-
-#: AKSubmission/templates/AKSubmission/ak_history.html:11
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:31
-msgid "AK"
-msgstr "AK"
 
 #: AKSubmission/templates/AKSubmission/ak_history.html:27
 msgid "Back"
