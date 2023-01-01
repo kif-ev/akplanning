@@ -92,10 +92,10 @@ class Event(models.Model):
             for category in categories:
                 ak_list = []
                 for ak in category.ak_set.all():
-                    if ak.wish:
-                        ak_wishes.append(ak)
-                    else:
-                        if filter(ak):
+                    if filter(ak):
+                        if ak.wish:
+                            ak_wishes.append(ak)
+                        else:
                             ak_list.append(ak)
                 if not hide_empty_categories or len(ak_list) > 0:
                     categories_with_aks.append((category, ak_list))
@@ -288,7 +288,10 @@ class AK(models.Model):
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
-    history = HistoricalRecords(excluded_fields=['interest_counter'])
+    include_in_export = models.BooleanField(default=True, verbose_name=_('Export?'),
+                                            help_text=_("Include AK in wiki export?"))
+
+    history = HistoricalRecords(excluded_fields=['interest_counter', 'include_in_export'])
 
     class Meta:
         verbose_name = _('AK')

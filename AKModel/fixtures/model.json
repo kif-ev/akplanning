@@ -377,6 +377,7 @@
         "notes": "",
         "interest": -1,
         "interest_counter": 0,
+        "include_in_export": false,
         "event": 2,
         "owners": [
             1
