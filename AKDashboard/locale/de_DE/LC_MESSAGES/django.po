@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-29 13:36+0000\n"
+"POT-Creation-Date: 2022-12-27 01:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -100,6 +100,10 @@ msgstr "AK-Plan"
 #: AKDashboard/templates/AKDashboard/dashboard_row.html:49
 msgid "AK Submission"
 msgstr "AK-Einreichung"
+
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:57
+msgid "AK History"
+msgstr "AK-Verlauf"
 
 #: AKDashboard/views.py:42
 #, python-format

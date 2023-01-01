@@ -24,7 +24,7 @@
         {% include "AKDashboard/dashboard_row.html" %}
 
         {% if recent_changes|length > 0 %}
-            <h3 class="mt-1">{% trans "Recent" %}:</h3>
+            <h3 class="mt-1" id="history">{% trans "Recent" %}:</h3>
             <ul id="recent-changes-list">
                 {% for recent in recent_changes %}
                     <li><a href="{{ recent.link }}">{% fa5_icon recent.icon.0 recent.icon.1 %} {{ recent.text }}</a> <span style="color: #999999;">{{ recent.timestamp | timezone:event.timezone | date:"d.m. H:i" }}</span></li>
