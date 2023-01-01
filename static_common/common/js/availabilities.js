@@ -6,7 +6,7 @@
 // It was significantly changed to deal with the newer fullcalendar version, event specific timezones,
 // to remove the dependency to moments timezone and improve the visualization of deletion
 
-function createAvailabilityEditors(timezone, language, startDate, endDate) {
+function createAvailabilityEditors(timezone, language, startDate, endDate, slotResolution='00:30:00') {
     $("input.availabilities-editor-data").each(function () {
         const eventColor = '#28B62C';
 
@@ -15,6 +15,20 @@ function createAvailabilityEditors(timezone, language, startDate, endDate) {
         editor.attr("data-name", data_field.attr("name"));
         data_field.after(editor);
         data_field.hide();
+
+        // Add inputs to add slots without the need to click and drag
+        let manualSlotAdderSource = "<form id='formManualAdd'><table class='table table-responsive mb-0'><tr>" +
+            "<td style='vertical-align: middle;'><input type='datetime-local' id='inputStart' value='" + startDate + "' min='" + startDate + "' max='" + endDate + "'></td>" +
+            "<td style='vertical-align: middle;'><i class=\"fas fa-long-arrow-alt-right\"></i></td>" +
+            "<td style='vertical-align: middle;'><input type='datetime-local' id='inputEnd' value='" + endDate + "' min='" + startDate + "' max='" + endDate + "'></td>" +
+            "<td><button class='btn btn-primary' type='submit'><i class=\"fas fa-plus\"></i></button></td></tr></table></form>";
+        let manualSlotAdder = $(manualSlotAdderSource);
+        editor.after(manualSlotAdder);
+
+        $('#formManualAdd').submit(function(event) {
+            add($('#inputStart').val(), $('#inputEnd').val());
+            event.preventDefault();
+        });
 
         let editable = !Boolean(data_field.attr("disabled"));
         let data = JSON.parse(data_field.attr("value"));
@@ -58,15 +72,7 @@ function createAvailabilityEditors(timezone, language, startDate, endDate) {
             events: data.availabilities,
             eventBackgroundColor: eventColor,
             select: function (info) {
-                resetDeletionCandidate();
-                plan.addEvent({
-                    title: "",
-                    start: info.start,
-                    end: info.end,
-                    id: 'new' + newEventsCounter
-                })
-                newEventsCounter++;
-                save_events();
+                add(info.start, info.end);
             },
             eventClick: function (info) {
                 if (eventMarkedForDeletion !== undefined && (eventMarkedForDeletion.id === info.event.id)) {
@@ -84,8 +90,21 @@ function createAvailabilityEditors(timezone, language, startDate, endDate) {
             selectOverlap: false,
             eventOverlap: false,
             eventChange: save_events,
+            slotDuration: slotResolution,
         });
         plan.render();
+
+        function add(start, end) {
+            resetDeletionCandidate();
+            plan.addEvent({
+                title: "",
+                start: start,
+                end: end,
+                id: 'new' + newEventsCounter
+            })
+            newEventsCounter++;
+            save_events();
+        }
 
         function makeDeletionCandidate(el) {
             el.classList.add("deleteEvent");
