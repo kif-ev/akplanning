@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-27 00:42+0100\n"
+"POT-Creation-Date: 2023-01-01 16:07+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -258,9 +258,16 @@ msgid "AKs"
 msgstr "AKs"
 
 #: AKSubmission/templates/AKSubmission/ak_edit.html:8
-#: AKSubmission/templates/AKSubmission/ak_edit.html:21
+#: AKSubmission/templates/AKSubmission/ak_edit.html:32
 msgid "Edit AK"
 msgstr "AK bearbeiten"
+
+#: AKSubmission/templates/AKSubmission/ak_edit.html:24
+msgid ""
+"Add person not in the list yet. Unsaved changes in this form will be lost."
+msgstr ""
+"Person hinzufügen, die noch nicht in der Liste ist. Ungespeicherte "
+"Änderungen in diesem Formular gehen verloren."
 
 #: AKSubmission/templates/AKSubmission/ak_history.html:27
 msgid "Back"
@@ -316,7 +323,7 @@ msgstr "Senden"
 #: AKSubmission/templates/AKSubmission/akmessage_add.html:32
 #: AKSubmission/templates/AKSubmission/akowner_create_update.html:27
 #: AKSubmission/templates/AKSubmission/akslot_add_update.html:30
-#: AKSubmission/templates/AKSubmission/submit_new.html:54
+#: AKSubmission/templates/AKSubmission/submit_new.html:56
 msgid "Reset Form"
 msgstr "Formular leeren"
 
@@ -324,7 +331,7 @@ msgstr "Formular leeren"
 #: AKSubmission/templates/AKSubmission/akowner_create_update.html:31
 #: AKSubmission/templates/AKSubmission/akslot_add_update.html:34
 #: AKSubmission/templates/AKSubmission/akslot_delete.html:46
-#: AKSubmission/templates/AKSubmission/submit_new.html:58
+#: AKSubmission/templates/AKSubmission/submit_new.html:60
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -407,7 +414,7 @@ msgstr ""
 "Dieses Event is nicht aktiv. Es können keine AKs hinzugefügt oder bearbeitet "
 "werden"
 
-#: AKSubmission/templates/AKSubmission/submit_new.html:50
+#: AKSubmission/templates/AKSubmission/submit_new.html:52
 msgid "Submit"
 msgstr "Eintragen"
 
@@ -437,35 +444,40 @@ msgstr "AK erfolgreich angelegt"
 msgid "AK successfully updated"
 msgstr "AK erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:344
+#: AKSubmission/views.py:310
+#, python-brace-format
+msgid "Added '{owner}' as new owner of '{ak.name}'"
+msgstr "'{owner}' als neue Leitung von '{ak.name}' hinzugefügt"
+
+#: AKSubmission/views.py:351
 msgid "Person Info successfully updated"
 msgstr "Personen-Info erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:364
+#: AKSubmission/views.py:371
 msgid "No user selected"
 msgstr "Keine Person ausgewählt"
 
-#: AKSubmission/views.py:391
+#: AKSubmission/views.py:398
 msgid "AK Slot successfully added"
 msgstr "AK-Slot erfolgreich angelegt"
 
-#: AKSubmission/views.py:405
+#: AKSubmission/views.py:412
 msgid "You cannot edit a slot that has already been scheduled"
 msgstr "Bereits geplante AK-Slots können nicht mehr bearbeitet werden"
 
-#: AKSubmission/views.py:415
+#: AKSubmission/views.py:422
 msgid "AK Slot successfully updated"
 msgstr "AK-Slot erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:428
+#: AKSubmission/views.py:435
 msgid "You cannot delete a slot that has already been scheduled"
 msgstr "Bereits geplante AK-Slots können nicht mehr gelöscht werden"
 
-#: AKSubmission/views.py:438
+#: AKSubmission/views.py:445
 msgid "AK Slot successfully deleted"
 msgstr "AK-Slot erfolgreich angelegt"
 
-#: AKSubmission/views.py:460
+#: AKSubmission/views.py:467
 msgid "Message to organizers successfully saved"
 msgstr "Nachricht an die Organisator*innen erfolgreich gespeichert"
 

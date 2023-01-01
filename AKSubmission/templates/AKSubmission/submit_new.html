@@ -44,7 +44,9 @@
         <h2>{% trans 'New AK' %}</h2>
     {% endblock %}
     <form method="POST" class="post-form">{% csrf_token %}
-        {% bootstrap_form form %}
+        {% block form_contents %}
+            {% bootstrap_form form %}
+        {% endblock %}
         {% buttons %}
             <button type="submit" class="save btn btn-primary float-right">
                 {% fa5_icon "check" 'fas' %} {% trans "Submit" %}
