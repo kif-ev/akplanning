@@ -83,5 +83,5 @@ def get_admin_urls_event(admin_site):
              name="ak_wiki_export"),
         path('<slug:event_slug>/delete-orga-messages/', admin_site.admin_view(AKMessageDeleteView.as_view()),
              name="ak_delete_orga_messages"),
-        path('<slug:event_slug>/ak-slide-export/', ExportSlidesView.as_view(), name="ak_slide_export"),
+        path('<slug:event_slug>/ak-slide-export/', admin_site.admin_view(ExportSlidesView.as_view()), name="ak_slide_export"),
     ]
