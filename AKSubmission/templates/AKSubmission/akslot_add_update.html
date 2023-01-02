@@ -1,7 +1,7 @@
 {% extends 'AKSubmission/submission_base.html' %}
 
 {% load i18n %}
-{% load bootstrap4 %}
+{% load django_bootstrap5 %}
 {% load fontawesome_5 %}
 
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Duration(s)" %}{% endblock %}
@@ -20,19 +20,17 @@
         <h2>{% trans 'AK Duration(s)' %}</h2>
     {% endblock %}
     <form method="POST" class="post-form">{% csrf_token %}
-        {% bootstrap_form form %}
-        {% buttons %}
-            <button type="submit" class="save btn btn-primary float-right">
-                {% fa5_icon "check" 'fas' %} {% trans "Continue" %}
-            </button>
+    {% bootstrap_form form %}
+        <button type="submit" class="save btn btn-primary float-end">
+            {% fa5_icon "check" 'fas' %} {% trans "Continue" %}
+        </button>
 
-            <button type="reset" class="btn btn-danger">
-                {% fa5_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
-            </button>
+        <button type="reset" class="btn btn-danger">
+            {% fa5_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
+        </button>
 
-            <a href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}" class="btn btn-secondary">
-                {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
-            </a>
-        {% endbuttons %}
+        <a href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}" class="btn btn-secondary">
+            {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
+        </a>
     </form>
 {% endblock %}

@@ -76,9 +76,12 @@ class BasicViewTests:
         self.client.force_login(self.staff_user)
         for view_name in self.VIEWS_STAFF_ONLY:
             view_name_with_prefix, url = self._name_and_url(view_name)
-            response = self.client.get(url)
-            self.assertEqual(response.status_code, 200,
-                             msg=f"{view_name_with_prefix} ({url}) should be accessible for staff (but isn't)")
+            try:
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200,
+                                 msg=f"{view_name_with_prefix} ({url}) should be accessible for staff (but isn't)")
+            except Exception as e:
+                self.fail(f"An error occurred during rendering of {view_name_with_prefix} ({url}):\n\n{traceback.format_exc()}")
 
         self.client.force_login(self.deactivated_user)
         for view_name in self.VIEWS_STAFF_ONLY:

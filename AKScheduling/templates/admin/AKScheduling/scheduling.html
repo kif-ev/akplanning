@@ -6,7 +6,7 @@
 {% load tz %}
 {% load static %}
 
-{% load bootstrap4 %}
+{% load django_bootstrap5 %}
 {% load fontawesome_5 %}
 
 {% get_current_language as LANGUAGE_CODE %}
@@ -20,7 +20,8 @@
 
     {# Load Bootstrap CSS and JavaScript as well as font awesome #}
     {% bootstrap_css %}
-    {% bootstrap_javascript jquery=True %}
+    {% bootstrap_javascript %}
+    <script src="{% static 'common/vendor/jquery/jquery-3.3.1.min.js' %}"></script>
     {% fontawesome_5_static %}
 
     {% include "AKModel/load_fullcalendar.html" %}
@@ -82,7 +83,7 @@
                 },
                 //aspectRatio: 2,
                 height: '100%',
-                themeSystem: 'bootstrap',
+                themeSystem: 'bootstrap5',
                 // Adapt to user selected locale
                 locale: '{{ LANGUAGE_CODE }}',
                 initialView: 'resourceTimelineEventVert',
@@ -224,9 +225,9 @@
 
                // Update violation count badge
                 if(unresolved_violations_count > 0)
-                    $('#violationCountBadge').html(response.length).removeClass('badge-success').addClass('badge-warning');
+                    $('#violationCountBadge').html(response.length).removeClass('bg-success').addClass('bg-warning');
                 else
-                    $('#violationCountBadge').html(0).removeClass('badge-warning').addClass('badge-success');
+                    $('#violationCountBadge').html(0).removeClass('bg-warning').addClass('bg-success');
 
                // Show violation list (potentially empty) in violations table
                $('#violationsTableBody').html(table_html);
@@ -287,9 +288,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">{% trans "Add slot" %}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    text-decoration: none;
                 </div>
                 <div class="modal-body">
                     <form>
@@ -298,7 +297,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="newAKSlotModalSubmitButton">{% trans "Add" %}</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Cancel" %}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
                 </div>
             </div>
         </div>
@@ -325,10 +324,10 @@
         <div class="col-md-4 col-lg-3 col-xl-2" id="sidebar">
             <ul class="nav nav-tabs">
               <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#unscheduled-slots">{% trans "Unscheduled" %}</a>
+                <a class="nav-link active" data-bs-toggle="tab" href="#unscheduled-slots">{% trans "Unscheduled" %}</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#violations"><span id="violationCountBadge" class="badge badge-success">0</span> {% trans "Violation(s)" %}</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#violations"><span id="violationCountBadge" class="badge bg-success">0</span> {% trans "Violation(s)" %}</a>
               </li>
             </ul>
             <div id="sidebarContent" class="tab-content">
@@ -339,7 +338,7 @@
                         <h5 class="mt-2">{{ track_slots.grouper }}</h5>
                     {% endif %}
                     {% for slot in track_slots.list %}
-                        <div class="unscheduled-slot badge badge-primary" style='background-color: {{ slot.ak.category.color }}'
+                        <div class="unscheduled-slot badge bg-primary" style='background-color: {{ slot.ak.category.color }}'
                              data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ slot.ak.details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}"}' data-details="{{ slot.ak.details }}">{{ slot.ak.short_name }}
                             ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
                         </div>

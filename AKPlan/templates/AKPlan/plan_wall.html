@@ -1,6 +1,6 @@
 {% load static %}
 {% load i18n %}
-{% load bootstrap4 %}
+{% load django_bootstrap5 %}
 {% load fontawesome_5 %}
 {% load tags_AKModel %}
 {% load tags_AKPlan %}
@@ -15,7 +15,8 @@
 
     {# Load Bootstrap CSS and JavaScript as well as font awesome #}
     {% bootstrap_css %}
-    {% bootstrap_javascript jquery='slim' %}
+    {% bootstrap_javascript %}
+    <script src="{% static 'common/vendor/jquery/jquery-3.3.1.min.js' %}"></script>
     {% fontawesome_5_static %}
 
     <link rel="stylesheet" href="{% static 'common/css/custom.css' %}">
@@ -31,7 +32,7 @@
             var plan = new FullCalendar.Calendar(planEl, {
                 timeZone: '{{ event.timezone }}',
                 headerToolbar: false,
-                themeSystem: 'bootstrap',
+                themeSystem: 'bootstrap5',
                 // Adapt to user selected locale
                 locale: '{{ LANGUAGE_CODE }}',
                 slotDuration: '01:00',

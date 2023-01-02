@@ -2,7 +2,7 @@
 {% load tags_AKModel %}
 
 {% load i18n %}
-{% load bootstrap4 %}
+{% load django_bootstrap5 %}
 {% load fontawesome_5 %}
 {% load tz %}
 
@@ -17,7 +17,7 @@
 
     <h5>{% trans "Congratulations. Everything is set up!" %}</h5>
 
-    <a href="{% url 'admin:event_status' event.slug %}" class="btn btn-info float-right">
+    <a href="{% url 'admin:event_status' event.slug %}" class="btn btn-info float-end">
             {% fa5_icon "info" 'fas' %}&nbsp;{% trans "Status" %}
     </a>
 

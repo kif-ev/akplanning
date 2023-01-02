@@ -1,7 +1,7 @@
 {% extends 'AKSubmission/submission_base.html' %}
 
 {% load i18n %}
-{% load bootstrap4 %}
+{% load django_bootstrap5 %}
 {% load fontawesome_5 %}
 {% load static %}
 {% load tz %}
@@ -47,19 +47,17 @@
         {% block form_contents %}
             {% bootstrap_form form %}
         {% endblock %}
-        {% buttons %}
-            <button type="submit" class="save btn btn-primary float-right">
-                {% fa5_icon "check" 'fas' %} {% trans "Submit" %}
-            </button>
+        <button type="submit" class="save btn btn-primary float-end">
+            {% fa5_icon "check" 'fas' %} {% trans "Submit" %}
+        </button>
 
-            <button type="reset" class="btn btn-danger">
-                {% fa5_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
-            </button>
+        <button type="reset" class="btn btn-danger">
+            {% fa5_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
+        </button>
 
-            <a href="{% url 'submit:submission_overview' event_slug=event.slug %}" class="btn btn-secondary">
-                {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
-            </a>
-        {% endbuttons %}
+        <a href="{% url 'submit:submission_overview' event_slug=event.slug %}" class="btn btn-secondary">
+            {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
+        </a>
     </form>
 {% endblock %}
 

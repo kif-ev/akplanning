@@ -2,12 +2,13 @@
 {% load tags_AKModel %}
 {% load i18n admin_urls %}
 {% load static %}
-{% load bootstrap4 %}
+{% load django_bootstrap5 %}
 {% load tz %}
 
 {% block extrahead %}
     {{ block.super }}
-    {% bootstrap_javascript jquery='slim' %}
+    {% bootstrap_javascript %}
+    <script src="{% static 'common/vendor/jquery/jquery-3.3.1.min.js' %}"></script>
     {% include "AKModel/load_fullcalendar_availabilities.html" %}
 
     <script>

@@ -22,7 +22,7 @@
                         center: 'title',
                         right: 'resourceTimelineDay,resourceTimelineEvent'
                     },
-                    themeSystem: 'bootstrap',
+                    themeSystem: 'bootstrap5',
                     // Adapt to user selected locale
 	                locale: '{{ LANGUAGE_CODE }}',
                     initialView: 'resourceTimelineEvent',
@@ -79,11 +79,11 @@
 
 
 {% block content %}
-    <div class="float-right">
+    <div class="float-end">
         <ul class="nav nav-pills">
             {% if rooms|length > 0 %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
                        aria-haspopup="true"
                        aria-expanded="false">{% trans "Rooms" %}</a>
                     <div class="dropdown-menu" style="">
@@ -96,7 +96,7 @@
             {% endif %}
             {% if tracks|length > 0 %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
                        aria-haspopup="true"
                        aria-expanded="false">{% trans "Tracks" %}</a>
                     <div class="dropdown-menu">
