@@ -18,7 +18,7 @@ class DashboardView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['events'] = Event.objects.filter(public=True)
+        context['events'] = Event.objects.filter(public=True).prefetch_related('dashboardbutton_set')
         return context
 
 
@@ -54,7 +54,7 @@ class DashboardEventView(DetailView):
             # Changes in plan
             if apps.is_installed("AKPlan"):
                 if not context['event'].plan_hidden:
-                    last_changed_slots = AKSlot.objects.filter(event=context['event'], start__isnull=False).order_by('-updated')[
+                    last_changed_slots = AKSlot.objects.select_related('ak').filter(event=context['event'], start__isnull=False).order_by('-updated')[
                                          :int(settings.DASHBOARD_RECENT_MAX)]
                     for changed_slot in last_changed_slots:
                         recent_changes.append({'icon': ('clock', 'far'),

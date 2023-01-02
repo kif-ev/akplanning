@@ -84,14 +84,14 @@ class Event(models.Model):
         :return: list of category-AK-list-tuples, optionally the additional list of AK wishes
         :rtype: list[(AKCategory, list[AK])] [, list[AK]]
         """
-        categories = self.akcategory_set.all()
+        categories = self.akcategory_set.select_related('event').all()
         categories_with_aks = []
         ak_wishes = []
 
         if wishes_seperately:
             for category in categories:
                 ak_list = []
-                for ak in category.ak_set.all():
+                for ak in category.ak_set.select_related('event').prefetch_related('owners', 'akslot_set').all():
                     if filter(ak):
                         if ak.wish:
                             ak_wishes.append(ak)
@@ -211,6 +211,9 @@ class AKTrack(models.Model):
     def __str__(self):
         return self.name
 
+    def aks_with_category(self):
+        return self.ak_set.select_related('category').all()
+
 
 class AKRequirement(models.Model):
     """ An AKRequirement describes something needed to hold an AK, e.g. infrastructure.
@@ -291,7 +294,7 @@ class AK(models.Model):
     @property
     def details(self):
         from AKModel.availability.models import Availability
-        availabilities = ', \n'.join(f'{a.simplified}' for a in Availability.objects.filter(ak=self))
+        availabilities = ', \n'.join(f'{a.simplified}' for a in Availability.objects.select_related('event').filter(ak=self))
         return f"""{self.name}{" (R)" if self.reso else ""}:
         
         {self.owners_list}
@@ -307,7 +310,7 @@ class AK(models.Model):
 
     @property
     def durations_list(self):
-        return ", ".join(str(slot.duration_simplified) for slot in self.akslot_set.all())
+        return ", ".join(str(slot.duration_simplified) for slot in self.akslot_set.select_related('event').all())
 
     @property
     def wish(self):
@@ -590,7 +593,7 @@ class ConstraintViolation(models.Model):
     @property
     def _ak_slots_str(self):
         if self.pk and self.pk > 0:
-            return ', '.join(str(a) for a in self.ak_slots.all())
+            return ', '.join(str(a) for a in self.ak_slots.select_related('event').all())
         return ', '.join(str(a) for a in self.ak_slots_tmp)
 
     def save(self, *args, **kwargs):

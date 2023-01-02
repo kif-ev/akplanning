@@ -36,7 +36,7 @@ class EventsView(LoginRequiredMixin, EventSlugMixin, ListView):
     model = AKSlot
 
     def get_queryset(self):
-        return super().get_queryset().filter(event=self.event, room__isnull=False)
+        return super().get_queryset().select_related('ak').filter(event=self.event, room__isnull=False)
 
     def render_to_response(self, context, **response_kwargs):
         return JsonResponse(
@@ -149,4 +149,4 @@ class ConstraintViolationsViewSet(EventSlugMixin, viewsets.ModelViewSet):
         return get_object_or_404(ConstraintViolation, pk=self.kwargs["pk"])
 
     def get_queryset(self):
-        return ConstraintViolation.objects.filter(event=self.event).order_by('manually_resolved', '-type', '-timestamp')
+        return ConstraintViolation.objects.select_related('event', 'room').prefetch_related('aks', 'ak_slots', 'ak_owner', 'requirement', 'category').filter(event=self.event).order_by('manually_resolved', '-type', '-timestamp')

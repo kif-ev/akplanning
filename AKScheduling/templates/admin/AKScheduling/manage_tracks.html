@@ -228,7 +228,7 @@
           </div>
           <div class="card-body">
             <ul data-track-id="{{ track.pk }}" data-name="{{ track }}" data-sync="true" class="ak-list">
-                {% for ak in track.ak_set.all %}
+                {% for ak in track.aks_with_category %}
                     <li data-ak-id="{{ ak.pk }}" data-toggle="tooltip" data-placement="top" title="">
                         {{ ak.name }} ({{ ak.category }})
                     </li>
