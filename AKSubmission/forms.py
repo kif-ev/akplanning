@@ -99,11 +99,6 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
             # Truncate links longer than 200 characters (default length of URL fields in django)
             self.cleaned_data["link"] = link[:200]
 
-        # Get tag names from raw tags
-        cleaned_data["tag_names"] = [name.strip().lower() for name
-                                     in self.split_string.split(cleaned_data["tags_raw"])
-                                     if name.strip() != '']
-
         # Get durations from raw durations field
         if "durations" in cleaned_data:
             cleaned_data["durations"] = [self._clean_duration(d) for d in self.cleaned_data["durations"].split()]
