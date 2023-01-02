@@ -31,7 +31,7 @@ class SchedulingAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
     context_object_name = "slots_unscheduled"
 
     def get_queryset(self):
-        return super().get_queryset().filter(start__isnull=True).select_related().order_by('ak__track')
+        return super().get_queryset().filter(start__isnull=True).select_related('event', 'ak').order_by('ak__track')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
@@ -53,7 +53,7 @@ class TrackAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
-        context["aks_without_track"] = self.event.ak_set.filter(track=None)
+        context["aks_without_track"] = self.event.ak_set.select_related('category').filter(track=None)
         return context
 
 
@@ -129,10 +129,10 @@ class InterestEnteringAdminView(SuccessMessageMixin, AdminViewMixin, EventSlugMi
 
         # Find other AK wishes (regardless of the category)...
         if context['ak'].wish:
-            other_aks = [ak for ak in context['event'].ak_set.all() if ak.wish]
+            other_aks = [ak for ak in context['event'].ak_set.prefetch_related('owners').all() if ak.wish]
         # or other AKs of this category
         else:
-            other_aks = [ak for ak in context['ak'].category.ak_set.all() if not ak.wish]
+            other_aks = [ak for ak in context['ak'].category.ak_set.prefetch_related('owners').all() if not ak.wish]
 
         for other_ak in other_aks:
             if next_is_next:
@@ -143,9 +143,9 @@ class InterestEnteringAdminView(SuccessMessageMixin, AdminViewMixin, EventSlugMi
                 next_is_next = True
             last_ak = other_ak
 
-        for category in context['event'].akcategory_set.all():
+        for category in context['event'].akcategory_set.prefetch_related('ak_set').all():
             aks_for_category = []
-            for ak in category.ak_set.all():
+            for ak in category.ak_set.prefetch_related('owners').all():
                 if ak.wish:
                     ak_wishes.append(ak)
                 else:

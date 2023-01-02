@@ -32,7 +32,7 @@ class AKOverviewView(FilterByEventSlugMixin, ListView):
     wishes_as_category = False
 
     def filter_aks(self, context, category):
-        return category.ak_set.all()
+        return category.ak_set.select_related('event').prefetch_related('owners').all()
 
     def get_active_category_name(self, context):
         return context["categories_with_aks"][0][0].name
@@ -126,6 +126,9 @@ class AKDetailView(EventSlugMixin, DetailView):
     context_object_name = "ak"
     template_name = "AKSubmission/ak_detail.html"
 
+    def get_queryset(self):
+        return super().get_queryset().select_related('event').prefetch_related('owners')
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context["availabilities"] = Availability.objects.filter(ak=context["ak"])
@@ -136,7 +139,7 @@ class AKDetailView(EventSlugMixin, DetailView):
         context["featured_slot_type"] = "NONE"
         if apps.is_installed("AKPlan"):
             in_two_hours = current_timestamp + timedelta(hours=2)
-            slots = context["ak"].akslot_set.filter(start__isnull=False, room__isnull=False)
+            slots = context["ak"].akslot_set.filter(start__isnull=False, room__isnull=False).select_related('room')
             for slot in slots:
                 if slot.end > current_timestamp:
                     if slot.start <= current_timestamp:
