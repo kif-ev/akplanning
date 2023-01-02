@@ -99,7 +99,16 @@ class ModelViewTests(BasicViewTests, TestCase):
     ]
 
     VIEWS_STAFF_ONLY = [
-        ('admin:index', {})
+        ('admin:index', {}),
+        ('admin:event_status', {'slug': 'kif42'}),
+        ('admin:event_requirement_overview', {'event_slug': 'kif42'}),
+        ('admin:ak_csv_export', {'event_slug': 'kif42'}),
+        ('admin:ak_wiki_export', {'slug': 'kif42'}),
+        ('admin:ak_delete_orga_messages', {'event_slug': 'kif42'}),
+        ('admin:ak_slide_export', {'event_slug': 'kif42'}),
+        ('admin:default-slots-editor', {'event_slug': 'kif42'}),
+        ('admin:room-import', {'event_slug': 'kif42'}),
+        ('admin:new_event_wizard_start', {}),
     ]
 
     def test_admin(self):

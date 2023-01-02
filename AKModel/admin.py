@@ -53,10 +53,10 @@ class EventAdmin(admin.ModelAdmin):
             from AKScheduling.urls import get_admin_urls_scheduling
             urls.extend(get_admin_urls_scheduling(self.admin_site))
         urls.extend([
-            path('plan/publish/', PlanPublishView.as_view(), name="plan-publish"),
-            path('plan/unpublish/', PlanUnpublishView.as_view(), name="plan-unpublish"),
-            path('<slug:event_slug>/defaultSlots/', DefaultSlotEditorView.as_view(), name="default-slots-editor"),
-            path('<slug:event_slug>/importRooms/', RoomBatchCreationView.as_view(), name="room-import"),
+            path('plan/publish/', self.admin_site.admin_view(PlanPublishView.as_view()), name="plan-publish"),
+            path('plan/unpublish/', self.admin_site.admin_view(PlanUnpublishView.as_view()), name="plan-unpublish"),
+            path('<slug:event_slug>/defaultSlots/', self.admin_site.admin_view(DefaultSlotEditorView.as_view()), name="default-slots-editor"),
+            path('<slug:event_slug>/importRooms/', self.admin_site.admin_view(RoomBatchCreationView.as_view()), name="room-import"),
         ])
         urls.extend(super().get_urls())
         return urls
