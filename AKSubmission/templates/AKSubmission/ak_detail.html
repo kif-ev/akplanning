@@ -1,7 +1,7 @@
 {% extends 'AKSubmission/submission_base.html' %}
 
 {% load i18n %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 {% load tz %}
 
 {% load tags_AKSubmission %}
@@ -68,7 +68,7 @@
                             data: {
                             },
                             success: function (response) {
-                               btn.html('{% fa5_icon 'check' 'fas' %}');
+                               btn.html('{% fa6_icon 'check' 'fas' %}');
                                btn.off('click');
                                $('#interest-counter').html(response.interest_counter);
                             },
@@ -100,29 +100,29 @@
                 {% trans 'Interest' %}: <b class='mx-1 text-muted' id="interest-counter">{{ ak.interest_counter }}</b>
                 <a href="#" data-bs-toggle="tooltip"
                    title="{% trans 'Show Interest' %}"
-                   class="btn btn-primary" id="btn-indicate-interest">{% fa5_icon 'thumbs-up' 'fas' %}</a>
+                   class="btn btn-primary" id="btn-indicate-interest">{% fa6_icon 'thumbs-up' 'fas' %}</a>
             {% endif %}
         {% endif %}
         {% if ak.link != "" %}
             <a href="{{ ak.link }}" data-bs-toggle="tooltip"
                title="{% trans 'Open external link' %}"
-               class="btn btn-info">{% fa5_icon 'external-link-alt' 'fas' %}</a>
+               class="btn btn-info">{% fa6_icon 'external-link-alt' 'fas' %}</a>
         {% endif %}
         {% if ak.protocol_link != "" %}
             <a href="{{ ak.protocol_link }}" data-bs-toggle="tooltip"
                title="{% trans 'Open protocol link' %}"
-               class="btn btn-warning">{% fa5_icon 'file-alt' 'far' %}</a>
+               class="btn btn-warning">{% fa6_icon 'file-alt' 'far' %}</a>
         {% endif %}
         <a href="{% url 'submit:ak_history' event_slug=ak.event.slug pk=ak.pk %}"
            data-bs-toggle="tooltip"
-           title="{% trans 'History' %}" class="btn btn-light">{% fa5_icon 'clock' 'fas' %}</a>
+           title="{% trans 'History' %}" class="btn btn-light">{% fa6_icon 'clock' 'fas' %}</a>
         {% if ak.event.active %}
             <a href="{% url 'submit:akmessage_add' event_slug=ak.event.slug pk=ak.pk %}" data-bs-toggle="tooltip"
                title="{% trans 'Add confidential message to organizers' %}"
-               class="btn btn-warning">{% fa5_icon 'envelope' 'fas' %}</a>
+               class="btn btn-warning">{% fa6_icon 'envelope' 'fas' %}</a>
             <a href="{% url 'submit:ak_edit' event_slug=ak.event.slug pk=ak.pk %}" data-bs-toggle="tooltip"
                title="{% trans 'Edit' %}"
-               class="btn btn-success">{% fa5_icon 'pencil-alt' 'fas' %}</a>
+               class="btn btn-success">{% fa6_icon 'pencil-alt' 'fas' %}</a>
         {% endif %}
     </div>
 
@@ -146,7 +146,7 @@
 
                 {% if "AKOnline"|check_app_installed and featured_slot.room.virtualroom and featured_slot.room.virtualroom.url != '' %}
                     <a class="btn btn-success" target="_parent" href="{{ featured_slot.room.virtualroom.url }}">
-                        {% fa5_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
+                        {% fa6_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
                     </a>
                 {% endif %}
             </div>
@@ -267,21 +267,21 @@
                         {% if not slot.start %}
                             <a href="{% url 'submit:akslot_edit' event_slug=ak.event.slug pk=slot.pk %}"
                                data-bs-toggle="tooltip" title="{% trans 'Edit' %}"
-                               class="btn btn-success">{% fa5_icon 'pencil-alt' 'fas' %}</a>
+                               class="btn btn-success">{% fa6_icon 'pencil-alt' 'fas' %}</a>
                             <a href="{% url 'submit:akslot_delete' event_slug=ak.event.slug pk=slot.pk %}"
                                data-bs-toggle="tooltip" title="{% trans 'Delete' %}"
-                               class="btn btn-danger">{% fa5_icon 'times' 'fas' %}</a>
+                               class="btn btn-danger">{% fa6_icon 'times' 'fas' %}</a>
                         {% else %}
                             {% if "AKOnline"|check_app_installed and slot.room and slot.room.virtualroom and slot.room.virtualroom.url != '' %}
                                 <a class="btn btn-success" target="_parent" href="{{ slot.room.virtualroom.url }}">
-                                    {% fa5_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
+                                    {% fa6_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
                                 </a>
                             {% endif %}
                         {% endif %}
                         {% if user.is_staff %}
                             <a href="{% url 'admin:AKModel_akslot_change' slot.pk %}"
                                data-bs-toggle="tooltip" title="{% trans 'Schedule' %}"
-                               class="btn btn-outline-success">{% fa5_icon 'stream' 'fas' %}</a>
+                               class="btn btn-outline-success">{% fa6_icon 'stream' 'fas' %}</a>
                         {% endif %}
                     </td>
                 </tr>
@@ -292,7 +292,7 @@
         {% if ak.event.active %}
             <div class="">
                 <a href="{% url 'submit:akslot_add' event_slug=ak.event.slug pk=ak.pk %}"
-                   class="btn btn-success">{% fa5_icon 'plus' 'fas' %} {% trans "Add another slot" %}</a>
+                   class="btn btn-success">{% fa6_icon 'plus' 'fas' %} {% trans "Add another slot" %}</a>
             </div>
         {% endif %}
 

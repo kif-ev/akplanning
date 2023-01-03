@@ -1,7 +1,7 @@
 {% extends 'AKSubmission/submission_base.html' %}
 
 {% load i18n %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 
 {% load tags_AKSubmission %}
 
@@ -26,7 +26,7 @@
 {% block content %}
     {% if event.active %}
         <a class="btn btn-success float-end" href="{% url 'submit:submission_overview' event_slug=event.slug %}">
-            {% fa5_icon 'plus' 'fas' %} {% trans "Add AK" %}
+            {% fa6_icon 'plus' 'fas' %} {% trans "Add AK" %}
         </a>
     {% endif %}
 

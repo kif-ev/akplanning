@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'debug_toolbar',
     'django_bootstrap5',
-    'fontawesome_5',
+    'fontawesomefree',
+    'fontawesome_6',
     'timezone_field',
     'rest_framework',
     'simple_history',
@@ -173,8 +174,8 @@ BOOTSTRAP5 = {
 }
 
 # Settings for FontAwesome
-FONTAWESOME_5_CSS_URL = "//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css"
-FONTAWESOME_5_PREFIX = "fa"
+FONTAWESOME_6_CSS_URL = STATIC_URL + "fontawesomefree/css/all.min.css"
+FONTAWESOME_6_PREFIX = "fa"
 
 # Treat wishes as seperate category in submission views?
 WISHES_AS_CATEGORY = True

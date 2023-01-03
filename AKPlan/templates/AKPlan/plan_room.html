@@ -1,5 +1,5 @@
 {% extends "AKPlan/plan_detail.html" %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 {% load tags_AKModel %}
 
 {% load tz %}
@@ -60,7 +60,7 @@
 
     {% if "AKOnline"|check_app_installed and room.virtualroom and room.virtualroom.url != '' %}
         <a class="btn btn-success" target="_parent" href="{{ room.virtualroom.url }}">
-            {% fa5_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
+            {% fa6_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
         </a>
     {% endif %}
 

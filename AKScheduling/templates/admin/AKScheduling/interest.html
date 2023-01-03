@@ -5,7 +5,7 @@
 {% load l10n %}
 {% load tz %}
 {% load static %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -29,7 +29,7 @@
         <form method="POST" class="post-form">{% csrf_token %}
             {% bootstrap_form form %}
             <button type="submit" class="save btn btn-primary float-end">
-                {% fa5_icon "check" 'fas' %} {% trans "Submit" %}
+                {% fa6_icon "check" 'fas' %} {% trans "Submit" %}
             </button>
         </form>
     </div>

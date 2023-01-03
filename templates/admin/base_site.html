@@ -1,7 +1,7 @@
 {% extends "admin/base_site.html" %}
 
 {% load django_bootstrap5 %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 {% load static %}
 
 {% block stylesheet %}{% static "common/css/admin-bootstrap.css" %}{% endblock %}
@@ -16,7 +16,7 @@
     <!-- Load bootstrap, jquery and fontawesome-->
     {% bootstrap_javascript %}
     <script src="{% static 'common/vendor/jquery/jquery-3.3.1.min.js' %}"></script>
-    {% fontawesome_5_static %}
+    {% fontawesome_6_static %}
 
     <style>
         a.btn {

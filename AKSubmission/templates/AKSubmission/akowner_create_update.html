@@ -2,7 +2,7 @@
 
 {% load i18n %}
 {% load django_bootstrap5 %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Owner" %}{% endblock %}
 
@@ -20,14 +20,14 @@
     <form method="POST" class="post-form">{% csrf_token %}
         {% bootstrap_form form %}
         <button type="submit" class="save btn btn-primary float-end">
-            {% fa5_icon "check" 'fas' %} {% trans "Continue" %}
+            {% fa6_icon "check" 'fas' %} {% trans "Continue" %}
         </button>
         <button type="reset" class="btn btn-danger">
-            {% fa5_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
+            {% fa6_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
         </button>
 
         <a href="{% url 'submit:submission_overview' event_slug=event.slug %}" class="btn btn-secondary">
-            {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
+            {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
         </a>
     </form>
 {% endblock %}

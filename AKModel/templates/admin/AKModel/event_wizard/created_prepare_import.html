@@ -3,7 +3,7 @@
 
 {% load i18n %}
 {% load django_bootstrap5 %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 {% load tz %}
 
 {% block title %}{% trans "New event wizard" %}: {{ wizard_step_text }}{% endblock %}
@@ -22,7 +22,7 @@
     {% endtimezone %}
 
     <div class="text-center btn-success disabled mb-3" style="font-size: 8em;">
-        {% fa5_icon "calendar-plus" "fas" %}
+        {% fa6_icon "calendar-plus" "fas" %}
     </div>
 
 
@@ -36,16 +36,16 @@
 
         <div class="float-end">
             <a href="{% url 'admin:new_event_wizard_activate' event.slug %}" class="btn btn-info">
-                {% fa5_icon "forward" 'fas' %} {% trans "Skip Import" %}
+                {% fa6_icon "forward" 'fas' %} {% trans "Skip Import" %}
             </a>
 
             <button type="submit" class="save btn btn-success" value="Submit">
-            {% fa5_icon "check" 'fas' %} {% trans "Continue" %}
+            {% fa6_icon "check" 'fas' %} {% trans "Continue" %}
         </button>
         </div>
 
         <a href="{% url 'admin:event_status' event.slug %}" class="btn btn-info">
-            {% fa5_icon "info" 'fas' %} {% trans "Status" %}
+            {% fa6_icon "info" 'fas' %} {% trans "Status" %}
         </a>
     </form>
 

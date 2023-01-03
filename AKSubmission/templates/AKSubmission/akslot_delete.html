@@ -2,7 +2,7 @@
 
 {% load i18n %}
 {% load django_bootstrap5 %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Duration(s)" %}{% endblock %}
 
@@ -38,11 +38,11 @@
             </tbody>
         </table>
         <button type="submit" class="save btn btn-danger float-end" value="Confirm">
-            {% fa5_icon "check" 'fas' %} {% trans "Confirm" %}
+            {% fa6_icon "check" 'fas' %} {% trans "Confirm" %}
         </button>
 
         <a href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}" class="btn btn-secondary">
-            {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
+            {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
         </a>
     </form>
 {% endblock %}

@@ -7,7 +7,7 @@
 {% load static %}
 
 {% load django_bootstrap5 %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 
 {% get_current_language as LANGUAGE_CODE %}
 
@@ -22,7 +22,7 @@
     {% bootstrap_css %}
     {% bootstrap_javascript %}
     <script src="{% static 'common/vendor/jquery/jquery-3.3.1.min.js' %}"></script>
-    {% fontawesome_5_static %}
+    {% fontawesome_6_static %}
 
     {% include "AKModel/load_fullcalendar.html" %}
 
@@ -203,16 +203,16 @@
                    // Update violations table
                    for(let i=0;i<response.length;i++) {
                        if(response[i].manually_resolved)
-                           table_html += '<tr class="text-muted"><td class="nowrap">{% fa5_icon "check" "fas" %} ';
+                           table_html += '<tr class="text-muted"><td class="nowrap">{% fa6_icon "check" "fas" %} ';
                        else {
                            table_html += '<tr><td>';
                            unresolved_violations_count++;
                        }
 
                        if(response[i].level_display==='{% trans "Violation" %}')
-                           table_html += '{% fa5_icon "exclamation-triangle" "fas" %}';
+                           table_html += '{% fa6_icon "exclamation-triangle" "fas" %}';
                        else
-                           table_html += '{% fa5_icon "info-circle" "fas" %}';
+                           table_html += '{% fa6_icon "info-circle" "fas" %}';
 
                        table_html += "</td><td class='small'>" + response[i].type_display + "</td></tr>";
                        table_html += "<tr><td colspan='2' class='small'>" + response[i].details + "</td></tr>"
@@ -308,12 +308,12 @@
           <div class="col">
               <h2 class="d-inline">
                   <button class="btn btn-outline-warning" id="reloadBtn" style="vertical-align: text-bottom;">
-                      <span id="reloadBtnVisDefault">{% fa5_icon "redo" "fas" %}</span>
+                      <span id="reloadBtnVisDefault">{% fa6_icon "redo" "fas" %}</span>
                   </button>
                   {% trans "Scheduling for" %} {{event}}
               </h2>
               <h5 class="d-inline ml-2">
-                  <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %} {% fa5_icon "level-up-alt" "fas" %}</a>
+                  <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %} {% fa6_icon "level-up-alt" "fas" %}</a>
               </h5>
           </div>
       </div>

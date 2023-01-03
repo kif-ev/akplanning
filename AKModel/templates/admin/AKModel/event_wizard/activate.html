@@ -3,7 +3,7 @@
 
 {% load i18n %}
 {% load django_bootstrap5 %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 {% load tz %}
 
 {% block title %}{% trans "New event wizard" %}: {{ wizard_step_text }}{% endblock %}
@@ -12,7 +12,7 @@
     {% include "admin/AKModel/event_wizard/wizard_steps.html" %}
 
     <div class="text-center btn-success disabled mt-3 mb-3" style="font-size: 8em;">
-        {% fa5_icon "copy" "fas" %}
+        {% fa6_icon "copy" "fas" %}
     </div>
 
     <h5 class="mb-3">{% trans "Successfully imported.<br><br>Do you want to activate your event now?" %}</h5>
@@ -24,12 +24,12 @@
 
         <div class="float-end">
             <button type="submit" class="save btn btn-success" value="Submit">
-            {% fa5_icon "check" 'fas' %} {% trans "Finish" %}
+            {% fa6_icon "check" 'fas' %} {% trans "Finish" %}
         </button>
         </div>
 
         <a href="{% url 'admin:event_status' event.slug %}" class="btn btn-info">
-            {% fa5_icon "info" 'fas' %} {% trans "Status" %}
+            {% fa6_icon "info" 'fas' %} {% trans "Status" %}
         </a>
     </form>
 
