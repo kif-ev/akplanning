@@ -1,7 +1,7 @@
 import csv
 import io
 
-from bootstrap_datepicker_plus import DateTimePickerInput
+from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 from django import forms
 from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _

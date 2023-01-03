@@ -541,8 +541,8 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
         previous_slot_ids = set(s.id for s in self.event.defaultslot_set.all())
 
         for slot in default_slots_raw:
-            start = tz.localize(parse_datetime(slot["start"]))
-            end = tz.localize(parse_datetime(slot["end"]))
+            start = parse_datetime(slot["start"]).astimezone(tz)
+            end = parse_datetime(slot["end"]).astimezone(tz)
 
             if slot["id"] != '':
                 id = int(slot["id"])
