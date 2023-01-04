@@ -11,5 +11,7 @@ django-debug-toolbar==3.8.1
 django-bootstrap-datepicker-plus==5.0.2
 django-tex==1.1.10
 django-csp==3.7
+django-compressor==4.1
+django-libsass==0.9
 mysqlclient==2.1.1  # for production deployment
 tzdata==2022.7

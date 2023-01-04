@@ -9,9 +9,6 @@
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "New AK" %}{% endblock %}
 
 {% block imports %}
-    <link rel="stylesheet" href="{% static 'common/vendor/chosen-js/chosen.css' %}">
-    <link rel="stylesheet" href="{% static 'common/css/bootstrap-chosen.css' %}">
-
     {% include "AKModel/load_fullcalendar_availabilities.html" %}
 
     <script>

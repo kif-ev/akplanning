@@ -54,9 +54,11 @@ INSTALLED_APPS = [
     'registration',
     'bootstrap_datepicker_plus',
     'django_tex',
+    'compressor',
 ]
 
 MIDDLEWARE = [
+    'django.middleware.gzip.GZipMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -162,6 +164,12 @@ STATICFILES_DIRS = (
     'static_common',
 )
 
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
+
 # Settings for Bootstrap
 BOOTSTRAP5 = {
     # Use custom CSS
@@ -176,6 +184,22 @@ BOOTSTRAP5 = {
 # Settings for FontAwesome
 FONTAWESOME_6_CSS_URL = STATIC_URL + "fontawesomefree/css/all.min.css"
 FONTAWESOME_6_PREFIX = "fa"
+
+# Compressor and minifier config
+COMPRESS_ENABLED = True
+COMPRESS_CSS_HASHING_METHOD = 'content'
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'django_libsass.SassCompiler'),
+)
+COMPRESS_FILTERS = {
+    'css': [
+        'compressor.filters.css_default.CssAbsoluteFilter',
+        'compressor.filters.cssmin.rCSSMinFilter',
+    ],
+    'js': [
+        'compressor.filters.jsmin.JSMinFilter',
+    ]
+}
 
 # Treat wishes as seperate category in submission views?
 WISHES_AS_CATEGORY = True

@@ -6,14 +6,6 @@
 
 {% load tags_AKModel %}
 
-{% block imports %}
-
-    {{ block.super }}
-
-    <link rel="stylesheet" href="{% static 'AKDashboard/style.css' %}">
-
-{% endblock %}
-
 {% block breadcrumbs %}
     <li class="breadcrumb-item">
         {% if 'AKDashboard'|check_app_installed %}
