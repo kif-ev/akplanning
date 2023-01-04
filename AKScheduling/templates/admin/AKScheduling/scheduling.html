@@ -1,3 +1,4 @@
+{% load compress %}
 {% load tags_AKModel %}
 {% load tags_AKPlan %}
 
@@ -8,6 +9,7 @@
 
 {% load django_bootstrap5 %}
 {% load fontawesome_6 %}
+{% load tags_AKModel %}
 
 {% get_current_language as LANGUAGE_CODE %}
 
@@ -19,10 +21,17 @@
     <title>{% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}</title>
 
     {# Load Bootstrap CSS and JavaScript as well as font awesome #}
-    {% bootstrap_css %}
-    {% bootstrap_javascript %}
-    <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
-    {% fontawesome_6_static %}
+    {% compress css %}
+        <link rel="stylesheet" type="text/x-scss" href="{% static 'common/vendor/bootswatch-lumen/theme.scss' %}">
+        {% fontawesome_6_css %}
+        <link rel="stylesheet" href="{% static 'common/css/custom.css' %}">
+    {% endcompress %}
+
+    {% compress js %}
+        {% bootstrap_javascript %}
+        <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
+        {% fontawesome_6_js %}
+    {% endcompress %}
 
     {% include "AKModel/load_fullcalendar.html" %}
 

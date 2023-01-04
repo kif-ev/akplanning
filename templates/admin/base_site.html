@@ -1,24 +1,22 @@
 {% extends "admin/base_site.html" %}
+{% load compress %}
 
 {% load django_bootstrap5 %}
 {% load fontawesome_6 %}
+{% load tags_AKModel %}
 {% load static %}
 
-{% block stylesheet %}{% static "common/css/admin-bootstrap.css" %}{% endblock %}
+{% block stylesheet %}{% endblock %}
 
 {% block extrastyle %}
-    {% if not debug %}
-        <link rel="stylesheet" type="text/css" href="{% static "common/css/admin-color.css" %}"/>
-    {% endif %}
-{% endblock %}
-
-{% block extrahead %}
-    <!-- Load bootstrap, jquery and fontawesome-->
-    {% bootstrap_javascript %}
-    <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
-    {% fontawesome_6_static %}
-
-    <style>
+    {% compress css %}
+        <link rel="stylesheet" type="text/x-scss" href="{% static 'common/vendor/bootswatch-lumen/theme.scss' %}">
+        {% fontawesome_6_css %}
+        <link rel="stylesheet" href="{% static "admin/css/base.css" %}" />
+        {% if not debug %}
+            <link rel="stylesheet" type="text/css" href="{% static "common/css/admin-color.css" %}"/>
+        {% endif %}
+        <style>
         a.btn {
             color: #FFFFFF;
         }
@@ -26,5 +24,23 @@
         .block-header {
             margin-top: 20px;
         }
-    </style>
+        .deleteEvent {
+            background-color: #6a6a6a !important;
+        }
+
+        .deleteEvent .fc-event-title {
+            font-size: 5vw;
+            text-align: center;
+        }
+        </style>
+    {% endcompress %}
+{% endblock %}
+
+{% block extrahead %}
+    <!-- Load bootstrap, jquery and fontawesome-->
+    {% compress js %}
+        {% bootstrap_javascript %}
+        <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
+        {% fontawesome_6_js %}
+    {% endcompress %}
 {% endblock %}

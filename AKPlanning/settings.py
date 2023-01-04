@@ -170,10 +170,6 @@ STATICFILES_FINDERS = (
 
 # Settings for Bootstrap
 BOOTSTRAP5 = {
-    # Use custom CSS
-    "css_url": {
-        "url": STATIC_URL + "common/css/bootstrap.css",
-    },
     "javascript_url": {
         "url": STATIC_URL + "common/vendor/bootstrap/bootstrap-5.0.2.bundle.min.js",
     },

@@ -15,7 +15,7 @@
 
     <!-- Load bootstrap, jquery and fontawesome-->
     {% compress css %}
-        {% bootstrap_css %}
+        <link rel="stylesheet" type="text/x-scss" href="{% static 'common/vendor/bootswatch-lumen/theme.scss' %}">
         <link rel="stylesheet" href="{% static 'common/vendor/chosen-js/chosen.css' %}">
         <link rel="stylesheet" href="{% static 'common/css/bootstrap-chosen.css' %}">
         {% if 'AKDashboard'|check_app_installed %}

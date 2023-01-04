@@ -16,7 +16,7 @@
 
     {# Load Bootstrap CSS and JavaScript as well as font awesome #}
     {% compress css %}
-        {% bootstrap_css %}
+        <link rel="stylesheet" type="text/x-scss" href="{% static 'common/vendor/bootswatch-lumen/theme.scss' %}">
         {% fontawesome_6_css %}
         <link rel="stylesheet" href="{% static 'common/css/custom.css' %}">
     {% endcompress %}
