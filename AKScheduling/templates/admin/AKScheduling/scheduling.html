@@ -84,6 +84,10 @@
                 //aspectRatio: 2,
                 height: '100%',
                 themeSystem: 'bootstrap5',
+                buttonIcons: {
+                  prev: 'ignore fa-solid fa-angle-left',
+                  next: 'ignore fa-solid fa-angle-right',
+                },
                 // Adapt to user selected locale
                 locale: '{{ LANGUAGE_CODE }}',
                 initialView: 'resourceTimelineEventVert',
@@ -288,7 +292,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">{% trans "Add slot" %}</h5>
-                    text-decoration: none;
                 </div>
                 <div class="modal-body">
                     <form>

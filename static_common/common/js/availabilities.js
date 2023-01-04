@@ -53,6 +53,10 @@ function createAvailabilityEditors(timezone, language, startDate, endDate, slotR
         let plan = new FullCalendar.Calendar(editor[0], {
             timeZone: timezone,
             themeSystem: 'bootstrap5',
+            buttonIcons: {
+                prev: 'ignore fa-solid fa-angle-left',
+                next: 'ignore fa-solid fa-angle-right',
+            },
             locale: language,
             schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
             editable: editable,

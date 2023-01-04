@@ -29,6 +29,10 @@
                     },
                     aspectRatio: 2,
                     themeSystem: 'bootstrap5',
+                    buttonIcons: {
+                      prev: 'ignore fa-solid fa-angle-left',
+                      next: 'ignore fa-solid fa-angle-right',
+                    },
                     // Only show calendar view for the dates of the connected event
                     visibleRange: {
                         start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',

@@ -1,12 +1,18 @@
+{% load compress %}
 {% load static %}
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 
-<script src='{% static 'common/vendor/fullcalendar-scheduler/fullcalendar-6.0.2.js' %}'></script>
+{% compress js %}
+    <script src='{% static 'common/vendor/fullcalendar-scheduler/fullcalendar-6.0.2.js' %}'></script>
+    <script src='{% static 'common/vendor/fullcalendar-scheduler/fullcalendar.bootstrap5-5.0.2.min.js' %}'></script>
 
-{% with 'common/vendor/fullcalendar-scheduler/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
-    {% if LANGUAGE_CODE != "en" %}
-        {# Locale 'en' is included in main.js and does not exist separately #}
-        <script src="{% static locale_file %}"></script>
-    {% endif %}
-{% endwith %}
+    {% with 'common/vendor/fullcalendar-scheduler/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
+        {% if LANGUAGE_CODE != "en" %}
+            {# Locale 'en' is included in main.js and does not exist separately #}
+            <script src="{% static locale_file %}"></script>
+        {% endif %}
+    {% endwith %}
+{% endcompress %}
+
+
