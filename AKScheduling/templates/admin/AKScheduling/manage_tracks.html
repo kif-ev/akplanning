@@ -119,11 +119,6 @@
 
             $('.ak-list').sortable(sortable_options);
 
-            // Display tooltips containing the tags for each list item (if available)
-            $('.ak-list li').each(function() {
-                $(this).tooltip({title: $(this).attr('data-title'), trigger: 'hover'});
-            });
-
             // Add a new track container (and make usable for dragging)
             $('#btn-add-track').click(function () {
                 var new_track_name = prompt("{% trans 'Name of new ak track' %}");
