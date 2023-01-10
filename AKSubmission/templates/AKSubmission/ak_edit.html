@@ -1,8 +1,8 @@
 {% extends 'AKSubmission/submit_new.html' %}
 
 {% load i18n %}
-{% load bootstrap4 %}
-{% load fontawesome_5 %}
+{% load django_bootstrap5 %}
+{% load fontawesome_6 %}
 {% load static %}
 
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "Edit AK" %}: {{ ak.name }}{% endblock %}
@@ -21,7 +21,7 @@
     <div class="form-group">
         {% bootstrap_field form.owners form_group_class="" %}
         <a href="{% url 'submit:akowner_create' event_slug=event.slug %}?add_to_existing_ak={{ ak.pk }}">
-            {% fa5_icon "plus" "fas" %} {% trans "Add person not in the list yet. Unsaved changes in this form will be lost." %}
+            {% fa6_icon "plus" "fas" %} {% trans "Add person not in the list yet. Unsaved changes in this form will be lost." %}
         </a>
     </div>
     {% bootstrap_form form exclude='name,owners' %}

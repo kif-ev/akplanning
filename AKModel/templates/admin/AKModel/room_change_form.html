@@ -1,12 +1,13 @@
 {% extends "admin/change_form.html" %}
 {% load i18n admin_urls %}
 {% load static %}
-{% load bootstrap4 %}
+{% load django_bootstrap5 %}
 {% load tz %}
 
 {% block extrahead %}
     {{ block.super }}
-    {% bootstrap_javascript jquery='slim' %}
+    {% bootstrap_javascript %}
+    <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
     {% if original.event %}
         {% include "AKModel/load_fullcalendar_availabilities.html" %}
 

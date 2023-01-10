@@ -1,3 +1,22 @@
+html {
+    /* influence the base font size bootstrap uses for all further calculation of sizes
+    to reduce the overall size a little bit */
+    font-size: 13.5px;
+}
+
+a {
+    text-decoration: none;
+    background-color: transparent;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:hover.btn {
+    text-decoration: none;
+}
+
 .form-group.required {
     font-weight: bold;
 }

@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.base import Message
 from django.test import TestCase
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKRequirement, AK, Room, AKSlot, AKOrgaMessage, \
     ConstraintViolation, DefaultSlot
@@ -15,6 +15,7 @@ class BasicViewTests:
     VIEWS = []
     APP_NAME = ''
     VIEWS_STAFF_ONLY = []
+    EDIT_TESTCASES = []
 
     def setUp(self):
         self.staff_user = User.objects.create(
@@ -40,7 +41,7 @@ class BasicViewTests:
         :rtype: str, str
         """
         view_name_with_prefix = f"{self.APP_NAME}:{view_name[0]}" if self.APP_NAME != "" else view_name[0]
-        url = reverse_lazy(view_name_with_prefix, kwargs=view_name[1])
+        url = reverse(view_name_with_prefix, kwargs=view_name[1])
         return view_name_with_prefix, url
 
     def _assert_message(self, response, expected_message, msg_prefix=""):
@@ -76,9 +77,12 @@ class BasicViewTests:
         self.client.force_login(self.staff_user)
         for view_name in self.VIEWS_STAFF_ONLY:
             view_name_with_prefix, url = self._name_and_url(view_name)
-            response = self.client.get(url)
-            self.assertEqual(response.status_code, 200,
-                             msg=f"{view_name_with_prefix} ({url}) should be accessible for staff (but isn't)")
+            try:
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200,
+                                 msg=f"{view_name_with_prefix} ({url}) should be accessible for staff (but isn't)")
+            except Exception as e:
+                self.fail(f"An error occurred during rendering of {view_name_with_prefix} ({url}):\n\n{traceback.format_exc()}")
 
         self.client.force_login(self.deactivated_user)
         for view_name in self.VIEWS_STAFF_ONLY:
@@ -86,6 +90,58 @@ class BasicViewTests:
             response = self.client.get(url)
             self.assertEqual(response.status_code, 302,
                              msg=f"{view_name_with_prefix} ({url}) still accessible for deactivated user")
+
+    def _to_sendable_value(self, v):
+        """
+        Create representation sendable via POST from form data
+
+        :param v: value to prepare
+        :type v: any
+        :return: prepared value (normally either raw value or primary key of complex object)
+        """
+        if type(v) == list:
+            return [e.pk for e in v]
+        if type(v) == "RelatedManager":
+            return [e.pk for e in v.all()]
+        return v
+
+    def test_submit_edit_form(self):
+        """
+        Test edit forms in the most simple way (sending them again unchanged)
+        """
+        for testcase in self.EDIT_TESTCASES:
+            self._test_submit_edit_form(testcase)
+
+    def _test_submit_edit_form(self, testcase):
+        name, url = self._name_and_url((testcase["view"], testcase["kwargs"]))
+        form_name = testcase.get("form_name", "form")
+        expected_code = testcase.get("expected_code", 302)
+        if "target_view" in testcase.keys():
+            kwargs = testcase.get("target_kwargs", testcase["kwargs"])
+            _, target_url = self._name_and_url((testcase["target_view"], kwargs))
+        else:
+            target_url = url
+        expected_message = testcase.get("expected_message", "")
+        admin_user = testcase.get("admin", False)
+
+        if admin_user:
+            self.client.force_login(self.admin_user)
+        else:
+            self.client.logout()
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200, msg=f"{name}: Could not load edit form via GET ({url})")
+
+        form = response.context[form_name]
+        data = {k:self._to_sendable_value(v) for k,v in form.initial.items()}
+
+        response = self.client.post(url, data=data)
+        if expected_code == 200:
+            self.assertEqual(response.status_code, 200, msg=f"{name}: Did not return 200 ({url}")
+        elif expected_code == 302:
+            self.assertRedirects(response, target_url, msg_prefix=f"{name}: Did not redirect ({url} -> {target_url}")
+        if expected_message != "":
+            self._assert_message(response, expected_message, msg_prefix=f"{name}")
 
 
 class ModelViewTests(BasicViewTests, TestCase):
@@ -109,6 +165,10 @@ class ModelViewTests(BasicViewTests, TestCase):
         ('admin:default-slots-editor', {'event_slug': 'kif42'}),
         ('admin:room-import', {'event_slug': 'kif42'}),
         ('admin:new_event_wizard_start', {}),
+    ]
+
+    EDIT_TESTCASES = [
+        {'view': 'admin:default-slots-editor', 'kwargs': {'event_slug': 'kif42'}, "admin": True},
     ]
 
     def test_admin(self):

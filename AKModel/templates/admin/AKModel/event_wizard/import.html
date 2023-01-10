@@ -2,8 +2,8 @@
 {% load tags_AKModel %}
 
 {% load i18n %}
-{% load bootstrap4 %}
-{% load fontawesome_5 %}
+{% load django_bootstrap5 %}
+{% load fontawesome_6 %}
 {% load tz %}
 
 {% block title %}{% trans "New event wizard" %}: {{ wizard_step_text }}{% endblock %}
@@ -16,12 +16,12 @@
     <form method="post">{% csrf_token %}
         {% bootstrap_form form %}
 
-        <button type="submit" class="save btn btn-success float-right" value="Submit">
-            {% fa5_icon "check" 'fas' %} {% trans "Continue" %}
+        <button type="submit" class="save btn btn-success float-end" value="Submit">
+            {% fa6_icon "check" 'fas' %} {% trans "Continue" %}
         </button>
 
         <a href="{% url 'admin:index' %}" class="btn btn-info">
-            {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
+            {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
         </a>
     </form>
 

@@ -1,7 +1,0 @@
-/*
-    Load both the django admin base style and bootstrap -- but make sure bootstrap is loaded first to override all critical theme settings from bootstrap with the default admin style.
-    This especially fixes the dark theme.
-*/
-@import "/static/common/css/bootstrap.css";
-@import "../../admin/css/base.css";
-@import "/static/common/css/custom.css";

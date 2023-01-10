@@ -2,8 +2,8 @@
 {% load tags_AKModel %}
 
 {% load i18n %}
-{% load bootstrap4 %}
-{% load fontawesome_5 %}
+{% load django_bootstrap5 %}
+{% load fontawesome_6 %}
 
 
 {% block title %}{{event}}: {{ title }}{% endblock %}
@@ -18,13 +18,13 @@
     <form method="post">{% csrf_token %}
         {% bootstrap_form form %}
 
-        <div class="float-right">
+        <div class="float-end">
             <button type="submit" class="save btn btn-success" value="Submit">
-                {% fa5_icon "check" 'fas' %} {% trans "Confirm" %}
+                {% fa6_icon "check" 'fas' %} {% trans "Confirm" %}
             </button>
         </div>
         <a href="javascript:history.back()" class="btn btn-info">
-            {% fa5_icon "times" 'fas' %} {% trans "Cancel" %}
+            {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
         </a>
     </form>
 {% endblock %}

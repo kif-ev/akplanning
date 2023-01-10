@@ -1,14 +1,17 @@
-Django==3.2.16
-django-bootstrap4==2.3.1
-django-fontawesome-5==1.0.18
+Django==4.1.5
+django-bootstrap5==22.2
+fontawesomefree==6.2.1 # Makes static files (css, fonts) available locally
+django-fontawesome-6==1.0.0.0 # Provides an icon field for models and forms as well as handy shortcuts to render icons
 django-split-settings==1.2.0
-django-timezone-field==4.1.2
+django-timezone-field==5.0
 djangorestframework==3.14.0
-django-simple-history==3.1.1
+django-simple-history==3.2.0
 django-registration-redux==2.11
-django-debug-toolbar==3.7.0
-django-bootstrap-datepicker-plus==3.0.5
+django-debug-toolbar==3.8.1
+django-bootstrap-datepicker-plus==5.0.2
 django-tex==1.1.10
 django-csp==3.7
-mysqlclient==2.0.3  # for production deployment
-pytz==2022.4
+django-compressor==4.1
+django-libsass==0.9
+mysqlclient==2.1.1  # for production deployment
+tzdata==2022.7

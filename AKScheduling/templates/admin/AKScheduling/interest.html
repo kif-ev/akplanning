@@ -1,11 +1,11 @@
 {% extends "admin/base_site.html" %}
-{% load bootstrap4 %}
+{% load django_bootstrap5 %}
 
 {% load i18n %}
 {% load l10n %}
 {% load tz %}
 {% load static %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -28,11 +28,9 @@
     <div class="mb-3">
         <form method="POST" class="post-form">{% csrf_token %}
             {% bootstrap_form form %}
-            {% buttons %}
-                <button type="submit" class="save btn btn-primary float-right">
-                    {% fa5_icon "check" 'fas' %} {% trans "Submit" %}
-                </button>
-            {% endbuttons %}
+            <button type="submit" class="save btn btn-primary float-end">
+                {% fa6_icon "check" 'fas' %} {% trans "Submit" %}
+            </button>
         </form>
     </div>
 

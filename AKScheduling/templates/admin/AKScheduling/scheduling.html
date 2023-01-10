@@ -1,3 +1,4 @@
+{% load compress %}
 {% load tags_AKModel %}
 {% load tags_AKPlan %}
 
@@ -6,8 +7,9 @@
 {% load tz %}
 {% load static %}
 
-{% load bootstrap4 %}
-{% load fontawesome_5 %}
+{% load django_bootstrap5 %}
+{% load fontawesome_6 %}
+{% load tags_AKModel %}
 
 {% get_current_language as LANGUAGE_CODE %}
 
@@ -19,9 +21,17 @@
     <title>{% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}</title>
 
     {# Load Bootstrap CSS and JavaScript as well as font awesome #}
-    {% bootstrap_css %}
-    {% bootstrap_javascript jquery=True %}
-    {% fontawesome_5_static %}
+    {% compress css %}
+        <link rel="stylesheet" type="text/x-scss" href="{% static 'common/vendor/bootswatch-lumen/theme.scss' %}">
+        {% fontawesome_6_css %}
+        <link rel="stylesheet" href="{% static 'common/css/custom.css' %}">
+    {% endcompress %}
+
+    {% compress js %}
+        {% bootstrap_javascript %}
+        <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
+        {% fontawesome_6_js %}
+    {% endcompress %}
 
     {% include "AKModel/load_fullcalendar.html" %}
 
@@ -82,7 +92,11 @@
                 },
                 //aspectRatio: 2,
                 height: '100%',
-                themeSystem: 'bootstrap',
+                themeSystem: 'bootstrap5',
+                buttonIcons: {
+                  prev: 'ignore fa-solid fa-angle-left',
+                  next: 'ignore fa-solid fa-angle-right',
+                },
                 // Adapt to user selected locale
                 locale: '{{ LANGUAGE_CODE }}',
                 initialView: 'resourceTimelineEventVert',
@@ -202,16 +216,16 @@
                    // Update violations table
                    for(let i=0;i<response.length;i++) {
                        if(response[i].manually_resolved)
-                           table_html += '<tr class="text-muted"><td class="nowrap">{% fa5_icon "check" "fas" %} ';
+                           table_html += '<tr class="text-muted"><td class="nowrap">{% fa6_icon "check" "fas" %} ';
                        else {
                            table_html += '<tr><td>';
                            unresolved_violations_count++;
                        }
 
                        if(response[i].level_display==='{% trans "Violation" %}')
-                           table_html += '{% fa5_icon "exclamation-triangle" "fas" %}';
+                           table_html += '{% fa6_icon "exclamation-triangle" "fas" %}';
                        else
-                           table_html += '{% fa5_icon "info-circle" "fas" %}';
+                           table_html += '{% fa6_icon "info-circle" "fas" %}';
 
                        table_html += "</td><td class='small'>" + response[i].type_display + "</td></tr>";
                        table_html += "<tr><td colspan='2' class='small'>" + response[i].details + "</td></tr>"
@@ -224,9 +238,9 @@
 
                // Update violation count badge
                 if(unresolved_violations_count > 0)
-                    $('#violationCountBadge').html(response.length).removeClass('badge-success').addClass('badge-warning');
+                    $('#violationCountBadge').html(response.length).removeClass('bg-success').addClass('bg-warning');
                 else
-                    $('#violationCountBadge').html(0).removeClass('badge-warning').addClass('badge-success');
+                    $('#violationCountBadge').html(0).removeClass('bg-warning').addClass('bg-success');
 
                // Show violation list (potentially empty) in violations table
                $('#violationsTableBody').html(table_html);
@@ -287,9 +301,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">{% trans "Add slot" %}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body">
                     <form>
@@ -298,7 +309,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="newAKSlotModalSubmitButton">{% trans "Add" %}</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Cancel" %}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
                 </div>
             </div>
         </div>
@@ -309,12 +320,12 @@
           <div class="col">
               <h2 class="d-inline">
                   <button class="btn btn-outline-warning" id="reloadBtn" style="vertical-align: text-bottom;">
-                      <span id="reloadBtnVisDefault">{% fa5_icon "redo" "fas" %}</span>
+                      <span id="reloadBtnVisDefault">{% fa6_icon "redo" "fas" %}</span>
                   </button>
                   {% trans "Scheduling for" %} {{event}}
               </h2>
               <h5 class="d-inline ml-2">
-                  <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %} {% fa5_icon "level-up-alt" "fas" %}</a>
+                  <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %} {% fa6_icon "level-up-alt" "fas" %}</a>
               </h5>
           </div>
       </div>
@@ -325,10 +336,10 @@
         <div class="col-md-4 col-lg-3 col-xl-2" id="sidebar">
             <ul class="nav nav-tabs">
               <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#unscheduled-slots">{% trans "Unscheduled" %}</a>
+                <a class="nav-link active" data-bs-toggle="tab" href="#unscheduled-slots">{% trans "Unscheduled" %}</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#violations"><span id="violationCountBadge" class="badge badge-success">0</span> {% trans "Violation(s)" %}</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#violations"><span id="violationCountBadge" class="badge bg-success">0</span> {% trans "Violation(s)" %}</a>
               </li>
             </ul>
             <div id="sidebarContent" class="tab-content">
@@ -339,7 +350,7 @@
                         <h5 class="mt-2">{{ track_slots.grouper }}</h5>
                     {% endif %}
                     {% for slot in track_slots.list %}
-                        <div class="unscheduled-slot badge badge-primary" style='background-color: {{ slot.ak.category.color }}'
+                        <div class="unscheduled-slot badge bg-primary" style='background-color: {{ slot.ak.category.color }}'
                              data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ slot.ak.details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}"}' data-details="{{ slot.ak.details }}">{{ slot.ak.short_name }}
                             ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
                         </div>

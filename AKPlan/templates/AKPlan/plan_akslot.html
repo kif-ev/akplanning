@@ -20,7 +20,11 @@
             // No header, not buttons
             headerToolbar: false,
             aspectRatio: 2.5,
-            themeSystem: 'bootstrap',
+            themeSystem: 'bootstrap5',
+            buttonIcons: {
+              prev: 'ignore fa-solid fa-angle-left',
+              next: 'ignore fa-solid fa-angle-right',
+            },
             // Only show calendar view for the dates of the connected event
             visibleRange: {
                 start: '{{ ak.event.start | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',

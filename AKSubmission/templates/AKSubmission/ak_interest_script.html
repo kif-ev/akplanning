@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -42,7 +42,7 @@
                     data: {
                     },
                     success: function (response) {
-                       btn.html('{% fa5_icon 'check' 'fas' %}');
+                       btn.html('{% fa6_icon 'check' 'fas' %}');
                        btn.off('click');
                     },
                     error: function (response) {

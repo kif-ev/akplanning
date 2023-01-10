@@ -2,7 +2,7 @@
 {% load tz %}
 
 {% load i18n %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 
 {% load tags_AKSubmission %}
 {% load tags_AKModel %}
@@ -22,10 +22,10 @@
 {% block content %}
     {% include "messages.html" %}
 
-    <div class="float-right">
-        <a href='{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}' data-toggle="tooltip"
+    <div class="float-end">
+        <a href='{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}' data-bs-toggle="tooltip"
            title="{% trans 'Back' %}"
-           class="btn btn-info">{% fa5_icon 'arrow-circle-left' 'fas' %}</a>
+           class="btn btn-info">{% fa6_icon 'arrow-circle-left' 'fas' %}</a>
     </div>
 
     <h2>{% if ak.wish %}{% trans "AK Wish" %}: {% endif %}{{ ak.name }} ({% trans 'History' %})</h2>
@@ -44,16 +44,16 @@
                 <td>
                     <b>{{ h.name }}</b>
                     {% if h.present %}
-                        <span class="badge badge-dark badge-pill"
-                              title="{% trans 'Present results of this AK' %}">{% fa5_icon "bullhorn" 'fas' %}</span>
+                        <span class="badge bg-dark rounded-pill"
+                              title="{% trans 'Present results of this AK' %}">{% fa6_icon "bullhorn" 'fas' %}</span>
                     {% endif %}
                     {% if h.reso %}
-                        <span class="badge badge-dark badge-pill"
-                              title="{% trans 'Intends to submit a resolution' %}">{% fa5_icon "scroll" 'fas' %}</span>
+                        <span class="badge bg-dark rounded-pill"
+                              title="{% trans 'Intends to submit a resolution' %}">{% fa6_icon "scroll" 'fas' %}</span>
                     {% endif %}
                 </td>
                 <td>{% category_linked_badge h.category event.slug %}</td>
-                <td><span class="badge badge-success badge-pill">{{ h.track }}</span></td>
+                <td><span class="badge bg-success rounded-pill">{{ h.track }}</span></td>
                 <td>{{ h.history_date | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}</td>
             </tr>
             <tr>

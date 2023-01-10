@@ -6,7 +6,7 @@
 {% load tz %}
 {% load static %}
 {% load tags_AKPlan %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 
 {% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}
 
@@ -119,11 +119,6 @@
 
             $('.ak-list').sortable(sortable_options);
 
-            // Display tooltips containing the tags for each list item (if available)
-            $('.ak-list li').each(function() {
-                $(this).tooltip({title: $(this).attr('data-title'), trigger: 'hover'});
-            });
-
             // Add a new track container (and make usable for dragging)
             $('#btn-add-track').click(function () {
                 var new_track_name = prompt("{% trans 'Name of new ak track' %}");
@@ -136,7 +131,7 @@
                         },
                         success: function (response) {
                            console.log(response);
-                            $('<div class="card border-success mb-3 track-container" style="width: 20rem;margin-right:20px;margin-bottom: 20px;"><div class="card-header"><span class="btn btn-danger float-right track-delete" data-track-id="' + response["id"] + '">{% fa5_icon "trash" "fas" %}</span><input class="track-name" data-track-id="None" type="text" value="' + response["name"] + '"></div><div class="card-body"><ul data-track-id="' + response["id"] + '" data-name="' + response["name"] + '" data-sync="true" class="ak-list"></ul></div></div>')
+                            $('<div class="card border-success mb-3 track-container" style="width: 20rem;margin-right:20px;margin-bottom: 20px;"><div class="card-header"><span class="btn btn-danger float-end track-delete" data-track-id="' + response["id"] + '">{% fa6_icon "trash" "fas" %}</span><input class="track-name" data-track-id="None" type="text" value="' + response["name"] + '"></div><div class="card-body"><ul data-track-id="' + response["id"] + '" data-name="' + response["name"] + '" data-sync="true" class="ak-list"></ul></div></div>')
                             .appendTo($("#workspace"))
                             .find("ul").sortable(sortable_options)
                         },
@@ -201,7 +196,7 @@
 
     <div class="mb-5">
         <h3>{{ event }}: {% trans "Manage AK Tracks" %}</h3>
-        <a id="btn-add-track" href="#" class="btn btn-primary">{% fa5_icon "plus" "fas" %} {% trans "Add ak track" %}</a>
+        <a id="btn-add-track" href="#" class="btn btn-primary">{% fa6_icon "plus" "fas" %} {% trans "Add ak track" %}</a>
     </div>
 
     <div id="workspace" class="row" style="">
@@ -210,7 +205,7 @@
           <div class="card-body">
             <ul data-id="None" data-sync="false" class="ak-list">
                 {% for ak in aks_without_track %}
-                    <li data-ak-id="{{ ak.pk }}" data-toggle="tooltip" data-placement="top" title=""">
+                    <li data-ak-id="{{ ak.pk }}" data-bs-toggle="tooltip" data-placement="top" title="">
                         {{ ak.name }} ({{ ak.category }})
                     </li>
                 {% endfor %}
@@ -221,15 +216,15 @@
         {% for track in tracks %}
         <div class="card border-success mb-3 track-container" style="width: 20rem;margin-right:20px;margin-bottom: 20px;">
           <div class="card-header">
-              <span class="btn btn-danger float-right track-delete" data-track-id="{{ track.pk }}">
-                  {% fa5_icon "trash" "fas" %}
+              <span class="btn btn-danger float-end track-delete" data-track-id="{{ track.pk }}">
+                  {% fa6_icon "trash" "fas" %}
               </span>
               <input class="track-name" data-track-id="{{ track.pk }}" type="text" value="{{ track }}">
           </div>
           <div class="card-body">
             <ul data-track-id="{{ track.pk }}" data-name="{{ track }}" data-sync="true" class="ak-list">
                 {% for ak in track.aks_with_category %}
-                    <li data-ak-id="{{ ak.pk }}" data-toggle="tooltip" data-placement="top" title="">
+                    <li data-ak-id="{{ ak.pk }}" data-bs-toggle="tooltip" data-placement="top" title="">
                         {{ ak.name }} ({{ ak.category }})
                     </li>
                 {% endfor %}

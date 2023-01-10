@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import fontawesome_5.fields
+import fontawesome_6.fields
 
 
 class Migration(migrations.Migration):
@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('text', models.CharField(help_text='Text that will be shown on the button', max_length=50, verbose_name='Text')),
                 ('url', models.URLField(help_text='URL this button links to', verbose_name='Link URL')),
-                ('icon', fontawesome_5.fields.IconField(blank=True, default='external-link-alt', help_text='Symbol represeting this button.', max_length=60, verbose_name='Icon')),
+                ('icon', fontawesome_6.fields.IconField(blank=True, default='external-link-alt', help_text='Symbol represeting this button.', max_length=60, verbose_name='Icon')),
                 ('color', models.PositiveSmallIntegerField(choices=[(0, 'primary'), (1, 'success'), (2, 'info'), (3, 'warning'), (4, 'danger')], default=0, help_text='Style (Color) of this button (bootstrap class)', verbose_name='Button Style')),
                 ('event', models.ForeignKey(help_text='Event this button belongs to', on_delete=django.db.models.deletion.CASCADE, to='AKModel.Event', verbose_name='Event')),
             ],

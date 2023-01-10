@@ -1,7 +1,8 @@
+{% load compress %}
 {% load static %}
 {% load i18n %}
-{% load bootstrap4 %}
-{% load fontawesome_5 %}
+{% load django_bootstrap5 %}
+{% load fontawesome_6 %}
 {% load tags_AKModel %}
 {% load tags_AKPlan %}
 {% load tz %}
@@ -14,11 +15,17 @@
     <title>{% block title %}AK Planning{% endblock %}</title>
 
     {# Load Bootstrap CSS and JavaScript as well as font awesome #}
-    {% bootstrap_css %}
-    {% bootstrap_javascript jquery='slim' %}
-    {% fontawesome_5_static %}
+    {% compress css %}
+        <link rel="stylesheet" type="text/x-scss" href="{% static 'common/vendor/bootswatch-lumen/theme.scss' %}">
+        {% fontawesome_6_css %}
+        <link rel="stylesheet" href="{% static 'common/css/custom.css' %}">
+    {% endcompress %}
 
-    <link rel="stylesheet" href="{% static 'common/css/custom.css' %}">
+    {% compress js %}
+        {% bootstrap_javascript %}
+        <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
+        {% fontawesome_6_js %}
+    {% endcompress %}
 
     {% include "AKModel/load_fullcalendar.html" %}
 
@@ -31,7 +38,11 @@
             var plan = new FullCalendar.Calendar(planEl, {
                 timeZone: '{{ event.timezone }}',
                 headerToolbar: false,
-                themeSystem: 'bootstrap',
+                themeSystem: 'bootstrap5',
+                buttonIcons: {
+                  prev: 'ignore fa-solid fa-angle-left',
+                  next: 'ignore fa-solid fa-angle-right',
+                },
                 // Adapt to user selected locale
                 locale: '{{ LANGUAGE_CODE }}',
                 slotDuration: '01:00',

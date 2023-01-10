@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 {% load i18n %}
 
 {% block breadcrumbs %}
@@ -10,7 +10,7 @@
 {% block footer_custom %}
     {% if event.contact_email %}
         <h4>
-            <a href="mailto:{{ event.contact_email }}">{% fa5_icon "envelope" 'fas' %} {% trans "Write to organizers of this event for questions and comments" %}</a>
+            <a href="mailto:{{ event.contact_email }}">{% fa6_icon "envelope" 'fas' %} {% trans "Write to organizers of this event for questions and comments" %}</a>
         </h4>
     {% endif %}
 {% endblock %}

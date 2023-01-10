@@ -22,7 +22,7 @@ class Event(models.Model):
 
     place = models.CharField(max_length=128, blank=True, verbose_name=_('Place'),
                              help_text=_('City etc. the event takes place in'))
-    timezone = TimeZoneField(default='Europe/Berlin', display_GMT_offset=True, blank=False,
+    timezone = TimeZoneField(default='Europe/Berlin', blank=False, choices_display="WITH_GMT_OFFSET",
                              verbose_name=_('Time Zone'), help_text=_('Time Zone where this event takes place in'))
     start = models.DateTimeField(verbose_name=_('Start'), help_text=_('Time the event begins'))
     end = models.DateTimeField(verbose_name=_('End'), help_text=_('Time the event ends'))

@@ -80,7 +80,7 @@ class AvailabilitiesFormMixin(forms.Form):
         if not obj:
             raise TypeError
         if obj.tzinfo is None:
-            obj = tz.localize(obj)
+            obj = obj.astimezone(tz)
 
         return obj
 

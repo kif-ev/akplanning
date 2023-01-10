@@ -1,16 +1,8 @@
 {% extends 'base.html' %}
 
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 {% load i18n %}
 {% load static %}
-
-{% block imports %}
-
-    {{ block.super }}
-
-    <link rel="stylesheet" href="{% static 'AKDashboard/style.css' %}">
-
-{% endblock %}
 
 {% block breadcrumbs %}
     <li class="breadcrumb-item">AKPlanning</li>
@@ -22,7 +14,7 @@
             {% include "AKDashboard/dashboard_row.html" %}
             {% if event.contact_email %}
                 <p>
-                    <a href="mailto:{{ event.contact_email }}">{% fa5_icon "envelope" "fas" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
+                    <a href="mailto:{{ event.contact_email }}">{% fa6_icon "envelope" "fas" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
                 </p>
             {% endif %}
         </div>

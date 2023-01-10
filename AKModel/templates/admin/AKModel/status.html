@@ -11,11 +11,11 @@
         <h2><a href="{% url 'admin:AKModel_event_change' event.pk %}">{{event}}</a></h2>
         <h5>{{ event.start }} - {{ event.end }}</h5>
 
-        <div class="custom-control custom-switch mt-2 mb-2">
-          <input type="checkbox" class="custom-control-input" id="planPublishedSwitch"
+        <div class="form-check form-switch mt-2 mb-2">
+          <input type="checkbox" class="form-check-input" id="planPublishedSwitch"
                  {% if not event.plan_hidden %}checked{% endif %}
                  onclick="location.href='{% if event.plan_hidden %}{% url 'admin:plan-publish' %}{% else %}{% url 'admin:plan-unpublish' %}{% endif %}?pks={{event.pk}}';">
-          <label class="custom-control-label" for="planPublishedSwitch">{% trans "Plan published?" %}</label>
+          <label class="form-check-label" for="planPublishedSwitch">{% trans "Plan published?" %}</label>
         </div>
 
         <div class="row">
@@ -84,7 +84,7 @@
                        href="{% url 'admin:schedule' event_slug=event.slug %}">{% trans "Scheduling" %}</a>
                     {% if "AKScheduling | is_installed" %}
                         <a class="btn btn-success"
-                            href="{% url 'admin:constraint-violations' slug=event.slug %}">{% trans "Constraint Violations" %} <span class="badge badge-secondary">{{ event.constraintviolation_set.count }}</span></a>
+                            href="{% url 'admin:constraint-violations' slug=event.slug %}">{% trans "Constraint Violations" %} <span class="badge bg-secondary">{{ event.constraintviolation_set.count }}</span></a>
                         <a class="btn btn-success"
                             href="{% url 'admin:special-attention' slug=event.slug %}">{% trans "AKs requiring special attention" %}</a>
                         <a class="btn btn-success"

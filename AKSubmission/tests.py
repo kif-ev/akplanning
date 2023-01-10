@@ -32,6 +32,15 @@ class ModelViewTests(BasicViewTests, TestCase):
 
     APP_NAME = 'submit'
 
+    EDIT_TESTCASES = [
+        {'view': 'ak_edit', 'target_view': 'ak_detail', 'kwargs': {'event_slug': 'kif42', 'pk': 1},
+         'expected_message': "AK successfully updated"},
+        {'view': 'akslot_edit', 'target_view': 'ak_detail', 'kwargs': {'event_slug': 'kif42', 'pk': 5},
+         'target_kwargs': {'event_slug': 'kif42', 'pk': 1}, 'expected_message': "AK Slot successfully updated"},
+        {'view': 'akowner_edit', 'target_view': 'submission_overview', 'kwargs': {'event_slug': 'kif42',  'slug': 'a'},
+          'target_kwargs': {'event_slug': 'kif42'}, 'expected_message': "Person Info successfully updated"},
+    ]
+
     def test_akslot_edit_delete_prevention(self):
         """
         Slots planned already may not be modified or deleted in front end

@@ -45,17 +45,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
-    'bootstrap4',
-    'fontawesome_5',
+    'django_bootstrap5',
+    'fontawesomefree',
+    'fontawesome_6',
     'timezone_field',
     'rest_framework',
     'simple_history',
     'registration',
     'bootstrap_datepicker_plus',
     'django_tex',
+    'compressor',
 ]
 
 MIDDLEWARE = [
+    'django.middleware.gzip.GZipMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -138,8 +141,6 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 LANGUAGES = [
@@ -161,29 +162,38 @@ STATICFILES_DIRS = (
     'static_common',
 )
 
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
+
 # Settings for Bootstrap
-BOOTSTRAP4 = {
-    # Use custom CSS
-    "css_url": {
-        "href": STATIC_URL + "common/css/bootstrap.css",
-    },
+BOOTSTRAP5 = {
     "javascript_url": {
-        "url": STATIC_URL + "common/vendor/bootstrap/bootstrap-4.3.1.min.js",
-    },
-    "jquery_url": {
-        "url": STATIC_URL + "common/vendor/jquery/jquery-3.3.1.min.js",
-    },
-    "jquery_slim_url": {
-        "url": STATIC_URL + "common/vendor/jquery/jquery-3.3.1.slim.min.js",
-    },
-    "popper_url": {
-        "url": STATIC_URL + "common/vendor/popper/popper-1.14.7.min.js",
+        "url": STATIC_URL + "common/vendor/bootstrap/bootstrap-5.0.2.bundle.min.js",
     },
 }
 
 # Settings for FontAwesome
-FONTAWESOME_5_CSS_URL = "//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css"
-FONTAWESOME_5_PREFIX = "fa"
+FONTAWESOME_6_CSS_URL = STATIC_URL + "fontawesomefree/css/all.min.css"
+FONTAWESOME_6_PREFIX = "fa"
+
+# Compressor and minifier config
+COMPRESS_ENABLED = True
+COMPRESS_CSS_HASHING_METHOD = 'content'
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'django_libsass.SassCompiler'),
+)
+COMPRESS_FILTERS = {
+    'css': [
+        'compressor.filters.css_default.CssAbsoluteFilter',
+        'compressor.filters.cssmin.rCSSMinFilter',
+    ],
+    'js': [
+        'compressor.filters.jsmin.JSMinFilter',
+    ]
+}
 
 # Treat wishes as seperate category in submission views?
 WISHES_AS_CATEGORY = True

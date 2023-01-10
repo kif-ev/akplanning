@@ -1,13 +1,13 @@
 {% load i18n %}
 
-<div class="float-right">
+<div class="float-end">
     <ul class="nav nav-pills">
         <li class="nav-item">
             <a class="nav-link" href="{% url 'submit:ak_list' event_slug=event.slug %}">{% trans "All AKs" %}</a>
         </li>
         {% if event.aktrack_set.count > 0 %}
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
                    aria-expanded="false">{% trans "Tracks" %}</a>
                 <div class="dropdown-menu" style="">
                     {% for track in event.aktrack_set.all %}
@@ -30,7 +30,7 @@
 <ul class="nav nav-tabs" style="margin-bottom:15px">
     {% for category, _ in categories_with_aks %}
         <li class="nav-item">
-            <a class="nav-link {% if category.name == active_category %}active{% endif %}" data-toggle="tab"
+            <a class="nav-link {% if category.name == active_category %}active{% endif %}" data-bs-toggle="tab"
                href="#category_{{ category.pk }}">{{ category.name }}</a>
         </li>
     {% endfor %}

@@ -1,7 +1,8 @@
+{% load compress %}
 {% load static %}
 {% load i18n %}
-{% load bootstrap4 %}
-{% load fontawesome_5 %}
+{% load django_bootstrap5 %}
+{% load fontawesome_6 %}
 {% load tags_AKModel %}
 
 <!DOCTYPE html>
@@ -13,11 +14,24 @@
     <title>{% block title %}AK Planning{% endblock %}</title>
 
     <!-- Load bootstrap, jquery and fontawesome-->
-    {% bootstrap_css %}
-    {% bootstrap_javascript jquery='full' %}
-    {% fontawesome_5_static %}
+    {% compress css %}
+        <link rel="stylesheet" type="text/x-scss" href="{% static 'common/vendor/bootswatch-lumen/theme.scss' %}">
+        <link rel="stylesheet" href="{% static 'common/vendor/chosen-js/chosen.css' %}">
+        <link rel="stylesheet" href="{% static 'common/css/bootstrap-chosen.css' %}">
+        {% if 'AKDashboard'|check_app_installed %}
+            <link rel="stylesheet" href="{% static 'AKDashboard/style.css' %}">
+        {% endif %}
+        <link href="{% static 'common/vendor/select2/select2.min.css' %}" rel="stylesheet" />
+        {% fontawesome_6_css %}
+        <link rel="stylesheet" href="{% static 'common/css/custom.css' %}">
+    {% endcompress %}
 
-    <link rel="stylesheet" href="{% static 'common/css/custom.css' %}">
+    {% compress js %}
+        {% bootstrap_javascript %}
+        <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
+        <script src="{% static 'common/vendor/select2/select2.min.js' %}"></script>
+        {% fontawesome_6_js %}
+    {% endcompress %}
 
     <script type='text/javascript'>
         var changed_form = false;
@@ -44,7 +58,7 @@
 <body>
     {% block language-switcher %}
         <!-- language switcher -->
-        <div class="container" style="margin-top:20px">
+        <div class="container d-flex flex-row-reverse" style="margin-top:20px">
             <form   action="{% url 'set_language' %}"
                     method="post"
                     class="form-inline"
@@ -59,7 +73,7 @@
                 {% get_available_languages as LANGUAGES %}
                 {% get_language_info_list for LANGUAGES as languages %}
 
-                <div style="align-self: end;">
+                <div class="align-content-end">
                     {% for language in languages %}
                         &nbsp;&nbsp;
                         <button type="submit"
@@ -75,8 +89,8 @@
         </div>
     {% endblock %}
 
-    <div class="container" style="margin-top:15px;margin-bottom: 30px;">
-        <ol class="breadcrumb">
+    <div class="container mt-3 mb-4">
+        <ol class="breadcrumb p-3">
             {% block breadcrumbs %}
             {% endblock %}
         </ol>

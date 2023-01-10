@@ -1,9 +1,9 @@
 {% load i18n %}
 {% load tags_AKModel %}
-{% load fontawesome_5 %}
+{% load fontawesome_6 %}
 
 <h2><a href="{% url 'dashboard:dashboard_event' slug=event.slug %}">{{ event.name }}</a></h2>
-<div class="row">
+<div class="mt-2">
     {% if 'AKSubmission'|check_app_installed %}
         <a class="dashboard-box btn btn-primary"
            href="{% url 'submit:ak_list' event_slug=event.slug %}">
@@ -67,4 +67,3 @@
         </a>
     {% endfor %}
 </div>
-
