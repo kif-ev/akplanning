@@ -1,26 +1,17 @@
 from django.contrib import admin
 
-from AKModel.admin import RoomAdmin, RoomForm
 from AKOnline.models import VirtualRoom
 
 
-class VirtualRoomForm(RoomForm):
-    class Meta(RoomForm.Meta):
-        model = VirtualRoom
-        fields = ['name',
-                  'location',
-                  'url',
-                  'capacity',
-                  'properties',
-                  'event',
-                  ]
-
-
 @admin.register(VirtualRoom)
-class VirtualRoomAdmin(RoomAdmin):
+class VirtualRoomAdmin(admin.ModelAdmin):
     model = VirtualRoom
+    list_display = ['room', 'event', 'url']
+    list_filter = ['room__event']
 
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        if obj is not None:
-            return VirtualRoomForm
-        return super().get_form(request, obj, change, **kwargs)
+    def get_readonly_fields(self, request, obj=None):
+        # Don't allow changing the room on existing virtual rooms
+        # Instead, a link to the room editing form will be displayed automatically
+        if obj:
+            return self.readonly_fields + ('room', )
+        return self.readonly_fields
