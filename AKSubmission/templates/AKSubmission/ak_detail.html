@@ -144,8 +144,8 @@
                     {% endblocktrans %}
                 {% endif %}
 
-                {% if "AKOnline"|check_app_installed and featured_slot.room.virtualroom and featured_slot.room.virtualroom.url != '' %}
-                    <a class="btn btn-success" target="_parent" href="{{ featured_slot.room.virtualroom.url }}">
+                {% if "AKOnline"|check_app_installed and featured_slot.room.virtual and featured_slot.room.virtual.url != '' %}
+                    <a class="btn btn-success" target="_parent" href="{{ featured_slot.room.virtual.url }}">
                         {% fa6_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
                     </a>
                 {% endif %}
@@ -272,8 +272,8 @@
                                data-bs-toggle="tooltip" title="{% trans 'Delete' %}"
                                class="btn btn-danger">{% fa6_icon 'times' 'fas' %}</a>
                         {% else %}
-                            {% if "AKOnline"|check_app_installed and slot.room and slot.room.virtualroom and slot.room.virtualroom.url != '' %}
-                                <a class="btn btn-success" target="_parent" href="{{ slot.room.virtualroom.url }}">
+                            {% if "AKOnline"|check_app_installed and slot.room and slot.room.virtual and slot.room.virtual.url != '' %}
+                                <a class="btn btn-success" target="_parent" href="{{ slot.room.virtual.url }}">
                                     {% fa6_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
                                 </a>
                             {% endif %}

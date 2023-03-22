@@ -21,7 +21,7 @@ from rest_framework import viewsets, permissions, mixins
 
 from AKModel.forms import NewEventWizardStartForm, NewEventWizardSettingsForm, NewEventWizardPrepareImportForm, \
     NewEventWizardImportForm, NewEventWizardActivateForm, AdminIntermediateForm, SlideExportForm, \
-    AdminIntermediateActionForm, DefaultSlotEditorForm, RoomBatchCreationForm
+    AdminIntermediateActionForm, DefaultSlotEditorForm, RoomBatchCreationForm, RoomForm
 from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner, AKOrgaMessage, AKRequirement, \
     ConstraintViolation, DefaultSlot
 from AKModel.serializers import AKSerializer, AKSlotSerializer, RoomSerializer, AKTrackSerializer, AKCategorySerializer, \
@@ -588,6 +588,26 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
         return super().form_valid(form)
 
 
+class RoomCreationView(AdminViewMixin, CreateView):
+    success_url = reverse_lazy('admin:AKModel_room_changelist') # TODO Go to change view of created Room?
+
+    def get_form_class(self):
+        if apps.is_installed("AKOnline"):
+            from AKOnline.forms import RoomWithVirtualForm
+            return RoomWithVirtualForm
+        return RoomForm
+
+    def get_template_names(self):
+        if apps.is_installed("AKOnline"):
+            return 'admin/AKOnline/room_create_with_virtual.html'
+        return 'admin/AKModel/room_create.html'
+
+    def form_valid(self, form):
+        r = super().form_valid(form)
+        messages.success(self.request, _("Created room")) # TODO Improve message, add detail information about room and if applicable virtual room
+        return r
+
+
 class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
     form_class = RoomBatchCreationForm
     title = _("Import Rooms from CSV")
@@ -611,17 +631,14 @@ class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
             capacity = raw_room["capacity"] if "capacity" in rooms_raw_dict.fieldnames else -1
 
             try:
+                # TODO Test
+                r = Room.objects.create(name=name,
+                                    location=location,
+                                    capacity=capacity,
+                                    event=self.event)
                 if virtual_rooms_support and raw_room["url"] != "":
-                    VirtualRoom.objects.create(name=name,
-                                               location=location,
-                                               capacity=capacity,
-                                               url=raw_room["url"],
-                                               event=self.event)
-                else:
-                    Room.objects.create(name=name,
-                                        location=location,
-                                        capacity=capacity,
-                                        event=self.event)
+                    VirtualRoom.objects.create(room=r,
+                                               url=raw_room["url"])
                 created_count += 1
             except django.db.Error as e:
                 messages.add_message(self.request, messages.WARNING,

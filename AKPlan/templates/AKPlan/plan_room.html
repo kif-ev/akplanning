@@ -58,8 +58,8 @@
 
     <h1>{% trans "Room" %}: {{ room.name }} {% if room.location != '' %}({{ room.location }}){% endif %}</h1>
 
-    {% if "AKOnline"|check_app_installed and room.virtualroom and room.virtualroom.url != '' %}
-        <a class="btn btn-success" target="_parent" href="{{ room.virtualroom.url }}">
+    {% if "AKOnline"|check_app_installed and room.virtual and room.virtual.url != '' %}
+        <a class="btn btn-success" target="_parent" href="{{ room.virtual.url }}">
             {% fa6_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
         </a>
     {% endif %}

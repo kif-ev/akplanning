@@ -6,7 +6,8 @@ from django import forms
 from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _
 
-from AKModel.models import Event, AKCategory, AKRequirement
+from AKModel.availability.forms import AvailabilitiesFormMixin
+from AKModel.models import Event, AKCategory, AKRequirement, Room
 
 
 class NewEventWizardStartForm(forms.ModelForm):
@@ -148,3 +149,35 @@ class RoomBatchCreationForm(AdminIntermediateForm):
             raise forms.ValidationError(_("CSV must contain a name column"))
 
         return rooms_raw_dict
+
+
+class RoomForm(forms.ModelForm):
+    class Meta:
+        model = Room
+        fields = ['name',
+                  'location',
+                  'capacity',
+                  'properties',
+                  'event',
+                  ]
+
+        widgets = {
+            'properties': forms.CheckboxSelectMultiple,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter possible values for m2m when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["properties"].queryset = AKRequirement.objects.filter(event=self.instance.event)
+
+    def save(self, commit=True):
+        return super().save(commit)
+
+
+class RoomFormWithAvailabilities(AvailabilitiesFormMixin, RoomForm):
+    def __init__(self, *args, **kwargs):
+        # Init availability mixin
+        kwargs['initial'] = dict()
+        super().__init__(*args, **kwargs)
+        self.initial = {**self.initial, **kwargs['initial']}

@@ -13,13 +13,14 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.reverse import reverse
 from simple_history.admin import SimpleHistoryAdmin
 
-from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
+from AKModel.forms import RoomFormWithAvailabilities
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation, DefaultSlot
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
 from AKModel.views import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView, AKResetInterestView, \
-    AKResetInterestCounterView, PlanPublishView, PlanUnpublishView, DefaultSlotEditorView, RoomBatchCreationView
+    AKResetInterestCounterView, PlanPublishView, PlanUnpublishView, DefaultSlotEditorView, RoomBatchCreationView, \
+    RoomCreationView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -235,30 +236,6 @@ class AKAdmin(SimpleHistoryAdmin):
         return HttpResponseRedirect(f"{reverse_lazy('admin:ak-reset-interest-counter')}?pks={','.join(str(pk) for pk in selected)}")
 
 
-class RoomForm(AvailabilitiesFormMixin, forms.ModelForm):
-    class Meta:
-        model = Room
-        fields = ['name',
-                  'location',
-                  'capacity',
-                  'properties',
-                  'event',
-                  ]
-
-        widgets = {
-            'properties': forms.CheckboxSelectMultiple,
-        }
-
-    def __init__(self, *args, **kwargs):
-        # Init availability mixin
-        kwargs['initial'] = dict()
-        super().__init__(*args, **kwargs)
-        self.initial = {**self.initial, **kwargs['initial']}
-        # Filter possible values for m2m when event is specified
-        if hasattr(self.instance, "event") and self.instance.event is not None:
-            self.fields["properties"].queryset = AKRequirement.objects.filter(event=self.instance.event)
-
-
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
     model = Room
@@ -268,9 +245,13 @@ class RoomAdmin(admin.ModelAdmin):
     ordering = ['location', 'name']
     change_form_template = "admin/AKModel/room_change_form.html"
 
+    def add_view(self, request, form_url='', extra_context=None):
+        # Use custom view for room creation (either room form or combined form if virtual rooms are supported)
+        return redirect("admin:room-new")
+
     def get_form(self, request, obj=None, change=False, **kwargs):
         if obj is not None:
-            return RoomForm
+            return RoomFormWithAvailabilities
         return super().get_form(request, obj, change, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -279,6 +260,13 @@ class RoomAdmin(admin.ModelAdmin):
         return super(RoomAdmin, self).formfield_for_foreignkey(
             db_field, request, **kwargs
         )
+
+    def get_urls(self):
+        urls = [
+            path('new/', self.admin_site.admin_view(RoomCreationView.as_view()), name="room-new"),
+        ]
+        urls.extend(super().get_urls())
+        return urls
 
 
 class AKSlotAdminForm(forms.ModelForm):
