@@ -4,7 +4,7 @@
         <span class="text-secondary float-end">
             {{ message.timestamp|date:"Y-m-d H:i:s" }}
         </span>
-        <h5><a href="{% url 'submit:ak_detail' event_slug=message.ak.event.slug pk=message.ak.pk %}">{{ message.ak }}</a></h5>
+        <h5><a href="{{ message.ak.detail_url }}">{{ message.ak }}</a></h5>
         <p>{{ message.text }}</p>
     </td></tr>
 {% endfor %}

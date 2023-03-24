@@ -48,8 +48,7 @@ class DashboardEventView(DetailView):
                         text = _('AK "%(ak)s" deleted.') % {'ak': s.name}
                         icon = ('times', 'fas')
 
-                    recent_changes.append({'icon': icon, 'text': text, 'link': reverse_lazy('submit:ak_detail', kwargs={
-                        'event_slug': context['event'].slug, 'pk': s.id}), 'timestamp': s.history_date})
+                    recent_changes.append({'icon': icon, 'text': text, 'link': s.instance.detail_url, 'timestamp': s.history_date})
 
             # Changes in plan
             if apps.is_installed("AKPlan"):
@@ -59,8 +58,7 @@ class DashboardEventView(DetailView):
                     for changed_slot in last_changed_slots:
                         recent_changes.append({'icon': ('clock', 'far'),
                                                'text': _('AK "%(ak)s" (re-)scheduled.') % {'ak': changed_slot.ak.name},
-                                               'link': reverse_lazy('submit:ak_detail', kwargs={
-                                                   'event_slug': context['event'].slug, 'pk': changed_slot.ak.id}),
+                                               'link': changed_slot.ak.detail_url,
                                                'timestamp': changed_slot.updated})
 
             # Sort by change date...

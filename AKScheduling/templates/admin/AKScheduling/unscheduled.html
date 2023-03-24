@@ -17,7 +17,7 @@
         <li>
             {% with group.grouper as ak %}
                 {% if "AKSubmission"|check_app_installed %}
-                    <a href="{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}">{{ ak }}</a>
+                    <a href="{{ ak.detail_url }}">{{ ak }}</a>
                 {% else %}
                     {{ ak }}
                 {% endif %}

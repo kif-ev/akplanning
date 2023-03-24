@@ -2,7 +2,7 @@
     {% if forloop.counter0 > 0 %}
         ,&nbsp;
     {% endif %}
-    <a href="{% url 'submit:ak_detail' event_slug=slug pk=ak.pk %}">{{ ak }}</a>
+    <a href="{{ ak.detail_url }}">{{ ak }}</a>
 {% empty %}
     -
 {% endfor %}

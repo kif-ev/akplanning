@@ -308,7 +308,7 @@ class AKSlotAdmin(admin.ModelAdmin):
     @display(description=_('AK Details'))
     def ak_details_link(self, akslot):
         if apps.is_installed("AKSubmission") and akslot.ak is not None:
-            link = f"<a href={reverse('submit:ak_detail', args=[akslot.event.slug, akslot.ak.pk])}>{str(akslot.ak)}</a>"
+            link = f"<a href={{ akslot.detail_url }}>{str(akslot.ak)}</a>"
             return mark_safe(link)
         return "-"
 

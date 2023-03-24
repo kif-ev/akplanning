@@ -23,11 +23,11 @@
                                 <td>{{ ak }}</td>
                                 {% if "AKSubmission"|check_app_installed %}
                                     <td class="text-end">
-                                        <a href="{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}" data-bs-toggle="tooltip"
+                                        <a href="{{ ak.detail_url }}" data-bs-toggle="tooltip"
                                            title="{% trans 'Details' %}"
                                            class="btn btn-primary">{% fa6_icon 'info' 'fas' %}</a>
                                         {% if event.active %}
-                                            <a href="{% url 'submit:ak_edit' event_slug=event.slug pk=ak.pk %}" data-bs-toggle="tooltip"
+                                            <a href="{{ ak.edit_url }}" data-bs-toggle="tooltip"
                                                title="{% trans 'Edit' %}"
                                                class="btn btn-success">{% fa6_icon 'pencil-alt' 'fas' %}</a>
                                         {% endif %}
