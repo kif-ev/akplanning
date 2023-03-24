@@ -175,8 +175,11 @@ class ModelViewTests(BasicViewTests, TestCase):
         self.client.force_login(self.admin_user)
         for model in self.ADMIN_MODELS:
             if model[1] == "event":
-                continue
-            view_name_with_prefix, url = self._name_and_url((f'admin:AKModel_{model[1]}_add', {}))
+                view_name_with_prefix, url = self._name_and_url((f'admin:new_event_wizard_start', {}))
+            elif model[1] == "room":
+                view_name_with_prefix, url = self._name_and_url((f'admin:room-new', {}))
+            else:
+                view_name_with_prefix, url = self._name_and_url((f'admin:AKModel_{model[1]}_add', {}))
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200, msg=f"Add form for model {model[1]} ({url}) broken")
 
