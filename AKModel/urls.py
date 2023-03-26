@@ -3,18 +3,20 @@ from django.apps import apps
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from AKModel import views
-from AKModel.views import NewEventWizardStartView, NewEventWizardSettingsView, NewEventWizardPrepareImportView, \
-    NewEventWizardImportView, NewEventWizardActivateView, NewEventWizardFinishView, EventStatusView, \
-    AKRequirementOverview, AKCSVExportView, AKWikiExportView, AKMessageDeleteView, ExportSlidesView
+import AKModel.views.api
+from AKModel.views.manage import ExportSlidesView
+from AKModel.views.ak import AKRequirementOverview, AKCSVExportView, AKWikiExportView, AKMessageDeleteView
+from AKModel.views.event_wizard import NewEventWizardStartView, NewEventWizardPrepareImportView, \
+    NewEventWizardImportView, NewEventWizardActivateView, NewEventWizardFinishView, NewEventWizardSettingsView
+from AKModel.views.status import EventStatusView
 
 api_router = DefaultRouter()
-api_router.register('akowner', views.AKOwnerViewSet, basename='AKOwner')
-api_router.register('akcategory', views.AKCategoryViewSet, basename='AKCategory')
-api_router.register('aktrack', views.AKTrackViewSet, basename='AKTrack')
-api_router.register('ak', views.AKViewSet, basename='AK')
-api_router.register('room', views.RoomViewSet, basename='Room')
-api_router.register('akslot', views.AKSlotViewSet, basename='AKSlot')
+api_router.register('akowner', AKModel.views.api.AKOwnerViewSet, basename='AKOwner')
+api_router.register('akcategory', AKModel.views.api.AKCategoryViewSet, basename='AKCategory')
+api_router.register('aktrack', AKModel.views.api.AKTrackViewSet, basename='AKTrack')
+api_router.register('ak', AKModel.views.api.AKViewSet, basename='AK')
+api_router.register('room', AKModel.views.api.RoomViewSet, basename='Room')
+api_router.register('akslot', AKModel.views.api.AKSlotViewSet, basename='AKSlot')
 
 extra_paths = []
 if apps.is_installed("AKScheduling"):
@@ -48,7 +50,7 @@ urlpatterns = [
         '<slug:event_slug>/',
         include(event_specific_paths)
     ),
-    path('user/', views.UserView.as_view(), name="user"),
+    path('user/', AKModel.views.manage.UserView.as_view(), name="user"),
 ]
 
 
@@ -74,7 +76,7 @@ def get_admin_urls_event_wizard(admin_site):
 
 def get_admin_urls_event(admin_site):
     return [
-        path('<slug:slug>/status/', admin_site.admin_view(EventStatusView.as_view()), name="event_status"),
+        path('<slug:event_slug>/status/', admin_site.admin_view(EventStatusView.as_view()), name="event_status"),
         path('<slug:event_slug>/requirements/', admin_site.admin_view(AKRequirementOverview.as_view()),
              name="event_requirement_overview"),
         path('<slug:event_slug>/ak-csv-export/', admin_site.admin_view(AKCSVExportView.as_view()),

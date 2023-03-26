@@ -13,9 +13,10 @@ from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 
 from AKModel.availability.models import Availability
+from AKModel.metaviews import status_manager
+from AKModel.metaviews.status import TemplateStatusWidget
 from AKModel.models import AK, AKCategory, AKOwner, AKSlot, AKTrack, AKOrgaMessage
-from AKModel.views import EventSlugMixin
-from AKModel.views import FilterByEventSlugMixin
+from AKModel.metaviews.admin import EventSlugMixin, FilterByEventSlugMixin
 from AKSubmission.api import ak_interest_indication_active
 from AKSubmission.forms import AKWishForm, AKOwnerForm, AKSubmissionForm, AKDurationForm, AKOrgaMessageForm, \
     AKForm
@@ -421,6 +422,25 @@ class AKSlotDeleteView(EventSlugMixin, EventInactiveRedirectMixin, DeleteView):
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully deleted"))
         return self.object.ak.detail_url
+
+
+@status_manager.register(name="event_ak_messages")
+class EventAKMessagesWidget(TemplateStatusWidget):
+    required_context_type = "event"
+    title = _("Messages")
+    template_name = "admin/AKModel/render_ak_messages.html"
+
+    def get_context_data(self, context) -> dict:
+        context["ak_messages"] = AKOrgaMessage.objects.filter(ak__event=context["event"])
+        return context
+
+    def render_actions(self, context: {}) -> list[dict]:
+        return [
+            {
+                "text": _("Delete all messages"),
+                "url": reverse_lazy("admin:ak_delete_orga_messages", kwargs={"event_slug": context["event"].slug}),
+            },
+        ]
 
 
 class AKAddOrgaMessageView(EventSlugMixin, CreateView):

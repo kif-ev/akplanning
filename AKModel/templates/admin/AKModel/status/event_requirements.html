@@ -1,0 +1,14 @@
+{% load i18n %}
+
+{% if event.akrequirement_set.count == 0 %}
+    <p class="text-danger">{% trans "No requirements yet" %}</p>
+{% else %}
+    <ul>
+        {% for requirement in event.akrequirement_set.all %}
+            <li>
+                <a href="{% url 'admin:AKModel_akrequirement_change' requirement.pk %}">{{ requirement }}</a>
+            ({{ requirement.ak_set.count }})
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

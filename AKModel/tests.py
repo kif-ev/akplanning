@@ -156,7 +156,7 @@ class ModelViewTests(BasicViewTests, TestCase):
 
     VIEWS_STAFF_ONLY = [
         ('admin:index', {}),
-        ('admin:event_status', {'slug': 'kif42'}),
+        ('admin:event_status', {'event_slug': 'kif42'}),
         ('admin:event_requirement_overview', {'event_slug': 'kif42'}),
         ('admin:ak_csv_export', {'event_slug': 'kif42'}),
         ('admin:ak_wiki_export', {'slug': 'kif42'}),

@@ -1,0 +1,28 @@
+{% load i18n %}
+{% load tags_AKModel %}
+
+{% if event.ak_set.count == 0 %}
+    <p class="text-danger">{% trans "No AKs yet" %}</p>
+{% else %}
+    <table>
+        <tbody>
+            <tr>
+                <td>{% trans "AKs" %}</td><td>{{ ak_count }}</td>
+            </tr>
+            <tr>
+                <td>{% trans "Slots" %}</td><td>{{ event.akslot_set.count }}</td>
+            </tr>
+            <tr>
+              <td>{% trans "Unscheduled Slots" %}</td><td>
+                {% if "AKScheduling"|check_app_installed %}
+                    <a href="{% url 'admin:slots_unscheduled' event_slug=event.slug %}">
+                        {{ unscheduled_slots_count }}
+                    </a>
+                {% else %}
+                    {{ unscheduled_slots_count }}
+                {% endif %}
+            </td>
+            </tr>
+        </tbody>
+    </table>
+{% endif %}

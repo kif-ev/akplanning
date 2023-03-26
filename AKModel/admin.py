@@ -10,7 +10,6 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from rest_framework.reverse import reverse
 from simple_history.admin import SimpleHistoryAdmin
 
 from AKModel.availability.models import Availability
@@ -18,8 +17,10 @@ from AKModel.forms import RoomFormWithAvailabilities
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation, DefaultSlot
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
-from AKModel.views import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView, AKResetInterestView, \
-    AKResetInterestCounterView, PlanPublishView, PlanUnpublishView, DefaultSlotEditorView, RoomBatchCreationView
+from AKModel.views.ak import AKResetInterestView, AKResetInterestCounterView
+from AKModel.views.manage import PlanPublishView, PlanUnpublishView, DefaultSlotEditorView, CVMarkResolvedView, \
+    CVSetLevelViolationView, CVSetLevelWarningView
+from AKModel.views.room import RoomBatchCreationView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -64,7 +65,7 @@ class EventAdmin(admin.ModelAdmin):
     @display(description=_("Status"))
     def status_url(self, obj):
         return format_html("<a href='{url}'>{text}</a>",
-                           url=reverse_lazy('admin:event_status', kwargs={'slug': obj.slug}), text=_("Status"))
+                           url=reverse_lazy('admin:event_status', kwargs={'event_slug': obj.slug}), text=_("Status"))
 
     @display(description=_("Toggle plan visibility"))
     def toggle_plan_visibility(self, obj):
