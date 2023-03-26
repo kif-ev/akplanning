@@ -15,13 +15,13 @@
                     <div class="card-header">
                         {% if widget.actions %}
                             <div class="float-end">
-                                <a class="" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {% fa6_icon "ellipsis-vertical" %}
+                                <a style="cursor: pointer;" data-bs-toggle="dropdown" aria-expanded="false">
+                                    &nbsp;{% fa6_icon "ellipsis-vertical" %}&nbsp;
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     {% for action in widget.actions %}
-                                    <li>
-                                        <a class="dropdown-item" href="{{ action.url }}">{{ action.text }}</a>
+                                    <li class="dropdown-item">
+                                        <a href="{{ action.url }}">{{ action.text }}</a>
                                     </li>
                                     {% endfor %}
                                 </ul>
