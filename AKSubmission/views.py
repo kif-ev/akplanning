@@ -311,6 +311,8 @@ class AKOwnerSelectDispatchView(EventSlugMixin, View):
     """
 
     def post(self, request, *args, **kwargs):
+        if "owner_id" not in request.POST:
+            return redirect('submit:submission_overview', event_slug=kwargs['event_slug'])
         owner_id = request.POST["owner_id"]
 
         if owner_id == "-1":
@@ -345,6 +347,8 @@ class AKOwnerEditDispatchView(EventSlugMixin, View):
     """
 
     def post(self, request, *args, **kwargs):
+        if "owner_id" not in request.POST:
+            return redirect('submit:submission_overview', event_slug=kwargs['event_slug'])
         owner_id = request.POST["owner_id"]
 
         if owner_id == "-1":
