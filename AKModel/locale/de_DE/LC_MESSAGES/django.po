@@ -1230,7 +1230,7 @@ msgstr ""
 #: AKModel/views/room.py:31
 #, python-format
 msgid "Created Room '%(room)s'"
-msgstr "Raum '%(room)s angelegt"
+msgstr "Raum '%(room)s' angelegt"
 
 #: AKModel/views/room.py:37 AKModel/views/status.py:64
 msgid "Import Rooms from CSV"
