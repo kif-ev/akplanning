@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-15 20:03+0200\n"
+"POT-Creation-Date: 2023-05-15 20:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -240,7 +240,15 @@ msgstr ""
 "Spalten sind \"location\", \"capacity\", und \"url\" for Online-/"
 "HybridräumeTrennzeichen: Semikolon"
 
-#: AKModel/forms.py:149
+#: AKModel/forms.py:144
+msgid "Default availabilities?"
+msgstr "Standardverfügbarkeiten?"
+
+#: AKModel/forms.py:145
+msgid "Create default availabilities for all rooms?"
+msgstr "Standardverfügbarkeiten für alle Räume anlegen?"
+
+#: AKModel/forms.py:154
 msgid "CSV must contain a name column"
 msgstr "CSV muss eine name-Spalte enthalten"
 
@@ -1227,26 +1235,26 @@ msgid "Updated {u} slot(s). created {c} new slot(s) and deleted {d} slot(s)"
 msgstr ""
 "{u} Slot(s) aktualisiert, {c} Slot(s) hinzugefügt und {d} Slot(s) gelöscht"
 
-#: AKModel/views/room.py:31
+#: AKModel/views/room.py:32
 #, python-format
 msgid "Created Room '%(room)s'"
 msgstr "Raum '%(room)s' angelegt"
 
-#: AKModel/views/room.py:37 AKModel/views/status.py:64
+#: AKModel/views/room.py:38 AKModel/views/status.py:64
 msgid "Import Rooms from CSV"
 msgstr "Räume aus CSV importieren"
 
-#: AKModel/views/room.py:68
+#: AKModel/views/room.py:73
 #, python-brace-format
 msgid "Could not import room {name}: {e}"
 msgstr "Konnte Raum {name} nicht importieren: {e}"
 
-#: AKModel/views/room.py:72
+#: AKModel/views/room.py:77
 #, python-brace-format
 msgid "Imported {count} room(s)"
 msgstr "{count} Raum/Räume importiert"
 
-#: AKModel/views/room.py:74
+#: AKModel/views/room.py:79
 msgid "No rooms imported"
 msgstr "Keine Räume importiert"
 
