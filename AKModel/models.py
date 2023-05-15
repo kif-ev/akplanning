@@ -286,6 +286,7 @@ class AK(models.Model):
         verbose_name = _('AK')
         verbose_name_plural = _('AKs')
         unique_together = [['event', 'name'], ['event', 'short_name']]
+        ordering = ['pk']
 
     def __str__(self):
         if self.short_name:
