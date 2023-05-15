@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView, UpdateView
 
 from AKModel.models import AKSlot, AKTrack, Event, AK, AKCategory
-from AKModel.views import AdminViewMixin, FilterByEventSlugMixin, EventSlugMixin, IntermediateAdminView
+from AKModel.metaviews.admin import EventSlugMixin, FilterByEventSlugMixin, AdminViewMixin, IntermediateAdminView
 from AKScheduling.forms import AKInterestForm
 from AKSubmission.forms import AKAddSlotForm
 

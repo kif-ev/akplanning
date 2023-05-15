@@ -1,0 +1,11 @@
+{% load i18n %}
+
+<ul>
+    {% for room in event.room_set.all %}
+        {% if room.virtual and room.virtual.url %}
+        <li>
+            <a href="{% url 'admin:AKOnline_virtualroom_change' room.pk %}">{{ room }} ({{ room.virtual.url | truncatechars:30 }})</a>
+        </li>
+        {% endif %}
+    {% endfor %}
+</ul>

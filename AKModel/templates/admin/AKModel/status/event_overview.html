@@ -1,0 +1,14 @@
+{% load i18n %}
+{% load tz %}
+
+{% timezone event.timezone %}
+    <h2><a href="{% url 'admin:AKModel_event_change' event.pk %}">{{event}}</a></h2>
+    <h5>{{ event.start }} - {{ event.end }}</h5>
+
+    <div class="form-check form-switch mt-2 mb-2">
+      <input type="checkbox" class="form-check-input" id="planPublishedSwitch"
+             {% if not event.plan_hidden %}checked{% endif %}
+             onclick="location.href='{% if event.plan_hidden %}{% url 'admin:plan-publish' %}{% else %}{% url 'admin:plan-unpublish' %}{% endif %}?pks={{event.pk}}';">
+      <label class="form-check-label" for="planPublishedSwitch">{% trans "Plan published?" %}</label>
+    </div>
+{% endtimezone %}

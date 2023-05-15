@@ -1,0 +1,15 @@
+{% load i18n %}
+
+{% if event.room_set.count == 0 %}
+    <p class="text-danger">{% trans "No rooms yet" %}</p>
+{% else %}
+    <p>
+        {% for room in event.room_set.all %}
+            {% if forloop.counter0 > 0 %}
+                &middot;
+            {% endif %}
+            <a href="{% url 'admin:AKModel_room_change' room.pk %}">{{ room }}</a>
+        {% endfor %}
+    </p>
+{% endif %}
+

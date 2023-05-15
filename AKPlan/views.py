@@ -7,7 +7,7 @@ from django.utils.datetime_safe import datetime
 from django.views.generic import ListView, DetailView
 
 from AKModel.models import AKSlot, Room, AKTrack
-from AKModel.views import FilterByEventSlugMixin
+from AKModel.metaviews.admin import FilterByEventSlugMixin
 
 
 class PlanIndexView(FilterByEventSlugMixin, ListView):

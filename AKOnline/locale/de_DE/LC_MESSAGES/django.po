@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-24 18:01+0100\n"
+"POT-Creation-Date: 2023-03-26 19:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,7 +34,7 @@ msgstr "Raum"
 msgid "Virtual Room"
 msgstr "Virtueller Raum"
 
-#: AKOnline/models.py:17
+#: AKOnline/models.py:17 AKOnline/views.py:27
 msgid "Virtual Rooms"
 msgstr "Virtuelle Räume"
 
@@ -42,12 +42,12 @@ msgstr "Virtuelle Räume"
 msgid "Leave empty if that room is not virtual/hybrid."
 msgstr "Leer lassen wenn der Raum nicht virtuell/hybrid ist"
 
-#: AKOnline/views.py:16
+#: AKOnline/views.py:18
 #, python-format
 msgid "Created Room '%(room)s'"
 msgstr "Raum '%(room)s' angelegt"
 
-#: AKOnline/views.py:18
+#: AKOnline/views.py:20
 #, python-format
 msgid "Created related Virtual Room '%(vroom)s'"
 msgstr "Verbundenen virtuellen Raum '%(vroom)s' angelegt"

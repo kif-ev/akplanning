@@ -12,7 +12,7 @@
                     <a href="{% url 'admin:AKModel_event_change' event.pk %}">{{ event }}</a>
                     ({{ event.start|timezone:event.timezone|date:"d.m.y" }} -
                     {{ event.end|timezone:event.timezone|date:"d.m.y" }}) &middot;
-                    <a href="{% url 'admin:event_status' slug=event.slug %}">{% trans "Status" %}</a> &middot;
+                    <a href="{% url 'admin:event_status' event_slug=event.slug %}">{% trans "Status" %}</a> &middot;
                     <a href="{% url 'admin:schedule' event_slug=event.slug %}">{% trans "Scheduling" %}</a>
                 </li>
             {% endfor %}

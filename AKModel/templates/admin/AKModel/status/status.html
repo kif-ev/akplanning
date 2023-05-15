@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load tz %}
+{% load fontawesome_6 %}
+
+{% block title %}{% trans "Status" %}: {{ event }}{% endblock %}
+
+{% block content %}
+    {% timezone event.timezone %}
+        <div class="row">
+            {% for widget in widgets %}
+                <div class="card border-{{ widget.status }} mb-3 me-2 col-xl-3 col-md-4 col-sm-6 p-0">
+                    <div class="card-header">
+                        {% if widget.actions %}
+                            <div class="float-end">
+                                <a style="cursor: pointer;" data-bs-toggle="dropdown" aria-expanded="false">
+                                    &nbsp;{% fa6_icon "ellipsis-vertical" %}&nbsp;
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    {% for action in widget.actions %}
+                                    <li class="dropdown-item">
+                                        <a href="{{ action.url }}">{{ action.text }}</a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        {{ widget.title }}
+                    </div>
+                    <div class="card-body">
+                        {{ widget.body }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    {% endtimezone %}
+{% endblock %}

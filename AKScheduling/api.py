@@ -8,7 +8,7 @@ from rest_framework import viewsets, mixins, serializers, permissions
 
 from AKModel.availability.models import Availability
 from AKModel.models import Room, AKSlot, ConstraintViolation, DefaultSlot
-from AKModel.views import EventSlugMixin
+from AKModel.metaviews.admin import EventSlugMixin
 
 
 class ResourceSerializer(serializers.ModelSerializer):

@@ -1,11 +1,15 @@
-<table class="table table-striped">
-{% for message in ak_messages %}
-    <tr><td>
-        <span class="text-secondary float-end">
-            {{ message.timestamp|date:"Y-m-d H:i:s" }}
-        </span>
-        <h5><a href="{{ message.ak.detail_url }}">{{ message.ak }}</a></h5>
-        <p>{{ message.text }}</p>
-    </td></tr>
-{% endfor %}
-</table>
+{% load tz %}
+
+{% timezone event.timezone %}
+    <table class="table table-striped">
+    {% for message in ak_messages %}
+        <tr><td>
+            <span class="text-secondary float-end">
+                {{ message.timestamp|date:"Y-m-d H:i:s" }}
+            </span>
+            <h5><a href="{{ message.ak.detail_url }}">{{ message.ak }}</a></h5>
+            <p>{{ message.text }}</p>
+        </td></tr>
+    {% endfor %}
+    </table>
+{% endtimezone %}

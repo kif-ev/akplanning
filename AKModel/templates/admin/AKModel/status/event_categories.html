@@ -1,0 +1,14 @@
+{% load i18n %}
+
+{% if event.akcategory_set.count == 0 %}
+    <p class="text-danger">{% trans "No categories yet" %}</p>
+{% else %}
+    <ul>
+        {% for category in event.akcategory_set.all %}
+            <li>
+                <a href="{% url 'admin:AKModel_akcategory_change' category.pk %}">{{ category }}</a>
+            ({{ category.ak_set.count }})
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
