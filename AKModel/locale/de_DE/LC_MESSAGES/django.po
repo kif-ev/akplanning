@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-26 19:54+0200\n"
+"POT-Creation-Date: 2023-05-15 20:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -576,7 +576,7 @@ msgstr "AK präsentieren"
 msgid "Present results of this AK"
 msgstr "Die Ergebnisse dieses AKs vorstellen"
 
-#: AKModel/models.py:262 AKModel/views/status.py:138
+#: AKModel/models.py:262 AKModel/views/status.py:136
 msgid "Requirements"
 msgstr "Anforderungen"
 
@@ -641,7 +641,7 @@ msgstr "AK bei Wiki-Export berücksichtigen?"
 
 #: AKModel/models.py:287 AKModel/models.py:502
 #: AKModel/templates/admin/AKModel/status/event_aks.html:10
-#: AKModel/views/manage.py:55 AKModel/views/status.py:76
+#: AKModel/views/manage.py:55 AKModel/views/status.py:74
 msgid "AKs"
 msgstr "AKs"
 
@@ -673,7 +673,7 @@ msgstr "Eigenschaften"
 msgid "AK requirements fulfilled by the room"
 msgstr "AK-Anforderungen, die dieser Raum erfüllt"
 
-#: AKModel/models.py:359 AKModel/views/status.py:46
+#: AKModel/models.py:359 AKModel/views/status.py:44
 msgid "Rooms"
 msgstr "Räume"
 
@@ -750,7 +750,7 @@ msgstr "AK-Organachrichten"
 msgid "Constraint Violation"
 msgstr "Constraintverletzung"
 
-#: AKModel/models.py:473 AKModel/views/status.py:95
+#: AKModel/models.py:473 AKModel/views/status.py:93
 msgid "Constraint Violations"
 msgstr "Constraintverletzungen"
 
@@ -1007,7 +1007,7 @@ msgid "No AKs with this requirement"
 msgstr "Kein AK mit dieser Anforderung"
 
 #: AKModel/templates/admin/AKModel/requirements_overview.html:45
-#: AKModel/views/status.py:152
+#: AKModel/views/status.py:150
 msgid "Add Requirement"
 msgstr "Anforderung hinzufügen"
 
@@ -1060,7 +1060,7 @@ msgstr "Bisher keine Räume"
 msgid "Active Events"
 msgstr "Aktive Events"
 
-#: AKModel/templates/admin/ak_index.html:16 AKModel/views/status.py:87
+#: AKModel/templates/admin/ak_index.html:16 AKModel/views/status.py:85
 msgid "Scheduling"
 msgstr "Scheduling"
 
@@ -1143,7 +1143,7 @@ msgstr "'%(obj)s' kopiert"
 msgid "Could not copy '%(obj)s' (%(error)s)"
 msgstr "'%(obj)s' konnte nicht kopiert werden (%(error)s)"
 
-#: AKModel/views/manage.py:25 AKModel/views/status.py:127
+#: AKModel/views/manage.py:25 AKModel/views/status.py:125
 msgid "Export AK Slides"
 msgstr "AK-Folien exportieren"
 
@@ -1211,7 +1211,7 @@ msgstr "Den Plan/die Pläne verbergen von:"
 msgid "Plan unpublished"
 msgstr "Plan verborgen"
 
-#: AKModel/views/manage.py:127 AKModel/views/status.py:111
+#: AKModel/views/manage.py:127 AKModel/views/status.py:109
 msgid "Edit Default Slots"
 msgstr "Standardslots bearbeiten"
 
@@ -1230,9 +1230,9 @@ msgstr ""
 #: AKModel/views/room.py:31
 #, python-format
 msgid "Created Room '%(room)s'"
-msgstr "Raum '%(room)s angelegt"
+msgstr "Raum '%(room)s' angelegt"
 
-#: AKModel/views/room.py:37 AKModel/views/status.py:66
+#: AKModel/views/room.py:37 AKModel/views/status.py:64
 msgid "Import Rooms from CSV"
 msgstr "Räume aus CSV importieren"
 
@@ -1250,47 +1250,47 @@ msgstr "{count} Raum/Räume importiert"
 msgid "No rooms imported"
 msgstr "Keine Räume importiert"
 
-#: AKModel/views/status.py:16
+#: AKModel/views/status.py:14
 msgid "Overview"
 msgstr "Überblick"
 
-#: AKModel/views/status.py:26
+#: AKModel/views/status.py:24
 msgid "Categories"
 msgstr "Kategorien"
 
-#: AKModel/views/status.py:30
+#: AKModel/views/status.py:28
 msgid "Add category"
 msgstr "Kategorie hinzufügen"
 
-#: AKModel/views/status.py:50
+#: AKModel/views/status.py:48
 msgid "Add Room"
 msgstr "Raum hinzufügen"
 
-#: AKModel/views/status.py:100
+#: AKModel/views/status.py:98
 msgid "AKs requiring special attention"
 msgstr "AKs, die besondere Aufmerksamkeit benötigen"
 
-#: AKModel/views/status.py:104
+#: AKModel/views/status.py:102
 msgid "Enter Interest"
 msgstr "Interesse erfassen"
 
-#: AKModel/views/status.py:115
+#: AKModel/views/status.py:113
 msgid "Manage ak tracks"
 msgstr "AK-Tracks verwalten"
 
-#: AKModel/views/status.py:119
+#: AKModel/views/status.py:117
 msgid "Export AKs as CSV"
 msgstr "AKs als CSV exportieren"
 
-#: AKModel/views/status.py:123
+#: AKModel/views/status.py:121
 msgid "Export AKs for Wiki"
 msgstr "AKs im Wiki-Format exportieren"
 
-#: AKModel/views/status.py:148
+#: AKModel/views/status.py:146
 msgid "Show AKs for requirements"
 msgstr "Zu Anforderungen gehörige AKs anzeigen"
 
-#: AKModel/views/status.py:159
+#: AKModel/views/status.py:157
 msgid "Event Status"
 msgstr "Eventstatus"
 
