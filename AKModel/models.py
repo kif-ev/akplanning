@@ -329,13 +329,13 @@ class AK(models.Model):
 
     @property
     def edit_url(self):
-        if apps.is_installed("AKScheduling"):
+        if apps.is_installed("AKSubmission"):
             return reverse_lazy('submit:ak_edit', kwargs={'event_slug': self.event.slug, 'pk': self.id})
         return reverse_lazy('admin:AKModel_ak_change', kwargs={'object_id': self.id})
 
     @property
     def detail_url(self):
-        if apps.is_installed("AKScheduling"):
+        if apps.is_installed("AKSubmission"):
             return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.event.slug, 'pk': self.id})
         return self.edit_url
 
