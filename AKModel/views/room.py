@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView
 
+from AKModel.availability.models import Availability
 from AKModel.forms import RoomForm, RoomBatchCreationForm
 from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, IntermediateAdminView
 from AKModel.models import Room
@@ -37,10 +38,11 @@ class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
     title = _("Import Rooms from CSV")
 
     def get_success_url(self):
-        return reverse_lazy('admin:event_status', kwargs={'slug': self.event.slug})
+        return reverse_lazy('admin:event_status', kwargs={'event_slug': self.event.slug})
 
     def form_valid(self, form):
         virtual_rooms_support = False
+        create_default_availabilities = form.cleaned_data["create_default_availabilities"]
         created_count = 0
 
         rooms_raw_dict: csv.DictReader = form.cleaned_data["rooms"]
@@ -62,6 +64,9 @@ class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
                 if virtual_rooms_support and raw_room["url"] != "":
                     VirtualRoom.objects.create(room=r,
                                                url=raw_room["url"])
+                if create_default_availabilities:
+                    a = Availability.with_event_length(event=self.event, room=r)
+                    a.save()
                 created_count += 1
             except django.db.Error as e:
                 messages.add_message(self.request, messages.WARNING,

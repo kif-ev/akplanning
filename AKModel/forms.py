@@ -140,6 +140,11 @@ class RoomBatchCreationForm(AdminIntermediateForm):
         widget=forms.Textarea,
         required=True,
     )
+    create_default_availabilities = forms.BooleanField(
+        label=_('Default availabilities?'),
+        help_text=_('Create default availabilities for all rooms?'),
+        required=False
+    )
 
     def clean_rooms(self):
         rooms_raw_text = self.cleaned_data["rooms"]
