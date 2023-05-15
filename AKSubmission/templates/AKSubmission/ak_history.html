@@ -15,7 +15,7 @@
     <li class="breadcrumb-item"><a
             href="{% url 'submit:submission_overview' event_slug=ak.event.slug %}">{% trans "AK Submission" %}</a></li>
     <li class="breadcrumb-item"><a
-            href='{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}'>{{ ak.short_name }}</a></li>
+            href='{{ ak.detail_url }}'>{{ ak.short_name }}</a></li>
     <li class="breadcrumb-item active">{% trans 'History' %}</li>
 {% endblock %}
 
@@ -23,7 +23,7 @@
     {% include "messages.html" %}
 
     <div class="float-end">
-        <a href='{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}' data-bs-toggle="tooltip"
+        <a href='{{ ak.detail_url }}' data-bs-toggle="tooltip"
            title="{% trans 'Back' %}"
            class="btn btn-info">{% fa6_icon 'arrow-circle-left' 'fas' %}</a>
     </div>

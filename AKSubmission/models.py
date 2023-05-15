@@ -14,7 +14,7 @@ def orga_message_saved_handler(sender, instance: AKOrgaMessage, created, **kwarg
 
     if created and settings.SEND_MAILS:
         host = 'https://' + settings.ALLOWED_HOSTS[0] if len(settings.ALLOWED_HOSTS) > 0 else 'http://127.0.0.1:8000'
-        url = f"{host}{reverse_lazy('submit:ak_detail', kwargs={'pk': instance.ak.pk, 'event_slug': instance.ak.event.slug})}"
+        url = f"{host}{instance.ak.detail_url}"
 
         mail = EmailMessage(
             f"[AKPlanning] New message for AK '{instance.ak}' ({instance.ak.event})",
@@ -31,7 +31,7 @@ def slot_created_handler(sender, instance: AKSlot, created, **kwargs):
 
     if created and settings.SEND_MAILS and apps.is_installed("AKPlan") and not instance.event.plan_hidden and instance.room is None and instance.start is None:
         host = 'https://' + settings.ALLOWED_HOSTS[0] if len(settings.ALLOWED_HOSTS) > 0 else 'http://127.0.0.1:8000'
-        url = f"{host}{reverse_lazy('submit:ak_detail', kwargs={'pk': instance.ak.pk, 'event_slug': instance.ak.event.slug})}"
+        url = f"{host}{instance.ak.detail_url}"
 
         mail = EmailMessage(
             f"[AKPlanning] New slot for AK '{instance.ak}' ({instance.ak.event}) added",

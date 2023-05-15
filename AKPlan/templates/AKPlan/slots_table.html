@@ -4,7 +4,7 @@
 <table class="table table-striped">
     {% for akslot in slots %}
     <tr>
-        <td class="breakWord"><b><a href="{% url 'submit:ak_detail' event_slug=event.slug pk=akslot.ak.pk %}">{{ akslot.ak.name }}</a></b></td>
+        <td class="breakWord"><b><a href="{{ akslot.ak.detail_url }}">{{ akslot.ak.name }}</a></b></td>
         <td>{{ akslot.start | time:"H:i" }} - {{ akslot.end | time:"H:i" }}</td>
         <td class="breakWord">{% if akslot.room and akslot.room.pk != '' %}
             <a href="{% url 'plan:plan_room' event_slug=event.slug pk=akslot.room.pk %}">{{ akslot.room }}</a>

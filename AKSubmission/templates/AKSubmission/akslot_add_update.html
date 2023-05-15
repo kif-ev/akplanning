@@ -11,7 +11,7 @@
     <li class="breadcrumb-item"><a
             href="{% url 'submit:submission_overview' event_slug=event.slug %}">{% trans "AK Submission" %}</a></li>
     <li class="breadcrumb-item"><a
-            href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}">{{ ak.short_name }}</a></li>
+            href="{{ ak.detail_url }}">{{ ak.short_name }}</a></li>
     <li class="breadcrumb-item active">{% trans "AK Duration(s)" %}</li>
 {% endblock %}
 
@@ -29,7 +29,7 @@
             {% fa6_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
         </button>
 
-        <a href="{% url 'submit:ak_detail' event_slug=event.slug pk=ak.pk %}" class="btn btn-secondary">
+        <a href="{{ ak.detail_url }}" class="btn btn-secondary">
             {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
         </a>
     </form>

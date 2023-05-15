@@ -199,7 +199,7 @@ class AKAndAKWishSubmissionView(EventSlugMixin, EventInactiveRedirectMixin, Crea
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK successfully created"))
-        return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.pk})
+        return self.object.detail_url
 
     def form_valid(self, form):
         if not form.cleaned_data["event"].active:
@@ -249,7 +249,7 @@ class AKEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK successfully updated"))
-        return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.pk})
+        return self.object.detail_url
 
     def form_valid(self, form):
         if not form.cleaned_data["event"].active:
@@ -287,7 +287,7 @@ class AKOwnerCreateView(EventSlugMixin, EventInactiveRedirectMixin, CreateView):
             ak.owners.add(self.object)
             messages.add_message(self.request, messages.SUCCESS,
                                  _("Added '{owner}' as new owner of '{ak.name}'").format(owner=self.object, ak=ak))
-            return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.kwargs['event_slug'], 'pk': ak.pk})
+            return ak.detail_url
         return reverse_lazy('submit:submit_ak',
                             kwargs={'event_slug': self.kwargs['event_slug'], 'owner_slug': self.object.slug})
 
@@ -375,8 +375,7 @@ class AKSlotAddView(EventSlugMixin, EventInactiveRedirectMixin, CreateView):
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully added"))
-        return reverse_lazy('submit:ak_detail',
-                            kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
+        return self.object.ak.detail_url
 
 
 class AKSlotEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
@@ -389,7 +388,7 @@ class AKSlotEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
         if akslot.start is not None:
             messages.add_message(self.request, messages.WARNING,
                                  _("You cannot edit a slot that has already been scheduled"))
-            return redirect('submit:ak_detail', event_slug=self.kwargs['event_slug'], pk=akslot.ak.pk)
+            return HttpResponseRedirect(akslot.ak.detail_url)
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -399,8 +398,7 @@ class AKSlotEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully updated"))
-        return reverse_lazy('submit:ak_detail',
-                            kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
+        return self.object.ak.detail_url
 
 
 class AKSlotDeleteView(EventSlugMixin, EventInactiveRedirectMixin, DeleteView):
@@ -412,7 +410,7 @@ class AKSlotDeleteView(EventSlugMixin, EventInactiveRedirectMixin, DeleteView):
         if akslot.start is not None:
             messages.add_message(self.request, messages.WARNING,
                                  _("You cannot delete a slot that has already been scheduled"))
-            return redirect('submit:ak_detail', event_slug=self.kwargs['event_slug'], pk=akslot.ak.pk)
+            return HttpResponseRedirect(akslot.ak.detail_url)
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -422,8 +420,7 @@ class AKSlotDeleteView(EventSlugMixin, EventInactiveRedirectMixin, DeleteView):
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully deleted"))
-        return reverse_lazy('submit:ak_detail',
-                            kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
+        return self.object.ak.detail_url
 
 
 class AKAddOrgaMessageView(EventSlugMixin, CreateView):
@@ -444,5 +441,4 @@ class AKAddOrgaMessageView(EventSlugMixin, CreateView):
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("Message to organizers successfully saved"))
-        return reverse_lazy('submit:ak_detail',
-                            kwargs={'event_slug': self.kwargs['event_slug'], 'pk': self.object.ak.pk})
+        return self.object.ak.detail_url

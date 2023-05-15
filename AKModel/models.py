@@ -2,6 +2,7 @@ import itertools
 from datetime import timedelta
 
 from django.db import models
+from django.apps import apps
 from django.db.models import Count
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -325,6 +326,18 @@ class AK(models.Model):
     @property
     def availabilities(self):
         return "Availability".objects.filter(ak=self)
+
+    @property
+    def edit_url(self):
+        if apps.is_installed("AKSubmission"):
+            return reverse_lazy('submit:ak_edit', kwargs={'event_slug': self.event.slug, 'pk': self.id})
+        return reverse_lazy('admin:AKModel_ak_change', kwargs={'object_id': self.id})
+
+    @property
+    def detail_url(self):
+        if apps.is_installed("AKSubmission"):
+            return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.event.slug, 'pk': self.id})
+        return self.edit_url
 
 
 class Room(models.Model):

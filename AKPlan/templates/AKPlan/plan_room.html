@@ -21,7 +21,7 @@
             {'title': '{{ slot.ak }}',
             'start': '{{ slot.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
             'end': '{{ slot.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-            'url': '{% url 'submit:ak_detail' event_slug=event.slug pk=slot.ak.pk %}',
+            'url': '{{ slot.ak.detail_url }}',
             'borderColor': '{{ slot.ak.track.color }}',
             'color': '{{ slot.ak.category.color }}',
             },

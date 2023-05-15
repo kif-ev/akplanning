@@ -16,7 +16,7 @@
     {% for ak in AKs %}
         <tr>
             <td>
-                <a href="{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}"
+                <a href="{{ ak.detail_url }}"
                       class="text-dark text-decoration-none font-weight-bold">
                     {{ ak.name }}
                 </a>
@@ -38,7 +38,7 @@
             </td>
             <td>{% category_linked_badge ak.category event.slug %}</td>
             <td class="text-end" style="white-space: nowrap;">
-                <a href="{% url 'submit:ak_detail' event_slug=ak.event.slug pk=ak.pk %}" data-bs-toggle="tooltip"
+                <a href="{{ ak.detail_url }}" data-bs-toggle="tooltip"
                    title="{% trans 'Details' %}"
                    class="btn btn-primary">{% fa6_icon 'info' 'fas' %}</a>
                 {% if ak.link %}
@@ -47,7 +47,7 @@
                        class="btn btn-info">{% fa6_icon 'external-link-alt' 'fas' %}</a>
                 {% endif %}
                 {% if event.active %}
-                    <a href="{% url 'submit:ak_edit' event_slug=event.slug pk=ak.pk %}" data-bs-toggle="tooltip"
+                    <a href="{{ ak.edit_url }}" data-bs-toggle="tooltip"
                        title="{% trans 'Edit' %}"
                        class="btn btn-success">{% fa6_icon 'pencil-alt' 'fas' %}</a>
                     {% if interest_indication_active %}
