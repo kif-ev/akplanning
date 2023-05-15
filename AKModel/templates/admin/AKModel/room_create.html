@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load django_bootstrap5 %}
+{% load fontawesome_6 %}
+
+
+{% block title %}{% trans "Create room" %}{% endblock %}
+
+{% block content %}
+    <h2>{% trans "Create room" %}</h2>
+    <form method="post">{% csrf_token %}
+        {% block form_details %}
+            {% bootstrap_form form %}
+        {% endblock %}
+
+        <div class="float-end">
+            <button type="submit" name="save_action" class="save btn btn-secondary" value="save_add_another">
+                {% fa6_icon "plus" 'fas' %} {% trans "Save and add another" %}
+            </button>
+            <button type="submit" name="save_action" class="save btn btn-secondary" value="save_continue">
+                {% fa6_icon "pen" 'fas' %} {% trans "Save and continue editing" %}
+            </button>
+            <button type="submit" name="save_action" class="save btn btn-primary" value="save">
+                {% fa6_icon "check" 'fas' %} {% trans "Save" %}
+            </button>
+        </div>
+        <a href="javascript:history.back()" class="btn btn-info">
+            {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
+        </a>
+    </form>
+{% endblock %}

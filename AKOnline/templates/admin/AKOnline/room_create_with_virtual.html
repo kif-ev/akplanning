@@ -1,0 +1,13 @@
+{% extends "admin/AKModel/room_create.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load django_bootstrap5 %}
+
+{% block form_details %}
+    {% bootstrap_form form.room %}
+
+    <h3>{% trans "Virtual Room" %}</h3>
+    <p>{% trans "Leave empty if that room is not virtual/hybrid." %}</p>
+    {% bootstrap_form form.virtual %}
+{% endblock %}

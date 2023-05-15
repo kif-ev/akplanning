@@ -13,5 +13,6 @@ django-tex==1.1.10
 django-csp==3.7
 django-compressor==4.1
 django-libsass==0.9
+django-betterforms==2.0.0
 mysqlclient==2.1.1  # for production deployment
 tzdata==2022.7

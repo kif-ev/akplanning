@@ -10,6 +10,7 @@ import django.db
 from django.apps import apps
 from django.contrib import admin, messages
 from django.db.models.functions import Now
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils.dateparse import parse_datetime
@@ -21,7 +22,7 @@ from rest_framework import viewsets, permissions, mixins
 
 from AKModel.forms import NewEventWizardStartForm, NewEventWizardSettingsForm, NewEventWizardPrepareImportForm, \
     NewEventWizardImportForm, NewEventWizardActivateForm, AdminIntermediateForm, SlideExportForm, \
-    AdminIntermediateActionForm, DefaultSlotEditorForm, RoomBatchCreationForm
+    AdminIntermediateActionForm, DefaultSlotEditorForm, RoomBatchCreationForm, RoomForm
 from AKModel.models import Event, AK, AKSlot, Room, AKTrack, AKCategory, AKOwner, AKOrgaMessage, AKRequirement, \
     ConstraintViolation, DefaultSlot
 from AKModel.serializers import AKSerializer, AKSlotSerializer, RoomSerializer, AKTrackSerializer, AKCategorySerializer, \
@@ -588,6 +589,25 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
         return super().form_valid(form)
 
 
+class RoomCreationView(AdminViewMixin, CreateView):
+    form_class = RoomForm
+    template_name = 'admin/AKModel/room_create.html'
+
+    def get_success_url(self):
+        print(self.request.POST['save_action'])
+        if self.request.POST['save_action'] == 'save_add_another':
+            return reverse_lazy('admin:room-new')
+        elif self.request.POST['save_action'] == 'save_continue':
+            return reverse_lazy('admin:AKModel_room_change', kwargs={'object_id': self.room.pk})
+        else:
+            return reverse_lazy('admin:AKModel_room_changelist')
+
+    def form_valid(self, form):
+        self.room = form.save()
+        messages.success(self.request, _("Created Room '%(room)s'" % {'room': self.room}))
+        return HttpResponseRedirect(self.get_success_url())
+
+
 class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
     form_class = RoomBatchCreationForm
     title = _("Import Rooms from CSV")
@@ -611,17 +631,13 @@ class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
             capacity = raw_room["capacity"] if "capacity" in rooms_raw_dict.fieldnames else -1
 
             try:
+                r = Room.objects.create(name=name,
+                                    location=location,
+                                    capacity=capacity,
+                                    event=self.event)
                 if virtual_rooms_support and raw_room["url"] != "":
-                    VirtualRoom.objects.create(name=name,
-                                               location=location,
-                                               capacity=capacity,
-                                               url=raw_room["url"],
-                                               event=self.event)
-                else:
-                    Room.objects.create(name=name,
-                                        location=location,
-                                        capacity=capacity,
-                                        event=self.event)
+                    VirtualRoom.objects.create(room=r,
+                                               url=raw_room["url"])
                 created_count += 1
             except django.db.Error as e:
                 messages.add_message(self.request, messages.WARNING,
