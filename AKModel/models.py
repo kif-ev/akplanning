@@ -301,6 +301,7 @@ class AK(models.Model):
         
         {self.owners_list}
 
+        {_('Interest')}: {self.interest}
         {_("Requirements")}: {", ".join(str(r) for r in self.requirements.all())}  
         {_("Conflicts")}: {", ".join(str(c) for c in self.conflicts.all())}  
         {_("Prerequisites")}: {", ".join(str(p) for p in self.prerequisites.all())}
