@@ -323,6 +323,9 @@ class AKOwnerSelectDispatchView(EventSlugMixin, View):
         return HttpResponseRedirect(
             reverse_lazy('submit:submit_ak', kwargs={'event_slug': kwargs['event_slug'], 'owner_slug': owner.slug}))
 
+    def get(self, request, *args, **kwargs):
+        return redirect('submit:submission_overview', event_slug=kwargs['event_slug'])
+
 
 class AKOwnerEditView(FilterByEventSlugMixin, EventSlugMixin, UpdateView):
     model = AKOwner
@@ -359,6 +362,9 @@ class AKOwnerEditDispatchView(EventSlugMixin, View):
         owner = get_object_or_404(AKOwner, pk=request.POST["owner_id"])
         return HttpResponseRedirect(
             reverse_lazy('submit:akowner_edit', kwargs={'event_slug': kwargs['event_slug'], 'slug': owner.slug}))
+
+    def get(self, request, *args, **kwargs):
+        return redirect('submit:submission_overview', event_slug=kwargs['event_slug'])
 
 
 class AKSlotAddView(EventSlugMixin, EventInactiveRedirectMixin, CreateView):
