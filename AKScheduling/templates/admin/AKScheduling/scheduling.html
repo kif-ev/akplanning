@@ -343,7 +343,7 @@
               </li>
             </ul>
             <div id="sidebarContent" class="tab-content">
-              <div class="tab-pane fade show active" id="unscheduled-slots">
+              <div class="tab-pane fade show active" id="unscheduled-slots" style="height: 80vh;overflow-y: scroll;">
                 {% regroup slots_unscheduled by ak.track as slots_unscheduled_by_track_list %}
                 {% for track_slots in slots_unscheduled_by_track_list %}
                     {% if track_slots.grouper %}
