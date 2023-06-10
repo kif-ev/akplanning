@@ -6,6 +6,17 @@ from AKModel.models import Event
 
 
 class DashboardButton(models.Model):
+    """
+    Model for a single dashboard button
+
+    Allows to specify
+    * a text (currently without possibility to translate),
+    * a color (based on predefined design colors)
+    * a url the button should point to (internal or external)
+    * an icon (from the collection of fontawesome)
+
+    Each button is associated with a single event and will be deleted when the event is deleted.
+    """
     class Meta:
         verbose_name = _("Dashboard Button")
         verbose_name_plural = _("Dashboard Buttons")
