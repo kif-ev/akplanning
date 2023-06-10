@@ -4,6 +4,7 @@ ignore=migrations,static
 
 load-plugins=
     pylint_django
+    pylint_django.checkers.migrations
 
 
 [FORMAT]
