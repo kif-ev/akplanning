@@ -7,6 +7,9 @@ load-plugins=
 
 django-settings-module=AKPlanning.settings
 
+disable=
+    C0114, # missing-module-docstring
+
 
 [FORMAT]
 
