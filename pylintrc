@@ -1,16 +1,20 @@
 [MAIN]
-
-ignore=migrations,static
+ignore=tests.py, urls.py, migrations
 
 load-plugins=
-    pylint_django
+    pylint_django,
     pylint_django.checkers.migrations
+
+django-settings-module=AKPlanning.settings
 
 
 [FORMAT]
 
 # Maximum number of characters on a single line.
 max-line-length=120
+
+indent-string='    '
+
 
 
 [SIMILARITIES]
@@ -38,3 +42,20 @@ module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+)|(AK[A-Z][a-z0-9_]+))$
 
 # Good variable names which should always be accepted, separated by a comma
 good-names=i,j,k,a,e,ak,tz,_
+
+[TYPECHECK]
+
+# Tells whether missing members accessed in mixin class should be ignored. A
+# mixin class is detected if its name ends with "mixin" (case insensitive).
+ignore-mixin-members=yes
+
+# List of classes names for which member attributes should not be checked
+# (useful for classes with attributes dynamically set).
+ignored-classes=SQLObject,WSGIRequest
+
+# List of members which are set dynamically and missed by pylint inference
+# system, and so shouldn't trigger E0201 when accessed.
+generated-members=objects,DoesNotExist,id,pk,_meta,base_fields,context
+
+# List of method names used to declare (i.e. assign) instance attributes
+defining-attr-methods=__init__,__new__,setUp
