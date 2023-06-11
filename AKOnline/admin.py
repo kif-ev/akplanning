@@ -5,6 +5,9 @@ from AKOnline.models import VirtualRoom
 
 @admin.register(VirtualRoom)
 class VirtualRoomAdmin(admin.ModelAdmin):
+    """
+    Admin interface for virtual room model
+    """
     model = VirtualRoom
     list_display = ['room', 'event', 'url']
     list_filter = ['room__event']

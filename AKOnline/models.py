@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from AKModel.models import Event, Room
+from AKModel.models import Room
 
 
 class VirtualRoom(models.Model):
@@ -18,6 +18,12 @@ class VirtualRoom(models.Model):
 
     @property
     def event(self):
+        """
+        Property: Event this virtual room belongs to.
+
+        :return: Event this virtual room belongs to
+        :rtype: Event
+        """
         return self.room.event
 
     def __str__(self):
