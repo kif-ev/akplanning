@@ -1,7 +1,7 @@
 # gradients based on http://bsou.io/posts/color-gradients-with-python
 
 
-def hex_to_rgb(hex):
+def hex_to_rgb(hex): #pylint: disable=redefined-builtin
     """
     Convert hex color to RGB color code
     :param hex: hex encoded color
@@ -23,8 +23,7 @@ def rgb_to_hex(rgb):
     """
     # Components need to be integers for hex to make sense
     rgb = [int(x) for x in rgb]
-    return "#"+"".join(["0{0:x}".format(v) if v < 16 else
-                        "{0:x}".format(v) for v in rgb])
+    return "#"+"".join([f"0{v:x}" if v < 16 else f"{v:x}" for v in rgb])
 
 
 def linear_blend(start_hex, end_hex, position):
