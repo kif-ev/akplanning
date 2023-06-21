@@ -26,4 +26,9 @@ python manage.py compilemessages -l de_DE
 # Credentials are entered interactively on CLI
 python manage.py createsuperuser
 
+# Generate documentation
+cd docs
+make html
+cd ..
+
 deactivate

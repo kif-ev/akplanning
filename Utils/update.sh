@@ -27,4 +27,10 @@ pip install --upgrade -r requirements.txt
 ./manage.py collectstatic --noinput
 ./manage.py compilemessages -l de_DE
 
+
+# Update documentation
+cd docs
+make html
+cd ..
+
 touch AKPlanning/wsgi.py

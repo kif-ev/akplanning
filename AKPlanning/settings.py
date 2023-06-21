@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'bootstrap_datepicker_plus',
     'django_tex',
     'compressor',
+    'docs',
 ]
 
 MIDDLEWARE = [
@@ -233,5 +234,10 @@ CSP_FONT_SRC = ("'self'", "data:", "fonts.gstatic.com")
 # Emails
 SEND_MAILS = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Documentation
+
+DOCS_ROOT = os.path.join(BASE_DIR, 'docs/_build/html')
+DOCS_ACCESS = 'public'
 
 include(optional("settings/*.py"))
