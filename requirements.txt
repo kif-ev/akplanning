@@ -1,5 +1,5 @@
 Django==4.2.3
-django-bootstrap5==23.1
+django-bootstrap5==23.3
 fontawesomefree==6.4.0 # Makes static files (css, fonts) available locally
 django-fontawesome-6==1.0.0.0 # Provides an icon field for models and forms as well as handy shortcuts to render icons
 django-split-settings==1.2.0
