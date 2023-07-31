@@ -57,17 +57,13 @@ autodoc_inherit_docstrings = False
 
 apidoc_module_dir = '../'
 apidoc_output_dir = 'code'
-apidoc_excluded_paths = ['AKDashboard/migrations',
-                         'AKModel/migrations',
-                         'AKOnline/migrations',
-                         'AKPlan/migrations',
-                         'AKScheduling/migrations',
-                         'AKSubmission/migrations',
+apidoc_excluded_paths = ['*/migrations',
                          'AKPlanning/',
                          'manage.py',
                          'docs',
                          'locale',
-                         'Utils'
+                         'Utils',
+                         '*/urls.py',
                          ]
 apidoc_separate_modules = True
 apidoc_toc_file = False
