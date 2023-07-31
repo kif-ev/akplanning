@@ -10,8 +10,14 @@ from AKModel.tests import BasicViewTests
 
 
 class DashboardTests(TestCase):
+    """
+    Specific Dashboard Tests
+    """
     @classmethod
     def setUpTestData(cls):
+        """
+        Initialize Test database
+        """
         super().setUpTestData()
         cls.event = Event.objects.create(
             name="Dashboard Test Event",
@@ -28,17 +34,30 @@ class DashboardTests(TestCase):
         )
 
     def test_dashboard_view(self):
+        """
+        Check that the main dashboard is reachable
+        (would also be covered by generic view testcase below)
+        """
         url = reverse('dashboard:dashboard_event', kwargs={"slug": self.event.slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_nonexistent_dashboard_view(self):
+        """
+        Make sure there is no dashboard for an non-existing event
+        """
         url = reverse('dashboard:dashboard_event', kwargs={"slug": "nonexistent-event"})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
     @override_settings(DASHBOARD_SHOW_RECENT=True)
     def test_history(self):
+        """
+        Test displaying of history
+
+        For the sake of that test, the setting to show recent events in dashboard is enforced to be true
+        regardless of the default configuration currently in place
+        """
         url = reverse('dashboard:dashboard_event', kwargs={"slug": self.event.slug})
 
         # History should be empty
@@ -57,6 +76,11 @@ class DashboardTests(TestCase):
         self.assertEqual(response.context["recent_changes"][0]['text'], "New AK: Test AK.")
 
     def test_public(self):
+        """
+        Test handling of public and private events
+        (only public events should be part of the standard dashboard,
+        but there should be an individual dashboard for both public and private events)
+        """
         url_dashboard_index = reverse('dashboard:dashboard')
         url_event_dashboard = reverse('dashboard:dashboard_event', kwargs={"slug": self.event.slug})
 
@@ -79,6 +103,9 @@ class DashboardTests(TestCase):
         self.assertTrue(self.event in response.context["events"])
 
     def test_active(self):
+        """
+        Test existence of buttons with regard to activity status of the given event
+        """
         url_event_dashboard = reverse('dashboard:dashboard_event', kwargs={"slug": self.event.slug})
 
         if apps.is_installed('AKSubmission'):
@@ -95,6 +122,9 @@ class DashboardTests(TestCase):
             self.assertContains(response, "AK Submission")
 
     def test_plan_hidden(self):
+        """
+        Test visibility of plan buttons with regard to plan visibility status for a given event
+        """
         url_event_dashboard = reverse('dashboard:dashboard_event', kwargs={"slug": self.event.slug})
 
         if apps.is_installed('AKPlan'):
@@ -114,6 +144,9 @@ class DashboardTests(TestCase):
             self.assertContains(response, "AK Wall")
 
     def test_dashboard_buttons(self):
+        """
+        Make sure manually added buttons are displayed correctly
+        """
         url_event_dashboard = reverse('dashboard:dashboard_event', kwargs={"slug": self.event.slug})
 
         response = self.client.get(url_event_dashboard)
@@ -129,6 +162,9 @@ class DashboardTests(TestCase):
 
 
 class DashboardViewTests(BasicViewTests, TestCase):
+    """
+    Generic view tests, based on :class:`AKModel.BasicViewTests` as specified in this class in VIEWS
+    """
     fixtures = ['model.json', 'dashboard.json']
 
     APP_NAME = 'dashboard'
