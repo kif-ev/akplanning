@@ -1,6 +1,6 @@
 [MAIN]
 
-ignore=tests.py, urls.py, migrations
+ignore=urls.py, migrations
 
 load-plugins=
     pylint_django,
@@ -45,7 +45,7 @@ ignore-signatures=yes
 module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+)|((tags_)*AK[A-Z][a-z0-9_]+))$
 
 # Good variable names which should always be accepted, separated by a comma
-good-names=i,j,k,a,e,ak,tz,_
+good-names=i,j,k,a,e,ak,tz,_,pk
 
 # Allow single-letter variables and enforce lowercase variables with underscores otherwise
 variable-rgx=[a-z_][a-z0-9_]{0,30}$
