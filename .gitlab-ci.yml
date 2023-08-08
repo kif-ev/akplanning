@@ -28,9 +28,6 @@ before_script:
 check:
   script:
     - ./Utils/check.sh --all
-
-check-migrations:
-  script:
     - source venv/bin/activate
     - ./manage.py makemigrations --dry-run --check
 
