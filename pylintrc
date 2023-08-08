@@ -1,6 +1,6 @@
 [MAIN]
 
-ignore=urls.py, migrations
+ignore=urls.py, migrations, AKPlanning
 
 load-plugins=
     pylint_django,
