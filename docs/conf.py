@@ -39,6 +39,11 @@ os.environ['DJANGO_SETTINGS_MODULE'] = django_settings
 
 django.setup()
 
+# Include the database table names of Django models
+django_show_db_tables = True                # Boolean, default: False
+# Add abstract database tables names (only takes effect if django_show_db_tables is True)
+django_show_db_tables_abstract = True       # Boolean, default: False
+
 # Auto-generate API documentation.
 os.environ['SPHINX_APIDOC_OPTIONS'] = "members,show-inheritance"
 
