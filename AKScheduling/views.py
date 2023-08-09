@@ -7,8 +7,7 @@ from django.views.generic import ListView, DetailView, UpdateView
 
 from AKModel.models import AKSlot, AKTrack, Event, AK, AKCategory
 from AKModel.metaviews.admin import EventSlugMixin, FilterByEventSlugMixin, AdminViewMixin, IntermediateAdminView
-from AKScheduling.forms import AKInterestForm
-from AKSubmission.forms import AKAddSlotForm
+from AKScheduling.forms import AKInterestForm, AKAddSlotForm
 
 
 class UnscheduledSlotsAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
