@@ -8,6 +8,9 @@ from AKModel.metaviews.admin import AdminViewMixin
 
 
 class StatusWidget(ABC):
+    """
+    Abstract parent for status page widgets
+    """
     title = "Status Widget"
     actions = []
     status = "primary"
@@ -18,7 +21,6 @@ class StatusWidget(ABC):
         """
         Which model/context is needed to render this widget?
         """
-        pass
 
     def get_context_data(self, context) -> dict:
         """
@@ -32,6 +34,7 @@ class StatusWidget(ABC):
         Render widget based on context
 
         :param context: Context for rendering
+        :param request: HTTP request, needed for rendering
         :return: Dictionary containing the rendered/prepared information
         """
         context = self.get_context_data(context)
@@ -42,7 +45,7 @@ class StatusWidget(ABC):
             "status": self.render_status(context),
         }
 
-    def render_title(self, context: {}) -> str:
+    def render_title(self, context: {}) -> str:  # pylint: disable=unused-argument
         """
         Render title for widget based on context
 
@@ -52,7 +55,7 @@ class StatusWidget(ABC):
         """
         return self.title
 
-    def render_status(self, context: {}) -> str:
+    def render_status(self, context: {}) -> str:  # pylint: disable=unused-argument
         """
         Render status for widget based on context
 
@@ -63,16 +66,16 @@ class StatusWidget(ABC):
         return self.status
 
     @abstractmethod
-    def render_body(self, context: {}, request) -> str:
+    def render_body(self, context: {}, request) -> str:  # pylint: disable=unused-argument
         """
         Render body for widget based on context
 
         :param context: Context for rendering
+        :param request: HTTP request (needed for rendering)
         :return: Rendered widget body (HTML)
         """
-        pass
 
-    def render_actions(self, context: {}) -> list[dict]:
+    def render_actions(self, context: {}) -> list[dict]:  # pylint: disable=unused-argument
         """
         Render actions for widget based on context
 
@@ -81,16 +84,30 @@ class StatusWidget(ABC):
         :param context: Context for rendering
         :return: List of actions
         """
-        return [a for a in self.actions]
+        return self.actions
 
 
 class TemplateStatusWidget(StatusWidget):
+    """
+    A :class:`StatusWidget` that produces its content by rendering a given html template
+    """
     @property
     @abstractmethod
     def template_name(self) -> str:
-        pass
+        """
+        Configure the template to use
+        :return: name of the template to use
+        """
 
     def render_body(self, context: {}, request) -> str:
+        """
+        Render the body of the widget using the template rendering method from django
+        (load and render template using the provided context)
+
+        :param context: context to use for rendering
+        :param request: HTTP request (needed by django)
+        :return: rendered content (HTML)
+        """
         template = loader.get_template(self.template_name)
         return template.render(context, request)
 
@@ -98,6 +115,8 @@ class TemplateStatusWidget(StatusWidget):
 class StatusManager:
     """
     Registry for all status widgets
+
+    Allows to register status widgets using the `@status_manager.register(name="xyz")` decorator
     """
     widgets = {}
     widgets_by_context_type = defaultdict(list)
@@ -131,6 +150,9 @@ class StatusManager:
 
 
 class StatusView(ABC, AdminViewMixin, TemplateView):
+    """
+    Abstract view: A generic base view to create a status page holding multiple widgets
+    """
     template_name = "admin/AKModel/status/status.html"
 
     @property
@@ -139,12 +161,15 @@ class StatusView(ABC, AdminViewMixin, TemplateView):
         """
         Which model/context is provided by this status view?
         """
-        pass
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
 
-        from AKModel.metaviews import status_manager
-        context['widgets'] = [w.render(context, self.request) for w in status_manager.get_by_context_type(self.provided_context_type)]
+        # Load status manager (local import to prevent cyclic import)
+        from AKModel.metaviews import status_manager  # pylint: disable=import-outside-toplevel
+
+        # Render all widgets and provide them as part of the context
+        context['widgets'] = [w.render(context, self.request)
+                              for w in status_manager.get_by_context_type(self.provided_context_type)]
 
         return self.render_to_response(context)

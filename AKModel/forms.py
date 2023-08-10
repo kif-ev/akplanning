@@ -1,3 +1,7 @@
+"""
+Central and admin forms
+"""
+
 import csv
 import io
 
@@ -11,6 +15,17 @@ from AKModel.models import Event, AKCategory, AKRequirement, Room
 
 
 class NewEventWizardStartForm(forms.ModelForm):
+    """
+    Initial view of new event wizard
+
+    This form is a model form for Event, but only with a subset of the required fields.
+    It is therefore not possible to really create an event using this form, but only to enter
+    information, in particular the timezone, that is needed to correctly handle/parse the user
+    inputs for further required fields like start and end of the event.
+
+    The form will be used for this partial input, the input of the remaining required fields
+    will then be handled by :class:`NewEventWizardSettingsForm` (see below).
+    """
     class Meta:
         model = Event
         fields = ['name', 'slug', 'timezone', 'plan_hidden']
@@ -18,13 +33,20 @@ class NewEventWizardStartForm(forms.ModelForm):
             'plan_hidden': forms.HiddenInput(),
         }
 
+    # Special hidden field for wizard state handling
     is_init = forms.BooleanField(initial=True, widget=forms.HiddenInput)
 
 
 class NewEventWizardSettingsForm(forms.ModelForm):
+    """
+    Form for second view of the event creation wizard.
+
+    Will handle the input of the remaining required as well as some optional fields.
+    See also :class:`NewEventWizardStartForm`.
+    """
     class Meta:
         model = Event
-        exclude = []
+        fields = "__all__"
         widgets = {
             'name': forms.HiddenInput(),
             'slug': forms.HiddenInput(),
@@ -38,6 +60,10 @@ class NewEventWizardSettingsForm(forms.ModelForm):
 
 
 class NewEventWizardPrepareImportForm(forms.Form):
+    """
+    Wizard form for choosing an event to import/copy elements (requirements, categories, etc) from.
+    Is used to restrict the list of elements to choose from in the next step (see :class:`NewEventWizardImportForm`).
+    """
     import_event = forms.ModelChoiceField(
         queryset=Event.objects.all(),
         label=_("Copy ak requirements and ak categories of existing event"),
@@ -46,6 +72,12 @@ class NewEventWizardPrepareImportForm(forms.Form):
 
 
 class NewEventWizardImportForm(forms.Form):
+    """
+    Wizard form for excaclty choosing which elemments to copy/import for the newly created event.
+    Possible elements are categories, requirements, and dashboard buttons if AKDashboard is active.
+    The lists are restricted to elements from the event selected in the previous step
+    (see :class:`NewEventWizardPrepareImportForm`).
+    """
     import_categories = forms.ModelMultipleChoiceField(
         queryset=AKCategory.objects.all(),
         widget=forms.CheckboxSelectMultiple,
@@ -60,6 +92,7 @@ class NewEventWizardImportForm(forms.Form):
         required=False,
     )
 
+    # pylint: disable=too-many-arguments
     def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None, initial=None, error_class=ErrorList,
                  label_suffix=None, empty_permitted=False, field_order=None, use_required_attribute=None,
                  renderer=None):
@@ -70,10 +103,12 @@ class NewEventWizardImportForm(forms.Form):
         self.fields["import_requirements"].queryset = self.fields["import_requirements"].queryset.filter(
             event=self.initial["import_event"])
 
+        # pylint: disable=import-outside-toplevel
+        # Local imports used to prevent cyclic imports and to only import when AKDashboard is available
         from django.apps import apps
         if apps.is_installed("AKDashboard"):
+            # If AKDashboard is active, allow to copy dashboard buttons, too
             from AKDashboard.models import DashboardButton
-
             self.fields["import_buttons"] = forms.ModelMultipleChoiceField(
                 queryset=DashboardButton.objects.filter(event=self.initial["import_event"]),
                 widget=forms.CheckboxSelectMultiple,
@@ -83,20 +118,37 @@ class NewEventWizardImportForm(forms.Form):
 
 
 class NewEventWizardActivateForm(forms.ModelForm):
+    """
+    Wizard form to activate the newly created event
+    """
     class Meta:
         fields = ["active"]
         model = Event
 
 
 class AdminIntermediateForm(forms.Form):
-    pass
+    """
+    Base form for admin intermediate views (forms used there should inherit from this,
+    by default, the form is empty since it is only needed for the confirmation button)
+    """
 
 
 class AdminIntermediateActionForm(AdminIntermediateForm):
+    """
+    Form for Admin Action Confirmation views -- has a pks field needed to handle the serialization/deserialization of
+    the IDs of the entities the user selected for the admin action to be performed on
+    """
     pks = forms.CharField(widget=forms.HiddenInput)
 
 
 class SlideExportForm(AdminIntermediateForm):
+    """
+    Form to control the slides generated from the AK list of an event
+
+    The user can select how many upcoming AKs are displayed at the footer to inform people that it is their turn soon,
+    whether the AK list should be restricted to those AKs that where marked for presentation, and whether ther should
+    be a symbol and empty space to take notes on for wishes
+    """
     num_next = forms.IntegerField(
         min_value=0,
         max_value=6,
@@ -121,6 +173,9 @@ class SlideExportForm(AdminIntermediateForm):
 
 
 class DefaultSlotEditorForm(AdminIntermediateForm):
+    """
+    Form for default slot editor
+    """
     availabilities = forms.CharField(
         label=_('Default Slots'),
         help_text=_(
@@ -133,6 +188,12 @@ class DefaultSlotEditorForm(AdminIntermediateForm):
 
 
 class RoomBatchCreationForm(AdminIntermediateForm):
+    """
+    Form for room batch creation
+
+    Allows to input a list of room details and choose whether default availabilities should be generated for these
+    rooms. Will check that the input follows a CSV format with at least a name column present.
+    """
     rooms = forms.CharField(
         label=_('New rooms'),
         help_text=_('Enter room details in CSV format. Required colum is "name", optional colums are "location", '
@@ -147,6 +208,13 @@ class RoomBatchCreationForm(AdminIntermediateForm):
     )
 
     def clean_rooms(self):
+        """
+        Validate and transform the input for the rooms textfield
+        Treat the input as CSV and turn it into a dict containing the relevant information.
+
+        :return: a dict containing the raw room information
+        :rtype: dict[str, str]
+        """
         rooms_raw_text = self.cleaned_data["rooms"]
         rooms_raw_dict = csv.DictReader(io.StringIO(rooms_raw_text), delimiter=";")
 
@@ -157,6 +225,10 @@ class RoomBatchCreationForm(AdminIntermediateForm):
 
 
 class RoomForm(forms.ModelForm):
+    """
+    Room (creation) form (basic), will be extended for handling of availabilities
+    (see :class:`RoomFormWithAvailabilities`) and also for creating hybrid rooms in AKOnline (if active)
+    """
     class Meta:
         model = Room
         fields = ['name',
@@ -167,6 +239,9 @@ class RoomForm(forms.ModelForm):
 
 
 class RoomFormWithAvailabilities(AvailabilitiesFormMixin, RoomForm):
+    """
+    Room (update) form including handling of availabilities, extends :class:`RoomForm`
+    """
     class Meta:
         model = Room
         fields = ['name',
@@ -182,7 +257,7 @@ class RoomFormWithAvailabilities(AvailabilitiesFormMixin, RoomForm):
 
     def __init__(self, *args, **kwargs):
         # Init availability mixin
-        kwargs['initial'] = dict()
+        kwargs['initial'] = {}
         super().__init__(*args, **kwargs)
         self.initial = {**self.initial, **kwargs['initial']}
         # Filter possible values for m2m when event is specified

@@ -18,16 +18,28 @@ from AKModel.models import ConstraintViolation, Event, DefaultSlot
 
 
 class UserView(TemplateView):
+    """
+    View: Start page for logged in user
+
+    Will over a link to backend or inform the user that their account still needs to be confirmed
+    """
     template_name = "AKModel/user.html"
 
 
 class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
+    """
+    View: Export slides to present AKs
+
+    Over a form to choose some settings for the export and then generate the PDF
+    """
     title = _('Export AK Slides')
     form_class = SlideExportForm
 
     def form_valid(self, form):
+        # pylint: disable=invalid-name
         template_name = 'admin/AKModel/export/slides.tex'
 
+        # Settings
         NEXT_AK_LIST_LENGTH = form.cleaned_data['num_next']
         RESULT_PRESENTATION_MODE = form.cleaned_data["presentation_mode"]
         SPACE_FOR_NOTES_IN_WISHES = form.cleaned_data["wish_notes"]
@@ -42,12 +54,18 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
         }
 
         def build_ak_list_with_next_aks(ak_list):
+            """
+            Create a list of tuples cosisting of an AK and a list of upcoming AKs (list length depending on setting)
+            """
             next_aks_list = zip_longest(*[ak_list[i + 1:] for i in range(NEXT_AK_LIST_LENGTH)], fillvalue=None)
-            return [(ak, next_aks) for ak, next_aks in zip_longest(ak_list, next_aks_list, fillvalue=list())]
+            return [(ak, next_aks) for ak, next_aks in zip_longest(ak_list, next_aks_list, fillvalue=[])]
 
-        categories_with_aks, ak_wishes = self.event.get_categories_with_aks(wishes_seperately=True, filter=lambda
+        # Get all relevant AKs (wishes separately, and either all AKs or only those who should directly or indirectly
+        # be presented when restriction setting was chosen)
+        categories_with_aks, ak_wishes = self.event.get_categories_with_aks(wishes_seperately=True, filter_func=lambda
             ak: not RESULT_PRESENTATION_MODE or (ak.present or (ak.present is None and ak.category.present_by_default)))
 
+        # Create context for LaTeX rendering
         context = {
             'title': self.event.name,
             'categories_with_aks': [(category, build_ak_list_with_next_aks(ak_list)) for category, ak_list in
@@ -67,11 +85,17 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             os.remove(f'{tempdir}/texput.tex')
             pdf = run_tex_in_directory(source, tempdir, template_name=self.template_name)
 
+        # Show PDF file to the user (with a filename containing a timestamp to prevent confusions about the right
+        # version to use when generating multiple versions of the slides, e.g., because owners did last-minute changes
+        # to their AKs
         timestamp = datetime.datetime.now(tz=self.event.timezone).strftime("%Y-%m-%d_%H_%M")
         return PDFResponse(pdf, filename=f'{self.event.slug}_ak_slides_{timestamp}.pdf')
 
 
 class CVMarkResolvedView(IntermediateAdminActionView):
+    """
+    Admin action view: Mark one or multitple constraint violation(s) as resolved
+    """
     title = _('Mark Constraint Violations as manually resolved')
     model = ConstraintViolation
     confirmation_message = _("The following Constraint Violations will be marked as manually resolved")
@@ -82,6 +106,9 @@ class CVMarkResolvedView(IntermediateAdminActionView):
 
 
 class CVSetLevelViolationView(IntermediateAdminActionView):
+    """
+    Admin action view: Set one or multitple constraint violation(s) as to level "violation"
+    """
     title = _('Set Constraint Violations to level "violation"')
     model = ConstraintViolation
     confirmation_message = _("The following Constraint Violations will be set to level 'violation'")
@@ -92,6 +119,9 @@ class CVSetLevelViolationView(IntermediateAdminActionView):
 
 
 class CVSetLevelWarningView(IntermediateAdminActionView):
+    """
+    Admin action view: Set one or multitple constraint violation(s) as to level "warning"
+    """
     title = _('Set Constraint Violations to level "warning"')
     model = ConstraintViolation
     confirmation_message = _("The following Constraint Violations will be set to level 'warning'")
@@ -102,6 +132,9 @@ class CVSetLevelWarningView(IntermediateAdminActionView):
 
 
 class PlanPublishView(IntermediateAdminActionView):
+    """
+    Admin action view: Publish the plan of one or multitple event(s)
+    """
     title = _('Publish plan')
     model = Event
     confirmation_message = _('Publish the plan(s) of:')
@@ -112,6 +145,9 @@ class PlanPublishView(IntermediateAdminActionView):
 
 
 class PlanUnpublishView(IntermediateAdminActionView):
+    """
+    Admin action view: Unpublish the plan of one or multitple event(s)
+    """
     title = _('Unpublish plan')
     model = Event
     confirmation_message = _('Unpublish the plan(s) of:')
@@ -122,6 +158,9 @@ class PlanUnpublishView(IntermediateAdminActionView):
 
 
 class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
+    """
+    Admin view: Allow to edit the default slots of an event
+    """
     template_name = "admin/AKModel/default_slot_editor.html"
     form_class = DefaultSlotEditorForm
     title = _("Edit Default Slots")
@@ -149,13 +188,14 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
 
         previous_slot_ids = set(s.id for s in self.event.defaultslot_set.all())
 
+        # Loop over inputs and update or add slots
         for slot in default_slots_raw:
             start = parse_datetime(slot["start"]).replace(tzinfo=tz)
             end = parse_datetime(slot["end"]).replace(tzinfo=tz)
 
             if slot["id"] != '':
-                id = int(slot["id"])
-                if id not in previous_slot_ids:
+                slot_id = int(slot["id"])
+                if slot_id not in previous_slot_ids:
                     # Make sure only slots (currently) belonging to this event are edited
                     # (user did not manipulate IDs and slots have not been deleted in another session in the meantime)
                     messages.add_message(
@@ -166,8 +206,8 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
                     )
                 else:
                     # Update existing entries
-                    previous_slot_ids.remove(id)
-                    original_slot = DefaultSlot.objects.get(id=id)
+                    previous_slot_ids.remove(slot_id)
+                    original_slot = DefaultSlot.objects.get(id=slot_id)
                     if original_slot.start != start or original_slot.end != end:
                         original_slot.start = start
                         original_slot.end = end
@@ -187,6 +227,7 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
         for d_id in previous_slot_ids:
             DefaultSlot.objects.get(id=d_id).delete()
 
+        # Inform user about changes performed
         if created_count + updated_count + deleted_count > 0:
             messages.add_message(
                 self.request,

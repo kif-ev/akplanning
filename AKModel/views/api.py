@@ -7,6 +7,10 @@ from AKModel.serializers import AKOwnerSerializer, AKCategorySerializer, AKTrack
 
 
 class AKOwnerViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    API View: Owners (restricted to those of the given event)
+    Read-only
+    """
     permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,)
     serializer_class = AKOwnerSerializer
 
@@ -15,6 +19,10 @@ class AKOwnerViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModel
 
 
 class AKCategoryViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    API View: Categories (restricted to those of the given event)
+    Read-only
+    """
     permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,)
     serializer_class = AKCategorySerializer
 
@@ -24,6 +32,10 @@ class AKCategoryViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListMo
 
 class AKTrackViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin,
                      mixins.DestroyModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    API View: Tracks (restricted to those of the given event)
+    Read, Write, Delete
+    """
     permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,)
     serializer_class = AKTrackSerializer
 
@@ -33,6 +45,10 @@ class AKTrackViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.CreateMod
 
 class AKViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.ListModelMixin,
                 viewsets.GenericViewSet):
+    """
+    API View: AKs (restricted to those of the given event)
+    Read, Write
+    """
     permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,)
     serializer_class = AKSerializer
 
@@ -41,6 +57,10 @@ class AKViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMix
 
 
 class RoomViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    API View: Rooms (restricted to those of the given event)
+    Read-only
+    """
     permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,)
     serializer_class = RoomSerializer
 
@@ -50,6 +70,10 @@ class RoomViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMix
 
 class AKSlotViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin,
                     mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    API View: AK slots (restricted to those of the given event)
+    Read, Write
+    """
     permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,)
     serializer_class = AKSlotSerializer
 

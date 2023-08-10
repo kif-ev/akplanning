@@ -4,12 +4,14 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 import AKModel.views.api
-from AKModel.views.manage import ExportSlidesView
+from AKModel.views.manage import ExportSlidesView, PlanPublishView, PlanUnpublishView, DefaultSlotEditorView
 from AKModel.views.ak import AKRequirementOverview, AKCSVExportView, AKWikiExportView, AKMessageDeleteView
 from AKModel.views.event_wizard import NewEventWizardStartView, NewEventWizardPrepareImportView, \
     NewEventWizardImportView, NewEventWizardActivateView, NewEventWizardFinishView, NewEventWizardSettingsView
+from AKModel.views.room import RoomBatchCreationView
 from AKModel.views.status import EventStatusView
 
+# Register basic API views/endpoints
 api_router = DefaultRouter()
 api_router.register('akowner', AKModel.views.api.AKOwnerViewSet, basename='AKOwner')
 api_router.register('akcategory', AKModel.views.api.AKCategoryViewSet, basename='AKCategory')
@@ -18,7 +20,9 @@ api_router.register('ak', AKModel.views.api.AKViewSet, basename='AK')
 api_router.register('room', AKModel.views.api.RoomViewSet, basename='Room')
 api_router.register('akslot', AKModel.views.api.AKSlotViewSet, basename='AKSlot')
 
+# TODO Can we move this functionality to the individual apps instead?
 extra_paths = []
+# If AKScheduling is active, register additional API endpoints
 if apps.is_installed("AKScheduling"):
     from AKScheduling.api import ResourcesViewSet, RoomAvailabilitiesView, EventsView, EventsViewSet, \
         ConstraintViolationsViewSet, DefaultSlotsView
@@ -33,9 +37,10 @@ if apps.is_installed("AKScheduling"):
              name='scheduling-room-availabilities')),
     extra_paths.append(path('api/scheduling-default-slots/', DefaultSlotsView.as_view(),
              name='scheduling-default-slots'))
+
+#If AKSubmission is active, register an additional API endpoint for increasing the interest counter
 if apps.is_installed("AKSubmission"):
     from AKSubmission.api import increment_interest_counter
-
     extra_paths.append(path('api/ak/<pk>/indicate-interest/', increment_interest_counter, name='submission-ak-indicate-interest'))
 
 event_specific_paths = [
@@ -45,6 +50,7 @@ event_specific_paths.extend(extra_paths)
 
 app_name = 'model'
 
+# Included all these extra view paths at a path starting with the event slug
 urlpatterns = [
     path(
         '<slug:event_slug>/',
@@ -55,6 +61,9 @@ urlpatterns = [
 
 
 def get_admin_urls_event_wizard(admin_site):
+    """
+    Defines all additional URLs for the event creation wizard
+    """
     return [
         path('add/wizard/start/', admin_site.admin_view(NewEventWizardStartView.as_view()),
              name="new_event_wizard_start"),
@@ -75,6 +84,9 @@ def get_admin_urls_event_wizard(admin_site):
 
 
 def get_admin_urls_event(admin_site):
+    """
+    Defines all additional event-related view URLs that will be included in the event admin interface
+    """
     return [
         path('<slug:event_slug>/status/', admin_site.admin_view(EventStatusView.as_view()), name="event_status"),
         path('<slug:event_slug>/requirements/', admin_site.admin_view(AKRequirementOverview.as_view()),
@@ -86,4 +98,10 @@ def get_admin_urls_event(admin_site):
         path('<slug:event_slug>/delete-orga-messages/', admin_site.admin_view(AKMessageDeleteView.as_view()),
              name="ak_delete_orga_messages"),
         path('<slug:event_slug>/ak-slide-export/', admin_site.admin_view(ExportSlidesView.as_view()), name="ak_slide_export"),
+        path('plan/publish/', admin_site.admin_view(PlanPublishView.as_view()), name="plan-publish"),
+        path('plan/unpublish/', admin_site.admin_view(PlanUnpublishView.as_view()), name="plan-unpublish"),
+        path('<slug:event_slug>/defaultSlots/', admin_site.admin_view(DefaultSlotEditorView.as_view()),
+             name="default-slots-editor"),
+        path('<slug:event_slug>/importRooms/', admin_site.admin_view(RoomBatchCreationView.as_view()),
+             name="room-import"),
     ]

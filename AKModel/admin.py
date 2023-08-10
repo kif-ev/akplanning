@@ -18,12 +18,15 @@ from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKRequirement, A
     ConstraintViolation, DefaultSlot
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
 from AKModel.views.ak import AKResetInterestView, AKResetInterestCounterView
-from AKModel.views.manage import PlanPublishView, PlanUnpublishView, DefaultSlotEditorView, CVMarkResolvedView, \
-    CVSetLevelViolationView, CVSetLevelWarningView
-from AKModel.views.room import RoomBatchCreationView
+from AKModel.views.manage import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
+    """
+    Reusable filter to restrict the possible choices of a field to those belonging to a certain event
+    as specified in the event__id__exact GET parameter.
+    The choices are only restricted if this parameter is present, otherwise all choices are used/returned
+    """
     def field_choices(self, field, request, model_admin):
         ordering = self.field_admin_ordering(field, request, model_admin)
         limit_choices = {}
@@ -34,6 +37,17 @@ class EventRelatedFieldListFilter(RelatedFieldListFilter):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
+    """
+    Admin interface for Event
+
+    This allows to edit most fields of an event, some can only be changed by admin actions, since they have side effects
+
+    This admin interface registers additional views as defined in urls.py, the wizard, and the full scheduling
+    functionality if the AKScheduling app is active.
+
+    The interface overrides the built-in creation interface for a new event and replaces it with the event creation
+    wizard.
+    """
     model = Event
     list_display = ['name', 'status_url', 'place', 'start', 'end', 'active', 'plan_hidden']
     list_filter = ['active']
@@ -43,32 +57,54 @@ class EventAdmin(admin.ModelAdmin):
     actions = ['publish', 'unpublish']
 
     def add_view(self, request, form_url='', extra_context=None):
-        # Always use wizard to create new events (the built-in form wouldn't work anyways since the timezone cannot
+        # Override
+        # Always use wizard to create new events (the built-in form wouldn't work anyway since the timezone cannot
         # be specified before starting to fill the form)
         return redirect("admin:new_event_wizard_start")
 
     def get_urls(self):
+        """
+        Get all event-related URLs
+        This will be both the built-in URLs and additional views providing additional functionality
+        :return: list of all relevant URLs
+        :rtype: List[path]
+        """
+        # Load wizard URLs and the additional URLs defined in urls.py
+        # (first, to have the highest priority when overriding views)
         urls = get_admin_urls_event_wizard(self.admin_site)
         urls.extend(get_admin_urls_event(self.admin_site))
+
+        # Make scheduling admin views available if app is active
         if apps.is_installed("AKScheduling"):
-            from AKScheduling.urls import get_admin_urls_scheduling
+            from AKScheduling.urls import get_admin_urls_scheduling  # pylint: disable=import-outside-toplevel
             urls.extend(get_admin_urls_scheduling(self.admin_site))
-        urls.extend([
-            path('plan/publish/', self.admin_site.admin_view(PlanPublishView.as_view()), name="plan-publish"),
-            path('plan/unpublish/', self.admin_site.admin_view(PlanUnpublishView.as_view()), name="plan-unpublish"),
-            path('<slug:event_slug>/defaultSlots/', self.admin_site.admin_view(DefaultSlotEditorView.as_view()), name="default-slots-editor"),
-            path('<slug:event_slug>/importRooms/', self.admin_site.admin_view(RoomBatchCreationView.as_view()), name="room-import"),
-        ])
+
+        # Make sure built-in URLs are available as well
         urls.extend(super().get_urls())
         return urls
 
     @display(description=_("Status"))
     def status_url(self, obj):
+        """
+        Define a read-only field to go to the status page of the event
+
+        :param obj: the event to link
+        :return: status page link (HTML)
+        :rtype: str
+        """
         return format_html("<a href='{url}'>{text}</a>",
                            url=reverse_lazy('admin:event_status', kwargs={'event_slug': obj.slug}), text=_("Status"))
 
     @display(description=_("Toggle plan visibility"))
     def toggle_plan_visibility(self, obj):
+        """
+        Define a read-only field to toggle the visibility of the plan of this event
+        This will choose from two different link targets/views depending on the current visibility status
+
+        :param obj: event to change the visibility of the plan for
+        :return: toggling link (HTML)
+        :rtype: str
+        """
         if obj.plan_hidden:
             url = f"{reverse_lazy('admin:plan-publish')}?pks={obj.pk}"
             text = _('Publish plan')
@@ -78,78 +114,97 @@ class EventAdmin(admin.ModelAdmin):
         return format_html("<a href='{url}'>{text}</a>", url=url, text=text)
 
     def get_form(self, request, obj=None, change=False, **kwargs):
-        # Use timezone of event
+        # Override (update) form rendering to make sure the timezone of the event is used
         timezone.activate(obj.timezone)
         return super().get_form(request, obj, change, **kwargs)
 
     @action(description=_('Publish plan'))
     def publish(self, request, queryset):
+        """
+        Admin action to publish the plan
+        """
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(f"{reverse_lazy('admin:plan-publish')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_('Unpublish plan'))
     def unpublish(self, request, queryset):
+        """
+        Admin action to hide the plan
+        """
         selected = queryset.values_list('pk', flat=True)
-        return HttpResponseRedirect(f"{reverse_lazy('admin:plan-unpublish')}?pks={','.join(str(pk) for pk in selected)}")
+        return HttpResponseRedirect(
+            f"{reverse_lazy('admin:plan-unpublish')}?pks={','.join(str(pk) for pk in selected)}")
+
+
+class PrepopulateWithNextActiveEventMixin:
+    """
+    Mixin for automated pre-population of the event field
+    """
+    # pylint: disable=too-few-public-methods
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """
+        Override field generation for foreign key fields to introduce special handling for event fields:
+        Pre-populate the event field with the next active event (since that is the most likeliest event to be worked
+        on in the admin interface) to make creation of new owners easier
+        """
+        if db_field.name == 'event':
+            kwargs['initial'] = Event.get_next_active()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(AKOwner)
-class AKOwnerAdmin(admin.ModelAdmin):
+class AKOwnerAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    """
+    Admin interface for AKOwner
+    """
     model = AKOwner
     list_display = ['name', 'institution', 'event']
     list_filter = ['event', 'institution']
     list_editable = []
     ordering = ['name']
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'event':
-            kwargs['initial'] = Event.get_next_active()
-        return super(AKOwnerAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
 
 @admin.register(AKCategory)
-class AKCategoryAdmin(admin.ModelAdmin):
+class AKCategoryAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    """
+    Admin interface for AKCategory
+    """
     model = AKCategory
     list_display = ['name', 'color', 'event']
     list_filter = ['event']
     list_editable = ['color']
     ordering = ['name']
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'event':
-            kwargs['initial'] = Event.get_next_active()
-        return super(AKCategoryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
 
 @admin.register(AKTrack)
-class AKTrackAdmin(admin.ModelAdmin):
+class AKTrackAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    """
+    Admin interface for AKTrack
+    """
     model = AKTrack
     list_display = ['name', 'color', 'event']
     list_filter = ['event']
     list_editable = ['color']
     ordering = ['name']
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'event':
-            kwargs['initial'] = Event.get_next_active()
-        return super(AKTrackAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
 
 @admin.register(AKRequirement)
-class AKRequirementAdmin(admin.ModelAdmin):
+class AKRequirementAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    """
+    Admin interface for AKRequirements
+    """
     model = AKRequirement
     list_display = ['name', 'event']
     list_filter = ['event']
     list_editable = []
     ordering = ['name']
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'event':
-            kwargs['initial'] = Event.get_next_active()
-        return super(AKRequirementAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
 
 class WishFilter(SimpleListFilter):
+    """
+    Re-usable filter for wishes
+    """
     title = _("Wish")  # a label for our filter
     parameter_name = 'wishes'  # you can put anything here
 
@@ -170,6 +225,9 @@ class WishFilter(SimpleListFilter):
 
 
 class AKAdminForm(forms.ModelForm):
+    """
+    Modified admin form for AKs, to be used in :class:`AKAdmin`
+    """
     class Meta:
         widgets = {
             'requirements': forms.CheckboxSelectMultiple,
@@ -188,10 +246,19 @@ class AKAdminForm(forms.ModelForm):
 
 
 @admin.register(AK)
-class AKAdmin(SimpleHistoryAdmin):
+class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
+    """
+    Admin interface for AKs
+
+    Uses a modified form (see :class:`AKAdminForm`)
+    """
     model = AK
     list_display = ['name', 'short_name', 'category', 'track', 'is_wish', 'interest', 'interest_counter', 'event']
-    list_filter = ['event', WishFilter, ('category', EventRelatedFieldListFilter), ('requirements', EventRelatedFieldListFilter)]
+    list_filter = ['event',
+                   WishFilter,
+                   ('category', EventRelatedFieldListFilter),
+                   ('requirements', EventRelatedFieldListFilter)
+                   ]
     list_editable = ['short_name', 'track', 'interest_counter']
     ordering = ['pk']
     actions = ['wiki_export', 'reset_interest', 'reset_interest_counter']
@@ -199,25 +266,36 @@ class AKAdmin(SimpleHistoryAdmin):
 
     @display(boolean=True)
     def is_wish(self, obj):
+        """
+        Property: Is this AK a wish?
+        """
         return obj.wish
 
     @action(description=_("Export to wiki syntax"))
     def wiki_export(self, request, queryset):
+        """
+        Action: Export to wiki syntax
+        This will use the wiki export view (therefore, all AKs have to have the same event to correclty handle the
+        categories and to prevent accidentially merging AKs from different events in the wiki)
+        but restrict the AKs to the ones explicitly selected here.
+        """
         # Only export when all AKs belong to the same event
         if queryset.values("event").distinct().count() == 1:
             event = queryset.first().event
             pks = set(ak.pk for ak in queryset.all())
-            categories_with_aks = event.get_categories_with_aks(wishes_seperately=False, filter=lambda ak: ak.pk in pks,
+            categories_with_aks = event.get_categories_with_aks(wishes_seperately=False,
+                                                                filter_func=lambda ak: ak.pk in pks,
                                                                 hide_empty_categories=True)
-            return render(request, 'admin/AKModel/wiki_export.html', context={"categories_with_aks": categories_with_aks})
+            return render(request, 'admin/AKModel/wiki_export.html',
+                          context={"categories_with_aks": categories_with_aks})
         self.message_user(request, _("Cannot export AKs from more than one event at the same time."), messages.ERROR)
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'event':
-            kwargs['initial'] = Event.get_next_active()
-        return super(AKAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return redirect('admin:AKModel_ak_changelist')
 
     def get_urls(self):
+        """
+        Add additional URLs/views
+        Currently used to reset the interest field and interest counter field
+        """
         urls = [
             path('reset-interest/', AKResetInterestView.as_view(), name="ak-reset-interest"),
             path('reset-interest-counter/', AKResetInterestCounterView.as_view(), name="ak-reset-interest-counter"),
@@ -227,17 +305,30 @@ class AKAdmin(SimpleHistoryAdmin):
 
     @action(description=_("Reset interest in AKs"))
     def reset_interest(self, request, queryset):
+        """
+        Action: Reset interest field for the given AKs
+        Will use a typical admin confirmation view flow
+        """
         selected = queryset.values_list('pk', flat=True)
-        return HttpResponseRedirect(f"{reverse_lazy('admin:ak-reset-interest')}?pks={','.join(str(pk) for pk in selected)}")
+        return HttpResponseRedirect(
+            f"{reverse_lazy('admin:ak-reset-interest')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_("Reset AKs' interest counters"))
     def reset_interest_counter(self, request, queryset):
+        """
+        Action: Reset interest counter field for the given AKs
+        Will use a typical admin confirmation view flow
+        """
         selected = queryset.values_list('pk', flat=True)
-        return HttpResponseRedirect(f"{reverse_lazy('admin:ak-reset-interest-counter')}?pks={','.join(str(pk) for pk in selected)}")
+        return HttpResponseRedirect(
+            f"{reverse_lazy('admin:ak-reset-interest-counter')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 @admin.register(Room)
-class RoomAdmin(admin.ModelAdmin):
+class RoomAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    """
+    Admin interface for Rooms
+    """
     model = Room
     list_display = ['name', 'location', 'capacity', 'event']
     list_filter = ['event', ('properties', EventRelatedFieldListFilter), 'location']
@@ -246,26 +337,29 @@ class RoomAdmin(admin.ModelAdmin):
     change_form_template = "admin/AKModel/room_change_form.html"
 
     def add_view(self, request, form_url='', extra_context=None):
+        # Override creation view
         # Use custom view for room creation (either room form or combined form if virtual rooms are supported)
         return redirect("admin:room-new")
 
     def get_form(self, request, obj=None, change=False, **kwargs):
+        # Override form creation to use a form that allows to specify availabilites of the room once this room is
+        # associated with an event (so not before the first saving) since the timezone information and event start
+        # and end are needed to correclty render the calendar
         if obj is not None:
             return RoomFormWithAvailabilities
         return super().get_form(request, obj, change, **kwargs)
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'event':
-            kwargs['initial'] = Event.get_next_active()
-        return super(RoomAdmin, self).formfield_for_foreignkey(
-            db_field, request, **kwargs
-        )
-
     def get_urls(self):
+        """
+        Add additional URLs/views
+        This is currently used to adapt the creation form behavior, to allow the creation of virtual rooms in-place
+        when the support for virtual rooms is turned on (AKOnline app active)
+        """
+        # pylint: disable=import-outside-toplevel
         if apps.is_installed("AKOnline"):
             from AKOnline.views import RoomCreationWithVirtualView as RoomCreationView
         else:
-            from .views import RoomCreationView
+            from .views.room import RoomCreationView
 
         urls = [
             path('new/', self.admin_site.admin_view(RoomCreationView.as_view()), name="room-new"),
@@ -274,7 +368,28 @@ class RoomAdmin(admin.ModelAdmin):
         return urls
 
 
+class EventTimezoneFormMixin:
+    """
+    Mixin to enforce the usage of the timezone of the associated event in forms
+    """
+    # pylint: disable=too-few-public-methods
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        """
+        Override form creation, use timezone of associated event
+        """
+        if obj is not None and obj.event.timezone:
+            timezone.activate(obj.event.timezone)
+        # No timezone available? Use UTC
+        else:
+            timezone.activate("UTC")
+        return super().get_form(request, obj, change, **kwargs)
+
+
 class AKSlotAdminForm(forms.ModelForm):
+    """
+    Modified admin form for AKSlots, to be used in :class:`AKSlotAdmin`
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Filter possible values for foreign keys when event is specified
@@ -284,7 +399,12 @@ class AKSlotAdminForm(forms.ModelForm):
 
 
 @admin.register(AKSlot)
-class AKSlotAdmin(admin.ModelAdmin):
+class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    """
+    Admin interface for AKSlots
+
+    Uses a modified form (see :class:`AKSlotAdminForm`)
+    """
     model = AKSlot
     list_display = ['id', 'ak', 'room', 'start', 'duration', 'event']
     list_filter = ['event', ('room', EventRelatedFieldListFilter)]
@@ -292,22 +412,15 @@ class AKSlotAdmin(admin.ModelAdmin):
     readonly_fields = ['ak_details_link', 'updated']
     form = AKSlotAdminForm
 
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        # Use timezone of associated event
-        if obj is not None and obj.event.timezone:
-            timezone.activate(obj.event.timezone)
-        # No timezone available? Use UTC
-        else:
-            timezone.activate("UTC")
-        return super().get_form(request, obj, change, **kwargs)
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'event':
-            kwargs['initial'] = Event.get_next_active()
-        return super(AKSlotAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
     @display(description=_('AK Details'))
     def ak_details_link(self, akslot):
+        """
+        Define a read-only field to link the details of the associated AK
+
+        :param obj: the AK to link
+        :return: AK detail page page link (HTML)
+        :rtype: str
+        """
         if apps.is_installed("AKSubmission") and akslot.ak is not None:
             link = f"<a href={{ akslot.detail_url }}>{str(akslot.ak)}</a>"
             return mark_safe(link)
@@ -317,25 +430,28 @@ class AKSlotAdmin(admin.ModelAdmin):
 
 
 @admin.register(Availability)
-class AvailabilityAdmin(admin.ModelAdmin):
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        # Use timezone of associated event
-        if obj is not None and obj.event.timezone:
-            timezone.activate(obj.event.timezone)
-        # No timezone available? Use UTC
-        else:
-            timezone.activate("UTC")
-        return super().get_form(request, obj, change, **kwargs)
+class AvailabilityAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
+    """
+    Admin interface for Availabilities
+    """
+    list_display = ['__str__', 'event']
+    list_filter = ['event']
 
 
 @admin.register(AKOrgaMessage)
 class AKOrgaMessageAdmin(admin.ModelAdmin):
+    """
+    Admin interface for AKOrgaMessages
+    """
     list_display = ['timestamp', 'ak', 'text']
     list_filter = ['ak__event']
     readonly_fields = ['timestamp', 'ak', 'text']
 
 
 class ConstraintViolationAdminForm(forms.ModelForm):
+    """
+    Adapted admin form for constraint violations for usage in :class:`ConstraintViolationAdmin`)
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Filter possible values for foreign keys & m2m when event is specified
@@ -350,6 +466,10 @@ class ConstraintViolationAdminForm(forms.ModelForm):
 
 @admin.register(ConstraintViolation)
 class ConstraintViolationAdmin(admin.ModelAdmin):
+    """
+    Admin interface for constraint violations
+    Uses an adapted form (see :class:`ConstraintViolationAdminForm`)
+    """
     list_display = ['type', 'level', 'get_details', 'manually_resolved']
     list_filter = ['event']
     readonly_fields = ['timestamp']
@@ -357,6 +477,9 @@ class ConstraintViolationAdmin(admin.ModelAdmin):
     actions = ['mark_resolved', 'set_violation', 'set_warning']
 
     def get_urls(self):
+        """
+        Add additional URLs/views to change status and severity of CVs
+        """
         urls = [
             path('mark-resolved/', CVMarkResolvedView.as_view(), name="cv-mark-resolved"),
             path('set-violation/', CVSetLevelViolationView.as_view(), name="cv-set-violation"),
@@ -367,21 +490,36 @@ class ConstraintViolationAdmin(admin.ModelAdmin):
 
     @action(description=_("Mark Constraint Violations as manually resolved"))
     def mark_resolved(self, request, queryset):
+        """
+        Action: Mark CV as resolved
+        """
         selected = queryset.values_list('pk', flat=True)
-        return HttpResponseRedirect(f"{reverse_lazy('admin:cv-mark-resolved')}?pks={','.join(str(pk) for pk in selected)}")
+        return HttpResponseRedirect(
+            f"{reverse_lazy('admin:cv-mark-resolved')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_('Set Constraint Violations to level "violation"'))
     def set_violation(self, request, queryset):
+        """
+        Action: Promote CV to level violation
+        """
         selected = queryset.values_list('pk', flat=True)
-        return HttpResponseRedirect(f"{reverse_lazy('admin:cv-set-violation')}?pks={','.join(str(pk) for pk in selected)}")
+        return HttpResponseRedirect(
+            f"{reverse_lazy('admin:cv-set-violation')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_('Set Constraint Violations to level "warning"'))
     def set_warning(self, request, queryset):
+        """
+        Action: Set CV to level warning
+        """
         selected = queryset.values_list('pk', flat=True)
-        return HttpResponseRedirect(f"{reverse_lazy('admin:cv-set-warning')}?pks={','.join(str(pk) for pk in selected)}")
+        return HttpResponseRedirect(
+            f"{reverse_lazy('admin:cv-set-warning')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 class DefaultSlotAdminForm(forms.ModelForm):
+    """
+    Adapted admin form for DefaultSlot for usage in :class:`DefaultSlotAdmin`
+    """
     class Meta:
         widgets = {
             'primary_categories': forms.CheckboxSelectMultiple
@@ -395,13 +533,11 @@ class DefaultSlotAdminForm(forms.ModelForm):
 
 
 @admin.register(DefaultSlot)
-class DefaultSlotAdmin(admin.ModelAdmin):
+class DefaultSlotAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
+    """
+    Admin interface for default slots
+    Uses an adapted form (see :class:`DefaultSlotAdminForm`)
+    """
     list_display = ['start_simplified', 'end_simplified', 'event']
     list_filter = ['event']
     form = DefaultSlotAdminForm
-
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        # Use timezone of event
-        if obj is not None:
-            timezone.activate(obj.event.timezone)
-        return super().get_form(request, obj, change, **kwargs)

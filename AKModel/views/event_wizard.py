@@ -12,6 +12,12 @@ from AKModel.models import Event
 
 
 class NewEventWizardStartView(AdminViewMixin, WizardViewMixin, CreateView):
+    """
+    Wizard view: Entry/Start
+
+    Specify basic settings, especially the timezone for correct time treatment in the next view
+    (:class:`NewEventWizardSettingsView`) where this view will redirect to without saving the new event already
+    """
     model = Event
     form_class = NewEventWizardStartForm
     template_name = "admin/AKModel/event_wizard/start.html"
@@ -19,6 +25,16 @@ class NewEventWizardStartView(AdminViewMixin, WizardViewMixin, CreateView):
 
 
 class NewEventWizardSettingsView(AdminViewMixin, WizardViewMixin, CreateView):
+    """
+    Wizard view: Event settings
+
+    Specify most of the event settings. The user will see that certain fields are required since they were lead here
+    from another form in :class:`NewEventWizardStartView` that did not contain these fields even though they are
+    mandatory for the event model
+
+    Next step will then be :class:`NewEventWizardPrepareImportView` to prepare copy configuration elements
+    from an existing event
+    """
     model = Event
     form_class = NewEventWizardSettingsForm
     template_name = "admin/AKModel/event_wizard/settings.html"
@@ -34,6 +50,14 @@ class NewEventWizardSettingsView(AdminViewMixin, WizardViewMixin, CreateView):
 
 
 class NewEventWizardPrepareImportView(WizardViewMixin, EventSlugMixin, FormView):
+    """
+    Wizard view: Choose event to copy configuration elements from
+
+    The user can here select an existing event to copy elements like requirements, categories and dashboard buttons from
+    The exact subset of elements to copy from can then be selected in the next view (:class:`NewEventWizardImportView`)
+
+    Instead, this step can be skipped by directly continuing with :class:`NewEventWizardActivateView`
+    """
     form_class = NewEventWizardPrepareImportForm
     template_name = "admin/AKModel/event_wizard/created_prepare_import.html"
     wizard_step = 3
@@ -45,29 +69,40 @@ class NewEventWizardPrepareImportView(WizardViewMixin, EventSlugMixin, FormView)
 
 
 class NewEventWizardImportView(EventSlugMixin, WizardViewMixin, FormView):
+    """
+    Wizard view: Select configuration elements to copy
+
+    Displays lists of requirements, categories and dashboard buttons that the user can select entries to be copied from
+
+    Afterwards, the event can be activated in :class:`NewEventWizardActivateView`
+    """
     form_class = NewEventWizardImportForm
     template_name = "admin/AKModel/event_wizard/import.html"
     wizard_step = 4
 
     def get_initial(self):
         initial = super().get_initial()
+        # Remember which event was selected and send it again when submitting the form for validation
         initial["import_event"] = Event.objects.get(slug=self.kwargs["import_slug"])
         return initial
 
     def form_valid(self, form):
+        # pylint: disable=consider-using-f-string
         import_types = ["import_categories", "import_requirements"]
         if apps.is_installed("AKDashboard"):
             import_types.append("import_buttons")
 
+        # Loop over all kinds of configuration elements and then over all selected elements of each type
+        # and try to clone them by requesting a new primary key, adapting the event and then storing the
+        # object in the database
         for import_type in import_types:
             for import_obj in form.cleaned_data.get(import_type):
-                # clone existing entry
                 try:
                     import_obj.event = self.event
                     import_obj.pk = None
                     import_obj.save()
                     messages.add_message(self.request, messages.SUCCESS, _("Copied '%(obj)s'" % {'obj': import_obj}))
-                except BaseException as e:
+                except BaseException as e:  # pylint: disable=broad-exception-caught
                     messages.add_message(self.request, messages.ERROR,
                                          _("Could not copy '%(obj)s' (%(error)s)" % {'obj': import_obj,
                                                                                      "error": str(e)}))
@@ -75,6 +110,17 @@ class NewEventWizardImportView(EventSlugMixin, WizardViewMixin, FormView):
 
 
 class NewEventWizardActivateView(WizardViewMixin, UpdateView):
+    """
+    Wizard view: Allow activating the event
+
+    The user is asked to make the created event active. This is done in this step and not already during the creation
+    in the second step of the wizard to prevent users seeing an unconfigured submission.
+    The event will nevertheless already be visible in the dashboard before, when a public event was created in
+    :class:`NewEventWizardSettingsView`.
+
+    In the following last step (:class:`NewEventWizardFinishView`), a confirmation of the full process and some
+    details of the created event are shown
+    """
     model = Event
     template_name = "admin/AKModel/event_wizard/activate.html"
     form_class = NewEventWizardActivateForm
@@ -85,6 +131,11 @@ class NewEventWizardActivateView(WizardViewMixin, UpdateView):
 
 
 class NewEventWizardFinishView(WizardViewMixin, DetailView):
+    """
+    Wizard view: Confirmation and summary
+
+    Show a confirmation and a summary of the created event
+    """
     model = Event
     template_name = "admin/AKModel/event_wizard/finish.html"
     wizard_step = 6
