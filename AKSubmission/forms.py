@@ -1,3 +1,7 @@
+"""
+Submission-specific forms
+"""
+
 import itertools
 import re
 
@@ -7,10 +11,21 @@ from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
-from AKModel.models import AK, AKOwner, AKCategory, AKRequirement, AKSlot, AKOrgaMessage, Event
+from AKModel.models import AK, AKOwner, AKCategory, AKRequirement, AKSlot, AKOrgaMessage
 
 
 class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
+    """
+    Base form to add and edit AKs
+
+    Contains suitable widgets for the different data types, restricts querysets (e.g., of requirements) to entries
+    belonging to the event this AK belongs to.
+    Prepares initial slot creation (by accepting multiple input formats and a list of slots to generate),
+    automatically generate short names and wiki links if necessary
+
+    Will be modified/used by :class:`AKSubmissionForm` (that allows to add slots and excludes links)
+    and :class:`AKWishForm`
+    """
     required_css_class = 'required'
     split_string = re.compile('[,;]')
 
@@ -57,7 +72,14 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
 
     @staticmethod
     def _clean_duration(duration):
-        # Handle different duration formats (h:mm and decimal comma instead of point)
+        """
+        Clean/convert input format for the duration(s) of the slot(s)
+
+        Handle different duration formats (h:mm and decimal comma instead of point)
+
+        :param duration: raw input, either with ":", "," or "."
+        :return: normalized duration (point-separated hour float)
+        """
         if ":" in duration:
             h, m = duration.split(":")
             duration = int(h) + int(m) / 60
@@ -66,31 +88,44 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
 
         try:
             float(duration)
-        except ValueError:
+        except ValueError as exc:
             raise ValidationError(
                 _('"%(duration)s" is not a valid duration'),
                 code='invalid',
                 params={'duration': duration},
-            )
+            ) from exc
 
         return duration
 
     def clean(self):
+        """
+        Normalize/clean inputs
+
+        Generate a (not yet used) short name if field was left blank, generate a wiki link,
+        create a list of normalized slot durations
+
+        :return: cleaned inputs
+        """
         cleaned_data = super().clean()
 
         # Generate short name if not given
         short_name = self.cleaned_data["short_name"]
         if len(short_name) == 0:
             short_name = self.cleaned_data['name']
+            # First try to split AK name at positions with semantic value (e.g., where the full name is separated
+            # by a ':'), if not possible, do a hard cut at the maximum specified length
             short_name = short_name.partition(':')[0]
             short_name = short_name.partition(' - ')[0]
             short_name = short_name.partition(' (')[0]
             short_name = short_name[:AK._meta.get_field('short_name').max_length]
+            # Check whether this short name already exists...
             for i in itertools.count(1):
+                # ...and either use it...
                 if not AK.objects.filter(short_name=short_name, event=self.cleaned_data["event"]).exists():
                     break
+                # ... or postfix a number starting at 1 and growing until an unused short name is found
                 digits = len(str(i))
-                short_name = '{}-{}'.format(short_name[:-(digits + 1)], i)
+                short_name = f'{short_name[:-(digits + 1)]}-{i}'
             cleaned_data["short_name"] = short_name
 
         # Generate wiki link
@@ -106,35 +141,57 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
 
 
 class AKSubmissionForm(AKForm):
+    """
+    Form for Submitting new AKs
+
+    Is a special variant of :class:`AKForm` that does not allow to manually edit wiki and protocol links and enforces
+    the generation of at least one slot.
+    """
     class Meta(AKForm.Meta):
-        exclude = ['link', 'protocol_link']
+        # Exclude fields again that were previously included in the parent class
+        exclude = ['link', 'protocol_link'] #pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Add field for durations
+        # Add field for durations (cleaning will be handled by parent class)
         self.fields["durations"] = forms.CharField(
             widget=forms.Textarea,
             label=_("Duration(s)"),
             help_text=_(
-                "Enter at least one planned duration (in hours). If your AK should have multiple slots, use multiple lines"),
-            initial=
-            self.initial.get('event').default_slot
+                "Enter at least one planned duration (in hours). "
+                "If your AK should have multiple slots, use multiple lines"),
+            initial=self.initial.get('event').default_slot
         )
 
     def clean_availabilities(self):
+        """
+        Automatically improve availabilities entered.
+        If the user did not specify availabilities assume the full event duration is possible
+        :return: cleaned availabilities
+        (either user input or one availability for the full length of the event if user input was empty)
+        """
         availabilities = super().clean_availabilities()
-        # If the user did not specify availabilities assume the full event duration is possible
         if len(availabilities) == 0:
             availabilities.append(Availability.with_event_length(event=self.cleaned_data["event"]))
         return availabilities
 
 
 class AKWishForm(AKForm):
+    """
+    Form for submitting or editing wishes
+
+    Is a special variant of :class:`AKForm` that does not allow to specify owner(s) or
+    manually edit wiki and protocol links
+    """
     class Meta(AKForm.Meta):
-        exclude = ['owners', 'link', 'protocol_link']
+        # Exclude fields again that were previously included in the parent class
+        exclude = ['owners', 'link', 'protocol_link'] #pylint: disable=modelform-uses-exclude
 
 
 class AKOwnerForm(forms.ModelForm):
+    """
+    Form to create/edit AK owners
+    """
     required_css_class = 'required'
 
     class Meta:
@@ -146,6 +203,9 @@ class AKOwnerForm(forms.ModelForm):
 
 
 class AKDurationForm(forms.ModelForm):
+    """
+    Form to add an additional slot to a given AK
+    """
     class Meta:
         model = AKSlot
         fields = ['duration', 'ak', 'event']
@@ -156,6 +216,9 @@ class AKDurationForm(forms.ModelForm):
 
 
 class AKOrgaMessageForm(forms.ModelForm):
+    """
+    Form to create a confidential message to the organizers  belonging to a given AK
+    """
     class Meta:
         model = AKOrgaMessage
         fields = ['ak', 'text', 'event']

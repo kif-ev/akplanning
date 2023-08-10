@@ -25,9 +25,13 @@ def ak_interest_indication_active(event, current_timestamp):
 def increment_interest_counter(request, event_slug, pk, **kwargs):
     """
     Increment interest counter for AK
+
+    This view either returns a HTTP 200 if the counter was incremented,
+    an HTTP 403 if indicating interest is currently not allowed,
+    or an HTTP 404 if there is no matching AK for the given primary key and event slug.
     """
     try:
-        ak = AK.objects.get(pk=pk)
+        ak = AK.objects.get(pk=pk, event__slug=event_slug)
         # Check whether interest indication is currently allowed
         current_timestamp = datetime.now().astimezone(ak.event.timezone)
         if ak_interest_indication_active(ak.event, current_timestamp):
