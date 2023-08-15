@@ -5,6 +5,9 @@ from AKModel.models import AK
 
 
 class AKInterestForm(forms.ModelForm):
+    """
+    Form for quickly changing the interest count and notes of an AK
+    """
     required_css_class = 'required'
 
     class Meta:

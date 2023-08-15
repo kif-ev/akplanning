@@ -106,15 +106,17 @@ class BasicViewTests:
         """
         # Not logged in? Views should not be visible
         self.client.logout()
-        for view_name in self.VIEWS_STAFF_ONLY:
-            view_name_with_prefix, url = self._name_and_url(view_name)
+        for view_name_info in self.VIEWS_STAFF_ONLY:
+            expected_response_code = 302 if len(view_name_info) == 2 else view_name_info[2]
+            view_name_with_prefix, url = self._name_and_url(view_name_info)
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 302, msg=f"{view_name_with_prefix} ({url}) accessible by non-staff")
+            self.assertEqual(response.status_code, expected_response_code,
+                             msg=f"{view_name_with_prefix} ({url}) accessible by non-staff")
 
         # Logged in? Views should be visible
         self.client.force_login(self.staff_user)
-        for view_name in self.VIEWS_STAFF_ONLY:
-            view_name_with_prefix, url = self._name_and_url(view_name)
+        for view_name_info in self.VIEWS_STAFF_ONLY:
+            view_name_with_prefix, url = self._name_and_url(view_name_info)
             try:
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, 200,
@@ -125,10 +127,11 @@ class BasicViewTests:
 
         # Disabled user? Views should not be visible
         self.client.force_login(self.deactivated_user)
-        for view_name in self.VIEWS_STAFF_ONLY:
-            view_name_with_prefix, url = self._name_and_url(view_name)
+        for view_name_info in self.VIEWS_STAFF_ONLY:
+            expected_response_code = 302 if len(view_name_info) == 2 else view_name_info[2]
+            view_name_with_prefix, url = self._name_and_url(view_name_info)
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 302,
+            self.assertEqual(response.status_code, expected_response_code,
                              msg=f"{view_name_with_prefix} ({url}) still accessible for deactivated user")
 
     def _to_sendable_value(self, val):

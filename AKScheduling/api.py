@@ -12,20 +12,32 @@ from AKModel.metaviews.admin import EventSlugMixin
 
 
 class ResourceSerializer(serializers.ModelSerializer):
+    """
+    REST Framework Serializer for Rooms to produce format required for fullcalendar resources
+    """
     class Meta:
         model = Room
         fields = ['id', 'title']
 
     title = serializers.SerializerMethodField('transform_title')
 
-    def transform_title(self, obj):
+    @staticmethod
+    def transform_title(obj):
+        """
+        Adapt title, add capacity information if room has a restriction (capacity is not -1)
+        """
         if obj.capacity > 0:
             return f"{obj.title} [{obj.capacity}]"
         return obj.title
 
 
-class ResourcesViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
-    permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,)
+class ResourcesViewSet(EventSlugMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    API View: Rooms (resources to schedule for in fullcalendar)
+
+    Read-only, adaption to fullcalendar format through :class:`ResourceSerializer`
+    """
+    permission_classes = (permissions.DjangoModelPermissions,)
     serializer_class = ResourceSerializer
 
     def get_queryset(self):
@@ -33,6 +45,13 @@ class ResourcesViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListMod
 
 
 class EventsView(LoginRequiredMixin, EventSlugMixin, ListView):
+    """
+    API View: Slots (events to schedule in fullcalendar)
+
+    Read-only, JSON formatted response is created manually since it requires a bunch of "custom" fields that have
+    different names compared to the normal model or are not present at all and need to be computed to create the
+    required format for fullcalendar.
+    """
     model = AKSlot
 
     def get_queryset(self):
@@ -42,13 +61,16 @@ class EventsView(LoginRequiredMixin, EventSlugMixin, ListView):
         return JsonResponse(
             [{
                 "slotID": slot.pk,
-                "title": f'{slot.ak.short_name}: \n{slot.ak.owners_list}',
+                "title": f'{slot.ak.short_name}:\n{slot.ak.owners_list}',
                 "description": slot.ak.details,
                 "resourceId": slot.room.id,
                 "start": timezone.localtime(slot.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
                 "end": timezone.localtime(slot.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
                 "backgroundColor": slot.ak.category.color,
-                "borderColor": "#2c3e50" if slot.fixed else '#e74c3c' if slot.constraintviolation_set.count() > 0 else slot.ak.category.color,
+                "borderColor":
+                    "#2c3e50" if slot.fixed
+                    else '#e74c3c' if slot.constraintviolation_set.count() > 0
+                    else slot.ak.category.color,
                 "constraint": 'roomAvailable',
                 "editable": not slot.fixed,
                 'url': str(reverse('admin:AKModel_akslot_change', args=[slot.pk])),
@@ -59,6 +81,13 @@ class EventsView(LoginRequiredMixin, EventSlugMixin, ListView):
 
 
 class RoomAvailabilitiesView(LoginRequiredMixin, EventSlugMixin, ListView):
+    """
+    API view: Availabilities of rooms
+
+    Read-only, JSON formatted response is created manually since it requires a bunch of "custom" fields that have
+    different names compared to the normal model or are not present at all and need to be computed to create the
+    required format for fullcalendar.
+    """
     model = Availability
     context_object_name = "availabilities"
 
@@ -81,6 +110,13 @@ class RoomAvailabilitiesView(LoginRequiredMixin, EventSlugMixin, ListView):
 
 
 class DefaultSlotsView(LoginRequiredMixin, EventSlugMixin, ListView):
+    """
+    API view: default slots
+
+    Read-only, JSON formatted response is created manually since it requires a bunch of "custom" fields that have
+    different names compared to the normal model or are not present at all and need to be computed to create the
+    required format for fullcalendar.
+    """
     model = DefaultSlot
     context_object_name = "default_slots"
 
@@ -105,6 +141,9 @@ class DefaultSlotsView(LoginRequiredMixin, EventSlugMixin, ListView):
 
 
 class EventSerializer(serializers.ModelSerializer):
+    """
+    REST framework serializer to adapt between AKSlot model and the event format of fullcalendar
+    """
     class Meta:
         model = AKSlot
         fields = ['id', 'start', 'end', 'roomId']
@@ -114,17 +153,31 @@ class EventSerializer(serializers.ModelSerializer):
     roomId = serializers.IntegerField(source='room.pk')
 
     def update(self, instance, validated_data):
+        # Ignore timezone of input (treat it as timezone-less) and set the event timezone
+        # By working like this, the client does not need to know about timezones, since every timestamp it deals with
+        # has the timezone offsets already applied
         start = timezone.make_aware(timezone.make_naive(validated_data.get('start')), instance.event.timezone)
         end = timezone.make_aware(timezone.make_naive(validated_data.get('end')), instance.event.timezone)
         instance.start = start
-        instance.room = get_object_or_404(Room, pk=validated_data.get('room')["pk"])
+        # Also, adapt from start & end format of fullcalendar to our start & duration model
         diff = end - start
         instance.duration = round(diff.days * 24 + (diff.seconds / 3600), 2)
+
+        # Updated room if needed (pk changed -- otherwise, no need for an additional database lookup)
+        new_room_id = validated_data.get('room')["pk"]
+        if instance.room.pk != new_room_id:
+            instance.room = get_object_or_404(Room, pk=new_room_id)
+
         instance.save()
         return instance
 
 
-class EventsViewSet(EventSlugMixin, viewsets.ModelViewSet):
+class EventsViewSet(EventSlugMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+    """
+    API view: Update scheduling of a slot (event in fullcalendar format)
+
+    Write-only (will however reply with written values to PUT request)
+    """
     permission_classes = (permissions.DjangoModelPermissions,)
     serializer_class = EventSerializer
 
@@ -136,17 +189,26 @@ class EventsViewSet(EventSlugMixin, viewsets.ModelViewSet):
 
 
 class ConstraintViolationSerializer(serializers.ModelSerializer):
+    """
+    REST Framework Serializer for constraint violations
+    """
     class Meta:
         model = ConstraintViolation
-        fields = ['pk', 'type_display', 'aks', 'ak_slots', 'ak_owner', 'room', 'requirement', 'category', 'comment', 'timestamp_display', 'manually_resolved', 'level_display', 'details', 'edit_url']
+        fields = ['pk', 'type_display', 'aks', 'ak_slots', 'ak_owner', 'room', 'requirement', 'category', 'comment',
+                  'timestamp_display', 'manually_resolved', 'level_display', 'details', 'edit_url']
 
 
-class ConstraintViolationsViewSet(EventSlugMixin, viewsets.ModelViewSet):
+class ConstraintViolationsViewSet(EventSlugMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    API View: Constraint Violations of an event
+
+    Read-only, fields and model selected in :class:`ConstraintViolationSerializer`
+    """
     permission_classes = (permissions.DjangoModelPermissions,)
     serializer_class = ConstraintViolationSerializer
 
-    def get_object(self):
-        return get_object_or_404(ConstraintViolation, pk=self.kwargs["pk"])
-
     def get_queryset(self):
-        return ConstraintViolation.objects.select_related('event', 'room').prefetch_related('aks', 'ak_slots', 'ak_owner', 'requirement', 'category').filter(event=self.event).order_by('manually_resolved', '-type', '-timestamp')
+        # Optimize query to reduce database load
+        return (ConstraintViolation.objects.select_related('event', 'room')
+                .prefetch_related('aks', 'ak_slots', 'ak_owner', 'requirement', 'category')
+                .filter(event=self.event).order_by('manually_resolved', '-type', '-timestamp'))
