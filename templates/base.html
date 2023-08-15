@@ -106,6 +106,7 @@
             {% block footer_custom %}
             {% endblock %}
             <a href="{% url "admin:index" %}">{% trans "Go to backend" %}</a> &middot;
+            <a href="{% url "docs_root" %}">{% trans "Docs" %}</a> &middot;
             {% footer_info as FI %}
             {% if FI.impress_text %}
                 {{ FI.impress_text }} &middot;
