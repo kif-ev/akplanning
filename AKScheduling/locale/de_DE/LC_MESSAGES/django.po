@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-15 20:03+0200\n"
+"POT-Creation-Date: 2023-08-16 16:30+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,28 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKScheduling/models.py:80
+#: AKScheduling/forms.py:24
+msgid "Start"
+msgstr "Start"
+
+#: AKScheduling/forms.py:25
+msgid "End"
+msgstr "Ende"
+
+#: AKScheduling/forms.py:26
+msgid "Duration"
+msgstr ""
+
+#: AKScheduling/forms.py:27
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:171
+msgid "Room"
+msgstr "Raum"
+
+#: AKScheduling/forms.py:31
+msgid "AK"
+msgstr "AK"
+
+#: AKScheduling/models.py:92
 #, python-format
 msgid ""
 "Not enough space for AK interest (Interest: %(interest)d, Capacity: "
@@ -26,7 +47,7 @@ msgstr ""
 "Nicht genug Platz für AK-Interesse (Interesse: %(interest)d, Kapazität: "
 "%(capacity)d)"
 
-#: AKScheduling/models.py:92
+#: AKScheduling/models.py:106
 #, python-format
 msgid ""
 "Space is too close to AK interest (Interest: %(interest)d, Capacity: "
@@ -147,10 +168,6 @@ msgstr "Event (horizontal)"
 msgid "Event (Vertical)"
 msgstr "Event (vertikal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:171
-msgid "Room"
-msgstr "Raum"
-
 #: AKScheduling/templates/admin/AKScheduling/scheduling.html:267
 msgid "Please choose AK"
 msgstr "Bitte AK auswählen"
@@ -211,19 +228,19 @@ msgstr "Noch nicht geschedulte AK-Slots"
 msgid "Count"
 msgstr "Anzahl"
 
-#: AKScheduling/views.py:112
+#: AKScheduling/views.py:148
 msgid "Interest updated"
 msgstr "Interesse aktualisiert"
 
-#: AKScheduling/views.py:157
+#: AKScheduling/views.py:199
 msgid "Wishes"
 msgstr "Wünsche"
 
-#: AKScheduling/views.py:165
+#: AKScheduling/views.py:217
 msgid "Cleanup: Delete unscheduled slots for wishes"
 msgstr "Aufräumen: Noch nicht geplante Slots für Wünsche löschen"
 
-#: AKScheduling/views.py:172
+#: AKScheduling/views.py:224
 #, python-brace-format
 msgid ""
 "The following {count} unscheduled slots of wishes will be deleted:\n"
@@ -235,15 +252,15 @@ msgstr ""
 "\n"
 " {slots}"
 
-#: AKScheduling/views.py:179
+#: AKScheduling/views.py:231
 msgid "Unscheduled slots for wishes successfully deleted"
 msgstr "Noch nicht geplante Slots für Wünsche erfolgreich gelöscht"
 
-#: AKScheduling/views.py:184
+#: AKScheduling/views.py:245
 msgid "Create default availabilities for AKs"
 msgstr "Standardverfügbarkeiten für AKs anlegen"
 
-#: AKScheduling/views.py:191
+#: AKScheduling/views.py:252
 #, python-brace-format
 msgid ""
 "The following {count} AKs don't have any availability information. Create "
@@ -256,12 +273,12 @@ msgstr ""
 "\n"
 " {aks}"
 
-#: AKScheduling/views.py:209
+#: AKScheduling/views.py:272
 #, python-brace-format
 msgid "Could not create default availabilities for AK: {ak}"
 msgstr "Konnte keine Verfügbarkeit anlegen für AK: {ak}"
 
-#: AKScheduling/views.py:214
+#: AKScheduling/views.py:277
 #, python-brace-format
 msgid "Created default availabilities for {count} AKs"
 msgstr "Standardverfügbarkeiten für {count} AKs angelegt"
