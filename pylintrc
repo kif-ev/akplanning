@@ -72,3 +72,5 @@ defining-attr-methods=__init__,__new__,setUp
 [DESIGN]
 
 max-parents=15
+
+max-args=8
