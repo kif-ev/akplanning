@@ -18,7 +18,7 @@ mysqlclient==2.2.0  # for production deployment
 tzdata==2023.3
 
 # Documentation
-sphinxcontrib-django==2.3
+sphinxcontrib-django==2.5
 sphinxcontrib-apidoc==0.3.0
 recommonmark==0.7.1
 django-docs==0.3.3
