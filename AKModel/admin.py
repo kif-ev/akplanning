@@ -422,8 +422,8 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
         :rtype: str
         """
         if apps.is_installed("AKSubmission") and akslot.ak is not None:
-            link = f"<a href={{ akslot.detail_url }}>{str(akslot.ak)}</a>"
-            return mark_safe(link)
+            link = f"<a href='{ akslot.ak.detail_url }'>{str(akslot.ak)}</a>"
+            return mark_safe(str(link))
         return "-"
 
     ak_details_link.short_description = _('AK Details')
