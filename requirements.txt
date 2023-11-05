@@ -6,7 +6,7 @@ django-split-settings==1.2.0
 django-timezone-field==6.0.1
 djangorestframework==3.14.0
 django-simple-history==3.4.0
-django-registration-redux==2.12
+django-registration-redux==2.13
 django-debug-toolbar==4.2.0
 django-bootstrap-datepicker-plus==5.0.4
 django-tex==1.1.10
