@@ -23,4 +23,4 @@ sphinxcontrib-apidoc==0.3.0
 recommonmark==0.7.1
 django-docs==0.3.3
 sphinx-rtd-theme==1.2.2
-sphinx==6.2.1
+sphinx==7.2.6
