@@ -1,5 +1,4 @@
 from django.apps import apps
-from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import TemplateView, DetailView
@@ -10,6 +9,11 @@ from AKPlanning import settings
 
 
 class DashboardView(TemplateView):
+    """
+    Index view of dashboard and therefore the main entry point for AKPlanning
+
+    Displays information and buttons for all public events
+    """
     template_name = 'AKDashboard/dashboard.html'
 
     @method_decorator(ensure_csrf_cookie)
@@ -23,6 +27,14 @@ class DashboardView(TemplateView):
 
 
 class DashboardEventView(DetailView):
+    """
+    Dashboard view for a single event
+
+    In addition to the basic information and the buttons,
+    an overview over recent events (new and changed AKs, moved AKSlots) for the given event is shown.
+
+    The event dashboard also exists for non-public events (one only needs to know the URL/slug of the event).
+    """
     template_name = 'AKDashboard/dashboard_event.html'
     context_object_name = 'event'
     model = Event
@@ -32,11 +44,16 @@ class DashboardEventView(DetailView):
 
         # Show feed of recent changes (if activated)
         if settings.DASHBOARD_SHOW_RECENT:
+            # Create a list of chronically sorted events (both AK and plan changes):
             recent_changes = []
 
-            # Newest AKs
+            # Newest AKs (if AKSubmission is used)
             if apps.is_installed("AKSubmission"):
-                submission_changes = AK.history.filter(event=context['event'])[:int(settings.DASHBOARD_RECENT_MAX)]
+                # Get the latest x changes (if there are that many),
+                # where x corresponds to the entry threshold configured in the settings
+                # (such that the list will be completely filled even if there are no (newer) plan changes)
+                submission_changes = AK.history.filter(event=context['event'])[:int(settings.DASHBOARD_RECENT_MAX)] # pylint: disable=no-member, line-too-long
+                # Create textual representation including icons
                 for s in submission_changes:
                     if s.history_type == '+':
                         text = _('New AK: %(ak)s.') % {'ak': s.name}
@@ -48,18 +65,21 @@ class DashboardEventView(DetailView):
                         text = _('AK "%(ak)s" deleted.') % {'ak': s.name}
                         icon = ('times', 'fas')
 
-                    recent_changes.append({'icon': icon, 'text': text, 'link': s.instance.detail_url, 'timestamp': s.history_date})
+                    # Store representation in change list (still unsorted)
+                    recent_changes.append(
+                        {'icon': icon, 'text': text, 'link': s.instance.detail_url, 'timestamp': s.history_date}
+                    )
 
-            # Changes in plan
-            if apps.is_installed("AKPlan"):
-                if not context['event'].plan_hidden:
-                    last_changed_slots = AKSlot.objects.select_related('ak').filter(event=context['event'], start__isnull=False).order_by('-updated')[
-                                         :int(settings.DASHBOARD_RECENT_MAX)]
-                    for changed_slot in last_changed_slots:
-                        recent_changes.append({'icon': ('clock', 'far'),
-                                               'text': _('AK "%(ak)s" (re-)scheduled.') % {'ak': changed_slot.ak.name},
-                                               'link': changed_slot.ak.detail_url,
-                                               'timestamp': changed_slot.updated})
+            # Changes in plan (if AKPlan is used and plan is publicly visible)
+            if apps.is_installed("AKPlan") and not context['event'].plan_hidden:
+                # Get the latest plan changes (again using a threshold, see above)
+                last_changed_slots = AKSlot.objects.select_related('ak').filter(event=context['event'], start__isnull=False).order_by('-updated')[:int(settings.DASHBOARD_RECENT_MAX)] #pylint: disable=line-too-long
+                for changed_slot in last_changed_slots:
+                    # Create textual representation including icons and links and store in list (still unsorted)
+                    recent_changes.append({'icon': ('clock', 'far'),
+                                           'text': _('AK "%(ak)s" (re-)scheduled.') % {'ak': changed_slot.ak.name},
+                                           'link': changed_slot.ak.detail_url,
+                                           'timestamp': changed_slot.updated})
 
             # Sort by change date...
             recent_changes.sort(key=lambda x: x['timestamp'], reverse=True)

@@ -16,3 +16,11 @@ django-libsass==0.9
 django-betterforms==2.0.0
 mysqlclient==2.2.0  # for production deployment
 tzdata==2023.3
+
+# Documentation
+sphinxcontrib-django==2.3
+sphinxcontrib-apidoc==0.3.0
+recommonmark==0.7.1
+django-docs==0.3.3
+sphinx-rtd-theme==1.2.2
+sphinx==6.2.1

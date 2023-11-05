@@ -4,12 +4,15 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.metaviews import status_manager
-from AKModel.metaviews.admin import EventSlugMixin, AdminViewMixin
+from AKModel.metaviews.admin import EventSlugMixin
 from AKModel.metaviews.status import TemplateStatusWidget, StatusView
 
 
 @status_manager.register(name="event_overview")
 class EventOverviewWidget(TemplateStatusWidget):
+    """
+    Status page widget: Event overview
+    """
     required_context_type = "event"
     title = _("Overview")
     template_name = "admin/AKModel/status/event_overview.html"
@@ -20,6 +23,12 @@ class EventOverviewWidget(TemplateStatusWidget):
 
 @status_manager.register(name="event_categories")
 class EventCategoriesWidget(TemplateStatusWidget):
+    """
+    Status page widget: Category information
+
+    Show all categories of the event together with the number of AKs belonging to this category.
+    Offers an action to add a new category.
+    """
     required_context_type = "event"
     title = _("Categories")
     template_name = "admin/AKModel/status/event_categories.html"
@@ -31,7 +40,8 @@ class EventCategoriesWidget(TemplateStatusWidget):
     ]
 
     def render_title(self, context: {}) -> str:
-        self.category_count = context['event'].akcategory_set.count()
+        # Store category count as instance variable for re-use in body
+        self.category_count = context['event'].akcategory_set.count()  # pylint: disable=attribute-defined-outside-init
         return f"{super().render_title(context)} ({self.category_count})"
 
     def render_status(self, context: {}) -> str:
@@ -40,6 +50,12 @@ class EventCategoriesWidget(TemplateStatusWidget):
 
 @status_manager.register(name="event_rooms")
 class EventRoomsWidget(TemplateStatusWidget):
+    """
+    Status page widget: Category information
+
+    Show all rooms of the event.
+    Offers actions to add a single new room as well as for batch creation.
+    """
     required_context_type = "event"
     title = _("Rooms")
     template_name = "admin/AKModel/status/event_rooms.html"
@@ -51,7 +67,8 @@ class EventRoomsWidget(TemplateStatusWidget):
     ]
 
     def render_title(self, context: {}) -> str:
-        self.room_count = context['event'].room_set.count()
+        # Store room count as instance variable for re-use in body
+        self.room_count = context['event'].room_set.count()  # pylint: disable=attribute-defined-outside-init
         return f"{super().render_title(context)} ({self.room_count})"
 
     def render_status(self, context: {}) -> str:
@@ -59,6 +76,7 @@ class EventRoomsWidget(TemplateStatusWidget):
 
     def render_actions(self, context: {}) -> list[dict]:
         actions = super().render_actions(context)
+        # Action has to be added here since it depends on the event for URL building
         actions.append(
             {
                 "text": _("Import Rooms from CSV"),
@@ -70,6 +88,12 @@ class EventRoomsWidget(TemplateStatusWidget):
 
 @status_manager.register(name="event_aks")
 class EventAKsWidget(TemplateStatusWidget):
+    """
+    Status page widget: AK information
+
+    Show information about the AKs of this event.
+    Offers a long list of AK-related actions and also scheduling actions of AKScheduling is active
+    """
     required_context_type = "event"
     title = _("AKs")
     template_name = "admin/AKModel/status/event_aks.html"
@@ -101,7 +125,9 @@ class EventAKsWidget(TemplateStatusWidget):
                 {
                     "text": _("Enter Interest"),
                     "url": reverse_lazy("admin:enter-interest",
-                            kwargs={"event_slug": context["event"].slug, "pk": context["event"].ak_set.all().first().pk}),
+                                        kwargs={"event_slug": context["event"].slug,
+                                                "pk": context["event"].ak_set.all().first().pk}
+                                        ),
                 },
             ])
         actions.extend([
@@ -132,11 +158,19 @@ class EventAKsWidget(TemplateStatusWidget):
 
 @status_manager.register(name="event_requirements")
 class EventRequirementsWidget(TemplateStatusWidget):
+    """
+    Status page widget: Requirement information information
+
+    Show information about the requirements of this event.
+    Offers actions to add new requirements or to get a list of AKs having a given requirement.
+    """
     required_context_type = "event"
     title = _("Requirements")
     template_name = "admin/AKModel/status/event_requirements.html"
 
     def render_title(self, context: {}) -> str:
+        # Store requirements count as instance variable for re-use in body
+        # pylint: disable=attribute-defined-outside-init
         self.requirements_count = context['event'].akrequirement_set.count()
         return f"{super().render_title(context)} ({self.requirements_count})"
 
@@ -154,6 +188,9 @@ class EventRequirementsWidget(TemplateStatusWidget):
 
 
 class EventStatusView(EventSlugMixin, StatusView):
+    """
+    View: Show a status dashboard for the given event
+    """
     title = _("Event Status")
     provided_context_type = "event"
 

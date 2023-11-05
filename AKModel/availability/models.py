@@ -23,6 +23,9 @@ zero_time = datetime.time(0, 0)
 # add meta class
 # enable availabilities for AKs and AKCategories
 # add verbose names and help texts to model attributes
+# adapt or extemd documentation
+
+
 class Availability(models.Model):
     """The Availability class models when people or rooms are available for.
 
@@ -31,6 +34,8 @@ class Availability(models.Model):
     span multiple days, but due to our choice of input widget, it will
     usually only span a single day at most.
     """
+    # pylint: disable=broad-exception-raised
+
     event = models.ForeignKey(
         to=Event,
         related_name='availabilities',
@@ -96,10 +101,10 @@ class Availability(models.Model):
         are the same.
         """
         return all(
-            [
+            (
                 getattr(self, attribute, None) == getattr(other, attribute, None)
                 for attribute in ['event', 'person', 'room', 'ak', 'ak_category', 'start', 'end']
-            ]
+            )
         )
 
     @cached_property
@@ -233,10 +238,28 @@ class Availability(models.Model):
 
     @property
     def simplified(self):
-        return f'{self.start.astimezone(self.event.timezone).strftime("%a %H:%M")}-{self.end.astimezone(self.event.timezone).strftime("%a %H:%M")}'
+        """
+        Get a simplified (only Weekday, hour and minute) string representation of an availability
+        :return: simplified string version
+        :rtype: str
+        """
+        return (f'{self.start.astimezone(self.event.timezone).strftime("%a %H:%M")}-'
+                f'{self.end.astimezone(self.event.timezone).strftime("%a %H:%M")}')
 
     @classmethod
     def with_event_length(cls, event, person=None, room=None, ak=None, ak_category=None):
+        """
+        Create an availability covering exactly the time between event start and event end.
+        Can e.g., be used to create default availabilities.
+
+        :param event: relevant event
+        :param person: person, if availability should be connected to a person
+        :param room: room, if availability should be connected to a room
+        :param ak: ak, if availability should be connected to a ak
+        :param ak_category: ak_category, if availability should be connected to a ak_category
+        :return: availability associated to the entity oder entities selected
+        :rtype: Availability
+        """
         timeframe_start = event.start  # adapt to our event model
         # add 1 day, not 24 hours, https://stackoverflow.com/a/25427822/2486196
         timeframe_end = event.end  # adapt to our event model

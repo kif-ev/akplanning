@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -11,6 +9,11 @@ from AKModel.metaviews.admin import FilterByEventSlugMixin
 
 
 class PlanIndexView(FilterByEventSlugMixin, ListView):
+    """
+    Default plan view
+
+    Shows two lists of current and upcoming AKs and a graphical full plan below
+    """
     model = AKSlot
     template_name = "AKPlan/plan_index.html"
     context_object_name = "akslots"
@@ -60,6 +63,15 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
 
 
 class PlanScreenView(PlanIndexView):
+    """
+    Plan view optimized for screens and projectors
+
+    This again shows current and upcoming AKs as well as a graphical plan,
+    but no navigation elements and trys to use the available space as best as possible
+    such that no scrolling is needed.
+
+    The view contains a frontend functionality for auto-reload.
+    """
     template_name = "AKPlan/plan_wall.html"
 
     def get(self, request, *args, **kwargs):
@@ -92,22 +104,34 @@ class PlanScreenView(PlanIndexView):
 
 
 class PlanRoomView(FilterByEventSlugMixin, DetailView):
+    """
+    Plan view for a single room
+    """
     template_name = "AKPlan/plan_room.html"
     model = Room
     context_object_name = "room"
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
+        # Restrict AKSlot list to the given room
+        # while joining AK, room and category information to reduce the amount of necessary SQL queries
         context["slots"] = AKSlot.objects.filter(room=context['room']).select_related('ak', 'ak__category', 'ak__track')
         return context
 
 
 class PlanTrackView(FilterByEventSlugMixin, DetailView):
+    """
+    Plan view for a single track
+    """
     template_name = "AKPlan/plan_track.html"
     model = AKTrack
     context_object_name = "track"
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
-        context["slots"] = AKSlot.objects.filter(event=self.event, ak__track=context['track']).select_related('ak', 'room', 'ak__category')
+        # Restrict AKSlot list to given track
+        # while joining AK, room and category information to reduce the amount of necessary SQL queries
+        context["slots"] = AKSlot.objects.\
+            filter(event=self.event, ak__track=context['track']).\
+            select_related('ak', 'room', 'ak__category')
         return context

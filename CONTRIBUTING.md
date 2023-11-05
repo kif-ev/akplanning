@@ -61,7 +61,7 @@ Provide more context by answering these questions:
 
 Include details about your configuration and environment:
 
-* **Which version (commit)) are you using?**
+* **Which version (commit) are you using?**
 * **What's the OS you're using**?
 
 ### Suggesting Enhancements

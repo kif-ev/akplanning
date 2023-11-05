@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-15 20:03+0200\n"
+"POT-Creation-Date: 2023-08-16 16:30+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,49 +17,22 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKSubmission/forms.py:71
+#: AKSubmission/forms.py:93
 #, python-format
 msgid "\"%(duration)s\" is not a valid duration"
 msgstr "\"%(duration)s\" ist keine gültige Dauer"
 
-#: AKSubmission/forms.py:117
+#: AKSubmission/forms.py:159
 msgid "Duration(s)"
 msgstr "Dauer(n)"
 
-#: AKSubmission/forms.py:119
+#: AKSubmission/forms.py:161
 msgid ""
 "Enter at least one planned duration (in hours). If your AK should have "
 "multiple slots, use multiple lines"
 msgstr ""
 "Mindestens eine geplante Dauer (in Stunden) angeben. Wenn der AK mehrere "
 "Slots haben soll, mehrere Zeilen verwenden"
-
-#: AKSubmission/forms.py:170
-#: AKSubmission/templates/AKSubmission/ak_detail.html:309
-msgid "Start"
-msgstr "Start"
-
-#: AKSubmission/forms.py:171
-#: AKSubmission/templates/AKSubmission/ak_detail.html:310
-msgid "End"
-msgstr "Ende"
-
-#: AKSubmission/forms.py:172
-#: AKSubmission/templates/AKSubmission/ak_detail.html:239
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:35
-msgid "Duration"
-msgstr "Dauer"
-
-#: AKSubmission/forms.py:173
-#: AKSubmission/templates/AKSubmission/ak_detail.html:241
-msgid "Room"
-msgstr "Raum"
-
-#: AKSubmission/forms.py:177
-#: AKSubmission/templates/AKSubmission/ak_history.html:11
-#: AKSubmission/templates/AKSubmission/akslot_delete.html:31
-msgid "AK"
-msgstr "AK"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:22
 #: AKSubmission/templates/AKSubmission/ak_edit.html:13
@@ -215,6 +188,15 @@ msgstr "Notizen"
 msgid "When?"
 msgstr "Wann?"
 
+#: AKSubmission/templates/AKSubmission/ak_detail.html:239
+#: AKSubmission/templates/AKSubmission/akslot_delete.html:35
+msgid "Duration"
+msgstr "Dauer"
+
+#: AKSubmission/templates/AKSubmission/ak_detail.html:241
+msgid "Room"
+msgstr "Raum"
+
 #: AKSubmission/templates/AKSubmission/ak_detail.html:272
 msgid "Delete"
 msgstr "Löschen"
@@ -230,6 +212,14 @@ msgstr "Einen neuen AK-Slot hinzufügen"
 #: AKSubmission/templates/AKSubmission/ak_detail.html:305
 msgid "Possible Times"
 msgstr "Mögliche Zeiten"
+
+#: AKSubmission/templates/AKSubmission/ak_detail.html:309
+msgid "Start"
+msgstr "Start"
+
+#: AKSubmission/templates/AKSubmission/ak_detail.html:310
+msgid "End"
+msgstr "Ende"
 
 #: AKSubmission/templates/AKSubmission/ak_edit.html:8
 #: AKSubmission/templates/AKSubmission/ak_history.html:11
@@ -260,6 +250,11 @@ msgstr ""
 "Person hinzufügen, die noch nicht in der Liste ist. Ungespeicherte "
 "Änderungen in diesem Formular gehen verloren."
 
+#: AKSubmission/templates/AKSubmission/ak_history.html:11
+#: AKSubmission/templates/AKSubmission/akslot_delete.html:31
+msgid "AK"
+msgstr "AK"
+
 #: AKSubmission/templates/AKSubmission/ak_history.html:27
 msgid "Back"
 msgstr "Zurück"
@@ -283,7 +278,7 @@ msgstr "Die Ergebnisse dieses AKs vorstellen"
 msgid "Intends to submit a resolution"
 msgstr "Beabsichtigt eine Resolution einzureichen"
 
-#: AKSubmission/templates/AKSubmission/ak_list.html:6 AKSubmission/views.py:42
+#: AKSubmission/templates/AKSubmission/ak_list.html:6 AKSubmission/views.py:84
 msgid "All AKs"
 msgstr "Alle AKs"
 
@@ -409,74 +404,74 @@ msgstr ""
 msgid "Submit"
 msgstr "Eintragen"
 
-#: AKSubmission/views.py:73
+#: AKSubmission/views.py:127
 msgid "Wishes"
 msgstr "Wünsche"
 
-#: AKSubmission/views.py:73
+#: AKSubmission/views.py:127
 msgid "AKs one would like to have"
 msgstr ""
 "AKs die sich gewünscht wurden, aber bei denen noch nicht klar ist, wer sie "
 "macht. Falls du dir das vorstellen kannst, trag dich einfach ein"
 
-#: AKSubmission/views.py:93
+#: AKSubmission/views.py:167
 msgid "Currently planned AKs"
 msgstr "Aktuell geplante AKs"
 
-#: AKSubmission/views.py:186
+#: AKSubmission/views.py:300
 msgid "Event inactive. Cannot create or update."
 msgstr "Event inaktiv. Hinzufügen/Bearbeiten nicht möglich."
 
-#: AKSubmission/views.py:202
+#: AKSubmission/views.py:325
 msgid "AK successfully created"
 msgstr "AK erfolgreich angelegt"
 
-#: AKSubmission/views.py:252
+#: AKSubmission/views.py:398
 msgid "AK successfully updated"
 msgstr "AK erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:290
+#: AKSubmission/views.py:449
 #, python-brace-format
 msgid "Added '{owner}' as new owner of '{ak.name}'"
 msgstr "'{owner}' als neue Leitung von '{ak.name}' hinzugefügt"
 
-#: AKSubmission/views.py:333
-msgid "Person Info successfully updated"
-msgstr "Personen-Info erfolgreich aktualisiert"
-
-#: AKSubmission/views.py:355
+#: AKSubmission/views.py:553
 msgid "No user selected"
 msgstr "Keine Person ausgewählt"
 
-#: AKSubmission/views.py:382
+#: AKSubmission/views.py:569
+msgid "Person Info successfully updated"
+msgstr "Personen-Info erfolgreich aktualisiert"
+
+#: AKSubmission/views.py:605
 msgid "AK Slot successfully added"
 msgstr "AK-Slot erfolgreich angelegt"
 
-#: AKSubmission/views.py:395
+#: AKSubmission/views.py:624
 msgid "You cannot edit a slot that has already been scheduled"
 msgstr "Bereits geplante AK-Slots können nicht mehr bearbeitet werden"
 
-#: AKSubmission/views.py:405
+#: AKSubmission/views.py:634
 msgid "AK Slot successfully updated"
 msgstr "AK-Slot erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:417
+#: AKSubmission/views.py:652
 msgid "You cannot delete a slot that has already been scheduled"
 msgstr "Bereits geplante AK-Slots können nicht mehr gelöscht werden"
 
-#: AKSubmission/views.py:427
+#: AKSubmission/views.py:662
 msgid "AK Slot successfully deleted"
 msgstr "AK-Slot erfolgreich angelegt"
 
-#: AKSubmission/views.py:434
+#: AKSubmission/views.py:674
 msgid "Messages"
 msgstr "Nachrichten"
 
-#: AKSubmission/views.py:444
+#: AKSubmission/views.py:684
 msgid "Delete all messages"
 msgstr "Alle Nachrichten löschen"
 
-#: AKSubmission/views.py:467
+#: AKSubmission/views.py:711
 msgid "Message to organizers successfully saved"
 msgstr "Nachricht an die Organisator*innen erfolgreich gespeichert"
 

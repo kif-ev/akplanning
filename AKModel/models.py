@@ -14,7 +14,8 @@ from timezone_field import TimeZoneField
 
 
 class Event(models.Model):
-    """ An event supplies the frame for all Aks.
+    """
+    An event supplies the frame for all Aks.
     """
     name = models.CharField(max_length=64, unique=True, verbose_name=_('Name'),
                             help_text=_('Name or iteration of the event'))
@@ -50,8 +51,8 @@ class Event(models.Model):
                                        help_text=_('Default length in hours that is assumed for AKs in this event.'))
 
     contact_email = models.EmailField(verbose_name=_("Contact email address"), blank=True,
-                                      help_text=_(
-                                          "An email address that is displayed on every page and can be used for all kinds of questions"))
+                                        help_text=_("An email address that is displayed on every page "
+                                                    "and can be used for all kinds of questions"))
 
     class Meta:
         verbose_name = _('Event')
@@ -63,25 +64,37 @@ class Event(models.Model):
 
     @staticmethod
     def get_by_slug(slug):
+        """
+        Get event by its slug
+
+        :param slug: slug of the event
+        :return: event identified by the slug
+        :rtype: Event
+        """
         return Event.objects.get(slug=slug)
 
     @staticmethod
     def get_next_active():
-        # Get first active event taking place
+        """
+        Get first active event taking place
+        :return: matching event (if any) or None
+        :rtype: Event
+        """
         event = Event.objects.filter(active=True).order_by('start').first()
         # No active event? Return the next event taking place
         if event is None:
             event = Event.objects.order_by('start').filter(start__gt=datetime.now()).first()
         return event
 
-    def get_categories_with_aks(self, wishes_seperately=False, filter=lambda ak: True, hide_empty_categories=False):
+    def get_categories_with_aks(self, wishes_seperately=False,
+                                filter_func=lambda ak: True, hide_empty_categories=False):
         """
         Get AKCategories as well as a list of AKs belonging to the category for this event
 
         :param wishes_seperately: Return wishes as individual list.
         :type wishes_seperately: bool
-        :param filter: Optional filter predicate, only include AK in list if filter returns True
-        :type filter: (AK)->bool
+        :param filter_func: Optional filter predicate, only include AK in list if filter returns True
+        :type filter_func: (AK)->bool
         :return: list of category-AK-list-tuples, optionally the additional list of AK wishes
         :rtype: list[(AKCategory, list[AK])] [, list[AK]]
         """
@@ -89,11 +102,26 @@ class Event(models.Model):
         categories_with_aks = []
         ak_wishes = []
 
+        # Fill lists by iterating
+        # A different behavior is needed depending on whether wishes should show up inside their categories
+        # or as a separate category
+
+        def _get_category_aks(category):
+            """
+            Get all AKs belonging to a category
+            Use joining and prefetching to reduce the number of necessary SQL queries
+
+            :param category: category the AKs should belong to
+            :return: QuerySet over AKs
+            :return: QuerySet[AK]
+            """
+            return category.ak_set.select_related('event').prefetch_related('owners', 'akslot_set').all()
+
         if wishes_seperately:
             for category in categories:
                 ak_list = []
-                for ak in category.ak_set.select_related('event').prefetch_related('owners', 'akslot_set').all():
-                    if filter(ak):
+                for ak in _get_category_aks(category):
+                    if filter_func(ak):
                         if ak.wish:
                             ak_wishes.append(ak)
                         else:
@@ -101,21 +129,36 @@ class Event(models.Model):
                 if not hide_empty_categories or len(ak_list) > 0:
                     categories_with_aks.append((category, ak_list))
             return categories_with_aks, ak_wishes
-        else:
-            for category in categories:
-                ak_list = []
-                for ak in category.ak_set.all():
-                    if filter(ak):
-                        ak_list.append(ak)
-                if not hide_empty_categories or len(ak_list) > 0:
-                    categories_with_aks.append((category, ak_list))
-            return categories_with_aks
+
+        for category in categories:
+            ak_list = []
+            for ak in _get_category_aks(category):
+                if filter_func(ak):
+                    ak_list.append(ak)
+            if not hide_empty_categories or len(ak_list) > 0:
+                categories_with_aks.append((category, ak_list))
+        return categories_with_aks
 
     def get_unscheduled_wish_slots(self):
+        """
+        Get all slots of wishes that are currently not scheduled
+        :return: queryset of theses slots
+        :rtype: QuerySet[AKSlot]
+        """
         return self.akslot_set.filter(start__isnull=True).annotate(Count('ak__owners')).filter(ak__owners__count=0)
 
     def get_aks_without_availabilities(self):
-        return self.ak_set.annotate(Count('availabilities', distinct=True)).annotate(Count('owners', distinct=True)).filter(availabilities__count=0, owners__count__gt=0)
+        """
+        Gt all AKs that don't have any availability at all
+
+        :return: generator over these AKs
+        :rtype: Generator[AK]
+        """
+        return (self.ak_set
+                .annotate(Count('availabilities', distinct=True))
+                .annotate(Count('owners', distinct=True))
+                .filter(availabilities__count=0, owners__count__gt=0)
+                )
 
 
 class AKOwner(models.Model):
@@ -141,21 +184,34 @@ class AKOwner(models.Model):
         return self.name
 
     def _generate_slug(self):
+        """
+        Auto-generate a slug for an owner
+        This will start with a very simple slug (the name truncated to a maximum length) and then gradually produce
+        more complicated slugs when the previous candidates are already used
+
+        :return: the slug
+        :rtype: str
+        """
         max_length = self._meta.get_field('slug').max_length
 
+        # Try name alone (truncated if necessary)
         slug_candidate = slugify(self.name)[:max_length]
         if not AKOwner.objects.filter(event=self.event, slug=slug_candidate).exists():
             self.slug = slug_candidate
             return
+
+        # Try name and institution separated by '_' (truncated if necessary)
         slug_candidate = slugify(slug_candidate + '_' + self.institution)[:max_length]
         if not AKOwner.objects.filter(event=self.event, slug=slug_candidate).exists():
             self.slug = slug_candidate
             return
+
+        # Try name + institution + an incrementing digit
         for i in itertools.count(1):
             if not AKOwner.objects.filter(event=self.event, slug=slug_candidate).exists():
                 break
             digits = len(str(i))
-            slug_candidate = '{}-{}'.format(slug_candidate[:-(digits + 1)], i)
+            slug_candidate = f'{slug_candidate[:-(digits + 1)]}-{i}'
 
         self.slug = slug_candidate
 
@@ -167,6 +223,15 @@ class AKOwner(models.Model):
 
     @staticmethod
     def get_by_slug(event, slug):
+        """
+        Get owner by slug
+        Will be identified by the combination of event slug and owner slug which is unique
+
+        :param event: event
+        :param slug: slug of the owner
+        :return: owner identified by slugs
+        :rtype: AKOwner
+        """
         return AKOwner.objects.get(event=event, slug=slug)
 
 
@@ -178,8 +243,8 @@ class AKCategory(models.Model):
     description = models.TextField(blank=True, verbose_name=_("Description"),
                                    help_text=_("Short description of this AK Category"))
     present_by_default = models.BooleanField(blank=True, default=True, verbose_name=_("Present by default"),
-                                             help_text=_(
-                                                 "Present AKs of this category by default if AK owner did not specify whether this AK should be presented?"))
+                                             help_text=_("Present AKs of this category by default "
+                                                 "if AK owner did not specify whether this AK should be presented?"))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
@@ -213,6 +278,11 @@ class AKTrack(models.Model):
         return self.name
 
     def aks_with_category(self):
+        """
+        Get all AKs that belong to this track with category already joined to prevent additional SQL queries
+        :return: queryset over the AKs
+        :rtype: QuerySet[AK]
+        """
         return self.ak_set.select_related('category').all()
 
 
@@ -268,7 +338,8 @@ class AK(models.Model):
                                            help_text=_('AKs that should precede this AK in the schedule'))
 
     notes = models.TextField(blank=True, verbose_name=_('Organizational Notes'), help_text=_(
-        'Notes to organizers. These are public. For private notes, please use the button for private messages on the detail page of this AK (after creation/editing).'))
+        'Notes to organizers. These are public. For private notes, please use the button for private messages '
+        'on the detail page of this AK (after creation/editing).'))
 
     interest = models.IntegerField(default=-1, verbose_name=_('Interest'), help_text=_('Expected number of people'))
     interest_counter = models.IntegerField(default=0, verbose_name=_('Interest Counter'),
@@ -295,8 +366,16 @@ class AK(models.Model):
 
     @property
     def details(self):
+        """
+        Generate a detailled string representation, e.g., for usage in scheduling
+        :return: string representation of that AK with all details
+        :rtype: str
+        """
+        # local import to prevent cyclic import
+        # pylint: disable=import-outside-toplevel
         from AKModel.availability.models import Availability
-        availabilities = ', \n'.join(f'{a.simplified}' for a in Availability.objects.select_related('event').filter(ak=self))
+        availabilities = ', \n'.join(f'{a.simplified}' for a in Availability.objects.select_related('event')
+                                     .filter(ak=self))
         return f"""{self.name}{" (R)" if self.reso else ""}:
         
         {self.owners_list}
@@ -309,34 +388,74 @@ class AK(models.Model):
 
     @property
     def owners_list(self):
+        """
+        Get a list of stringified representations of all owners
+
+        :return: list of owners
+        :rtype: List[str]
+        """
         return ", ".join(str(owner) for owner in self.owners.all())
 
     @property
     def durations_list(self):
+        """
+        Get a list of stringified representations of all durations of associated slots
+
+        :return: list of durations
+        :rtype: List[str]
+        """
         return ", ".join(str(slot.duration_simplified) for slot in self.akslot_set.select_related('event').all())
 
     @property
     def wish(self):
+        """
+        Is the AK a wish?
+        :return: true if wish, false if not
+        :rtype: bool
+        """
         return self.owners.count() == 0
 
     def increment_interest(self):
+        """
+        Increment the interest counter for this AK by one
+        without tracking that change to prevent an unreadable and large history
+        """
         self.interest_counter += 1
-        self.skip_history_when_saving = True
+        self.skip_history_when_saving = True  # pylint: disable=attribute-defined-outside-init
         self.save()
         del self.skip_history_when_saving
 
     @property
     def availabilities(self):
+        """
+        Get all availabilities associated to this AK
+        :return: availabilities
+        :rtype: QuerySet[Availability]
+        """
         return "Availability".objects.filter(ak=self)
 
     @property
     def edit_url(self):
+        """
+        Get edit URL for this AK
+        Will link to frontend if AKSubmission is active, otherwise to the edit view for this object in admin interface
+
+        :return: URL
+        :rtype: str
+        """
         if apps.is_installed("AKSubmission"):
             return reverse_lazy('submit:ak_edit', kwargs={'event_slug': self.event.slug, 'pk': self.id})
         return reverse_lazy('admin:AKModel_ak_change', kwargs={'object_id': self.id})
 
     @property
     def detail_url(self):
+        """
+        Get detail URL for this AK
+        Will link to frontend if AKSubmission is active, otherwise to the edit view for this object in admin interface
+
+        :return: URL
+        :rtype: str
+        """
         if apps.is_installed("AKSubmission"):
             return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.event.slug, 'pk': self.id})
         return self.edit_url
@@ -364,6 +483,12 @@ class Room(models.Model):
 
     @property
     def title(self):
+        """
+        Get title of a room, which consists of location and name if location is set, otherwise only the name
+
+        :return: title
+        :rtype: str
+        """
         if self.location:
             return f"{self.location} {self.name}"
         return self.name
@@ -429,7 +554,8 @@ class AKSlot(models.Model):
         start = self.start.astimezone(self.event.timezone)
         end = self.end.astimezone(self.event.timezone)
 
-        return f"{start.strftime('%a %H:%M')} - {end.strftime('%H:%M') if start.day == end.day else end.strftime('%a %H:%M')}"
+        return (f"{start.strftime('%a %H:%M')} - "
+                f"{end.strftime('%H:%M') if start.day == end.day else end.strftime('%a %H:%M')}")
 
     @property
     def end(self):
@@ -448,10 +574,20 @@ class AKSlot(models.Model):
         return (timezone.now() - self.updated).total_seconds()
 
     def overlaps(self, other: "AKSlot"):
+        """
+        Check wether two slots overlap
+
+        :param other: second slot to compare with
+        :return: true if they overlap, false if not:
+        :rtype: bool
+        """
         return self.start < other.end <= self.end or self.start <= other.start < self.end
 
 
 class AKOrgaMessage(models.Model):
+    """
+    Model representing confidential messages to the organizers/scheduling people, belonging to a certain AK
+    """
     ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'),
                            help_text=_('AK this message belongs to'))
     text = models.TextField(verbose_name=_("Message text"),
@@ -470,12 +606,23 @@ class AKOrgaMessage(models.Model):
 
 
 class ConstraintViolation(models.Model):
+    """
+    Model to represent any kind of constraint violation
+
+    Can have two different severities: violation and warning
+    The list of possible types is defined in :class:`ViolationType`
+    Depending on the type, different fields (references to other models) will be filled. Each violation should always
+    be related to an event and at least on other instance of a causing entity
+    """
     class Meta:
         verbose_name = _('Constraint Violation')
         verbose_name_plural = _('Constraint Violations')
         ordering = ['-timestamp']
 
     class ViolationType(models.TextChoices):
+        """
+        Possible types of violations with their text representation
+        """
         OWNER_TWO_SLOTS = 'ots', _('Owner has two parallel slots')
         SLOT_OUTSIDE_AVAIL = 'soa', _('AK Slot was scheduled outside the AK\'s availabilities')
         ROOM_TWO_SLOTS = 'rts', _('Room has two AK slots scheduled at the same time')
@@ -490,6 +637,9 @@ class ConstraintViolation(models.Model):
         SLOT_OUTSIDE_EVENT = 'soe', _('AK Slot is scheduled outside the event\'s availabilities')
 
     class ViolationLevel(models.IntegerChoices):
+        """
+        Possible severities/levels of a CV
+        """
         WARNING = 1, _('Warning')
         VIOLATION = 10, _('Violation')
 
@@ -501,6 +651,7 @@ class ConstraintViolation(models.Model):
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
+    # Possible "causes":
     aks = models.ManyToManyField(to=AK, blank=True, verbose_name=_('AKs'),
                                  help_text=_('AK(s) belonging to this constraint'))
     ak_slots = models.ManyToManyField(to=AKSlot, blank=True, verbose_name=_('AK Slots'),
@@ -551,22 +702,37 @@ class ConstraintViolation(models.Model):
 
     @property
     def details(self):
+        """
+        Property: Details
+        """
         return self.get_details()
 
     @property
-    def edit_url(self):
+    def edit_url(self) -> str:
+        """
+        Property: Edit URL for this CV
+        """
         return reverse_lazy('admin:AKModel_constraintviolation_change', kwargs={'object_id': self.pk})
 
     @property
-    def level_display(self):
+    def level_display(self) -> str:
+        """
+        Property: Severity as string
+        """
         return self.get_level_display()
 
     @property
-    def type_display(self):
+    def type_display(self) -> str:
+        """
+        Property: Type as string
+        """
         return self.get_type_display()
 
     @property
-    def timestamp_display(self):
+    def timestamp_display(self) -> str:
+        """
+        Property: Creation timestamp as string
+        """
         return self.timestamp.astimezone(self.event.timezone).strftime('%d.%m.%y %H:%M')
 
     @property
@@ -585,7 +751,10 @@ class ConstraintViolation(models.Model):
         return self.aks_tmp
 
     @property
-    def _aks_str(self):
+    def _aks_str(self) -> str:
+        """
+        Property: AKs as string
+        """
         if self.pk and self.pk > 0:
             return ', '.join(str(a) for a in self.aks.all())
         return ', '.join(str(a) for a in self.aks_tmp)
@@ -606,7 +775,10 @@ class ConstraintViolation(models.Model):
         return self.ak_slots_tmp
 
     @property
-    def _ak_slots_str(self):
+    def _ak_slots_str(self) -> str:
+        """
+        Property: Slots as string
+        """
         if self.pk and self.pk > 0:
             return ', '.join(str(a) for a in self.ak_slots.select_related('event').all())
         return ', '.join(str(a) for a in self.ak_slots_tmp)
@@ -655,6 +827,10 @@ class ConstraintViolation(models.Model):
 
 
 class DefaultSlot(models.Model):
+    """
+    Model representing a default slot,
+    i.e., a prefered slot to use for typical AKs in the schedule to guarantee enough breaks etc.
+    """
     class Meta:
         verbose_name = _('Default Slot')
         verbose_name_plural = _('Default Slots')
@@ -670,19 +846,31 @@ class DefaultSlot(models.Model):
                                             help_text=_('Categories that should be assigned to this slot primarily'))
 
     @property
-    def start_simplified(self):
+    def start_simplified(self) -> str:
+        """
+        Property: Simplified version of the start timetstamp (weekday, hour, minute) as string
+        """
         return self.start.astimezone(self.event.timezone).strftime('%a %H:%M')
 
     @property
-    def start_iso(self):
+    def start_iso(self) -> str:
+        """
+        Property: Start timestamp as ISO timestamp for usage in calendar views
+        """
         return timezone.localtime(self.start, self.event.timezone).strftime("%Y-%m-%dT%H:%M:%S")
 
     @property
-    def end_simplified(self):
+    def end_simplified(self) -> str:
+        """
+        Property: Simplified version of the end timetstamp (weekday, hour, minute) as string
+        """
         return self.end.astimezone(self.event.timezone).strftime('%a %H:%M')
 
     @property
-    def end_iso(self):
+    def end_iso(self) -> str:
+        """
+        Property: End timestamp as ISO timestamp for usage in calendar views
+        """
         return timezone.localtime(self.end, self.event.timezone).strftime("%Y-%m-%dT%H:%M:%S")
 
     def __str__(self):

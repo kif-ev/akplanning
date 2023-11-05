@@ -1,9 +1,15 @@
+# This file mainly contains signal receivers, which follow a very strong interface, having e.g., a sender attribute
+# that is hardly used by us. Nevertheless, to follow the django receiver coding style and since changes might
+# cause issues when loading fixtures or model dumps, it is not wise to replace that attribute with "_".
+# Therefore, the check that finds unused arguments is disabled for this whole file:
+# pylint: disable=unused-argument
+
 from django.db.models.signals import post_save, m2m_changed, pre_delete
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.models import Availability
-from AKModel.models import AK, AKSlot, Room, Event, AKOwner, ConstraintViolation
+from AKModel.models import AK, AKSlot, Room, Event, ConstraintViolation
 
 
 def update_constraint_violations(new_violations, existing_violations_to_check):
@@ -43,11 +49,15 @@ def update_cv_reso_deadline_for_slot(slot):
     :type slot: AKSlot
     """
     event = slot.event
+
+    # Update only if reso_deadline exists
+    # if event was changed and reso_deadline is removed, CVs will be deleted by event changed handler
+    # Update only has to be done for already scheduled slots with reso intention
     if slot.ak.reso and slot.event.reso_deadline and slot.start:
-        # Update only if reso_deadline exists
-        # if event was changed and reso_deadline is removed, CVs will be deleted by event changed handler
         violation_type = ConstraintViolation.ViolationType.AK_AFTER_RESODEADLINE
         new_violations = []
+
+        # Violation?
         if slot.end > event.reso_deadline:
             c = ConstraintViolation(
                 type=violation_type,
@@ -69,38 +79,47 @@ def check_capacity_for_slot(slot: AKSlot):
     :return: Violation (if any) or None
     :rtype: ConstraintViolation or None
     """
-    if slot.room:
-        if slot.room.capacity >= 0:
-            if slot.room.capacity < slot.ak.interest:
-                c = ConstraintViolation(
-                    type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED,
-                    level=ConstraintViolation.ViolationLevel.VIOLATION,
-                    event=slot.event,
-                    room=slot.room,
-                    comment=_("Not enough space for AK interest (Interest: %(interest)d, Capacity: %(capacity)d)")
-                            % {'interest': slot.ak.interest, 'capacity': slot.room.capacity},
-                )
-                c.ak_slots_tmp.add(slot)
-                c.aks_tmp.add(slot.ak)
-                return c
-            elif slot.room.capacity < slot.ak.interest + 5 or slot.room.capacity < slot.ak.interest * 1.25:
-                c = ConstraintViolation(
-                    type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED,
-                    level=ConstraintViolation.ViolationLevel.WARNING,
-                    event=slot.event,
-                    room=slot.room,
-                    comment=_("Space is too close to AK interest (Interest: %(interest)d, Capacity: %(capacity)d)")
-                            % {'interest': slot.ak.interest, 'capacity': slot.room.capacity}
-                )
-                c.ak_slots_tmp.add(slot)
-                c.aks_tmp.add(slot.ak)
-                return c
-        return None
+
+    # If slot is scheduled in a room
+    if slot.room and slot.room.capacity >= 0:
+        # Create a violation if interest exceeds room capacity
+        if slot.room.capacity < slot.ak.interest:
+            c = ConstraintViolation(
+                type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED,
+                level=ConstraintViolation.ViolationLevel.VIOLATION,
+                event=slot.event,
+                room=slot.room,
+                comment=_("Not enough space for AK interest (Interest: %(interest)d, Capacity: %(capacity)d)")
+                        % {'interest': slot.ak.interest, 'capacity': slot.room.capacity},
+            )
+            c.ak_slots_tmp.add(slot)
+            c.aks_tmp.add(slot.ak)
+            return c
+
+        # Create a warning if interest is close to room capacity
+        if slot.room.capacity < slot.ak.interest + 5 or slot.room.capacity < slot.ak.interest * 1.25:
+            c = ConstraintViolation(
+                type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED,
+                level=ConstraintViolation.ViolationLevel.WARNING,
+                event=slot.event,
+                room=slot.room,
+                comment=_("Space is too close to AK interest (Interest: %(interest)d, Capacity: %(capacity)d)")
+                        % {'interest': slot.ak.interest, 'capacity': slot.room.capacity}
+            )
+            c.ak_slots_tmp.add(slot)
+            c.aks_tmp.add(slot.ak)
+            return c
+
+    return None
 
 
 @receiver(post_save, sender=AK)
 def ak_changed_handler(sender, instance: AK, **kwargs):
-    # Changes might affect: Reso intention, Category, Interest
+    """
+    Signal receiver: Check for violations after AK changed
+
+    Changes might affect: Reso intention, Category, Interest
+    """
     # TODO Reso intention changes
 
     # Check room capacities
@@ -118,13 +137,11 @@ def ak_changed_handler(sender, instance: AK, **kwargs):
 @receiver(m2m_changed, sender=AK.owners.through)
 def ak_owners_changed_handler(sender, instance: AK, action: str, **kwargs):
     """
-    Owners of AK changed
+    Signal receiver: Owners of AK changed
     """
     # Only signal after change (post_add, post_delete, post_clear) are relevant
     if not action.startswith("post"):
         return
-
-    # print(f"{instance} changed")
 
     event = instance.event
 
@@ -157,8 +174,6 @@ def ak_owners_changed_handler(sender, instance: AK, action: str, **kwargs):
                             c.ak_slots_tmp.add(other_slot)
                             new_violations.append(c)
 
-        #print(f"{owner} has the following conflicts: {new_violations}")
-
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
     existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
@@ -169,13 +184,11 @@ def ak_owners_changed_handler(sender, instance: AK, action: str, **kwargs):
 @receiver(m2m_changed, sender=AK.conflicts.through)
 def ak_conflicts_changed_handler(sender, instance: AK, action: str, **kwargs):
     """
-    Conflicts of AK changed
+    Signal receiver: Conflicts of AK changed
     """
     # Only signal after change (post_add, post_delete, post_clear) are relevant
     if not action.startswith("post"):
         return
-
-    # print(f"{instance} changed")
 
     event = instance.event
 
@@ -186,6 +199,7 @@ def ak_conflicts_changed_handler(sender, instance: AK, action: str, **kwargs):
     slots_of_this_ak: [AKSlot] = instance.akslot_set.filter(start__isnull=False)
     conflicts_of_this_ak: [AK] = instance.conflicts.all()
 
+    # Loop over all existing conflicts
     for ak in conflicts_of_this_ak:
         if ak != instance:
             for other_slot in ak.akslot_set.filter(start__isnull=False):
@@ -203,8 +217,6 @@ def ak_conflicts_changed_handler(sender, instance: AK, action: str, **kwargs):
                         c.ak_slots_tmp.add(other_slot)
                         new_violations.append(c)
 
-        # print(f"{instance} has the following conflicts: {new_violations}")
-
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
     existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
@@ -215,23 +227,22 @@ def ak_conflicts_changed_handler(sender, instance: AK, action: str, **kwargs):
 @receiver(m2m_changed, sender=AK.prerequisites.through)
 def ak_prerequisites_changed_handler(sender, instance: AK, action: str, **kwargs):
     """
-    Prerequisites of AK changed
+    Signal receiver: Prerequisites of AK changed
     """
     # Only signal after change (post_add, post_delete, post_clear) are relevant
     if not action.startswith("post"):
         return
 
-    # print(f"{instance} changed")
-
     event = instance.event
 
-    # Conflict(s) changed: Might affect multiple AKs that are conflicts of each other
+    # Prerequisite(s) changed: Might affect multiple AKs that should have a certain order
     violation_type = ConstraintViolation.ViolationType.AK_BEFORE_PREREQUISITE
     new_violations = []
 
     slots_of_this_ak: [AKSlot] = instance.akslot_set.filter(start__isnull=False)
     prerequisites_of_this_ak: [AK] = instance.prerequisites.all()
 
+    # Loop over all prerequisites
     for ak in prerequisites_of_this_ak:
         if ak != instance:
             for other_slot in ak.akslot_set.filter(start__isnull=False):
@@ -249,8 +260,6 @@ def ak_prerequisites_changed_handler(sender, instance: AK, action: str, **kwargs
                         c.ak_slots_tmp.add(other_slot)
                         new_violations.append(c)
 
-        # print(f"{instance} has the following conflicts: {new_violations}")
-
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
     existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
@@ -261,13 +270,11 @@ def ak_prerequisites_changed_handler(sender, instance: AK, action: str, **kwargs
 @receiver(m2m_changed, sender=AK.requirements.through)
 def ak_requirements_changed_handler(sender, instance: AK, action: str, **kwargs):
     """
-    Requirements of AK changed
+    Signal receiver: Requirements of AK changed
     """
     # Only signal after change (post_add, post_delete, post_clear) are relevant
     if not action.startswith("post"):
         return
-
-    # print(f"{instance} changed")
 
     event = instance.event
 
@@ -298,8 +305,6 @@ def ak_requirements_changed_handler(sender, instance: AK, action: str, **kwargs)
                 c.ak_slots_tmp.add(slot)
                 new_violations.append(c)
 
-    # print(f"{instance} has the following conflicts: {new_violations}")
-
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
     existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
@@ -309,8 +314,13 @@ def ak_requirements_changed_handler(sender, instance: AK, action: str, **kwargs)
 
 @receiver(post_save, sender=AKSlot)
 def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
-    # Changes might affect: Duplicate parallel, Two in room, Resodeadline
-    # print(f"{sender} changed")
+    """
+    Signal receiver: AKSlot changed
+
+    Changes might affect: Duplicate parallel, Two in room, Resodeadline
+    """
+    # TODO Consider rewriting this very long and complex method to resolve several (style) issues:
+    # pylint: disable=too-many-nested-blocks,too-many-locals,too-many-branches,too-many-statements
     event = instance.event
 
     # == Check for two parallel slots by one of the owners ==
@@ -341,8 +351,6 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                             c.ak_slots_tmp.add(other_slot)
                             new_violations.append(c)
 
-            # print(f"{owner} has the following conflicts: {new_violations}")
-
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
     existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
@@ -372,8 +380,6 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                     c.ak_slots_tmp.add(instance)
                     c.ak_slots_tmp.add(other_slot)
                     new_violations.append(c)
-
-        # print(f"Multiple slots in room {instance.room}: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the slot that was recently changed (important!)
@@ -437,8 +443,6 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
             c.ak_slots_tmp.add(instance)
             new_violations.append(c)
 
-    # print(f"{instance.ak} has the following slots outside availabilities: {new_violations}")
-
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
     existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
@@ -470,8 +474,6 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                 c.ak_slots_tmp.add(instance)
                 new_violations.append(c)
 
-    # print(f"{instance} has the following conflicts: {new_violations}")
-
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
     existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
@@ -501,8 +503,6 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                         c.ak_slots_tmp.add(instance)
                         c.ak_slots_tmp.add(other_slot)
                         new_violations.append(c)
-
-            # print(f"{instance} has the following conflicts: {new_violations}")
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -534,8 +534,6 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                         c.ak_slots_tmp.add(other_slot)
                         new_violations.append(c)
 
-            # print(f"{instance} has the following conflicts: {new_violations}")
-
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
     existing_violations_to_check = list(instance.ak.constraintviolation_set.filter(type=violation_type))
@@ -547,15 +545,21 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     new_violations = [cv] if cv is not None else []
 
     # Compare to/update list of existing violations of this type for this slot
-    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED))
+    existing_violations_to_check = list(
+        instance.constraintviolation_set.filter(type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED)
+    )
     update_constraint_violations(new_violations, existing_violations_to_check)
 
 
 @receiver(pre_delete, sender=AKSlot)
 def akslot_deleted_handler(sender, instance: AKSlot, **kwargs):
-    # Manually clean up or remove constraint violations that belong to this slot since there is no cascade deletion
-    # for many2many relationships. Explicitly listening for AK deletion signals is not necessary since they will
-    # transitively trigger this signal and we always set both AK and AKSlot references in a constraint violation
+    """
+    Signal receiver: AKSlot deleted
+
+    Manually clean up or remove constraint violations that belong to this slot since there is no cascade deletion
+    for many2many relationships. Explicitly listening for AK deletion signals is not necessary since they will
+    transitively trigger this signal and we always set both AK and AKSlot references in a constraint violation
+    """
     # print(f"{instance} deleted")
 
     for cv in instance.constraintviolation_set.all():
@@ -566,8 +570,11 @@ def akslot_deleted_handler(sender, instance: AKSlot, **kwargs):
 
 @receiver(post_save, sender=Room)
 def room_changed_handler(sender, instance: Room, **kwargs):
-    # Changes might affect: Room size
+    """
+    Signal receiver: Room changed
 
+    Changes might affect: Room size
+    """
     # Check room capacities
     violation_type = ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED
     new_violations = []
@@ -583,24 +590,23 @@ def room_changed_handler(sender, instance: Room, **kwargs):
 @receiver(m2m_changed, sender=Room.properties.through)
 def room_requirements_changed_handler(sender, instance: Room, action: str, **kwargs):
     """
-    Requirements of room changed
+    Signal Receiver: Requirements of room changed
     """
     # Only signal after change (post_add, post_delete, post_clear) are relevant
     if not action.startswith("post"):
         return
 
-    # print(f"{instance} changed")
-
-    event = instance.event
-
+    # event = instance.event
     # TODO React to changes
 
 
 @receiver(post_save, sender=Availability)
 def availability_changed_handler(sender, instance: Availability, **kwargs):
-    # Changes might affect: category availability, AK availability, Room availability
-    # print(f"{instance} changed")
+    """
+    Signal receiver: Availalability changed
 
+    Changes might affect: category availability, AK availability, Room availability
+    """
     event = instance.event
 
     # An AK's availability changed: Might affect AK slots scheduled outside the permitted time
@@ -627,8 +633,6 @@ def availability_changed_handler(sender, instance: Availability, **kwargs):
                 c.ak_slots_tmp.add(slot)
                 new_violations.append(c)
 
-        # print(f"{instance.ak} has the following slots outside availabilities: {new_violations}")
-
         # ... and compare to/update list of existing violations of this type
         # belonging to the AK that was recently changed (important!)
         existing_violations_to_check = list(instance.ak.constraintviolation_set.filter(type=violation_type))
@@ -638,7 +642,12 @@ def availability_changed_handler(sender, instance: Availability, **kwargs):
 
 @receiver(post_save, sender=Event)
 def event_changed_handler(sender, instance: Event, **kwargs):
-    # == Check for reso ak after reso deadline (which might have changed) ==
+    """
+    Signal receiver: Event changed
+
+    Changes might affect: Reso deadline
+    """
+    # Check for reso ak after reso deadline (which might have changed)
     if instance.reso_deadline:
         for slot in instance.akslot_set.filter(start__isnull=False, ak__reso=True):
             update_cv_reso_deadline_for_slot(slot)

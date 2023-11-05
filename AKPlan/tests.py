@@ -4,6 +4,9 @@ from AKModel.tests import BasicViewTests
 
 
 class PlanViewTests(BasicViewTests, TestCase):
+    """
+    Tests for AKPlan
+    """
     fixtures = ['model.json']
     APP_NAME = 'plan'
 
@@ -15,7 +18,10 @@ class PlanViewTests(BasicViewTests, TestCase):
     ]
 
     def test_plan_hidden(self):
-        view_name_with_prefix, url = self._name_and_url(('plan_overview', {'event_slug': 'kif23'}))
+        """
+        Test correct handling of plan visibility
+        """
+        _, url = self._name_and_url(('plan_overview', {'event_slug': 'kif23'}))
 
         self.client.logout()
         response = self.client.get(url)
@@ -28,8 +34,11 @@ class PlanViewTests(BasicViewTests, TestCase):
                                msg_prefix="Plan is not visible for staff user")
 
     def test_wall_redirect(self):
-        view_name_with_prefix, url_wall = self._name_and_url(('plan_wall', {'event_slug': 'kif23'}))
-        view_name_with_prefix, url_plan = self._name_and_url(('plan_overview', {'event_slug': 'kif23'}))
+        """
+        Test: Make sure that user is redirected from wall to overview when plan is hidden
+        """
+        _, url_wall = self._name_and_url(('plan_wall', {'event_slug': 'kif23'}))
+        _, url_plan = self._name_and_url(('plan_overview', {'event_slug': 'kif23'}))
 
         response = self.client.get(url_wall)
         self.assertRedirects(response, url_plan,
