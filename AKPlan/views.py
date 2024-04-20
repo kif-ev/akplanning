@@ -83,6 +83,7 @@ class PlanScreenView(PlanIndexView):
             return redirect(reverse_lazy("plan:plan_overview", kwargs={"event_slug": self.event.slug}))
         return s
 
+    # pylint: disable=attribute-defined-outside-init
     def get_queryset(self):
         now = datetime.now().astimezone(self.event.timezone)
         # Wall during event: Adjust, show only parts in the future

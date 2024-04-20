@@ -14,6 +14,9 @@ from AKModel.models import Event, AKCategory, AKRequirement, Room
 
 
 class DateTimeInput(forms.DateInput):
+    """
+    Simple widget for datetime input fields using the HTML5 datetime-local input type
+    """
     input_type = 'datetime-local'
 
 
