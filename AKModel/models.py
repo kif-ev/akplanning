@@ -367,7 +367,7 @@ class AK(models.Model):
     @property
     def details(self):
         """
-        Generate a detailled string representation, e.g., for usage in scheduling
+        Generate a detailed string representation, e.g., for usage in scheduling
         :return: string representation of that AK with all details
         :rtype: str
         """
@@ -376,15 +376,19 @@ class AK(models.Model):
         from AKModel.availability.models import Availability
         availabilities = ', \n'.join(f'{a.simplified}' for a in Availability.objects.select_related('event')
                                      .filter(ak=self))
-        return f"""{self.name}{" (R)" if self.reso else ""}:
+        detail_string = f"""{self.name}{" (R)" if self.reso else ""}:
         
         {self.owners_list}
 
-        {_('Interest')}: {self.interest}
-        {_("Requirements")}: {", ".join(str(r) for r in self.requirements.all())}  
-        {_("Conflicts")}: {", ".join(str(c) for c in self.conflicts.all())}  
-        {_("Prerequisites")}: {", ".join(str(p) for p in self.prerequisites.all())}
-        {_("Availabilities")}: \n{availabilities}"""
+        {_('Interest')}: {self.interest}"""
+        if self.requirements.count() > 0:
+            detail_string += f"\n{_('Requirements')}: {', '.join(str(r) for r in self.requirements.all())}"
+        if self.conflicts.count() > 0:
+            detail_string += f"\n{_('Conflicts')}: {', '.join(str(c) for c in self.conflicts.all())}"
+        if self.prerequisites.count() > 0:
+            detail_string += f"\n{_('Prerequisites')}: {', '.join(str(p) for p in self.prerequisites.all())}"
+        detail_string += f"\n{_('Availabilities')}: \n{availabilities}"
+        return detail_string
 
     @property
     def owners_list(self):
