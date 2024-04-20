@@ -80,8 +80,8 @@ def check_capacity_for_slot(slot: AKSlot):
     :rtype: ConstraintViolation or None
     """
 
-    # If slot is scheduled in a room
-    if slot.room and slot.room.capacity >= 0:
+    # If slot is scheduled in a room and interest was specified
+    if slot.room and slot.room.capacity >= 0 and slot.ak.interest >= 0:
         # Create a violation if interest exceeds room capacity
         if slot.room.capacity < slot.ak.interest:
             c = ConstraintViolation(
