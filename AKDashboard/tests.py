@@ -1,4 +1,4 @@
-import pytz
+import zoneinfo
 from django.apps import apps
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -22,7 +22,7 @@ class DashboardTests(TestCase):
         cls.event = Event.objects.create(
             name="Dashboard Test Event",
             slug="dashboardtest",
-            timezone=pytz.utc,
+            timezone=zoneinfo.ZoneInfo("Europe/Berlin"),
             start=now(),
             end=now(),
             active=True,
