@@ -5,13 +5,16 @@ Central and admin forms
 import csv
 import io
 
-from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 from django import forms
 from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.models import Event, AKCategory, AKRequirement, Room
+
+
+class DateTimeInput(forms.DateInput):
+    input_type = 'datetime-local'
 
 
 class NewEventWizardStartForm(forms.ModelForm):
@@ -47,14 +50,17 @@ class NewEventWizardSettingsForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = "__all__"
+        exclude = ['plan_published_at']
         widgets = {
             'name': forms.HiddenInput(),
             'slug': forms.HiddenInput(),
             'timezone': forms.HiddenInput(),
             'active': forms.HiddenInput(),
-            'start': DateTimePickerInput(options={"format": "YYYY-MM-DD HH:mm"}),
-            'end': DateTimePickerInput(options={"format": "YYYY-MM-DD HH:mm"}),
-            'reso_deadline': DateTimePickerInput(options={"format": "YYYY-MM-DD HH:mm"}),
+            'start': DateTimeInput(),
+            'end': DateTimeInput(),
+            'interest_start': DateTimeInput(),
+            'interest_end': DateTimeInput(),
+            'reso_deadline': DateTimeInput(),
             'plan_hidden': forms.HiddenInput(),
         }
 

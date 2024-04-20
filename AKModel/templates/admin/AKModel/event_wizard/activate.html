@@ -8,6 +8,11 @@
 
 {% block title %}{% trans "New event wizard" %}: {{ wizard_step_text }}{% endblock %}
 
+{% block extrahead %}
+    {{ block.super }}
+    {{ form.media }}
+{% endblock %}
+
 {% block content %}
     {% include "admin/AKModel/event_wizard/wizard_steps.html" %}
 
@@ -16,8 +21,6 @@
     </div>
 
     <h5 class="mb-3">{% trans "Successfully imported.<br><br>Do you want to activate your event now?" %}</h5>
-
-    {{ form.media }}
 
     <form method="post">{% csrf_token %}
         {% bootstrap_form form %}
