@@ -51,6 +51,8 @@
                     start: '{{ start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
                     end: '{{ end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
                 },
+                slotMinTime: '{{ earliest_start_hour }}:00:00',
+                slotMaxTime: '{{ latest_end_hour }}:00:00',
                 eventDidMount: function(info) {
                     $(info.el).tooltip({title: info.event.extendedProps.description});
                 },

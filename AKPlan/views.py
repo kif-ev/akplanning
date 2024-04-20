@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -81,11 +83,11 @@ class PlanScreenView(PlanIndexView):
             return redirect(reverse_lazy("plan:plan_overview", kwargs={"event_slug": self.event.slug}))
         return s
 
-    """
     def get_queryset(self):
-        # Determine interesting range (some hours ago until some hours in the future as specified in the settings)
         now = datetime.now().astimezone(self.event.timezone)
+        # Wall during event: Adjust, show only parts in the future
         if self.event.start < now < self.event.end:
+            # Determine interesting range (some hours ago until some hours in the future as specified in the settings)
             self.start = now - timedelta(hours=settings.PLAN_WALL_HOURS_RETROSPECT)
         else:
             self.start = self.event.start
@@ -93,13 +95,31 @@ class PlanScreenView(PlanIndexView):
 
         # Restrict AK slots to relevant ones
         # This will automatically filter all rooms not needed for the selected range in the orginal get_context method
-        return super().get_queryset().filter(start__gt=self.start)
-    """
+        akslots = super().get_queryset().filter(start__gt=self.start)
+
+        # Find the earliest hour AKs start and end (handle 00:00 as 24:00)
+        self.earliest_start_hour = 23
+        self.latest_end_hour = 1
+        for akslot in akslots.all():
+            start_hour = akslot.start.astimezone(self.event.timezone).hour
+            if start_hour < self.earliest_start_hour:
+                # Use hour - 1 to improve visibility of date change
+                self.earliest_start_hour = max(start_hour - 1, 0)
+            end_hour = akslot.end.astimezone(self.event.timezone).hour
+            # Special case: AK starts before but ends after midnight -- show until midnight
+            if end_hour < start_hour:
+                self.latest_end_hour = 24
+            elif end_hour > self.latest_end_hour:
+                # Always use hour + 1, since AK may end at :xy and not always at :00
+                self.latest_end_hour = min(end_hour + 1, 24)
+        return akslots
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
-        context["start"] = self.event.start
+        context["start"] = self.start
         context["end"] = self.event.end
+        context["earliest_start_hour"] = self.earliest_start_hour
+        context["latest_end_hour"] = self.latest_end_hour
         return context
 
 
