@@ -122,14 +122,15 @@ class EventAKsWidget(TemplateStatusWidget):
                     "text": _("AKs requiring special attention"),
                     "url": reverse_lazy("admin:special-attention", kwargs={"slug": context["event"].slug}),
                 },
-                {
+            ])
+            if context["event"].ak_set.count() > 0:
+                actions.append({
                     "text": _("Enter Interest"),
                     "url": reverse_lazy("admin:enter-interest",
                                         kwargs={"event_slug": context["event"].slug,
                                                 "pk": context["event"].ak_set.all().first().pk}
                                         ),
-                },
-            ])
+                })
         actions.extend([
                 {
                     "text": _("Edit Default Slots"),
