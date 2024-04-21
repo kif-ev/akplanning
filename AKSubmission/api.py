@@ -17,8 +17,8 @@ def ak_interest_indication_active(event, current_timestamp):
     :return: True if indication is allowed, False if not
     :rtype: Bool
     """
-    return event.active and (event.interest_start is None or (event.interest_start <= current_timestamp and (
-            event.interest_end is None or current_timestamp <= event.interest_end)))
+    return (event.active and event.interest_start is not None and event.interest_end is not None
+            and event.interest_start <= current_timestamp <= event.interest_end)
 
 
 @api_view(['POST'])
@@ -26,7 +26,7 @@ def increment_interest_counter(request, event_slug, pk, **kwargs):
     """
     Increment interest counter for AK
 
-    This view either returns a HTTP 200 if the counter was incremented,
+    This view either returns an HTTP 200 if the counter was incremented,
     an HTTP 403 if indicating interest is currently not allowed,
     or an HTTP 404 if there is no matching AK for the given primary key and event slug.
     """

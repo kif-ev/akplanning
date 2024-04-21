@@ -32,7 +32,9 @@ class Event(models.Model):
                                          help_text=_('When should AKs with intention to submit a resolution be done?'))
 
     interest_start = models.DateTimeField(verbose_name=_('Interest Window Start'), blank=True, null=True,
-                                          help_text=_('Opening time for expression of interest.'))
+              help_text=
+              _('Opening time for expression of interest. When left blank, no interest indication will be possible.'))
+
     interest_end = models.DateTimeField(verbose_name=_('Interest Window End'), blank=True, null=True,
                                         help_text=_('Closing time for expression of interest.'))
 
