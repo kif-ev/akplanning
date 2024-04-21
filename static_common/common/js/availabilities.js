@@ -72,6 +72,7 @@ function createAvailabilityEditors(timezone, language, startDate, endDate, slotR
                     },
                 }
             },
+            contentHeight: 'auto',
             allDaySlot: true,
             events: data.availabilities,
             eventBackgroundColor: eventColor,
