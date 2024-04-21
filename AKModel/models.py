@@ -317,7 +317,7 @@ class AK(models.Model):
     owners = models.ManyToManyField(to=AKOwner, blank=True, verbose_name=_('Owners'),
                                     help_text=_('Those organizing the AK'))
 
-    # TODO generate automatically
+    # Will be automatically generated in save method if not set
     link = models.URLField(blank=True, verbose_name=_('Web Link'), help_text=_('Link to wiki page'))
     protocol_link = models.URLField(blank=True, verbose_name=_('Protocol Link'), help_text=_('Link to protocol'))
 
@@ -465,6 +465,17 @@ class AK(models.Model):
         if apps.is_installed("AKSubmission"):
             return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.event.slug, 'pk': self.id})
         return self.edit_url
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        # Auto-Generate Link if not set yet
+        if self.link == "":
+            link = self.event.base_url + self.name.replace(" ", "_")
+            # Truncate links longer than 200 characters (default length of URL fields in django)
+            self.link = link[:200]
+            # Tell Django that we have updated the link field
+            if update_fields is not None:
+                update_fields = {"link"}.union(update_fields)
+        super().save(force_insert, force_update, using, update_fields)
 
 
 class Room(models.Model):
