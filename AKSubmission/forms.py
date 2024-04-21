@@ -86,7 +86,7 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
             duration = float(duration.replace(",", "."))
 
         try:
-            float(duration)
+            duration = float(duration)
         except ValueError as exc:
             raise ValidationError(
                 _('"%(duration)s" is not a valid duration'),

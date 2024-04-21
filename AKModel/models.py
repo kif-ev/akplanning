@@ -600,6 +600,14 @@ class AKSlot(models.Model):
         """
         return self.start < other.end <= self.end or self.start <= other.start < self.end
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        # Make sure duration is not longer than the event
+        if update_fields is None or 'duration' in update_fields:
+            event_duration = self.event.end - self.event.start
+            event_duration_hours = event_duration.days * 24 + event_duration.seconds // 3600
+            self.duration = min(self.duration, event_duration_hours)
+        super().save(force_insert, force_update, using, update_fields)
+
 
 class AKOrgaMessage(models.Model):
     """
