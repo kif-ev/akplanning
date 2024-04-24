@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-24 23:45+0200\n"
+"POT-Creation-Date: 2024-04-25 01:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,47 +33,54 @@ msgstr "Plan veröffentlichen"
 msgid "Unpublish plan"
 msgstr "Plan verbergen"
 
-#: AKModel/admin.py:208
+#: AKModel/admin.py:168 AKModel/models.py:360 AKModel/models.py:682
+#: AKModel/templates/admin/AKModel/aks_by_user.html:12
+#: AKModel/templates/admin/AKModel/status/event_aks.html:10
+#: AKModel/views/manage.py:73 AKModel/views/status.py:98
+msgid "AKs"
+msgstr "AKs"
+
+#: AKModel/admin.py:222
 msgid "Wish"
 msgstr "AK-Wunsch"
 
-#: AKModel/admin.py:214
+#: AKModel/admin.py:228
 msgid "Is wish"
 msgstr "Ist ein Wunsch"
 
-#: AKModel/admin.py:215
+#: AKModel/admin.py:229
 msgid "Is not a wish"
 msgstr "Ist kein Wunsch"
 
-#: AKModel/admin.py:274
+#: AKModel/admin.py:288
 msgid "Export to wiki syntax"
 msgstr "In Wiki-Syntax exportieren"
 
-#: AKModel/admin.py:291
+#: AKModel/admin.py:305
 msgid "Cannot export AKs from more than one event at the same time."
 msgstr "Kann nicht AKs von mehreren Events zur selben Zeit exportieren."
 
-#: AKModel/admin.py:306 AKModel/views/ak.py:99
+#: AKModel/admin.py:320 AKModel/views/ak.py:99
 msgid "Reset interest in AKs"
 msgstr "Interesse an AKs zurücksetzen"
 
-#: AKModel/admin.py:316 AKModel/views/ak.py:114
+#: AKModel/admin.py:330 AKModel/views/ak.py:114
 msgid "Reset AKs' interest counters"
 msgstr "Interessenszähler der AKs zurücksetzen"
 
-#: AKModel/admin.py:415 AKModel/admin.py:429
+#: AKModel/admin.py:429 AKModel/admin.py:443
 msgid "AK Details"
 msgstr "AK-Details"
 
-#: AKModel/admin.py:491 AKModel/views/manage.py:99
+#: AKModel/admin.py:505 AKModel/views/manage.py:99
 msgid "Mark Constraint Violations as manually resolved"
 msgstr "Markiere Constraintverletzungen als manuell behoben"
 
-#: AKModel/admin.py:500 AKModel/views/manage.py:112
+#: AKModel/admin.py:514 AKModel/views/manage.py:112
 msgid "Set Constraint Violations to level \"violation\""
 msgstr "Constraintverletzungen auf Level \"Violation\" setzen"
 
-#: AKModel/admin.py:509 AKModel/views/manage.py:125
+#: AKModel/admin.py:523 AKModel/views/manage.py:125
 msgid "Set Constraint Violations to level \"warning\""
 msgstr "Constraintverletzungen auf Level \"Warning\" setzen"
 
@@ -588,7 +595,7 @@ msgstr "AK präsentieren"
 msgid "Present results of this AK"
 msgstr "Die Ergebnisse dieses AKs vorstellen"
 
-#: AKModel/models.py:334 AKModel/views/status.py:169
+#: AKModel/models.py:334 AKModel/views/status.py:163
 msgid "Requirements"
 msgstr "Anforderungen"
 
@@ -650,12 +657,6 @@ msgstr "Export?"
 #: AKModel/models.py:354
 msgid "Include AK in wiki export?"
 msgstr "AK bei Wiki-Export berücksichtigen?"
-
-#: AKModel/models.py:360 AKModel/models.py:682
-#: AKModel/templates/admin/AKModel/status/event_aks.html:10
-#: AKModel/views/manage.py:73 AKModel/views/status.py:98
-msgid "AKs"
-msgstr "AKs"
 
 #: AKModel/models.py:484
 msgid "Name or number of the room"
@@ -770,7 +771,7 @@ msgstr "AK-Organachrichten"
 msgid "Constraint Violation"
 msgstr "Constraintverletzung"
 
-#: AKModel/models.py:646 AKModel/views/status.py:117
+#: AKModel/models.py:646
 msgid "Constraint Violations"
 msgstr "Constraintverletzungen"
 
@@ -894,7 +895,7 @@ msgstr "Manuell behoben"
 msgid "Mark this violation manually as resolved"
 msgstr "Markiere diese Verletzung manuell als behoben"
 
-#: AKModel/models.py:728
+#: AKModel/models.py:728 AKModel/templates/admin/AKModel/aks_by_user.html:22
 #: AKModel/templates/admin/AKModel/requirements_overview.html:27
 msgid "Details"
 msgstr "Details"
@@ -951,6 +952,19 @@ msgstr "Bestätigen"
 #: AKModel/templates/admin/AKModel/room_create.html:30
 msgid "Cancel"
 msgstr "Abbrechen"
+
+#: AKModel/templates/admin/AKModel/aks_by_user.html:8
+msgid "AKs by Owner"
+msgstr "AKs der Leitung"
+
+#: AKModel/templates/admin/AKModel/aks_by_user.html:26
+#: AKModel/templates/admin/AKModel/requirements_overview.html:31
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: AKModel/templates/admin/AKModel/aks_by_user.html:33
+msgid "This user does not have any AKs currently"
+msgstr "Diese Leitung hat aktuell keine AKs"
 
 #: AKModel/templates/admin/AKModel/event_wizard/activate.html:9
 #: AKModel/templates/admin/AKModel/event_wizard/created_prepare_import.html:9
@@ -1018,16 +1032,12 @@ msgstr ""
 msgid "Requirements Overview"
 msgstr "Übersicht Anforderungen"
 
-#: AKModel/templates/admin/AKModel/requirements_overview.html:31
-msgid "Edit"
-msgstr "Bearbeiten"
-
 #: AKModel/templates/admin/AKModel/requirements_overview.html:38
 msgid "No AKs with this requirement"
 msgstr "Kein AK mit dieser Anforderung"
 
 #: AKModel/templates/admin/AKModel/requirements_overview.html:45
-#: AKModel/views/status.py:185
+#: AKModel/views/status.py:179
 msgid "Add Requirement"
 msgstr "Anforderung hinzufügen"
 
@@ -1163,7 +1173,7 @@ msgstr "'%(obj)s' kopiert"
 msgid "Could not copy '%(obj)s' (%(error)s)"
 msgstr "'%(obj)s' konnte nicht kopiert werden (%(error)s)"
 
-#: AKModel/views/manage.py:35 AKModel/views/status.py:152
+#: AKModel/views/manage.py:35 AKModel/views/status.py:146
 msgid "Export AK Slides"
 msgstr "AK-Folien exportieren"
 
@@ -1231,7 +1241,7 @@ msgstr "Den Plan/die Pläne verbergen von:"
 msgid "Plan unpublished"
 msgstr "Plan verborgen"
 
-#: AKModel/views/manage.py:166 AKModel/views/status.py:136
+#: AKModel/views/manage.py:166 AKModel/views/status.py:130
 msgid "Edit Default Slots"
 msgstr "Standardslots bearbeiten"
 
@@ -1286,31 +1296,31 @@ msgstr "Kategorie hinzufügen"
 msgid "Add Room"
 msgstr "Raum hinzufügen"
 
-#: AKModel/views/status.py:122
+#: AKModel/views/status.py:116
 msgid "AKs requiring special attention"
 msgstr "AKs, die besondere Aufmerksamkeit benötigen"
 
-#: AKModel/views/status.py:128
+#: AKModel/views/status.py:122
 msgid "Enter Interest"
 msgstr "Interesse erfassen"
 
-#: AKModel/views/status.py:140
+#: AKModel/views/status.py:134
 msgid "Manage ak tracks"
 msgstr "AK-Tracks verwalten"
 
-#: AKModel/views/status.py:144
+#: AKModel/views/status.py:138
 msgid "Export AKs as CSV"
 msgstr "AKs als CSV exportieren"
 
-#: AKModel/views/status.py:148
+#: AKModel/views/status.py:142
 msgid "Export AKs for Wiki"
 msgstr "AKs im Wiki-Format exportieren"
 
-#: AKModel/views/status.py:181
+#: AKModel/views/status.py:175
 msgid "Show AKs for requirements"
 msgstr "Zu Anforderungen gehörige AKs anzeigen"
 
-#: AKModel/views/status.py:195
+#: AKModel/views/status.py:189
 msgid "Event Status"
 msgstr "Eventstatus"
 

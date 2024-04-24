@@ -8,13 +8,13 @@ from django.contrib import messages
 from django.db.models.functions import Now
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 from django_tex.core import render_template_with_context, run_tex_in_directory
 from django_tex.response import PDFResponse
 
 from AKModel.forms import SlideExportForm, DefaultSlotEditorForm
-from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView
-from AKModel.models import ConstraintViolation, Event, DefaultSlot
+from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
+from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner
 
 
 class UserView(TemplateView):
@@ -236,3 +236,12 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
                 .format(u=str(updated_count), c=str(created_count), d=str(deleted_count))
             )
         return super().form_valid(form)
+
+
+class AKsByUserView(AdminViewMixin, EventSlugMixin, DetailView):
+    """
+    View: Show all AKs of a given user
+    """
+    model = AKOwner
+    context_object_name = 'owner'
+    template_name = "admin/AKModel/aks_by_user.html"

@@ -4,7 +4,8 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 import AKModel.views.api
-from AKModel.views.manage import ExportSlidesView, PlanPublishView, PlanUnpublishView, DefaultSlotEditorView
+from AKModel.views.manage import ExportSlidesView, PlanPublishView, PlanUnpublishView, DefaultSlotEditorView, \
+    AKsByUserView
 from AKModel.views.ak import AKRequirementOverview, AKCSVExportView, AKWikiExportView, AKMessageDeleteView
 from AKModel.views.event_wizard import NewEventWizardStartView, NewEventWizardPrepareImportView, \
     NewEventWizardImportView, NewEventWizardActivateView, NewEventWizardFinishView, NewEventWizardSettingsView
@@ -91,6 +92,8 @@ def get_admin_urls_event(admin_site):
         path('<slug:event_slug>/status/', admin_site.admin_view(EventStatusView.as_view()), name="event_status"),
         path('<slug:event_slug>/requirements/', admin_site.admin_view(AKRequirementOverview.as_view()),
              name="event_requirement_overview"),
+        path('<slug:event_slug>/aks/owner/<pk>/', admin_site.admin_view(AKsByUserView.as_view()),
+             name="aks_by_owner"),
         path('<slug:event_slug>/ak-csv-export/', admin_site.admin_view(AKCSVExportView.as_view()),
              name="ak_csv_export"),
         path('<slug:slug>/ak-wiki-export/', admin_site.admin_view(AKWikiExportView.as_view()),
