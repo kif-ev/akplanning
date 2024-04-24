@@ -15,6 +15,7 @@
 
     <script src="{% static "common/vendor/sortable/Sortable.min.js" %}"></script>
     <script src="{% static "common/vendor/sortable/jquery-sortable.js" %}"></script>
+    <script src="{% static "AKScheduling/vendor/dragula/dragula.js" %}"></script>
 
     <style>
         .ak-list {
@@ -30,7 +31,17 @@
         .track-delete {
             cursor: pointer;
         }
+
+        .card-header {
+            cursor: move;
+        }
+
+        .card {
+            padding:0!important;
+        }
     </style>
+
+    <link rel="stylesheet" href="{% static "AKScheduling/vendor/dragula/dragula.css" %}">
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -187,6 +198,13 @@
                             }
                        });
                     }
+            });
+
+            // Make track containers sortable (when dragging the headers)
+            dragula([$('#workspace')[0]], {
+                moves: function (el, container, handle) {
+                    return handle.classList.contains('card-header');
+                }
             });
         });
     </script>
