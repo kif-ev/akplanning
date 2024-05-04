@@ -443,7 +443,7 @@ class AKOrgaMessageAdmin(admin.ModelAdmin):
     """
     Admin interface for AKOrgaMessages
     """
-    list_display = ['timestamp', 'ak', 'text']
+    list_display = ['timestamp', 'ak', 'text', 'resolved']
     list_filter = ['ak__event']
     readonly_fields = ['timestamp', 'ak', 'text']
 

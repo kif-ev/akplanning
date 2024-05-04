@@ -620,6 +620,8 @@ class AKOrgaMessage(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
+    resolved = models.BooleanField(verbose_name=_('Resolved'), default=False,
+                                   help_text=_('This message has been resolved (no further action needed)'))
 
     class Meta:
         verbose_name = _('AK Orga Message')
