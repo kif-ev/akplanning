@@ -755,8 +755,8 @@ msgid "Resolved"
 msgstr "Erledigt"
 
 #: AKModel/models.py:624
-msgid "This message has been resolved (no further action needed)."
-msgstr "Diese Nachricht wurde vollständig bearbeitet (keine weiteren Aktionen notwendig)."
+msgid "This message has been resolved (no further action needed)"
+msgstr "Diese Nachricht wurde vollständig bearbeitet (keine weiteren Aktionen notwendig)"
 
 #: AKModel/models.py:627
 msgid "AK Orga Message"
