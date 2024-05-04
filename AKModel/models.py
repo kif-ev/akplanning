@@ -32,7 +32,9 @@ class Event(models.Model):
                                          help_text=_('When should AKs with intention to submit a resolution be done?'))
 
     interest_start = models.DateTimeField(verbose_name=_('Interest Window Start'), blank=True, null=True,
-                                          help_text=_('Opening time for expression of interest.'))
+              help_text=
+              _('Opening time for expression of interest. When left blank, no interest indication will be possible.'))
+
     interest_end = models.DateTimeField(verbose_name=_('Interest Window End'), blank=True, null=True,
                                         help_text=_('Closing time for expression of interest.'))
 
@@ -315,7 +317,7 @@ class AK(models.Model):
     owners = models.ManyToManyField(to=AKOwner, blank=True, verbose_name=_('Owners'),
                                     help_text=_('Those organizing the AK'))
 
-    # TODO generate automatically
+    # Will be automatically generated in save method if not set
     link = models.URLField(blank=True, verbose_name=_('Web Link'), help_text=_('Link to wiki page'))
     protocol_link = models.URLField(blank=True, verbose_name=_('Protocol Link'), help_text=_('Link to protocol'))
 
@@ -464,6 +466,17 @@ class AK(models.Model):
             return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.event.slug, 'pk': self.id})
         return self.edit_url
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        # Auto-Generate Link if not set yet
+        if self.link == "":
+            link = self.event.base_url + self.name.replace(" ", "_")
+            # Truncate links longer than 200 characters (default length of URL fields in django)
+            self.link = link[:200]
+            # Tell Django that we have updated the link field
+            if update_fields is not None:
+                update_fields = {"link"}.union(update_fields)
+        super().save(force_insert, force_update, using, update_fields)
+
 
 class Room(models.Model):
     """ A room describes where an AK can be held.
@@ -586,6 +599,14 @@ class AKSlot(models.Model):
         :rtype: bool
         """
         return self.start < other.end <= self.end or self.start <= other.start < self.end
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        # Make sure duration is not longer than the event
+        if update_fields is None or 'duration' in update_fields:
+            event_duration = self.event.end - self.event.start
+            event_duration_hours = event_duration.days * 24 + event_duration.seconds // 3600
+            self.duration = min(self.duration, event_duration_hours)
+        super().save(force_insert, force_update, using, update_fields)
 
 
 class AKOrgaMessage(models.Model):

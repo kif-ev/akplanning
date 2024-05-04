@@ -55,8 +55,7 @@ def wiki_owners_export(owners, event):
     but external links when owner specified a non-wikilink. This is applied to the full list of owners
 
     :param owners: list of owners
-    :param event: event this owner belongs to and that is currently exported
-    (specifying this directly prevents unnecesary database lookups)
+    :param event: event this owner belongs to and that is currently exported (specifying this directly prevents unnecessary database lookups) #pylint: disable=line-too-long
     :return: linkified owners list in wiki syntax
     :rtype: str
     """

@@ -33,7 +33,6 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
         model = AK
         fields = ['name',
                   'short_name',
-                  'link',
                   'protocol_link',
                   'owners',
                   'description',
@@ -63,6 +62,9 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
 
         self.fields['category'].queryset = AKCategory.objects.filter(event=self.initial.get('event'))
         self.fields['requirements'].queryset = AKRequirement.objects.filter(event=self.initial.get('event'))
+        # Don't ask for requirements if there are no requirements configured for this event
+        if self.fields['requirements'].queryset.count() == 0:
+            self.fields.pop('requirements')
         self.fields['prerequisites'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(
             pk=self.instance.pk)
         self.fields['conflicts'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(
@@ -87,7 +89,7 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
             duration = float(duration.replace(",", "."))
 
         try:
-            float(duration)
+            duration = float(duration)
         except ValueError as exc:
             raise ValidationError(
                 _('"%(duration)s" is not a valid duration'),
@@ -101,7 +103,7 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
         """
         Normalize/clean inputs
 
-        Generate a (not yet used) short name if field was left blank, generate a wiki link,
+        Generate a (not yet used) short name if field was left blank,
         create a list of normalized slot durations
 
         :return: cleaned inputs
@@ -127,12 +129,6 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
                 digits = len(str(i))
                 short_name = f'{short_name[:-(digits + 1)]}-{i}'
             cleaned_data["short_name"] = short_name
-
-        # Generate wiki link
-        if self.cleaned_data["event"].base_url:
-            link = self.cleaned_data["event"].base_url + self.cleaned_data["name"].replace(" ", "_")
-            # Truncate links longer than 200 characters (default length of URL fields in django)
-            self.cleaned_data["link"] = link[:200]
 
         # Get durations from raw durations field
         if "durations" in cleaned_data:
