@@ -62,8 +62,9 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
 
         self.fields['category'].queryset = AKCategory.objects.filter(event=self.initial.get('event'))
         self.fields['requirements'].queryset = AKRequirement.objects.filter(event=self.initial.get('event'))
+        # Don't ask for requirements if there are no requirements configured for this event
         if self.fields['requirements'].queryset.count() == 0:
-            self.fields['requirements'].widget = forms.HiddenInput()
+            self.fields.pop('requirements')
         self.fields['prerequisites'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(
             pk=self.instance.pk)
         self.fields['conflicts'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(
