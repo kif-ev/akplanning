@@ -165,7 +165,7 @@ class EventSerializer(serializers.ModelSerializer):
 
         # Updated room if needed (pk changed -- otherwise, no need for an additional database lookup)
         new_room_id = validated_data.get('room')["pk"]
-        if instance.room.pk != new_room_id:
+        if instance.room is None or instance.room.pk != new_room_id:
             instance.room = get_object_or_404(Room, pk=new_room_id)
 
         instance.save()
