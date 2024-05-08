@@ -224,7 +224,7 @@
             <ul data-id="None" data-sync="false" class="ak-list">
                 {% for ak in aks_without_track %}
                     <li data-ak-id="{{ ak.pk }}" data-bs-toggle="tooltip" data-placement="top" title="">
-                        {{ ak.name }} ({{ ak.category }})
+                        {{ ak.name }} <span style="color:{{ ak.category.color }}">({{ ak.category }})</span>
                     </li>
                 {% endfor %}
             </ul>
