@@ -1,0 +1,12 @@
+{% load i18n %}
+
+<div class="text-center">
+    <a href="{% url 'admin:constraint-violations' slug=event.slug %}">
+        <h1>{{ constraint_violations_count }}</h1>
+        {% blocktrans count constraint_violations_count=constraint_violations_count %}
+            <h3>Constraint Violation</h3>
+            {% plural %}
+            <h3>Constraint Violations</h3>
+        {% endblocktrans %}
+    </a>
+</div>

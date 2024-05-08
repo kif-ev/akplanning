@@ -5,6 +5,8 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView, UpdateView
 
+from AKModel.metaviews import status_manager
+from AKModel.metaviews.status import TemplateStatusWidget
 from AKModel.models import AKSlot, AKTrack, Event, AK, AKCategory
 from AKModel.metaviews.admin import EventSlugMixin, FilterByEventSlugMixin, AdminViewMixin, IntermediateAdminView
 from AKScheduling.forms import AKInterestForm, AKAddSlotForm
@@ -277,3 +279,22 @@ class AvailabilityAutocreateView(EventSlugMixin, IntermediateAdminView):
             _("Created default availabilities for {count} AKs").format(count=success_count)
         )
         return super().form_valid(form)
+
+
+@status_manager.register(name="scheduling_constraint_violations")
+class CVWidget(TemplateStatusWidget):
+    """
+    Status page widget: Constraint violations
+    """
+    required_context_type = "event"
+    title = _("Constraint Violations")
+    template_name = "admin/AKScheduling/status/cvs.html"
+
+    def render_status(self, context: {}) -> str:
+        return "success" if context["constraint_violations_count"] == 0 else "warning"
+
+    def get_context_data(self, context) -> dict:
+        context = super().get_context_data(context)
+        context["constraint_violations_count"] = (context["event"].constraintviolation_set
+                                                  .filter(manually_resolved=False).count())
+        return context

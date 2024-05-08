@@ -1,6 +1,5 @@
 from django.apps import apps
 from django.urls import reverse_lazy
-from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.metaviews import status_manager
@@ -112,12 +111,6 @@ class EventAKsWidget(TemplateStatusWidget):
         ]
         if apps.is_installed("AKScheduling"):
             actions.extend([
-                {
-                    "text": format_html('{} <span class="badge bg-secondary">{}</span>',
-                                        _("Constraint Violations"),
-                                        context["event"].constraintviolation_set.count()),
-                    "url": reverse_lazy("admin:constraint-violations", kwargs={"slug": context["event"].slug}),
-                },
                 {
                     "text": _("AKs requiring special attention"),
                     "url": reverse_lazy("admin:special-attention", kwargs={"slug": context["event"].slug}),
