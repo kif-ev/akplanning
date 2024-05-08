@@ -159,10 +159,24 @@ class AKOwnerAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
     Admin interface for AKOwner
     """
     model = AKOwner
-    list_display = ['name', 'institution', 'event']
+    list_display = ['name', 'institution', 'event', 'aks_url']
     list_filter = ['event', 'institution']
     list_editable = []
     ordering = ['name']
+    readonly_fields = ['aks_url']
+
+    @display(description=_("AKs"))
+    def aks_url(self, obj):
+        """
+        Define a read-only field to go to the list of all AKs by this user
+
+        :param obj: user
+        :return: AK list page link (HTML)
+        :rtype: str
+        """
+        return format_html("<a href='{url}'>{text}</a>",
+                           url=reverse_lazy('admin:aks_by_owner', kwargs={'event_slug': obj.event.slug, 'pk': obj.pk}),
+                           text=obj.ak_set.count())
 
 
 @admin.register(AKCategory)
