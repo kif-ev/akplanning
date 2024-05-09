@@ -243,7 +243,7 @@
             <ul data-track-id="{{ track.pk }}" data-name="{{ track }}" data-sync="true" class="ak-list">
                 {% for ak in track.aks_with_category %}
                     <li data-ak-id="{{ ak.pk }}" data-bs-toggle="tooltip" data-placement="top" title="">
-                        {{ ak.name }} ({{ ak.category }})
+                        {{ ak.name }} <span style="color:{{ ak.category.color }}">({{ ak.category }})</span>
                     </li>
                 {% endfor %}
             </ul>
