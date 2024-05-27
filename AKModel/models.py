@@ -207,7 +207,7 @@ class Event(models.Model):
 
         yield current_block
 
-    def time_slot(self, *, time_slot_index, slots_in_an_hour=1.0):
+    def time_slot(self, *, time_slot_index: int, slots_in_an_hour: float = 1.0) -> "Availability":
         from AKModel.availability.models import Availability
         slot_duration = timedelta(hours=(1.0 / slots_in_an_hour))
 
@@ -217,7 +217,7 @@ class Event(models.Model):
                             start=start,
                             end=start + slot_duration)
 
-    def schedule_from_json(self, schedule):
+    def schedule_from_json(self, schedule: str) -> None:
         schedule = json.loads(schedule)
 
         slots_in_an_hour = schedule["input"]["timeslots"]["info"]["duration"]
