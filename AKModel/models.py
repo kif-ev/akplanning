@@ -648,6 +648,8 @@ class Room(models.Model):
             "time_constraints": time_constraints
         }
 
+        data["fulfilled_room_constraints"].append(f"availability-room-{self.pk}")
+
         return json.dumps(data)
 
 
@@ -782,6 +784,9 @@ class AKSlot(models.Model):
         data["time_constraints"].extend(ak_time_constraints)
         for owner in self.ak.owners.all():
             data["time_constraints"].extend(_owner_time_constraints(owner))
+
+        if self.room is not None:
+            data["room_constraints"].append(f"availability-room-{self.room.pk}")
 
         return json.dumps(data)
 
