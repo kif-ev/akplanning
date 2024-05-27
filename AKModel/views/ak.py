@@ -89,7 +89,7 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
                                             slots_in_an_hour=SLOTS_IN_AN_HOUR)
                 constraints = []
 
-                if slot.end < self.event.reso_deadline:
+                if self.event.reso_deadline is None or slot.end < self.event.reso_deadline:
                     constraints.append("resolution")
 
                 for (ak, availability) in ak_availabilities.items():
