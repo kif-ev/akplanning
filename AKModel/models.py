@@ -628,6 +628,17 @@ class Room(models.Model):
         return self.title
 
     def as_json(self) -> str:
+        from AKModel.availability.models import Availability
+
+        # check if room is available for the whole event
+        # -> no time constraint needs to be introduced
+        full_event = Availability(event=self.event, start=self.event.start, end=self.event.end)
+        avail_union = Availability.union(self.availabilities.all())
+        if not avail_union or avail_union[0].contains(full_event):
+            time_constraints = []
+        else:
+            time_constraints = [f"availability-room-{self.pk}"]
+
         data = {
             "id": self.pk,
             "info": {
@@ -636,7 +647,7 @@ class Room(models.Model):
             "capacity": self.capacity,
             "fulfilled_room_constraints": [constraint.name
                                            for constraint in self.properties.all()],
-            "time_constraints": [f"availability-room-{self.pk}"]
+            "time_constraints": time_constraints
         }
 
         return json.dumps(data)
@@ -738,6 +749,25 @@ class AKSlot(models.Model):
                      force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
     def as_json(self) -> str:
+        from AKModel.availability.models import Availability
+
+        # check if ak resp. owner is available for the whole event
+        # -> no time constraint needs to be introduced
+        full_event = Availability(event=self.event, start=self.event.start, end=self.event.end)
+
+        ak_avail_union = Availability.union(self.ak.availabilities.all())
+        if not ak_avail_union or ak_avail_union[0].contains(full_event):
+            ak_time_constraints = []
+        else:
+            ak_time_constraints = [f"availability-ak-{self.ak.pk}"]
+
+        def _owner_time_constraints(owner: AKOwner):
+            owner_avail_union = Availability.union(owner.availabilities.all())
+            if not owner_avail_union or owner_avail_union[0].contains(full_event):
+                return []
+            else:
+                return [f"availability-person-{owner.pk}"]
+
         data = {
             "id": self.pk,
             "duration": int(self.duration * self.slots_in_an_hour),
@@ -754,9 +784,9 @@ class AKSlot(models.Model):
                 },
             }
 
-        data["time_constraints"].append(f"availability-ak-{self.pk}")
-        data["time_constraints"] += [f"availability-person-{owner.pk}"
-                                     for owner in self.ak.owners.all()]
+        data["time_constraints"].extend(ak_time_constraints)
+        for owner in self.ak.owners.all():
+            data["time_constraints"].extend(_owner_time_constraints(owner))
 
         return json.dumps(data)
 
