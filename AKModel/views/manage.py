@@ -4,15 +4,17 @@ import os
 import tempfile
 from itertools import zip_longest
 
+
 from django.contrib import messages
 from django.db.models.functions import Now
+from django.shortcuts import redirect
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, DetailView
 from django_tex.core import render_template_with_context, run_tex_in_directory
 from django_tex.response import PDFResponse
 
-from AKModel.forms import SlideExportForm, DefaultSlotEditorForm
+from AKModel.forms import SlideExportForm, DefaultSlotEditorForm, JSONImportForm
 from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
 from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner
 
@@ -245,3 +247,13 @@ class AKsByUserView(AdminViewMixin, EventSlugMixin, DetailView):
     model = AKOwner
     context_object_name = 'owner'
     template_name = "admin/AKModel/aks_by_user.html"
+
+
+class AKJSONImportView(EventSlugMixin, IntermediateAdminView):
+    form_class = JSONImportForm
+    title = _("AK JSON Import")
+
+    def form_valid(self, form):
+        self.event.schedule_from_json(form.data["json_data"])
+
+        return redirect("admin:event_status", self.event.slug)

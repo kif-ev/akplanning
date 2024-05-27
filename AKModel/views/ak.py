@@ -1,3 +1,6 @@
+import json
+from datetime import timedelta
+
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -5,7 +8,7 @@ from django.views.generic import ListView, DetailView
 
 from AKModel.metaviews.admin import AdminViewMixin, FilterByEventSlugMixin, EventSlugMixin, IntermediateAdminView, \
     IntermediateAdminActionView
-from AKModel.models import AKRequirement, AKSlot, Event, AKOrgaMessage, AK
+from AKModel.models import AKRequirement, AKSlot, Event, AKOrgaMessage, AK, Room, AKOwner
 
 
 class AKRequirementOverview(AdminViewMixin, FilterByEventSlugMixin, ListView):
@@ -35,6 +38,86 @@ class AKCSVExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
 
     def get_queryset(self):
         return super().get_queryset().order_by("ak__track")
+
+
+class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
+    """
+    View: Export all AK slots of this event in JSON format ordered by tracks
+    """
+    template_name = "admin/AKModel/ak_json_export.html"
+    model = AKSlot
+    context_object_name = "slots"
+    title = _("AK JSON Export")
+
+    def get_queryset(self):
+        return super().get_queryset().order_by("ak__track")
+
+    def get_context_data(self, **kwargs):
+        from AKModel.availability.models import Availability
+
+        SLOTS_IN_AN_HOUR = 1
+
+        rooms = Room.objects.filter(event=self.event)
+        participants = []
+        timeslots = {
+            "info": {"duration": (1.0 / SLOTS_IN_AN_HOUR), },
+            "blocks": [],
+            }
+
+        context = super().get_context_data(**kwargs)
+        context["rooms"] = rooms
+        context["participants"] = json.dumps(participants)
+
+        for slot in context["slots"]:
+            slot.slots_in_an_hour = SLOTS_IN_AN_HOUR
+
+        ak_availabilities = {slot.ak.pk: availability
+                             for slot in context["slots"]
+                             for availability in slot.ak.availabilities.all()}
+        room_availabilities = {room.pk: availability
+                                    for room in rooms
+                                    for availability in room.availabilities.all()}
+        person_availabilities = {person.pk: availability
+                                      for person in AKOwner.objects.filter(event=self.event)
+                                      for availability in person.availabilities.all()}
+
+        for block in self.event.time_slots(slots_in_an_hour=SLOTS_IN_AN_HOUR):
+            current_block = []
+
+            for slot_index in block:
+                slot = self.event.time_slot(time_slot_index=slot_index,
+                                            slots_in_an_hour=SLOTS_IN_AN_HOUR)
+                constraints = []
+
+                if slot.end < self.event.reso_deadline:
+                    constraints.append("resolution")
+
+                for (ak, availability) in ak_availabilities.items():
+                    if availability.contains(slot):
+                        constraints.append(f"availability-ak-{ak}")
+
+                for (person, availability) in person_availabilities.items():
+                    if availability.contains(slot):
+                        constraints.append(f"availability-person-{person}")
+
+                for (room, availability) in room_availabilities.items():
+                    if availability.contains(slot):
+                        constraints.append(f"availability-room-{room}")
+
+                current_block.append({
+                    "id": slot_index,
+                    "info": {
+                        "start": slot.simplified,
+                    },
+                    "fulfilled_time_constraints": constraints,
+                    })
+
+            timeslots["blocks"].append(current_block)
+
+        context["timeslots"] = json.dumps(timeslots)
+
+        return context
+
 
 
 class AKWikiExportView(AdminViewMixin, DetailView):

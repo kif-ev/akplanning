@@ -281,3 +281,12 @@ class RoomFormWithAvailabilities(AvailabilitiesFormMixin, RoomForm):
         # Filter possible values for m2m when event is specified
         if hasattr(self.instance, "event") and self.instance.event is not None:
             self.fields["properties"].queryset = AKRequirement.objects.filter(event=self.instance.event)
+
+
+class JSONImportForm(AdminIntermediateForm):
+    json_data = forms.CharField(
+        required=True,
+        widget=forms.Textarea,
+        label=_("JSON data"),
+        help_text=_("JSON data from the scheduling solver"),
+    )

@@ -1,4 +1,5 @@
 import itertools
+import json
 from datetime import datetime, timedelta
 
 from django.core.validators import RegexValidator
@@ -172,6 +173,66 @@ class Event(models.Model):
                 .annotate(Count('owners', distinct=True))
                 .filter(availabilities__count=0, owners__count__gt=0)
                 )
+
+    def time_slots(self, *, slots_in_an_hour=1.0):
+        from AKModel.availability.models import Availability
+
+        rooms = Room.objects.filter(event=self)
+        slot_duration = timedelta(hours=(1.0 / slots_in_an_hour))
+        slot_index = 0
+        current_slot = self.start
+        current_block = []
+        previous_slot = None
+
+        room_availabilities = list({availability
+                               for room in rooms
+                               for availability in room.availabilities.all()})
+
+        while current_slot < self.end:
+            slot = Availability(event=self,
+                                start=current_slot,
+                                end=current_slot + slot_duration)
+
+            if any((availability.contains(slot)
+                    for availability in room_availabilities)):
+                if previous_slot is not None and previous_slot + slot_duration < current_slot:
+                    yield current_block
+                    current_block = []
+
+                current_block.append(slot_index)
+                previous_slot = current_slot
+
+            slot_index += 1
+            current_slot += slot_duration
+
+        yield current_block
+
+    def time_slot(self, *, time_slot_index, slots_in_an_hour=1.0):
+        from AKModel.availability.models import Availability
+        slot_duration = timedelta(hours=(1.0 / slots_in_an_hour))
+
+        start = self.start + time_slot_index * slot_duration
+
+        return Availability(event=self,
+                            start=start,
+                            end=start + slot_duration)
+
+    def schedule_from_json(self, schedule):
+        schedule = json.loads(schedule)
+
+        slots_in_an_hour = schedule["input"]["timeslots"]["info"]["duration"]
+
+        for scheduled_slot in schedule["scheduled_aks"]:
+            slot = AKSlot.objects.get(scheduled_slot["ak_id"])
+            slot.room = scheduled_slot["room_id"]
+
+            start = min(scheduled_slot["time_slot_ids"])
+            end = max(scheduled_slot["time_slot_ids"])
+
+            slot.start = self.time_slot(time_slot_index=start,
+                                        slots_in_an_hour=slots_in_an_hour)
+            slot.end = self.time_slot(time_slot_index=end + 1,
+                                      slots_in_an_hour=slots_in_an_hour)
 
 
 class AKOwner(models.Model):
@@ -566,6 +627,20 @@ class Room(models.Model):
     def __str__(self):
         return self.title
 
+    def as_json(self) -> str:
+        data = {
+            "id": self.pk,
+            "info": {
+                "name": self.name,
+            },
+            "capacity": self.capacity,
+            "fulfilled_room_constraints": [constraint.name
+                                           for constraint in self.properties.all()],
+            "time_constraints": [f"availability-room-{self.pk}"]
+        }
+
+        return json.dumps(data)
+
 
 class AKSlot(models.Model):
     """ An AK Mapping matches an AK to a room during a certain time.
@@ -662,6 +737,28 @@ class AKSlot(models.Model):
         super().save(*args,
                      force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
+    def as_json(self) -> str:
+        data = {
+            "id": self.pk,
+            "duration": int(self.duration * self.slots_in_an_hour),
+            "properties": {},
+            "room_constraints": [constraint.name
+                                 for constraint in self.ak.requirements.all()],
+            "time_constraints": ["resolution"] if self.ak.reso else [],
+            "info": {
+                "name": self.ak.name,
+                "head": ", ".join([str(owner)
+                                   for owner in self.ak.owners.all()]),
+                "description": self.ak.description,
+                "reso": self.ak.reso,
+                },
+            }
+
+        data["time_constraints"].append(f"availability-ak-{self.pk}")
+        data["time_constraints"] += [f"availability-person-{owner.pk}"
+                                     for owner in self.ak.owners.all()]
+
+        return json.dumps(data)
 
 class AKOrgaMessage(models.Model):
     """
