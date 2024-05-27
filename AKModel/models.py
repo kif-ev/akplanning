@@ -632,6 +632,9 @@ class Room(models.Model):
 
         # check if room is available for the whole event
         # -> no time constraint needs to be introduced
+
+        # NOTE: Cannot use `Availability.with_event_length` as its end is the
+        #       event end + 1 day
         full_event = Availability(event=self.event, start=self.event.start, end=self.event.end)
         avail_union = Availability.union(self.availabilities.all())
         if not avail_union or avail_union[0].contains(full_event):
@@ -753,6 +756,9 @@ class AKSlot(models.Model):
 
         # check if ak resp. owner is available for the whole event
         # -> no time constraint needs to be introduced
+
+        # NOTE: Cannot use `Availability.with_event_length` as its end is the
+        #       event end + 1 day
         full_event = Availability(event=self.event, start=self.event.start, end=self.event.end)
 
         ak_avail_union = Availability.union(self.ak.availabilities.all())
