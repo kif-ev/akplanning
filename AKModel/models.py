@@ -632,12 +632,7 @@ class Room(models.Model):
 
         # check if room is available for the whole event
         # -> no time constraint needs to be introduced
-
-        # NOTE: Cannot use `Availability.with_event_length` as its end is the
-        #       event end + 1 day
-        full_event = Availability(event=self.event, start=self.event.start, end=self.event.end)
-        avail_union = Availability.union(self.availabilities.all())
-        if not avail_union or avail_union[0].contains(full_event):
+        if Availability.is_event_covered(self.event, self.availabilities.all()):
             time_constraints = []
         else:
             time_constraints = [f"availability-room-{self.pk}"]
@@ -757,19 +752,13 @@ class AKSlot(models.Model):
         # check if ak resp. owner is available for the whole event
         # -> no time constraint needs to be introduced
 
-        # NOTE: Cannot use `Availability.with_event_length` as its end is the
-        #       event end + 1 day
-        full_event = Availability(event=self.event, start=self.event.start, end=self.event.end)
-
-        ak_avail_union = Availability.union(self.ak.availabilities.all())
-        if not ak_avail_union or ak_avail_union[0].contains(full_event):
+        if Availability.is_event_covered(self.event, self.ak.availabilities.all()):
             ak_time_constraints = []
         else:
             ak_time_constraints = [f"availability-ak-{self.ak.pk}"]
 
         def _owner_time_constraints(owner: AKOwner):
-            owner_avail_union = Availability.union(owner.availabilities.all())
-            if not owner_avail_union or owner_avail_union[0].contains(full_event):
+            if Availability.is_event_covered(self.event, owner.availabilities.all()):
                 return []
             else:
                 return [f"availability-person-{owner.pk}"]
