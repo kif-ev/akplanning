@@ -288,6 +288,8 @@ def ak_requirements_changed_handler(sender, instance: AK, action: str, **kwargs)
     for slot in slots_of_this_ak:
 
         room = slot.room
+        if room is None:
+            continue
         room_requirements = room.properties.all()
 
         for requirement in instance.requirements.all():
