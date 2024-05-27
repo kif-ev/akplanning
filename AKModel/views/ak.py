@@ -85,11 +85,27 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
             for person in AKOwner.objects.filter(event=self.event)
         }
 
+        ak_fixed = {
+            ak: values.get()
+            for ak in ak_availabilities.keys()
+            if (values := AKSlot.objects.select_related().filter(ak__pk=ak, fixed=True)).exists()
+        }
+
+        def _test_slot_contained(slot: Availability, availabilities: List[Availability]) -> bool:
+            return any(availability.contains(slot) for availability in availabilities)
+
+        def _test_event_covered(slot: Availability, availabilities: List[Availability]) -> bool:
+            return not Availability.is_event_covered(self.event, availabilities)
+
+        def _test_fixed_ak(ak, slot) -> bool:
+            if not ak in ak_fixed:
+                return False
+
+            fixed_slot = Availability(self.event, start=ak_fixed[ak].start, end=ak_fixed[ak].end)
+            return fixed_slot.overlaps(slot, strict=True)
+
         def _test_add_constraint(slot: Availability, availabilities: List[Availability]) -> bool:
-            return (
-                (not Availability.is_event_covered(self.event, availabilities))
-                and any(availability.contains(slot) for availability in availabilities)
-            )
+            return _test_event_covered(slot, availabilities) and _test_slot_contained(slot, availabilities)
 
         for block in self.event.time_slots(slots_in_an_hour=SLOTS_IN_AN_HOUR):
             current_block = []
@@ -103,7 +119,7 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
                     constraints.append("resolution")
 
                 for ak, availabilities in ak_availabilities.items():
-                    if _test_add_constraint(slot, availabilities):
+                    if _test_add_constraint(slot, availabilities) or _test_fixed_ak(ak, slot):
                         constraints.append(f"availability-ak-{ak}")
 
                 for person, availabilities in person_availabilities.items():

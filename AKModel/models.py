@@ -752,7 +752,7 @@ class AKSlot(models.Model):
         # check if ak resp. owner is available for the whole event
         # -> no time constraint needs to be introduced
 
-        if Availability.is_event_covered(self.event, self.ak.availabilities.all()):
+        if not self.fixed and Availability.is_event_covered(self.event, self.ak.availabilities.all()):
             ak_time_constraints = []
         else:
             ak_time_constraints = [f"availability-ak-{self.ak.pk}"]
