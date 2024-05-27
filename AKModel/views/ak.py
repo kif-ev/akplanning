@@ -1,5 +1,6 @@
 import json
 from datetime import timedelta
+from typing import List
 
 from django.contrib import messages
 from django.urls import reverse_lazy
@@ -71,15 +72,24 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
         for slot in context["slots"]:
             slot.slots_in_an_hour = SLOTS_IN_AN_HOUR
 
-        ak_availabilities = {slot.ak.pk: availability
-                             for slot in context["slots"]
-                             for availability in slot.ak.availabilities.all()}
-        room_availabilities = {room.pk: availability
-                                    for room in rooms
-                                    for availability in room.availabilities.all()}
-        person_availabilities = {person.pk: availability
-                                      for person in AKOwner.objects.filter(event=self.event)
-                                      for availability in person.availabilities.all()}
+        ak_availabilities = {
+            slot.ak.pk: Availability.union(slot.ak.availabilities.all())
+            for slot in context["slots"]
+        }
+        room_availabilities = {
+            room.pk: Availability.union(room.availabilities.all())
+            for room in rooms
+        }
+        person_availabilities = {
+            person.pk: Availability.union(person.availabilities.all())
+            for person in AKOwner.objects.filter(event=self.event)
+        }
+
+        def _test_add_constraint(slot: Availability, availabilities: List[Availability]) -> bool:
+            return (
+                (not Availability.is_event_covered(self.event, availabilities))
+                and any(availability.contains(slot) for availability in availabilities)
+            )
 
         for block in self.event.time_slots(slots_in_an_hour=SLOTS_IN_AN_HOUR):
             current_block = []
@@ -92,16 +102,16 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
                 if self.event.reso_deadline is None or slot.end < self.event.reso_deadline:
                     constraints.append("resolution")
 
-                for (ak, availability) in ak_availabilities.items():
-                    if availability.contains(slot):
+                for ak, availabilities in ak_availabilities.items():
+                    if _test_add_constraint(slot, availabilities):
                         constraints.append(f"availability-ak-{ak}")
 
-                for (person, availability) in person_availabilities.items():
-                    if availability.contains(slot):
+                for person, availabilities in person_availabilities.items():
+                    if _test_add_constraint(slot, availabilities):
                         constraints.append(f"availability-person-{person}")
 
-                for (room, availability) in room_availabilities.items():
-                    if availability.contains(slot):
+                for person, availabilities in room_availabilities.items():
+                    if _test_add_constraint(slot, availabilities):
                         constraints.append(f"availability-room-{room}")
 
                 current_block.append({
