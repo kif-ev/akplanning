@@ -281,6 +281,14 @@ msgstr "Standardverfügbarkeiten für alle Räume anlegen?"
 msgid "CSV must contain a name column"
 msgstr "CSV muss eine name-Spalte enthalten"
 
+#: AKModel/forms.py:281
+msgid "JSON data"
+msgstr "JSON-Daten"
+
+#: AKModel/forms.py:282
+msgid "JSON data from the scheduling solver"
+msgstr "JSON-Daten, die der scheduling-solver produziert hat"
+
 #: AKModel/metaviews/admin.py:156 AKModel/models.py:40
 msgid "Start"
 msgstr "Start"
@@ -1184,7 +1192,11 @@ msgstr "Anforderungen für das Event"
 msgid "AK CSV Export"
 msgstr "AK-CSV-Export"
 
-#: AKModel/views/ak.py:48
+#: AKModel/views/ak.py:50
+msgid "AK JSON Export"
+msgstr "AK-JSON-Export"
+
+#: AKModel/views/ak.py:133
 msgid "AK Wiki Export"
 msgstr "AK-Wiki-Export"
 
@@ -1310,6 +1322,10 @@ msgid "Updated {u} slot(s). created {c} new slot(s) and deleted {d} slot(s)"
 msgstr ""
 "{u} Slot(s) aktualisiert, {c} Slot(s) hinzugefügt und {d} Slot(s) gelöscht"
 
+#: AKModel/views/manage.py:252
+msgid "AK JSON Import"
+msgstr "AK-JSON-Import"
+
 #: AKModel/views/room.py:37
 #, python-format
 msgid "Created Room '%(room)s'"
@@ -1362,8 +1378,16 @@ msgid "Manage ak tracks"
 msgstr "AK-Tracks verwalten"
 
 #: AKModel/views/status.py:142
+msgid "Import AK schedule from JSON"
+msgstr "AK-Plan aus JSON importieren"
+
+#: AKModel/views/status.py:142
 msgid "Export AKs as CSV"
 msgstr "AKs als CSV exportieren"
+
+#: AKModel/views/status.py:145
+msgid "Export AKs as JSON"
+msgstr "AKs als JSON exportieren"
 
 #: AKModel/views/status.py:146
 msgid "Export AKs for Wiki"
