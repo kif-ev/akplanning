@@ -223,17 +223,19 @@ class Event(models.Model):
         slots_in_an_hour = schedule["input"]["timeslots"]["info"]["duration"]
 
         for scheduled_slot in schedule["scheduled_aks"]:
-            slot = AKSlot.objects.get(scheduled_slot["ak_id"])
-            slot.room = scheduled_slot["room_id"]
+            slot = AKSlot.objects.get(id=int(scheduled_slot["ak_id"]))
+            slot.room = Room.objects.get(id=int(scheduled_slot["room_id"]))
 
-            start = min(scheduled_slot["time_slot_ids"])
-            end = max(scheduled_slot["time_slot_ids"])
+            scheduled_slot["timeslot_ids"] = list(map(int, scheduled_slot["timeslot_ids"]))
+
+            start = min(scheduled_slot["timeslot_ids"])
+            end = max(scheduled_slot["timeslot_ids"])
 
             slot.start = self.time_slot(time_slot_index=start,
-                                        slots_in_an_hour=slots_in_an_hour)
-            slot.end = self.time_slot(time_slot_index=end + 1,
-                                      slots_in_an_hour=slots_in_an_hour)
+                                        slots_in_an_hour=slots_in_an_hour).start
 
+            slot.duration = (end - start + 1) * timedelta(hours=(1.0 / slots_in_an_hour)).total_seconds() / 3600.0
+            slot.save()
 
 class AKOwner(models.Model):
     """ An AKOwner describes the person organizing/holding an AK.
