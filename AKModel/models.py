@@ -640,7 +640,7 @@ class Room(models.Model):
             time_constraints = [f"availability-room-{self.pk}"]
 
         data = {
-            "id": self.pk,
+            "id": str(self.pk),
             "info": {
                 "name": self.name,
             },
@@ -768,7 +768,7 @@ class AKSlot(models.Model):
                 return [f"availability-person-{owner.pk}"]
 
         data = {
-            "id": self.pk,
+            "id": str(self.pk),
             "duration": int(self.duration * self.slots_in_an_hour),
             "properties": {},
             "room_constraints": [constraint.name

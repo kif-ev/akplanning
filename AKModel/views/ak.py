@@ -131,7 +131,7 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
                         constraints.append(f"availability-room-{room}")
 
                 current_block.append({
-                    "id": slot_index,
+                    "id": str(slot_index),
                     "info": {
                         "start": slot.simplified,
                     },
