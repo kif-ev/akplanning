@@ -146,6 +146,8 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
 
         context["timeslots"] = json.dumps(timeslots)
 
+        context["info_dict"] = {}
+
         return context
 
 
