@@ -86,9 +86,9 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
         }
 
         ak_fixed = {
-            ak: values.get()
-            for ak in ak_availabilities.keys()
-            if (values := AKSlot.objects.select_related().filter(ak__pk=ak, fixed=True)).exists()
+            ak_id: values.get()
+            for ak_id in ak_availabilities.keys()
+            if (values := AKSlot.objects.select_related().filter(ak__pk=ak_id, fixed=True)).exists()
         }
 
         def _test_slot_contained(slot: Availability, availabilities: List[Availability]) -> bool:
@@ -97,11 +97,11 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
         def _test_event_covered(slot: Availability, availabilities: List[Availability]) -> bool:
             return not Availability.is_event_covered(self.event, availabilities)
 
-        def _test_fixed_ak(ak, slot) -> bool:
-            if not ak in ak_fixed:
+        def _test_fixed_ak(ak_id, slot: Availability) -> bool:
+            if not ak_id in ak_fixed:
                 return False
 
-            fixed_slot = Availability(self.event, start=ak_fixed[ak].start, end=ak_fixed[ak].end)
+            fixed_slot = Availability(self.event, start=ak_fixed[ak_id].start, end=ak_fixed[ak_id].end)
             return fixed_slot.overlaps(slot, strict=True)
 
         def _test_add_constraint(slot: Availability, availabilities: List[Availability]) -> bool:
@@ -113,29 +113,33 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
             for slot_index in block:
                 slot = self.event.time_slot(time_slot_index=slot_index,
                                             slots_in_an_hour=SLOTS_IN_AN_HOUR)
-                constraints = []
+                time_constraints = []
 
                 if self.event.reso_deadline is None or slot.end < self.event.reso_deadline:
-                    constraints.append("resolution")
+                    time_constraints.append("resolution")
 
-                for ak, availabilities in ak_availabilities.items():
-                    if _test_add_constraint(slot, availabilities) or _test_fixed_ak(ak, slot):
-                        constraints.append(f"availability-ak-{ak}")
-
-                for person, availabilities in person_availabilities.items():
-                    if _test_add_constraint(slot, availabilities):
-                        constraints.append(f"availability-person-{person}")
-
-                for person, availabilities in room_availabilities.items():
-                    if _test_add_constraint(slot, availabilities):
-                        constraints.append(f"availability-room-{room}")
+                time_constraints.extend([
+                    f"availability-ak-{ak_id}"
+                    for ak_id, availabilities in ak_availabilities.items()
+                    if _test_add_constraint(slot, availabilities) or _test_fixed_ak(ak_id, slot)
+                ])
+                time_constraints.extend([
+                    f"availability-person-{person_id}"
+                    for person_id, availabilities in person_availabilities.items()
+                    if _test_add_constraint(slot, availabilities)
+                ])
+                time_constraints.extend([
+                    f"availability-room-{room_id}"
+                    for room_id, availabilities in room_availabilities.items()
+                    if _test_add_constraint(slot, availabilities)
+                ])
 
                 current_block.append({
                     "id": str(slot_index),
                     "info": {
                         "start": slot.simplified,
                     },
-                    "fulfilled_time_constraints": constraints,
+                    "fulfilled_time_constraints": time_constraints,
                     })
 
             timeslots["blocks"].append(current_block)
