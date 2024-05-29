@@ -652,6 +652,9 @@ class Room(models.Model):
 
         data["fulfilled_room_constraints"].append(f"availability-room-{self.pk}")
 
+        if not any(constr.startswith("proxy") for constr in data["fulfilled_room_constraints"]):
+            data["fulfilled_room_constraints"].append("no-proxy")
+
         return json.dumps(data)
 
 
@@ -789,6 +792,9 @@ class AKSlot(models.Model):
 
         if self.room is not None:
             data["room_constraints"].append(f"availability-room-{self.room.pk}")
+
+        if not any(constr.startswith("proxy") for constr in data["room_constraints"]):
+            data["room_constraints"].append("no-proxy")
 
         return json.dumps(data)
 
