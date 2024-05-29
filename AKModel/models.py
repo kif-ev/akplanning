@@ -790,7 +790,7 @@ class AKSlot(models.Model):
         for owner in self.ak.owners.all():
             data["time_constraints"].extend(_owner_time_constraints(owner))
 
-        if self.room is not None:
+        if self.room is not None and self.fixed:
             data["room_constraints"].append(f"availability-room-{self.room.pk}")
 
         if not any(constr.startswith("proxy") for constr in data["room_constraints"]):
