@@ -1,6 +1,7 @@
 import itertools
 import json
 from datetime import datetime, timedelta
+from typing import Iterable
 
 from django.core.validators import RegexValidator
 from django.apps import apps
@@ -174,53 +175,79 @@ class Event(models.Model):
                 .filter(availabilities__count=0, owners__count__gt=0)
                 )
 
-    def time_slots(self, *, slots_in_an_hour=1.0):
+    def _generate_slots_from_block(
+        self, start: datetime, end: datetime, slot_duration: timedelta, slot_index: int = 0
+    ) -> Iterable[list[int, "Availability"]]:
         from AKModel.availability.models import Availability
 
-        rooms = Room.objects.filter(event=self)
-        slot_duration = timedelta(hours=(1.0 / slots_in_an_hour))
-        slot_index = 0
-        current_slot = self.start
+        current_slot_start = start
+        previous_slot_start: datetime | None = None
+
         current_block = []
-        previous_slot = None
 
-        room_availabilities = list({availability
-                               for room in rooms
-                               for availability in room.availabilities.all()})
+        room_availabilities = list({
+            availability
+            for room in Room.objects.filter(event=self)
+            for availability in room.availabilities.all()
+        })
 
-        while current_slot < self.end:
-            slot = Availability(event=self,
-                                start=current_slot,
-                                end=current_slot + slot_duration)
+        while current_slot_start + slot_duration <= end:
+            slot = Availability(
+                event=self,
+                start=current_slot_start,
+                end=current_slot_start + slot_duration,
+            )
 
-            if any((availability.contains(slot)
-                    for availability in room_availabilities)):
-                if previous_slot is not None and previous_slot + slot_duration < current_slot:
+            if any((availability.contains(slot) for availability in room_availabilities)):
+                # no gap in a block
+                if (
+                    previous_slot_start is not None
+                    and previous_slot_start + slot_duration < current_slot_start
+                ):
                     yield current_block
                     current_block = []
 
-                current_block.append(slot_index)
-                previous_slot = current_slot
+                current_block.append((slot_index, slot))
+                previous_slot_start = current_slot_start
 
             slot_index += 1
-            current_slot += slot_duration
+            current_slot_start += slot_duration
 
-        yield current_block
+        if current_block:
+            yield current_block
 
-    def time_slot(self, *, time_slot_index: int, slots_in_an_hour: float = 1.0) -> "Availability":
-        from AKModel.availability.models import Availability
+        return slot_index
+
+    def uniform_time_slots(self, *, slots_in_an_hour=1.0) -> Iterable[list[int, "Availability"]]:
+        yield from self._generate_slots_from_block(
+            start=self.start,
+            end=self.end,
+            slot_duration=timedelta(hours=(1.0 / slots_in_an_hour)),
+        )
+
+    def default_time_slots(self, *, slots_in_an_hour=1.0) -> Iterable[list[int, "Availability"]]:
         slot_duration = timedelta(hours=(1.0 / slots_in_an_hour))
+        slot_index = 0
 
-        start = self.start + time_slot_index * slot_duration
-
-        return Availability(event=self,
-                            start=start,
-                            end=start + slot_duration)
+        for block_slot in DefaultSlot.objects.filter(event=self).order_by("start", "end"):
+            # NOTE: We do not differentiate between different primary categories
+            slot_index = yield from self._generate_slots_from_block(
+                start=block_slot.start,
+                end=block_slot.end,
+                slot_duration=slot_duration,
+                slot_index=slot_index,
+            )
 
     def schedule_from_json(self, schedule: str) -> None:
         schedule = json.loads(schedule)
 
         slots_in_an_hour = schedule["input"]["timeslots"]["info"]["duration"]
+
+        timeslot_dict = {
+            slot_idx: slot
+            for block in self.default_time_slots(slots_in_an_hour=slots_in_an_hour)
+            for slot_idx, slot in block
+        }
 
         for scheduled_slot in schedule["scheduled_aks"]:
             slot = AKSlot.objects.get(id=int(scheduled_slot["ak_id"]))
@@ -228,13 +255,11 @@ class Event(models.Model):
 
             scheduled_slot["timeslot_ids"] = list(map(int, scheduled_slot["timeslot_ids"]))
 
-            start = min(scheduled_slot["timeslot_ids"])
-            end = max(scheduled_slot["timeslot_ids"])
+            start_timeslot = timeslot_dict[min(scheduled_slot["timeslot_ids"])]
+            end_timeslot = timeslot_dict[max(scheduled_slot["timeslot_ids"])]
 
-            slot.start = self.time_slot(time_slot_index=start,
-                                        slots_in_an_hour=slots_in_an_hour).start
-
-            slot.duration = (end - start + 1) * timedelta(hours=(1.0 / slots_in_an_hour)).total_seconds() / 3600.0
+            slot.start = start_timeslot.start
+            slot.duration = (end_timeslot.end - start_timeslot.start).total_seconds() / 3600.0
             slot.save()
 
 class AKOwner(models.Model):

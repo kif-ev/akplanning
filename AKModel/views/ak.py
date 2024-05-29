@@ -107,12 +107,10 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
         def _test_add_constraint(slot: Availability, availabilities: List[Availability]) -> bool:
             return _test_event_covered(slot, availabilities) and _test_slot_contained(slot, availabilities)
 
-        for block in self.event.time_slots(slots_in_an_hour=SLOTS_IN_AN_HOUR):
+        for block in self.event.default_time_slots(slots_in_an_hour=SLOTS_IN_AN_HOUR):
             current_block = []
 
-            for slot_index in block:
-                slot = self.event.time_slot(time_slot_index=slot_index,
-                                            slots_in_an_hour=SLOTS_IN_AN_HOUR)
+            for slot_index, slot in block:
                 time_constraints = []
 
                 if self.event.reso_deadline is None or slot.end < self.event.reso_deadline:
