@@ -284,6 +284,7 @@ class RoomFormWithAvailabilities(AvailabilitiesFormMixin, RoomForm):
 
 
 class JSONImportForm(AdminIntermediateForm):
+    """Form to import an AK schedule from a json file."""
     json_data = forms.CharField(
         required=True,
         widget=forms.Textarea,

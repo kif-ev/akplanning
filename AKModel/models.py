@@ -178,6 +178,24 @@ class Event(models.Model):
     def _generate_slots_from_block(
         self, start: datetime, end: datetime, slot_duration: timedelta, slot_index: int = 0
     ) -> Iterable[list[int, "Availability"]]:
+        """Discretize a time range into timeslots.
+
+        Uses a uniform discretization into blocks of length `slot_duration`,
+        starting at `start`. No incomplete timeslots are generated, i.e.
+        if (`end` - `start`) is not a whole number multiple of `slot_duration`
+        then the last incomplete timeslot is dropped.
+
+        :param start: Start of the time range.
+        :param end: Start of the time range.
+        :param slot_duration: Duration of a single timeslot in the discretization.
+        :param slot_index: index of the first timeslot. Defaults to 0.
+
+        :yield: Block of optimizer timeslots as the discretization result.
+        :ytype: list of tuples, each consisisting of the timeslot id
+            and its availability to indicate its start and duration.
+        """
+        # local import to prevent cyclic import
+        # pylint: disable=import-outside-toplevel
         from AKModel.availability.models import Availability
 
         current_slot_start = start
@@ -219,14 +237,32 @@ class Event(models.Model):
         return slot_index
 
     def uniform_time_slots(self, *, slots_in_an_hour=1.0) -> Iterable[list[int, "Availability"]]:
+        """Uniformly discretize the entire event into a single block of timeslots.
+
+        :param slots_in_an_hour: The percentage of an hour covered by a single slot.
+            Determines the discretization granularity.
+        :yield: Block of optimizer timeslots as the discretization result.
+        :ytype: a single list of tuples, each consisisting of the timeslot id
+            and its availability to indicate its start and duration.
+        """
         yield from self._generate_slots_from_block(
             start=self.start,
             end=self.end,
-            slot_duration=timedelta(hours=(1.0 / slots_in_an_hour)),
+            slot_duration=timedelta(hours=1.0 / slots_in_an_hour),
         )
 
     def default_time_slots(self, *, slots_in_an_hour=1.0) -> Iterable[list[int, "Availability"]]:
-        slot_duration = timedelta(hours=(1.0 / slots_in_an_hour))
+        """Discretize the all default slots into a blocks of timeslots.
+
+        In the discretization each default slot corresponds to one block.
+
+        :param slots_in_an_hour: The percentage of an hour covered by a single slot.
+            Determines the discretization granularity.
+        :yield: Block of optimizer timeslots as the discretization result.
+        :ytype: list of tuples, each consisisting of the timeslot id
+            and its availability to indicate its start and duration.
+        """
+        slot_duration = timedelta(hours=1.0 / slots_in_an_hour)
         slot_index = 0
 
         for block_slot in DefaultSlot.objects.filter(event=self).order_by("start", "end"):
@@ -239,6 +275,13 @@ class Event(models.Model):
             )
 
     def schedule_from_json(self, schedule: str) -> None:
+        """Load AK schedule from a json string.
+
+        :param schedule: A string that can be decoded to json, describing
+            the AK schedule. The json data is assumed to be constructed
+            following the output specification of the KoMa conference optimizer, cf.
+            https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
+        """
         schedule = json.loads(schedule)
 
         slots_in_an_hour = schedule["input"]["timeslots"]["info"]["duration"]
@@ -655,6 +698,15 @@ class Room(models.Model):
         return self.title
 
     def as_json(self) -> str:
+        """Return a json string representation of this room object.
+
+        :return: The json string representation is constructed
+            following the input specification of the KoMa conference optimizer, cf.
+            https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
+        :rtype: str
+        """
+        # local import to prevent cyclic import
+        # pylint: disable=import-outside-toplevel
         from AKModel.availability.models import Availability
 
         # check if room is available for the whole event
@@ -779,6 +831,15 @@ class AKSlot(models.Model):
                      force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
     def as_json(self) -> str:
+        """Return a json string representation of the AK object of this slot.
+
+        :return: The json string representation is constructed
+            following the input specification of the KoMa conference optimizer, cf.
+            https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
+        :rtype: str
+        """
+        # local import to prevent cyclic import
+        # pylint: disable=import-outside-toplevel
         from AKModel.availability.models import Availability
 
         # check if ak resp. owner is available for the whole event
@@ -792,9 +853,9 @@ class AKSlot(models.Model):
         def _owner_time_constraints(owner: AKOwner):
             if Availability.is_event_covered(self.event, owner.availabilities.all()):
                 return []
-            else:
-                return [f"availability-person-{owner.pk}"]
+            return [f"availability-person-{owner.pk}"]
 
+        # self.slots_in_an_hour is set in AKJSONExportView
         data = {
             "id": str(self.pk),
             "duration": int(self.duration * self.slots_in_an_hour),

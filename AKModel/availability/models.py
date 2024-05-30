@@ -247,7 +247,14 @@ class Availability(models.Model):
                 f'{self.end.astimezone(self.event.timezone).strftime("%a %H:%M")}')
 
     @classmethod
-    def with_event_length(cls, event, person=None, room=None, ak=None, ak_category=None):
+    def with_event_length(
+        cls,
+        event: Event,
+        person: AKOwner | None = None,
+        room: Room | None = None,
+        ak: AK | None = None,
+        ak_category: AKCategory | None = None,
+    ) -> "Availability":
         """
         Create an availability covering exactly the time between event start and event end.
         Can e.g., be used to create default availabilities.
@@ -268,7 +275,14 @@ class Availability(models.Model):
                                     room=room, ak=ak, ak_category=ak_category)
 
     @classmethod
-    def is_event_covered(cls, event, availabilities: List['Availability']) -> bool:
+    def is_event_covered(cls, event: Event, availabilities: List['Availability']) -> bool:
+        """Check if list of availibilities cover whole event.
+
+        :param event: event to check.
+        :param availabilities: availabilities to check.
+        :return: whether the availabilities cover full event.
+        :rtype: bool
+        """
         # NOTE: Cannot use `Availability.with_event_length` as its end is the
         #       event end + 1 day
         full_event = Availability(event=event, start=event.start, end=event.end)

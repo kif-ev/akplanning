@@ -1,5 +1,4 @@
 import json
-from datetime import timedelta
 from typing import List
 
 from django.contrib import messages
@@ -7,6 +6,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView
 
+from AKModel.availability.models import Availability
 from AKModel.metaviews.admin import AdminViewMixin, FilterByEventSlugMixin, EventSlugMixin, IntermediateAdminView, \
     IntermediateAdminActionView
 from AKModel.models import AKRequirement, AKSlot, Event, AKOrgaMessage, AK, Room, AKOwner
@@ -50,24 +50,43 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
     context_object_name = "slots"
     title = _("AK JSON Export")
 
+    def _test_slot_contained(self, slot: Availability, availabilities: List[Availability]) -> bool:
+        return any(availability.contains(slot) for availability in availabilities)
+
+    def _test_event_covered(self, availabilities: List[Availability]) -> bool:
+        return not Availability.is_event_covered(self.event, availabilities)
+
+    def _test_fixed_ak(self, ak_id, slot: Availability, ak_fixed: dict) -> bool:
+        if not ak_id in ak_fixed:
+            return False
+
+        fixed_slot = Availability(self.event, start=ak_fixed[ak_id].start, end=ak_fixed[ak_id].end)
+        return fixed_slot.overlaps(slot, strict=True)
+
+    def _test_add_constraint(self, slot: Availability, availabilities: List[Availability]) -> bool:
+        return (
+            self._test_event_covered(availabilities)
+            and self._test_slot_contained(slot, availabilities)
+        )
+
+
     def get_queryset(self):
         return super().get_queryset().order_by("ak__track")
 
     def get_context_data(self, **kwargs):
-        from AKModel.availability.models import Availability
-
-        SLOTS_IN_AN_HOUR = 1
+        context = super().get_context_data(**kwargs)
+        context["participants"] = json.dumps([])
 
         rooms = Room.objects.filter(event=self.event)
-        participants = []
+        context["rooms"] = rooms
+
+        # TODO: Configure magic number in event
+        SLOTS_IN_AN_HOUR = 1
+
         timeslots = {
             "info": {"duration": (1.0 / SLOTS_IN_AN_HOUR), },
             "blocks": [],
             }
-
-        context = super().get_context_data(**kwargs)
-        context["rooms"] = rooms
-        context["participants"] = json.dumps(participants)
 
         for slot in context["slots"]:
             slot.slots_in_an_hour = SLOTS_IN_AN_HOUR
@@ -91,22 +110,6 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
             if (values := AKSlot.objects.select_related().filter(ak__pk=ak_id, fixed=True)).exists()
         }
 
-        def _test_slot_contained(slot: Availability, availabilities: List[Availability]) -> bool:
-            return any(availability.contains(slot) for availability in availabilities)
-
-        def _test_event_covered(slot: Availability, availabilities: List[Availability]) -> bool:
-            return not Availability.is_event_covered(self.event, availabilities)
-
-        def _test_fixed_ak(ak_id, slot: Availability) -> bool:
-            if not ak_id in ak_fixed:
-                return False
-
-            fixed_slot = Availability(self.event, start=ak_fixed[ak_id].start, end=ak_fixed[ak_id].end)
-            return fixed_slot.overlaps(slot, strict=True)
-
-        def _test_add_constraint(slot: Availability, availabilities: List[Availability]) -> bool:
-            return _test_event_covered(slot, availabilities) and _test_slot_contained(slot, availabilities)
-
         for block in self.event.default_time_slots(slots_in_an_hour=SLOTS_IN_AN_HOUR):
             current_block = []
 
@@ -119,17 +122,20 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
                 time_constraints.extend([
                     f"availability-ak-{ak_id}"
                     for ak_id, availabilities in ak_availabilities.items()
-                    if _test_add_constraint(slot, availabilities) or _test_fixed_ak(ak_id, slot)
+                    if (
+                        self._test_add_constraint(slot, availabilities)
+                        or self._test_fixed_ak(ak_id, slot, ak_fixed)
+                    )
                 ])
                 time_constraints.extend([
                     f"availability-person-{person_id}"
                     for person_id, availabilities in person_availabilities.items()
-                    if _test_add_constraint(slot, availabilities)
+                    if self._test_add_constraint(slot, availabilities)
                 ])
                 time_constraints.extend([
                     f"availability-room-{room_id}"
                     for room_id, availabilities in room_availabilities.items()
-                    if _test_add_constraint(slot, availabilities)
+                    if self._test_add_constraint(slot, availabilities)
                 ])
 
                 current_block.append({

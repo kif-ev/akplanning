@@ -60,7 +60,7 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             Create a list of tuples cosisting of an AK and a list of upcoming AKs (list length depending on setting)
             """
             next_aks_list = zip_longest(*[ak_list[i + 1:] for i in range(NEXT_AK_LIST_LENGTH)], fillvalue=None)
-            return [(ak, next_aks) for ak, next_aks in zip_longest(ak_list, next_aks_list, fillvalue=[])]
+            return list(zip_longest(ak_list, next_aks_list, fillvalue=[]))
 
         # Get all relevant AKs (wishes separately, and either all AKs or only those who should directly or indirectly
         # be presented when restriction setting was chosen)
@@ -250,6 +250,9 @@ class AKsByUserView(AdminViewMixin, EventSlugMixin, DetailView):
 
 
 class AKJSONImportView(EventSlugMixin, IntermediateAdminView):
+    """
+    View: Import an AK schedule from a json file that can be pasted into this view.
+    """
     form_class = JSONImportForm
     title = _("AK JSON Import")
 
