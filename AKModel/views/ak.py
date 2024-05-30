@@ -144,7 +144,15 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
 
         context["timeslots"] = json.dumps(timeslots)
 
-        context["info_dict"] = {}
+        info_dict = {
+            "title": self.event.name,
+            "slug": self.event.slug
+        }
+        for attr in ["contact_email", "place"]:
+            if hasattr(self.event, attr) and getattr(self.event, attr):
+                info_dict[attr] = getattr(self.event, attr)
+
+        context["info_dict"] = json.dumps(info_dict)
 
         return context
 
