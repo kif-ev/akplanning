@@ -1,5 +1,6 @@
 import itertools
 import json
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Iterable
 
@@ -23,6 +24,35 @@ no_quotation_marks_validator = RegexValidator(regex=r"['\"´`]+", inverse_match=
 # Enforce that the field contains of at least one letter or digit (and not just special characters
 # This prevents issues when autogenerating slugs from that field
 slugable_validator = RegexValidator(regex=r"[\w\s]+", message=_('Must contain at least one letter or digit'))
+
+
+@dataclass
+class OptimizerTimeslot:
+    """Class describing a timeslot. Used to interface with an optimizer."""
+
+    avail: "Availability"
+    idx: int
+    constraints: set[str]
+
+    def merge(self, other: "OptimizerTimeslot") -> "OptimizerTimeslot":
+        """Merge with other OptimizerTimeslot.
+
+        Creates a new OptimizerTimeslot object.
+        Its availability is constructed by merging the availabilities of self and other,
+        its constraints by taking the union of both constraint sets.
+        As an index, the index of self is used.
+        """
+        avail = self.avail.merge_with(other.avail)
+        constraints = self.constraints.union(other.constraints)
+        # we simply use the index of result[-1]
+        return OptimizerTimeslot(
+            avail=avail, idx=self.idx, constraints=constraints
+        )
+
+    def __repr__(self) -> str:
+        return f"({self.avail.simplified}, {self.idx}, {self.constraints})"
+
+TimeslotBlock = list[OptimizerTimeslot]
 
 
 class Event(models.Model):
@@ -176,8 +206,13 @@ class Event(models.Model):
                 )
 
     def _generate_slots_from_block(
-        self, start: datetime, end: datetime, slot_duration: timedelta, slot_index: int = 0
-    ) -> Iterable[list[int, "Availability"]]:
+        self,
+        start: datetime,
+        end: datetime,
+        slot_duration: timedelta,
+        slot_index: int = 0,
+        constraints: set[str] | None = None,
+    ) -> Iterable[TimeslotBlock]:
         """Discretize a time range into timeslots.
 
         Uses a uniform discretization into blocks of length `slot_duration`,
@@ -191,8 +226,7 @@ class Event(models.Model):
         :param slot_index: index of the first timeslot. Defaults to 0.
 
         :yield: Block of optimizer timeslots as the discretization result.
-        :ytype: list of tuples, each consisisting of the timeslot id
-            and its availability to indicate its start and duration.
+        :ytype: list of TimeslotBlock
         """
         # local import to prevent cyclic import
         # pylint: disable=import-outside-toplevel
@@ -200,6 +234,9 @@ class Event(models.Model):
 
         current_slot_start = start
         previous_slot_start: datetime | None = None
+
+        if constraints is None:
+            constraints = set()
 
         current_block = []
 
@@ -225,7 +262,9 @@ class Event(models.Model):
                     yield current_block
                     current_block = []
 
-                current_block.append((slot_index, slot))
+                current_block.append(
+                    OptimizerTimeslot(avail=slot, idx=slot_index, constraints=constraints)
+                )
                 previous_slot_start = current_slot_start
 
             slot_index += 1
@@ -236,43 +275,112 @@ class Event(models.Model):
 
         return slot_index
 
-    def uniform_time_slots(self, *, slots_in_an_hour=1.0) -> Iterable[list[int, "Availability"]]:
+    def uniform_time_slots(self, *, slots_in_an_hour: float = 1.0) -> Iterable[TimeslotBlock]:
         """Uniformly discretize the entire event into a single block of timeslots.
 
         :param slots_in_an_hour: The percentage of an hour covered by a single slot.
             Determines the discretization granularity.
         :yield: Block of optimizer timeslots as the discretization result.
-        :ytype: a single list of tuples, each consisisting of the timeslot id
-            and its availability to indicate its start and duration.
+        :ytype: a single list of TimeslotBlock
         """
+        all_category_constraints = AKCategory.create_category_constraints(
+            AKCategory.objects.filter(event=self).all()
+        )
+
         yield from self._generate_slots_from_block(
             start=self.start,
             end=self.end,
             slot_duration=timedelta(hours=1.0 / slots_in_an_hour),
+            constraints=all_category_constraints,
         )
 
-    def default_time_slots(self, *, slots_in_an_hour=1.0) -> Iterable[list[int, "Availability"]]:
-        """Discretize the all default slots into a blocks of timeslots.
+    def default_time_slots(self, *, slots_in_an_hour: float = 1.0) -> Iterable[TimeslotBlock]:
+        """Discretize all default slots into blocks of timeslots.
 
         In the discretization each default slot corresponds to one block.
 
         :param slots_in_an_hour: The percentage of an hour covered by a single slot.
             Determines the discretization granularity.
         :yield: Block of optimizer timeslots as the discretization result.
-        :ytype: list of tuples, each consisisting of the timeslot id
-            and its availability to indicate its start and duration.
+        :ytype: list of TimeslotBlock
         """
         slot_duration = timedelta(hours=1.0 / slots_in_an_hour)
         slot_index = 0
 
         for block_slot in DefaultSlot.objects.filter(event=self).order_by("start", "end"):
-            # NOTE: We do not differentiate between different primary categories
+            category_constraints = AKCategory.create_category_constraints(
+                block_slot.primary_categories.all()
+            )
+
             slot_index = yield from self._generate_slots_from_block(
                 start=block_slot.start,
                 end=block_slot.end,
                 slot_duration=slot_duration,
                 slot_index=slot_index,
+                constraints=category_constraints,
             )
+
+    def merge_blocks(
+        self, blocks: Iterable[TimeslotBlock]
+    ) -> Iterable[TimeslotBlock]:
+        """Merge iterable of blocks together.
+
+        The timeslots of all blocks are grouped into maximal blocks.
+        Timeslots with the same start and end are identified with each other
+        and merged (cf `OptimizerTimeslot.merge`).
+        Throws a ValueError if any timeslots are overlapping but do not
+        share the same start and end, i.e. partial overlap is not allowed.
+
+        :param blocks: iterable of blocks to merge.
+        :return: iterable of merged blocks.
+        :rtype: iterable over lists of OptimizerTimeslot objects
+        """
+        if not blocks:
+            return []
+
+        # flatten timeslot iterables to single chain
+        timeslot_chain = itertools.chain.from_iterable(blocks)
+
+        # sort timeslots according to start
+        timeslots = sorted(
+            timeslot_chain,
+            key=lambda slot: slot.avail.start
+        )
+
+        if not timeslots:
+            return []
+
+        all_blocks = []
+        current_block = [timeslots[0]]
+        timeslots = timeslots[1:]
+
+        for slot in timeslots:
+            if current_block and slot.avail.overlaps(current_block[-1].avail, strict=True):
+                if (
+                    slot.avail.start == current_block[-1].avail.start
+                    and slot.avail.end == current_block[-1].avail.end
+                ):
+                    # the same timeslot -> merge
+                    current_block[-1] = current_block[-1].merge(slot)
+                else:
+                    # partial overlap of interiors -> not supported
+                    # TODO: Show comprehensive message in production
+                    raise ValueError(
+                        "Partially overlapping timeslots are not supported!"
+                        f" ({current_block[-1].avail.simplified}, {slot.avail.simplified})"
+                    )
+            elif not current_block or slot.avail.overlaps(current_block[-1].avail, strict=False):
+                # only endpoints in intersection -> same block
+                current_block.append(slot)
+            else:
+                # no overlap at all -> new block
+                all_blocks.append(current_block)
+                current_block = [slot]
+
+        if current_block:
+            all_blocks.append(current_block)
+
+        return all_blocks
 
     def schedule_from_json(self, schedule: str) -> None:
         """Load AK schedule from a json string.
@@ -287,9 +395,9 @@ class Event(models.Model):
         slots_in_an_hour = schedule["input"]["timeslots"]["info"]["duration"]
 
         timeslot_dict = {
-            slot_idx: slot
-            for block in self.default_time_slots(slots_in_an_hour=slots_in_an_hour)
-            for slot_idx, slot in block
+            timeslot.idx: timeslot
+            for block in self.merge_blocks(self.default_time_slots(slots_in_an_hour=slots_in_an_hour))
+            for timeslot in block
         }
 
         for scheduled_slot in schedule["scheduled_aks"]:
@@ -298,8 +406,8 @@ class Event(models.Model):
 
             scheduled_slot["timeslot_ids"] = list(map(int, scheduled_slot["timeslot_ids"]))
 
-            start_timeslot = timeslot_dict[min(scheduled_slot["timeslot_ids"])]
-            end_timeslot = timeslot_dict[max(scheduled_slot["timeslot_ids"])]
+            start_timeslot = timeslot_dict[min(scheduled_slot["timeslot_ids"])].avail
+            end_timeslot = timeslot_dict[max(scheduled_slot["timeslot_ids"])].avail
 
             slot.start = start_timeslot.start
             slot.duration = (end_timeslot.end - start_timeslot.start).total_seconds() / 3600.0
@@ -403,6 +511,20 @@ class AKCategory(models.Model):
 
     def __str__(self):
         return self.name
+
+    @staticmethod
+    def create_category_constraints(categories: Iterable["AKCategory"]) -> set[str]:
+        """Create a set of constraint strings from an AKCategory iterable.
+
+        :param categories: The iterable of categories to derive the constraint strings from.
+        :return: A set of category constraint strings, i.e. strings of the form
+            'availability-cat-<cat.name>'.
+        :rtype: set of strings.
+        """
+        return {
+            f"availability-cat-{cat.name}"
+            for cat in categories
+        }
 
 
 class AKTrack(models.Model):
@@ -875,6 +997,10 @@ class AKSlot(models.Model):
         data["time_constraints"].extend(ak_time_constraints)
         for owner in self.ak.owners.all():
             data["time_constraints"].extend(_owner_time_constraints(owner))
+
+        if self.ak.category:
+            category_constraints = AKCategory.create_category_constraints([self.ak.category])
+            data["time_constraints"].extend(category_constraints)
 
         if self.room is not None and self.fixed:
             data["room_constraints"].append(f"availability-room-{self.room.pk}")

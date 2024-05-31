@@ -151,9 +151,12 @@ class Availability(models.Model):
         if not other.overlaps(self, strict=False):
             raise Exception('Only overlapping Availabilities can be merged.')
 
-        return Availability(
+        avail = Availability(
             start=min(self.start, other.start), end=max(self.end, other.end)
         )
+        if self.event == other.event:
+            avail.event = self.event
+        return avail
 
     def __or__(self, other: 'Availability') -> 'Availability':
         """Performs the merge operation: ``availability1 | availability2``"""
@@ -168,9 +171,12 @@ class Availability(models.Model):
         if not other.overlaps(self, False):
             raise Exception('Only overlapping Availabilities can be intersected.')
 
-        return Availability(
+        avail = Availability(
             start=max(self.start, other.start), end=min(self.end, other.end)
         )
+        if self.event == other.event:
+            avail.event = self.event
+        return avail
 
     def __and__(self, other: 'Availability') -> 'Availability':
         """Performs the intersect operation: ``availability1 &

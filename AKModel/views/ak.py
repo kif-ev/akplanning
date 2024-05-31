@@ -50,6 +50,7 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
     context_object_name = "slots"
     title = _("AK JSON Export")
 
+
     def _test_slot_contained(self, slot: Availability, availabilities: List[Availability]) -> bool:
         return any(availability.contains(slot) for availability in availabilities)
 
@@ -68,7 +69,6 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
             self._test_event_covered(availabilities)
             and self._test_slot_contained(slot, availabilities)
         )
-
 
     def get_queryset(self):
         return super().get_queryset().order_by("ak__track")
@@ -110,38 +110,38 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
             if (values := AKSlot.objects.select_related().filter(ak__pk=ak_id, fixed=True)).exists()
         }
 
-        for block in self.event.default_time_slots(slots_in_an_hour=SLOTS_IN_AN_HOUR):
+        for block in self.event.merge_blocks(self.event.default_time_slots(slots_in_an_hour=SLOTS_IN_AN_HOUR)):
             current_block = []
 
-            for slot_index, slot in block:
+            for timeslot in block:
                 time_constraints = []
-
-                if self.event.reso_deadline is None or slot.end < self.event.reso_deadline:
+                if self.event.reso_deadline is None or timeslot.avail.end < self.event.reso_deadline:
                     time_constraints.append("resolution")
 
                 time_constraints.extend([
                     f"availability-ak-{ak_id}"
                     for ak_id, availabilities in ak_availabilities.items()
                     if (
-                        self._test_add_constraint(slot, availabilities)
-                        or self._test_fixed_ak(ak_id, slot, ak_fixed)
+                        self._test_add_constraint(timeslot.avail, availabilities)
+                        or self._test_fixed_ak(ak_id, timeslot.avail, ak_fixed)
                     )
                 ])
                 time_constraints.extend([
                     f"availability-person-{person_id}"
                     for person_id, availabilities in person_availabilities.items()
-                    if self._test_add_constraint(slot, availabilities)
+                    if self._test_add_constraint(timeslot.avail, availabilities)
                 ])
                 time_constraints.extend([
                     f"availability-room-{room_id}"
                     for room_id, availabilities in room_availabilities.items()
-                    if self._test_add_constraint(slot, availabilities)
+                    if self._test_add_constraint(timeslot.avail, availabilities)
                 ])
+                time_constraints.extend(timeslot.constraints)
 
                 current_block.append({
-                    "id": str(slot_index),
+                    "id": str(timeslot.idx),
                     "info": {
-                        "start": slot.simplified,
+                        "start": timeslot.avail.simplified,
                     },
                     "fulfilled_time_constraints": time_constraints,
                     })
