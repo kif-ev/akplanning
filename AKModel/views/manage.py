@@ -4,8 +4,8 @@ import os
 import tempfile
 from itertools import zip_longest
 
-
 from django.contrib import messages
+from django.db.models import Q
 from django.db.models.functions import Now
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
@@ -15,7 +15,7 @@ from django_tex.response import PDFResponse
 
 from AKModel.forms import SlideExportForm, DefaultSlotEditorForm
 from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
-from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner, AKType
+from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner, AKSlot, AKType
 
 
 class UserView(TemplateView):
@@ -158,6 +158,33 @@ class CVSetLevelWarningView(IntermediateAdminActionView):
     def action(self, form):
         self.entities.update(level=ConstraintViolation.ViolationLevel.WARNING)
 
+class ClearScheduleView(EventSlugMixin, IntermediateAdminView):
+    """
+    Admin action view: Clear schedule
+    """
+    title = _('Clear schedule')
+    model = AKSlot
+    confirmation_message = _('Clear schedule. The following scheduled AKSlots will be reset')
+    success_message = _('Schedule cleared')
+
+    def get_queryset(self):
+        query_set = AKSlot.objects.filter(fixed=False, event=self.event)
+        query_set = query_set.filter(Q(room__isnull=False) | Q(start__isnull=False))
+        return query_set
+
+    def action(self, form):
+        self.entities.update(room=None, start=None)
+
+    def get_preview(self):
+        self.entities = self.get_queryset()
+        joined_entities = '\n'.join(str(e) for e in self.entities)
+        return f"{self.confirmation_message}:\n\n {joined_entities}"
+
+    def form_valid(self, form):
+        self.entities = self.get_queryset()
+        self.action(form)
+        messages.add_message(self.request, messages.SUCCESS, self.success_message)
+        return redirect("admin:event_status", self.event.slug)
 
 class PlanPublishView(IntermediateAdminActionView):
     """
