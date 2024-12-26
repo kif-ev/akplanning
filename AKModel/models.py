@@ -668,7 +668,7 @@ class AK(models.Model):
         availabilities = ', \n'.join(f'{a.simplified}' for a in Availability.objects.select_related('event')
                                      .filter(ak=self))
         detail_string = f"""{self.name}{" (R)" if self.reso else ""}:
-        
+
         {self.owners_list}
 
         {_('Interest')}: {self.interest}"""

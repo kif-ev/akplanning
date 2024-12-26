@@ -283,7 +283,7 @@ class RoomFormWithAvailabilities(AvailabilitiesFormMixin, RoomForm):
             self.fields["properties"].queryset = AKRequirement.objects.filter(event=self.instance.event)
 
 
-class JSONImportForm(AdminIntermediateForm):
+class JSONScheduleImportForm(AdminIntermediateForm):
     """Form to import an AK schedule from a json file."""
     json_data = forms.CharField(
         required=True,

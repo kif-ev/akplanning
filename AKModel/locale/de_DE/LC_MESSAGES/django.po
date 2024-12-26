@@ -1322,9 +1322,9 @@ msgid "Updated {u} slot(s). created {c} new slot(s) and deleted {d} slot(s)"
 msgstr ""
 "{u} Slot(s) aktualisiert, {c} Slot(s) hinzugefügt und {d} Slot(s) gelöscht"
 
-#: AKModel/views/manage.py:252
-msgid "AK JSON Import"
-msgstr "AK-JSON-Import"
+#: AKModel/views/manage.py:257
+msgid "AK Schedule JSON Import"
+msgstr "AK-Plan JSON-Import"
 
 #: AKModel/views/room.py:37
 #, python-format

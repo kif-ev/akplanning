@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 
 import AKModel.views.api
 from AKModel.views.manage import ExportSlidesView, PlanPublishView, PlanUnpublishView, DefaultSlotEditorView, \
-    AKsByUserView, AKJSONImportView
+    AKsByUserView, AKScheduleJSONImportView
 from AKModel.views.ak import AKRequirementOverview, AKCSVExportView, AKJSONExportView, AKWikiExportView, \
      AKMessageDeleteView
 from AKModel.views.event_wizard import NewEventWizardStartView, NewEventWizardPrepareImportView, \
@@ -99,8 +99,8 @@ def get_admin_urls_event(admin_site):
              name="ak_csv_export"),
         path('<slug:event_slug>/ak-json-export/', admin_site.admin_view(AKJSONExportView.as_view()),
              name="ak_json_export"),
-        path('<slug:event_slug>/ak-json-import/', admin_site.admin_view(AKJSONImportView.as_view()),
-             name="ak_json_import"),
+        path('<slug:event_slug>/ak-schedule-json-import/', admin_site.admin_view(AKScheduleJSONImportView.as_view()),
+             name="ak_schedule_json_import"),
         path('<slug:slug>/ak-wiki-export/', admin_site.admin_view(AKWikiExportView.as_view()),
              name="ak_wiki_export"),
         path('<slug:event_slug>/delete-orga-messages/', admin_site.admin_view(AKMessageDeleteView.as_view()),

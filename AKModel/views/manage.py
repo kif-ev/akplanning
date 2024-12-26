@@ -14,7 +14,7 @@ from django.views.generic import TemplateView, DetailView
 from django_tex.core import render_template_with_context, run_tex_in_directory
 from django_tex.response import PDFResponse
 
-from AKModel.forms import SlideExportForm, DefaultSlotEditorForm, JSONImportForm
+from AKModel.forms import SlideExportForm, DefaultSlotEditorForm, JSONScheduleImportForm
 from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
 from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner
 
@@ -249,12 +249,12 @@ class AKsByUserView(AdminViewMixin, EventSlugMixin, DetailView):
     template_name = "admin/AKModel/aks_by_user.html"
 
 
-class AKJSONImportView(EventSlugMixin, IntermediateAdminView):
+class AKScheduleJSONImportView(EventSlugMixin, IntermediateAdminView):
     """
     View: Import an AK schedule from a json file that can be pasted into this view.
     """
-    form_class = JSONImportForm
-    title = _("AK JSON Import")
+    form_class = JSONScheduleImportForm
+    title = _("AK Schedule JSON Import")
 
     def form_valid(self, form):
         self.event.schedule_from_json(form.data["json_data"])

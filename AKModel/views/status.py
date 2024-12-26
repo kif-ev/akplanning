@@ -140,7 +140,7 @@ class EventAKsWidget(TemplateStatusWidget):
                 },
                 {
                     "text": _("Import AK schedule from JSON"),
-                    "url": reverse_lazy("admin:ak_json_import", kwargs={"event_slug": context["event"].slug}),
+                    "url": reverse_lazy("admin:ak_schedule_json_import", kwargs={"event_slug": context["event"].slug}),
                 },
                 {
                     "text": _("Export AKs as CSV"),
