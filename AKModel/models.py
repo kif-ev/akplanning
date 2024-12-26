@@ -59,6 +59,69 @@ class OptimizerTimeslot:
 TimeslotBlock = list[OptimizerTimeslot]
 
 
+def merge_blocks(
+    blocks: Iterable[TimeslotBlock]
+) -> Iterable[TimeslotBlock]:
+    """Merge iterable of blocks together.
+
+    The timeslots of all blocks are grouped into maximal blocks.
+    Timeslots with the same start and end are identified with each other
+    and merged (cf `OptimizerTimeslot.merge`).
+    Throws a ValueError if any timeslots are overlapping but do not
+    share the same start and end, i.e. partial overlap is not allowed.
+
+    :param blocks: iterable of blocks to merge.
+    :return: iterable of merged blocks.
+    :rtype: iterable over lists of OptimizerTimeslot objects
+    """
+    if not blocks:
+        return []
+
+    # flatten timeslot iterables to single chain
+    timeslot_chain = itertools.chain.from_iterable(blocks)
+
+    # sort timeslots according to start
+    timeslots = sorted(
+        timeslot_chain,
+        key=lambda slot: slot.avail.start
+    )
+
+    if not timeslots:
+        return []
+
+    all_blocks = []
+    current_block = [timeslots[0]]
+    timeslots = timeslots[1:]
+
+    for slot in timeslots:
+        if current_block and slot.avail.overlaps(current_block[-1].avail, strict=True):
+            if (
+                slot.avail.start == current_block[-1].avail.start
+                and slot.avail.end == current_block[-1].avail.end
+            ):
+                # the same timeslot -> merge
+                current_block[-1] = current_block[-1].merge(slot)
+            else:
+                # partial overlap of interiors -> not supported
+                # TODO: Show comprehensive message in production
+                raise ValueError(
+                    "Partially overlapping timeslots are not supported!"
+                    f" ({current_block[-1].avail.simplified}, {slot.avail.simplified})"
+                )
+        elif not current_block or slot.avail.overlaps(current_block[-1].avail, strict=False):
+            # only endpoints in intersection -> same block
+            current_block.append(slot)
+        else:
+            # no overlap at all -> new block
+            all_blocks.append(current_block)
+            current_block = [slot]
+
+    if current_block:
+        all_blocks.append(current_block)
+
+    return all_blocks
+
+
 class Event(models.Model):
     """
     An event supplies the frame for all Aks.
@@ -331,68 +394,6 @@ class Event(models.Model):
                 constraints=category_constraints,
             )
 
-    def merge_blocks(
-        self, blocks: Iterable[TimeslotBlock]
-    ) -> Iterable[TimeslotBlock]:
-        """Merge iterable of blocks together.
-
-        The timeslots of all blocks are grouped into maximal blocks.
-        Timeslots with the same start and end are identified with each other
-        and merged (cf `OptimizerTimeslot.merge`).
-        Throws a ValueError if any timeslots are overlapping but do not
-        share the same start and end, i.e. partial overlap is not allowed.
-
-        :param blocks: iterable of blocks to merge.
-        :return: iterable of merged blocks.
-        :rtype: iterable over lists of OptimizerTimeslot objects
-        """
-        if not blocks:
-            return []
-
-        # flatten timeslot iterables to single chain
-        timeslot_chain = itertools.chain.from_iterable(blocks)
-
-        # sort timeslots according to start
-        timeslots = sorted(
-            timeslot_chain,
-            key=lambda slot: slot.avail.start
-        )
-
-        if not timeslots:
-            return []
-
-        all_blocks = []
-        current_block = [timeslots[0]]
-        timeslots = timeslots[1:]
-
-        for slot in timeslots:
-            if current_block and slot.avail.overlaps(current_block[-1].avail, strict=True):
-                if (
-                    slot.avail.start == current_block[-1].avail.start
-                    and slot.avail.end == current_block[-1].avail.end
-                ):
-                    # the same timeslot -> merge
-                    current_block[-1] = current_block[-1].merge(slot)
-                else:
-                    # partial overlap of interiors -> not supported
-                    # TODO: Show comprehensive message in production
-                    raise ValueError(
-                        "Partially overlapping timeslots are not supported!"
-                        f" ({current_block[-1].avail.simplified}, {slot.avail.simplified})"
-                    )
-            elif not current_block or slot.avail.overlaps(current_block[-1].avail, strict=False):
-                # only endpoints in intersection -> same block
-                current_block.append(slot)
-            else:
-                # no overlap at all -> new block
-                all_blocks.append(current_block)
-                current_block = [slot]
-
-        if current_block:
-            all_blocks.append(current_block)
-
-        return all_blocks
-
     def schedule_from_json(self, schedule: str) -> None:
         """Load AK schedule from a json string.
 
@@ -407,7 +408,7 @@ class Event(models.Model):
 
         timeslot_dict = {
             timeslot.idx: timeslot
-            for block in self.merge_blocks(self.default_time_slots(slots_in_an_hour=slots_in_an_hour))
+            for block in merge_blocks(self.default_time_slots(slots_in_an_hour=slots_in_an_hour))
             for timeslot in block
         }
 
