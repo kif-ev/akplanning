@@ -991,7 +991,7 @@ class AKSlot(models.Model):
         # self.slots_in_an_hour is set in AKJSONExportView
         data = {
             "id": str(self.pk),
-            "duration": int(self.duration * self.slots_in_an_hour),
+            "duration": round(self.duration * self.slots_in_an_hour),
             "properties": {},
             "room_constraints": [constraint.name
                                  for constraint in self.ak.requirements.all()],
