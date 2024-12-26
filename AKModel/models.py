@@ -2,7 +2,7 @@ import itertools
 import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Iterable
+from typing import Iterable, Generator
 
 from django.core.validators import RegexValidator
 from django.apps import apps
@@ -28,11 +28,16 @@ slugable_validator = RegexValidator(regex=r"[\w\s]+", message=_('Must contain at
 
 @dataclass
 class OptimizerTimeslot:
-    """Class describing a timeslot. Used to interface with an optimizer."""
+    """Class describing a discrete timeslot. Used to interface with an optimizer."""
 
     avail: "Availability"
+    """The availability object corresponding to this timeslot."""
+
     idx: int
+    """The unique index of this optimizer timeslot."""
+
     constraints: set[str]
+    """The set of time constraints fulfilled by this object."""
 
     def merge(self, other: "OptimizerTimeslot") -> "OptimizerTimeslot":
         """Merge with other OptimizerTimeslot.
@@ -44,7 +49,6 @@ class OptimizerTimeslot:
         """
         avail = self.avail.merge_with(other.avail)
         constraints = self.constraints.union(other.constraints)
-        # we simply use the index of result[-1]
         return OptimizerTimeslot(
             avail=avail, idx=self.idx, constraints=constraints
         )
@@ -212,10 +216,10 @@ class Event(models.Model):
         slot_duration: timedelta,
         slot_index: int = 0,
         constraints: set[str] | None = None,
-    ) -> Iterable[TimeslotBlock]:
+    ) -> Generator[TimeslotBlock, None, int]:
         """Discretize a time range into timeslots.
 
-        Uses a uniform discretization into blocks of length `slot_duration`,
+        Uses a uniform discretization into discrete slots of length `slot_duration`,
         starting at `start`. No incomplete timeslots are generated, i.e.
         if (`end` - `start`) is not a whole number multiple of `slot_duration`
         then the last incomplete timeslot is dropped.
@@ -226,7 +230,11 @@ class Event(models.Model):
         :param slot_index: index of the first timeslot. Defaults to 0.
 
         :yield: Block of optimizer timeslots as the discretization result.
-        :ytype: list of TimeslotBlock
+        :ytype: list of OptimizerTimeslot
+
+        :return: The first slot index after the yielded blocks, i.e.
+            `slot_index` + total # generated timeslots
+        :rtype: int
         """
         # local import to prevent cyclic import
         # pylint: disable=import-outside-toplevel
@@ -276,12 +284,15 @@ class Event(models.Model):
         return slot_index
 
     def uniform_time_slots(self, *, slots_in_an_hour: float = 1.0) -> Iterable[TimeslotBlock]:
-        """Uniformly discretize the entire event into a single block of timeslots.
+        """Uniformly discretize the entire event into blocks of timeslots.
+
+        Discretizes entire event uniformly. May not necessarily result in a single block
+        as slots with no room availability are dropped.
 
         :param slots_in_an_hour: The percentage of an hour covered by a single slot.
             Determines the discretization granularity.
         :yield: Block of optimizer timeslots as the discretization result.
-        :ytype: a single list of TimeslotBlock
+        :ytype: list of OptimizerTimeslot
         """
         all_category_constraints = AKCategory.create_category_constraints(
             AKCategory.objects.filter(event=self).all()
