@@ -293,7 +293,7 @@ class Availability(models.Model):
         #       event end + 1 day
         full_event = Availability(event=event, start=event.start, end=event.end)
         avail_union = Availability.union(availabilities)
-        return not avail_union or avail_union[0].contains(full_event)
+        return any(avail.contains(full_event) for avail in avail_union)
 
     class Meta:
         verbose_name = _('Availability')
