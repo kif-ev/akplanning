@@ -52,12 +52,15 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
 
 
     def _test_slot_contained(self, slot: Availability, availabilities: List[Availability]) -> bool:
+        """Test if slot is contained in any member of availabilities."""
         return any(availability.contains(slot) for availability in availabilities)
 
-    def _test_event_covered(self, availabilities: List[Availability]) -> bool:
+    def _test_event_not_covered(self, availabilities: List[Availability]) -> bool:
+        """Test if event is not covered by availabilities."""
         return not Availability.is_event_covered(self.event, availabilities)
 
-    def _test_fixed_ak(self, ak_id, slot: Availability, ak_fixed: dict) -> bool:
+    def _test_ak_fixed_in_slot(self, ak_id, slot: Availability, ak_fixed: dict) -> bool:
+        """Test if AK defined by `ak_id` is fixed to happen during slot."""
         if not ak_id in ak_fixed:
             return False
 
@@ -65,8 +68,9 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
         return fixed_slot.overlaps(slot, strict=True)
 
     def _test_add_constraint(self, slot: Availability, availabilities: List[Availability]) -> bool:
+        """Test if object is not available for whole event and may happen during slot."""
         return (
-            self._test_event_covered(availabilities)
+            self._test_event_not_covered(availabilities)
             and self._test_slot_contained(slot, availabilities)
         )
 
@@ -123,7 +127,7 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
                     for ak_id, availabilities in ak_availabilities.items()
                     if (
                         self._test_add_constraint(timeslot.avail, availabilities)
-                        or self._test_fixed_ak(ak_id, timeslot.avail, ak_fixed)
+                        or self._test_ak_fixed_in_slot(ak_id, timeslot.avail, ak_fixed)
                     )
                 ])
                 time_constraints.extend([
