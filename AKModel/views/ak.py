@@ -125,9 +125,12 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
 
             for timeslot in block:
                 time_constraints = []
+                # if reso_deadline is set and timeslot ends before it,
+                #   add fulfilled time constraint 'resolution'
                 if self.event.reso_deadline is None or timeslot.avail.end < self.event.reso_deadline:
                     time_constraints.append("resolution")
 
+                # add fulfilled time constraints for all AKs that cannot happen during full event
                 time_constraints.extend([
                     f"availability-ak-{ak_id}"
                     for ak_id, availabilities in ak_availabilities.items()
@@ -136,11 +139,13 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
                         or self._test_ak_fixed_in_slot(ak_id, timeslot.avail, ak_fixed)
                     )
                 ])
+                # add fulfilled time constraints for all persons that are not available for full event
                 time_constraints.extend([
                     f"availability-person-{person_id}"
                     for person_id, availabilities in person_availabilities.items()
                     if self._test_add_constraint(timeslot.avail, availabilities)
                 ])
+                # add fulfilled time constraints for all rooms that are not available for full event
                 time_constraints.extend([
                     f"availability-room-{room_id}"
                     for room_id, availabilities in room_availabilities.items()
