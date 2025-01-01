@@ -3,7 +3,10 @@ from django.apps import apps
 from django.conf import settings
 from django.utils.html import format_html, mark_safe, conditional_escape
 from django.templatetags.static import static
+from django.template.defaultfilters import date
 from fontawesome_6.app_settings import get_css
+
+from AKModel.models import Event
 
 register = template.Library()
 
@@ -69,6 +72,21 @@ def wiki_owners_export(owners, event):
         return str(owner)
 
     return ", ".join(to_link(owner) for owner in owners.all())
+
+
+@register.filter
+def event_month_year(event:Event):
+    """
+    Print rough event date (month and year)
+    :param event: event to print the date for
+    :return: string containing rough date information for event
+    """
+    if event.start.month == event.end.month:
+        return f"{date(event.start, 'F')} {event.start.year}"
+    event_start_string = date(event.start, 'F')
+    if event.start.year != event.end.year:
+        event_start_string = f"{event_start_string} {event.start.year}"
+    return f"{event_start_string} - {date(event.end, 'F')} {event.end.year}"
 
 
 # get list of relevant css fontawesome css files for this instance

@@ -22,7 +22,18 @@ class DashboardView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['events'] = Event.objects.filter(public=True).prefetch_related('dashboardbutton_set')
+        # Load events and split between active and current/featured events and those that should show smaller below
+        context["active_and_current_events"] = []
+        context["old_events"] = []
+        events = Event.objects.filter(public=True).order_by("-active", "-pk").prefetch_related('dashboardbutton_set')
+        for event in events:
+            if event.active or len(context["active_and_current_events"]) < settings.DASHBOARD_MAX_FEATURED_EVENTS:
+                context["active_and_current_events"].append(event)
+            else:
+                context["old_events"].append(event)
+        context["active_event_count"] = len(context["active_and_current_events"])
+        context["old_event_count"] = len(context["old_events"])
+        context["total_event_count"] = context["active_event_count"] + context["old_event_count"]
         return context
 
 

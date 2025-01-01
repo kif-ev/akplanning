@@ -217,6 +217,9 @@ PLAN_MAX_HIGHLIGHT_UPDATE_SECONDS = 2 * 60 * 60
 DASHBOARD_SHOW_RECENT = True
 # How many entries max?
 DASHBOARD_RECENT_MAX = 25
+# How many events should be featured in the dashboard
+# (active events will always be featured, even if their number is higher than this threshold)
+DASHBOARD_MAX_FEATURED_EVENTS = 3
 
 # Registration/login behavior
 SIMPLE_BACKEND_REDIRECT_URL = "/user/"

@@ -9,16 +9,26 @@
 {% endblock %}
 
 {% block content %}
-    {% for event in events %}
-        <div class="dashboard-row">
-            {% include "AKDashboard/dashboard_row.html" %}
-            {% if event.contact_email %}
-                <p>
-                    <a href="mailto:{{ event.contact_email }}">{% fa6_icon "envelope" "fas" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
-                </p>
-            {% endif %}
-        </div>
-    {% empty %}
+    {% if total_event_count > 0 %}
+        {% for event in active_and_current_events %}
+            <div class="dashboard-row">
+                {% include "AKDashboard/dashboard_row.html" %}
+                {% if event.contact_email %}
+                    <p>
+                        <a href="mailto:{{ event.contact_email }}">{% fa6_icon "envelope" "fas" %} {% trans "Write to organizers of this event for questions and comments" %}</a>
+                    </p>
+                {% endif %}
+            </div>
+        {% endfor %}
+        {% if old_event_count > 0 %}
+            <h2 class="mb-3">{% trans "Old events" %}</h2>
+            {% for event in old_events %}
+                <div class="dashboard-row-small">
+                    {% include "AKDashboard/dashboard_row_old_event.html" %}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% else %}
         <div class="jumbotron">
             <h2 class="display-4">
                 {% trans 'Currently, there are no Events!' %}
@@ -27,5 +37,5 @@
                 {% trans 'Please contact an administrator if you want to use AKPlanning.' %}
             </p>
         </div>
-    {% endfor %}
+    {% endif %}
 {% endblock %}

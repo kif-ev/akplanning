@@ -90,7 +90,8 @@ class DashboardTests(TestCase):
         self.event.save()
         response = self.client.get(url_dashboard_index)
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(self.event in response.context["events"])
+        self.assertFalse(self.event in response.context["active_and_current_events"])
+        self.assertFalse(self.event in response.context["old_events"])
         response = self.client.get(url_event_dashboard)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["event"], self.event)
@@ -100,7 +101,7 @@ class DashboardTests(TestCase):
         self.event.save()
         response = self.client.get(url_dashboard_index)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(self.event in response.context["events"])
+        self.assertTrue(self.event in response.context["active_and_current_events"])
 
     def test_active(self):
         """
