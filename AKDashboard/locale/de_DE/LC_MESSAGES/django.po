@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-16 16:30+0200\n"
+"POT-Creation-Date: 2025-01-01 17:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,17 +61,22 @@ msgstr "Veranstaltung"
 msgid "Event this button belongs to"
 msgstr "Veranstaltung, zu der dieser Button gehört"
 
-#: AKDashboard/templates/AKDashboard/dashboard.html:17
+#: AKDashboard/templates/AKDashboard/dashboard.html:18
 #: AKDashboard/templates/AKDashboard/dashboard_event.html:29
+#: AKDashboard/templates/AKDashboard/dashboard_row_old_event.html:53
 msgid "Write to organizers of this event for questions and comments"
 msgstr ""
 "Kontaktiere die Organisator*innen des Events bei Fragen oder Kommentaren"
 
 #: AKDashboard/templates/AKDashboard/dashboard.html:24
+msgid "Old events"
+msgstr "Frühere Veranstaltungen"
+
+#: AKDashboard/templates/AKDashboard/dashboard.html:34
 msgid "Currently, there are no Events!"
 msgstr "Aktuell gibt es keine Events!"
 
-#: AKDashboard/templates/AKDashboard/dashboard.html:27
+#: AKDashboard/templates/AKDashboard/dashboard.html:37
 msgid "Please contact an administrator if you want to use AKPlanning."
 msgstr ""
 "Bitte kontaktiere eine*n Administrator*in, falls du AKPlanning verwenden "
@@ -81,46 +86,49 @@ msgstr ""
 msgid "Recent"
 msgstr "Kürzlich"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:12
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:18
+#: AKDashboard/templates/AKDashboard/dashboard_row_old_event.html:20
 msgid "AK List"
 msgstr "AK-Liste"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:23
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:29
 msgid "Current AKs"
 msgstr "Aktuelle AKs"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:30
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:36
 msgid "AK Wall"
 msgstr "AK-Wall"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:38
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:44
+#: AKDashboard/templates/AKDashboard/dashboard_row_old_event.html:30
 msgid "Schedule"
 msgstr "AK-Plan"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:49
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:55
 msgid "AK Submission"
 msgstr "AK-Einreichung"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:57
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:63
+#: AKDashboard/templates/AKDashboard/dashboard_row_old_event.html:39
 msgid "AK History"
 msgstr "AK-Verlauf"
 
-#: AKDashboard/views.py:59
+#: AKDashboard/views.py:69
 #, python-format
 msgid "New AK: %(ak)s."
 msgstr "Neuer AK: %(ak)s."
 
-#: AKDashboard/views.py:62
+#: AKDashboard/views.py:72
 #, python-format
 msgid "AK \"%(ak)s\" edited."
 msgstr "AK \"%(ak)s\" bearbeitet."
 
-#: AKDashboard/views.py:65
+#: AKDashboard/views.py:75
 #, python-format
 msgid "AK \"%(ak)s\" deleted."
 msgstr "AK \"%(ak)s\" gelöscht."
 
-#: AKDashboard/views.py:80
+#: AKDashboard/views.py:90
 #, python-format
 msgid "AK \"%(ak)s\" (re-)scheduled."
 msgstr "AK \"%(ak)s\" (um-)geplant."

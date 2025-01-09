@@ -3,6 +3,12 @@
 {% load fontawesome_6 %}
 
 <h2><a href="{% url 'dashboard:dashboard_event' slug=event.slug %}">{{ event.name }}</a></h2>
+<h4 class="text-muted">
+    {% if event.place %}
+        <b>{{ event.place }} &middot;</b>
+    {% endif %}
+    {{ event | event_month_year }}
+</h4>
 <div class="mt-2">
     {% if 'AKSubmission'|check_app_installed %}
         <a class="dashboard-box btn btn-primary"
