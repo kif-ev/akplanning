@@ -1,5 +1,7 @@
+import decimal
 import itertools
 import json
+import math
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Iterable, Generator
@@ -1008,11 +1010,12 @@ class AKSlot(models.Model):
 
         conflict_slots = AKSlot.objects.filter(ak__in=self.ak.conflicts.all())
         dependency_slots = AKSlot.objects.filter(ak__in=self.ak.prerequisites.all())
+        ceil_offet_eps = decimal.Decimal(1e-4)
 
         # self.slots_in_an_hour is set in AKJSONExportView
         data = {
             "id": str(self.pk),
-            "duration": round(self.duration * self.slots_in_an_hour),
+            "duration": math.ceil(self.duration * self.slots_in_an_hour - ceil_offet_eps),
             "properties": {
                 "conflicts": [str(conflict.pk) for conflict in conflict_slots.all()],
                 "dependencies": [str(dep.pk) for dep in dependency_slots.all()],
