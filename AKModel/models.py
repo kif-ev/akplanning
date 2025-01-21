@@ -1029,6 +1029,7 @@ class AKSlot(models.Model):
                                    for owner in self.ak.owners.all()]),
                 "description": self.ak.description,
                 "reso": self.ak.reso,
+                "duration_in_hours": float(self.duration),
                 },
             }
 
