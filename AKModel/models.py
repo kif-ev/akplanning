@@ -989,11 +989,17 @@ class AKSlot(models.Model):
                 return []
             return [f"availability-person-{owner.pk}"]
 
+        conflict_slots = AKSlot.objects.filter(ak__in=self.ak.conflicts.all())
+        dependency_slots = AKSlot.objects.filter(ak__in=self.ak.prerequisites.all())
+
         # self.slots_in_an_hour is set in AKJSONExportView
         data = {
             "id": str(self.pk),
             "duration": round(self.duration * self.slots_in_an_hour),
-            "properties": {},
+            "properties": {
+                "conflicts": [str(conflict.pk) for conflict in conflict_slots.all()],
+                "dependencies": [str(dep.pk) for dep in dependency_slots.all()],
+            },
             "room_constraints": [constraint.name
                                  for constraint in self.ak.requirements.all()],
             "time_constraints": ["resolution"] if self.ak.reso else [],
