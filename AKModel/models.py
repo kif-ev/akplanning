@@ -394,6 +394,23 @@ class Event(models.Model):
                 constraints=category_constraints,
             )
 
+    def discretize_timeslots(self, *, slots_in_an_hour: float = 1.0) -> Iterable[TimeslotBlock]:
+        """"Choose discretization scheme.
+
+        Uses default_time_slots if the event has any DefaultSlot, otherwise uniform_time_slots.
+
+        :param slots_in_an_hour: The percentage of an hour covered by a single slot.
+            Determines the discretization granularity.
+        :yield: Block of optimizer timeslots as the discretization result.
+        :ytype: list of TimeslotBlock
+        """
+
+        if DefaultSlot.objects.filter(event=self).exists():
+            # discretize default slots if they exists
+            yield from merge_blocks(self.default_time_slots(slots_in_an_hour=slots_in_an_hour))
+        else:
+            yield from self.uniform_time_slots(slots_in_an_hour=slots_in_an_hour)
+
     def schedule_from_json(self, schedule: str) -> None:
         """Load AK schedule from a json string.
 
@@ -408,7 +425,7 @@ class Event(models.Model):
 
         timeslot_dict = {
             timeslot.idx: timeslot
-            for block in merge_blocks(self.default_time_slots(slots_in_an_hour=slots_in_an_hour))
+            for block in self.discretize_timeslots(slots_in_an_hour=slots_in_an_hour)
             for timeslot in block
         }
 

@@ -9,7 +9,7 @@ from django.views.generic import ListView, DetailView
 from AKModel.availability.models import Availability
 from AKModel.metaviews.admin import AdminViewMixin, FilterByEventSlugMixin, EventSlugMixin, IntermediateAdminView, \
     IntermediateAdminActionView
-from AKModel.models import AKRequirement, AKSlot, DefaultSlot, Event, AKOrgaMessage, AK, Room, AKOwner, merge_blocks
+from AKModel.models import AKRequirement, AKSlot, Event, AKOrgaMessage, AK, Room, AKOwner
 
 
 class AKRequirementOverview(AdminViewMixin, FilterByEventSlugMixin, ListView):
@@ -114,11 +114,7 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
             if (values := AKSlot.objects.select_related().filter(ak__pk=ak_id, fixed=True)).exists()
         }
 
-        if DefaultSlot.objects.filter(event=self.event).exists():
-            # discretize default slots if they exists
-            blocks = merge_blocks(self.event.default_time_slots(slots_in_an_hour=SLOTS_IN_AN_HOUR))
-        else:
-            blocks = self.event.uniform_time_slots(slots_in_an_hour=SLOTS_IN_AN_HOUR)
+        blocks = self.event.discretize_timeslots(slots_in_an_hour=SLOTS_IN_AN_HOUR)
 
         for block in blocks:
             current_block = []
