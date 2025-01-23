@@ -1012,6 +1012,8 @@ class AKSlot(models.Model):
 
         conflict_slots = AKSlot.objects.filter(ak__in=self.ak.conflicts.all())
         dependency_slots = AKSlot.objects.filter(ak__in=self.ak.prerequisites.all())
+        other_ak_slots = AKSlot.objects.filter(ak=self.ak).exclude(pk=self.pk)
+
         ceil_offet_eps = decimal.Decimal(1e-4)
 
         # self.slots_in_an_hour is set in AKJSONExportView
@@ -1019,7 +1021,9 @@ class AKSlot(models.Model):
             "id": str(self.pk),
             "duration": math.ceil(self.duration * self.slots_in_an_hour - ceil_offet_eps),
             "properties": {
-                "conflicts": [str(conflict.pk) for conflict in conflict_slots.all()],
+                "conflicts":
+                    [str(conflict.pk) for conflict in conflict_slots.all()]
+                  + [str(second_slot.pk) for second_slot in other_ak_slots.all()],
                 "dependencies": [str(dep.pk) for dep in dependency_slots.all()],
             },
             "room_constraints": [constraint.name
