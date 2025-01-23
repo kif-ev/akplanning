@@ -1036,6 +1036,7 @@ class AKSlot(models.Model):
                 "description": self.ak.description,
                 "reso": self.ak.reso,
                 "duration_in_hours": float(self.duration),
+                "django_ak_id": str(self.ak.pk),
                 },
             }
 
