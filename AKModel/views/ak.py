@@ -109,8 +109,8 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
             slot.slots_in_an_hour = SLOTS_IN_AN_HOUR
 
         ak_availabilities = {
-            slot.ak.pk: Availability.union(slot.ak.availabilities.all())
-            for slot in context["slots"]
+            ak.pk: Availability.union(ak.availabilities.all())
+            for ak in AK.objects.filter(event=self.event).all()
         }
         room_availabilities = {
             room.pk: Availability.union(room.availabilities.all())
