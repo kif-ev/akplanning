@@ -59,13 +59,13 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
         """Test if event is not covered by availabilities."""
         return not Availability.is_event_covered(self.event, availabilities)
 
-    def _test_ak_fixed_in_slot(self, ak_id, slot: Availability, ak_fixed: dict) -> bool:
-        """Test if AK defined by `ak_id` is fixed to happen during slot."""
-        if not ak_id in ak_fixed:
+    def _test_akslot_fixed_in_timeslot(self, ak_slot: AKSlot, timeslot: Availability) -> bool:
+        """Test if an AKSlot is fixed to overlap a timeslot slot."""
+        if not ak_slot.fixed or ak_slot.start is None:
             return False
 
-        fixed_slot = Availability(self.event, start=ak_fixed[ak_id].start, end=ak_fixed[ak_id].end)
-        return fixed_slot.overlaps(slot, strict=True)
+        fixed_avail = Availability(event=self.event, start=ak_slot.start, end=ak_slot.end)
+        return fixed_avail.overlaps(timeslot, strict=True)
 
     def _test_add_constraint(self, slot: Availability, availabilities: List[Availability]) -> bool:
         """Test if object is not available for whole event and may happen during slot."""
@@ -73,6 +73,19 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
             self._test_event_not_covered(availabilities)
             and self._test_slot_contained(slot, availabilities)
         )
+
+    def _generate_time_constraints(
+        self,
+        avail_label: str,
+        avail_dict: dict,
+        timeslot_avail: Availability,
+        prefix: str = "availability",
+    ) -> list[str]:
+        return [
+            f"{prefix}-{avail_label}-{pk}"
+            for pk, availabilities in avail_dict.items()
+            if self._test_add_constraint(timeslot_avail, availabilities)
+        ]
 
     def get_queryset(self):
         return super().get_queryset().order_by("ak__track")
@@ -108,12 +121,6 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
             for person in AKOwner.objects.filter(event=self.event)
         }
 
-        ak_fixed = {
-            ak_id: values.get()
-            for ak_id in ak_availabilities.keys()
-            if (values := AKSlot.objects.select_related().filter(ak__pk=ak_id, fixed=True)).exists()
-        }
-
         blocks = self.event.discretize_timeslots(slots_in_an_hour=SLOTS_IN_AN_HOUR)
 
         for block in blocks:
@@ -127,26 +134,28 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
                     time_constraints.append("resolution")
 
                 # add fulfilled time constraints for all AKs that cannot happen during full event
-                time_constraints.extend([
-                    f"availability-ak-{ak_id}"
-                    for ak_id, availabilities in ak_availabilities.items()
-                    if (
-                        self._test_add_constraint(timeslot.avail, availabilities)
-                        or self._test_ak_fixed_in_slot(ak_id, timeslot.avail, ak_fixed)
-                    )
-                ])
+                time_constraints.extend(
+                    self._generate_time_constraints("ak", ak_availabilities, timeslot.avail)
+                )
+
                 # add fulfilled time constraints for all persons that are not available for full event
-                time_constraints.extend([
-                    f"availability-person-{person_id}"
-                    for person_id, availabilities in person_availabilities.items()
-                    if self._test_add_constraint(timeslot.avail, availabilities)
-                ])
+                time_constraints.extend(
+                    self._generate_time_constraints("person", person_availabilities, timeslot.avail)
+                )
+
                 # add fulfilled time constraints for all rooms that are not available for full event
+                time_constraints.extend(
+                    self._generate_time_constraints("room", room_availabilities, timeslot.avail)
+                )
+
+                # add fulfilled time constraints for all AKSlots fixed to happen during timeslot
                 time_constraints.extend([
-                    f"availability-room-{room_id}"
-                    for room_id, availabilities in room_availabilities.items()
-                    if self._test_add_constraint(timeslot.avail, availabilities)
+                    f"fixed-akslot-{slot.id}"
+                    for slot in AKSlot.objects.filter(event=self.event, fixed=True)
+                                              .exclude(start__isnull=True)
+                    if self._test_akslot_fixed_in_timeslot(slot, timeslot.avail)
                 ])
+
                 time_constraints.extend(timeslot.constraints)
 
                 current_block.append({

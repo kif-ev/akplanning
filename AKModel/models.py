@@ -998,10 +998,12 @@ class AKSlot(models.Model):
         # check if ak resp. owner is available for the whole event
         # -> no time constraint needs to be introduced
 
-        if not self.fixed and Availability.is_event_covered(self.event, self.ak.availabilities.all()):
-            ak_time_constraints = []
-        else:
+        if self.fixed and self.start is not None:
+            ak_time_constraints = [f"fixed-akslot-{self.id}"]
+        elif not Availability.is_event_covered(self.event, self.ak.availabilities.all()):
             ak_time_constraints = [f"availability-ak-{self.ak.pk}"]
+        else:
+            ak_time_constraints = []
 
         def _owner_time_constraints(owner: AKOwner):
             if Availability.is_event_covered(self.event, owner.availabilities.all()):
@@ -1041,7 +1043,7 @@ class AKSlot(models.Model):
             category_constraints = AKCategory.create_category_constraints([self.ak.category])
             data["time_constraints"].extend(category_constraints)
 
-        if self.room is not None and self.fixed:
+        if self.fixed and self.room is not None:
             data["room_constraints"].append(f"availability-room-{self.room.pk}")
 
         if not any(constr.startswith("proxy") for constr in data["room_constraints"]):
