@@ -880,7 +880,7 @@ class Room(models.Model):
             "time_constraints": time_constraints
         }
 
-        data["fulfilled_room_constraints"].append(f"availability-room-{self.pk}")
+        data["fulfilled_room_constraints"].append(f"fixed-room-{self.pk}")
 
         if not any(constr.startswith("proxy") for constr in data["fulfilled_room_constraints"]):
             data["fulfilled_room_constraints"].append("no-proxy")
@@ -1044,7 +1044,7 @@ class AKSlot(models.Model):
             data["time_constraints"].extend(category_constraints)
 
         if self.fixed and self.room is not None:
-            data["room_constraints"].append(f"availability-room-{self.room.pk}")
+            data["room_constraints"].append(f"fixed-room-{self.room.pk}")
 
         if not any(constr.startswith("proxy") for constr in data["room_constraints"]):
             data["room_constraints"].append("no-proxy")
