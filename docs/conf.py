@@ -11,7 +11,7 @@ import django
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'AK Planning'
-copyright = '2023, N. Geisler, B. Hättasch & more'
+copyright = '2025, N. Geisler, B. Hättasch & more'
 author = 'N. Geisler, B. Hättasch & more'
 
 # -- General configuration ---------------------------------------------------
