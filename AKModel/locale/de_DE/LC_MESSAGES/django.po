@@ -450,7 +450,19 @@ msgstr "Standardslotlänge"
 msgid "Default length in hours that is assumed for AKs in this event."
 msgstr "Standardlänge von Slots (in Stunden) für dieses Event"
 
-#: AKModel/models.py:66
+#: AKModel/models.py:154
+msgid "Export Slot Length"
+msgstr "Export-Slotlänge"
+
+#: AKModel/models.py:156
+msgid ""
+"Slot duration in hours that is used in the timeslot discretization, when "
+"this event is exported for the solver."
+msgstr ""
+"Länge von Slots (in Stunden) in der Zeitslot-Diskretisierung beim "
+"JSON-Export dieses Events."
+
+#: AKModel/models.py:161
 msgid "Contact email address"
 msgstr "E-Mail Kontaktadresse"
 
@@ -1012,6 +1024,14 @@ msgstr "Primäre Kategorien"
 #: AKModel/models.py:927
 msgid "Categories that should be assigned to this slot primarily"
 msgstr "Kategorieren, die diesem Slot primär zugewiesen werden sollen"
+
+#: AKModel/models.py:936
+msgid "Conflicts"
+msgstr "Konflikte"
+
+#: AKModel/models.py:939
+msgid "Prerequisites"
+msgstr "Voraussetzungen"
 
 #: AKModel/site.py:13 AKModel/site.py:14
 msgid "Administration"
