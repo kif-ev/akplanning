@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse_lazy
 
 from AKModel.models import AK, AKSlot, Event
-from AKModel.tests import BasicViewTests
+from AKModel.tests.test_views import BasicViewTests
 from AKSubmission.forms import AKSubmissionForm
 
 

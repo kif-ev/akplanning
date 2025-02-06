@@ -55,7 +55,9 @@ class EventsView(LoginRequiredMixin, EventSlugMixin, ListView):
     model = AKSlot
 
     def get_queryset(self):
-        return super().get_queryset().select_related('ak').filter(event=self.event, room__isnull=False)
+        return super().get_queryset().select_related('ak').filter(
+            event=self.event, room__isnull=False, start__isnull=False
+        )
 
     def render_to_response(self, context, **response_kwargs):
         return JsonResponse(

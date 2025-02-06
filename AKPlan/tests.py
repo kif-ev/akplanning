@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from AKModel.tests import BasicViewTests
+from AKModel.tests.test_views import BasicViewTests
 
 
 class PlanViewTests(BasicViewTests, TestCase):

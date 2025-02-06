@@ -50,11 +50,6 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
     context_object_name = "slots"
     title = _("AK JSON Export")
 
-
-    def _test_slot_contained(self, slot: Availability, availabilities: List[Availability]) -> bool:
-        """Test if slot is contained in any member of availabilities."""
-        return any(availability.contains(slot) for availability in availabilities)
-
     def _test_event_not_covered(self, availabilities: List[Availability]) -> bool:
         """Test if event is not covered by availabilities."""
         return not Availability.is_event_covered(self.event, availabilities)
@@ -70,8 +65,7 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
     def _test_add_constraint(self, slot: Availability, availabilities: List[Availability]) -> bool:
         """Test if object is not available for whole event and may happen during slot."""
         return (
-            self._test_event_not_covered(availabilities)
-            and self._test_slot_contained(slot, availabilities)
+            self._test_event_not_covered(availabilities) and slot.is_covered(availabilities)
         )
 
     def _generate_time_constraints(
@@ -161,7 +155,8 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
                 current_block.append({
                     "id": str(timeslot.idx),
                     "info": {
-                        "start": timeslot.avail.simplified,
+                        "start": timeslot.avail.start.astimezone(self.event.timezone).strftime("%Y-%m-%d %H:%M"),
+                        "end": timeslot.avail.end.astimezone(self.event.timezone).strftime("%Y-%m-%d %H:%M"),
                     },
                     "fulfilled_time_constraints": time_constraints,
                     })

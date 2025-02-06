@@ -280,6 +280,16 @@ class Availability(models.Model):
         return Availability(start=timeframe_start, end=timeframe_end, event=event, person=person,
                                     room=room, ak=ak, ak_category=ak_category)
 
+    def is_covered(self, availabilities: List['Availability']):
+        """Check if list of availibilities cover this object.
+
+        :param availabilities: availabilities to check.
+        :return: whether the availabilities cover full event.
+        :rtype: bool
+        """
+        avail_union = Availability.union(availabilities)
+        return any(avail.contains(self) for avail in avail_union)
+
     @classmethod
     def is_event_covered(cls, event: Event, availabilities: List['Availability']) -> bool:
         """Check if list of availibilities cover whole event.
@@ -292,8 +302,7 @@ class Availability(models.Model):
         # NOTE: Cannot use `Availability.with_event_length` as its end is the
         #       event end + 1 day
         full_event = Availability(event=event, start=event.start, end=event.end)
-        avail_union = Availability.union(availabilities)
-        return any(avail.contains(full_event) for avail in avail_union)
+        return full_event.is_covered(availabilities)
 
     class Meta:
         verbose_name = _('Availability')

@@ -93,7 +93,7 @@
     "model": "AKModel.akcategory",
     "pk": 1,
     "fields": {
-        "name": "Spa▀",
+        "name": "Spaß",
         "color": "275246",
         "description": "",
         "present_by_default": true,
@@ -115,7 +115,7 @@
     "model": "AKModel.akcategory",
     "pk": 3,
     "fields": {
-        "name": "Spa▀/Kultur",
+        "name": "Spaß/Kultur",
         "color": "333333",
         "description": "",
         "present_by_default": true,
@@ -438,6 +438,62 @@
     }
 },
 {
+    "model": "AKModel.ak",
+    "pk": 4,
+    "fields": {
+        "name": "Test AK fixed slots",
+        "short_name": "testfixed",
+        "description": "",
+        "link": "",
+        "protocol_link": "",
+        "category": 4,
+        "track": null,
+        "reso": false,
+        "present": true,
+        "notes": "",
+        "interest": -1,
+        "interest_counter": 0,
+        "include_in_export": false,
+        "event": 2,
+        "owners": [
+            1
+        ],
+        "requirements": [
+            3
+        ],
+        "conflicts": [],
+        "prerequisites": []
+    }
+},
+{
+    "model": "AKModel.ak",
+    "pk": 5,
+    "fields": {
+        "name": "Test AK Ernst",
+        "short_name": "testernst",
+        "description": "",
+        "link": "",
+        "protocol_link": "",
+        "category": 2,
+        "track": null,
+        "reso": false,
+        "present": true,
+        "notes": "",
+        "interest": -1,
+        "interest_counter": 0,
+        "include_in_export": false,
+        "event": 1,
+        "owners": [
+            3
+        ],
+        "requirements": [
+            2
+        ],
+        "conflicts": [],
+        "prerequisites": []
+    }
+},
+{
     "model": "AKModel.room",
     "pk": 1,
     "fields": {
@@ -459,6 +515,19 @@
         "capacity": 30,
         "event": 2,
         "properties": []
+    }
+},
+{
+    "model": "AKModel.room",
+    "pk": 3,
+    "fields": {
+        "name": "BBB Session 1",
+        "location": "",
+        "capacity": -1,
+        "event": 1,
+        "properties": [
+            2
+        ]
     }
 },
 {
@@ -523,6 +592,58 @@
         "duration": "2.00",
         "fixed": false,
         "event": 2,
+        "updated": "2022-12-02T12:23:11.856Z"
+    }
+},
+{
+    "model": "AKModel.akslot",
+    "pk": 6,
+    "fields": {
+        "ak": 4,
+        "room": null,
+        "start": "2020-11-08T18:30:00Z",
+        "duration": "2.00",
+        "fixed": true,
+        "event": 2,
+        "updated": "2022-12-02T12:23:11.856Z"
+    }
+},
+{
+    "model": "AKModel.akslot",
+    "pk": 7,
+    "fields": {
+        "ak": 4,
+        "room": 2,
+        "start": null,
+        "duration": "2.00",
+        "fixed": true,
+        "event": 2,
+        "updated": "2022-12-02T12:23:11.856Z"
+    }
+},
+{
+    "model": "AKModel.akslot",
+    "pk": 8,
+    "fields": {
+        "ak": 4,
+        "room": 2,
+        "start": "2020-11-07T16:00:00Z",
+        "duration": "2.00",
+        "fixed": true,
+        "event": 2,
+        "updated": "2022-12-02T12:23:11.856Z"
+    }
+},
+{
+    "model": "AKModel.akslot",
+    "pk": 9,
+    "fields": {
+        "ak": 5,
+        "room": null,
+        "start": null,
+        "duration": "2.00",
+        "fixed": false,
+        "event": 1,
         "updated": "2022-12-02T12:23:11.856Z"
     }
 },
@@ -668,6 +789,72 @@
         "ak_category": null,
         "start": "2020-11-07T18:30:00Z",
         "end": "2020-11-07T21:30:00Z"
+    }
+},
+{
+    "model": "AKModel.availability",
+    "pk": 7,
+    "fields": {
+        "event": 1,
+        "person": null,
+        "room": null,
+        "ak": 5,
+        "ak_category": null,
+        "start": "2020-10-01T17:41:22Z",
+        "end": "2020-10-04T17:41:30Z"
+    }
+},
+{
+    "model": "AKModel.availability",
+    "pk": 8,
+    "fields": {
+        "event": 1,
+        "person": null,
+        "room": 3,
+        "ak": null,
+        "ak_category": null,
+        "start": "2020-10-01T17:41:22Z",
+        "end": "2020-10-04T17:41:30Z"
+    }
+},
+{
+    "model": "AKModel.defaultslot",
+    "pk": 1,
+    "fields": {
+        "event": 2,
+        "start": "2020-11-07T08:00:00Z",
+        "end": "2020-11-07T12:00:00Z",
+        "primary_categories": [5]
+    }
+},
+{
+    "model": "AKModel.defaultslot",
+    "pk": 2,
+    "fields": {
+        "event": 2,
+        "start": "2020-11-07T14:00:00Z",
+        "end": "2020-11-07T17:00:00Z",
+        "primary_categories": [4]
+    }
+},
+{
+    "model": "AKModel.defaultslot",
+    "pk": 3,
+    "fields": {
+        "event": 2,
+        "start": "2020-11-08T08:00:00Z",
+        "end": "2020-11-08T19:00:00Z",
+        "primary_categories": [4, 5]
+    }
+},
+{
+    "model": "AKModel.defaultslot",
+    "pk": 4,
+    "fields": {
+        "event": 2,
+        "start": "2020-11-09T17:00:00Z",
+        "end": "2020-11-10T01:00:00Z",
+        "primary_categories": [4, 5, 3]
     }
 }
 ]

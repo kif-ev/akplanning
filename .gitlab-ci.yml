@@ -37,7 +37,7 @@ test:
   script:
     - source venv/bin/activate
     - echo "GRANT ALL on *.* to '${MYSQL_USER}';"| mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -h mysql
-    - pip install pytest-cov unittest-xml-reporting
+    - pip install pytest-cov unittest-xml-reporting beautifulsoup4
     - coverage run --source='.' manage.py test --settings AKPlanning.settings_ci
   after_script:
     - source venv/bin/activate
@@ -55,6 +55,8 @@ lint:
   extends: .before_script_template
   stage: test
   script:
+    - source venv/bin/activate
+    - pip install beautifulsoup4
     - pylint --load-plugins pylint_django --django-settings-module=AKPlanning.settings_ci --rcfile pylintrc --exit-zero --output-format=text AK* | tee /tmp/pylint.txt
     - sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' /tmp/pylint.txt > public/badges/$CI_JOB_NAME.score
     - pylint --load-plugins pylint_django --django-settings-module=AKPlanning.settings_ci --rcfile pylintrc --exit-zero --output-format=pylint_gitlab.GitlabCodeClimateReporter AK* > codeclimate.json
