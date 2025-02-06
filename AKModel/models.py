@@ -414,7 +414,7 @@ class Event(models.Model):
         """
 
         if slots_in_an_hour is None:
-            slots_in_an_hour = float(self.export_slot)
+            slots_in_an_hour = 1.0 / float(self.export_slot)
 
         if DefaultSlot.objects.filter(event=self).exists():
             # discretize default slots if they exists
@@ -1073,7 +1073,7 @@ class AKSlot(models.Model):
 
         data = {
             "id": str(self.pk),
-            "duration": math.ceil(self.duration * self.event.export_slot - ceil_offet_eps),
+            "duration": math.ceil(self.duration / self.event.export_slot - ceil_offet_eps),
             "properties": {
                 "conflicts":
                     [str(conflict.pk) for conflict in conflict_slots.all()]

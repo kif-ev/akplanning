@@ -92,7 +92,7 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
         context["rooms"] = rooms
 
         timeslots = {
-            "info": {"duration": (1.0 / float(self.event.export_slot)), },
+            "info": {"duration": float(self.event.export_slot)},
             "blocks": [],
             }
 
