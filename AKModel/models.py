@@ -165,8 +165,8 @@ class Event(models.Model):
                                        help_text=_('Default length in hours that is assumed for AKs in this event.'))
     export_slot = models.DecimalField(max_digits=4, decimal_places=2, default=1, verbose_name=_('Export Slot Length'),
                                         help_text=_(
-                                            'Slot duration in hours that is used in the timeslot discretization, when this event '
-                                            'is exported for the solver.'
+                                            'Slot duration in hours that is used in the timeslot discretization, '
+                                            'when this event is exported for the solver.'
                                         ))
 
 
