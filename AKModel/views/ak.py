@@ -91,16 +91,10 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
         rooms = Room.objects.filter(event=self.event)
         context["rooms"] = rooms
 
-        # TODO: Configure magic number in event
-        SLOTS_IN_AN_HOUR = 1
-
         timeslots = {
-            "info": {"duration": (1.0 / SLOTS_IN_AN_HOUR), },
+            "info": {"duration": (1.0 / float(self.event.export_slot)), },
             "blocks": [],
             }
-
-        for slot in context["slots"]:
-            slot.slots_in_an_hour = SLOTS_IN_AN_HOUR
 
         ak_availabilities = {
             ak.pk: Availability.union(ak.availabilities.all())
@@ -115,7 +109,7 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
             for person in AKOwner.objects.filter(event=self.event)
         }
 
-        blocks = self.event.discretize_timeslots(slots_in_an_hour=SLOTS_IN_AN_HOUR)
+        blocks = self.event.discretize_timeslots()
 
         for block in blocks:
             current_block = []

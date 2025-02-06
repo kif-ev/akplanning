@@ -163,6 +163,12 @@ class Event(models.Model):
     wiki_export_template_name = models.CharField(verbose_name=_("Wiki Export Template Name"), blank=True, max_length=50)
     default_slot = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Default Slot Length'),
                                        help_text=_('Default length in hours that is assumed for AKs in this event.'))
+    export_slot = models.DecimalField(max_digits=4, decimal_places=2, default=1, verbose_name=_('Export Slot Length'),
+                                        help_text=_(
+                                            'Slot duration in hours that is used in the timeslot discretization, when this event '
+                                            'is exported for the solver.'
+                                        ))
+
 
     contact_email = models.EmailField(verbose_name=_("Contact email address"), blank=True,
                                       help_text=_("An email address that is displayed on every page "
@@ -348,7 +354,7 @@ class Event(models.Model):
 
         return slot_index
 
-    def uniform_time_slots(self, *, slots_in_an_hour: float = 1.0) -> Iterable[TimeslotBlock]:
+    def uniform_time_slots(self, *, slots_in_an_hour: float) -> Iterable[TimeslotBlock]:
         """Uniformly discretize the entire event into blocks of timeslots.
 
         Discretizes entire event uniformly. May not necessarily result in a single block
@@ -370,7 +376,7 @@ class Event(models.Model):
             constraints=all_category_constraints,
         )
 
-    def default_time_slots(self, *, slots_in_an_hour: float = 1.0) -> Iterable[TimeslotBlock]:
+    def default_time_slots(self, *, slots_in_an_hour: float) -> Iterable[TimeslotBlock]:
         """Discretize all default slots into blocks of timeslots.
 
         In the discretization each default slot corresponds to one block.
@@ -396,7 +402,7 @@ class Event(models.Model):
                 constraints=category_constraints,
             )
 
-    def discretize_timeslots(self, *, slots_in_an_hour: float = 1.0) -> Iterable[TimeslotBlock]:
+    def discretize_timeslots(self, *, slots_in_an_hour: float | None = None) -> Iterable[TimeslotBlock]:
         """"Choose discretization scheme.
 
         Uses default_time_slots if the event has any DefaultSlot, otherwise uniform_time_slots.
@@ -406,6 +412,9 @@ class Event(models.Model):
         :yield: Block of optimizer timeslots as the discretization result.
         :ytype: list of TimeslotBlock
         """
+
+        if slots_in_an_hour is None:
+            slots_in_an_hour = float(self.export_slot)
 
         if DefaultSlot.objects.filter(event=self).exists():
             # discretize default slots if they exists
@@ -1062,10 +1071,9 @@ class AKSlot(models.Model):
 
         ceil_offet_eps = decimal.Decimal(1e-4)
 
-        # self.slots_in_an_hour is set in AKJSONExportView
         data = {
             "id": str(self.pk),
-            "duration": math.ceil(self.duration * self.slots_in_an_hour - ceil_offet_eps),
+            "duration": math.ceil(self.duration * self.event.export_slot - ceil_offet_eps),
             "properties": {
                 "conflicts":
                     [str(conflict.pk) for conflict in conflict_slots.all()]
