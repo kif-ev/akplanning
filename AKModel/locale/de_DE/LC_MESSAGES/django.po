@@ -466,6 +466,38 @@ msgstr ""
 msgid "Events"
 msgstr "Events"
 
+#: AKModel/models.py:430
+#, python-brace-format
+msgid "AK {ak_name} is not assigned any timeslot by the solver"
+msgstr "Dem AK {ak_name} wurde vom Solver kein Zeitslot zugewiesen"
+
+#: AKModel/models.py:440
+#, python-brace-format
+msgid ""
+"Duration of AK {ak_name} assigned by solver ({solver_duration} hours) is "
+"less than the duration required by the slot ({slot_duration} hours)"
+msgstr ""
+"Die dem AK {ak_name} vom Solver zugewiesene Dauer ({solver_duration} Stunden) ist "
+"kürzer als die aktuell vorgesehene Dauer des Slots ({slot_duration} Stunden)"
+
+#: AKModel/models.py:454
+#, python-brace-format
+msgid ""
+"Fixed AK {ak_name} assigned by solver to room {solver_room} is fixed to room "
+"{slot_room}"
+msgstr ""
+"Dem fix geplanten AK {ak_name} wurde vom Solver Raum {solver_room} zugewiesen, "
+"dabei ist der AK bereits fix in Raum {slot_room} eingeplant."
+
+#: AKModel/models.py:465
+#, python-brace-format
+msgid ""
+"Fixed AK {ak_name} assigned by solver to start at {solver_start} is fixed to "
+"start at {slot_start}"
+msgstr ""
+"Dem fix geplanten AK {ak_name} wurde vom Solver die Startzeit {solver_start} zugewiesen, "
+"dabei ist der AK bereits für {slot_start} eingeplant."
+
 #: AKModel/models.py:180
 msgid "Nickname"
 msgstr "Spitzname"
@@ -981,7 +1013,7 @@ msgstr "Primäre Kategorien"
 msgid "Categories that should be assigned to this slot primarily"
 msgstr "Kategorieren, die diesem Slot primär zugewiesen werden sollen"
 
-#: AKModel/site.py:14
+#: AKModel/site.py:13 AKModel/site.py:14
 msgid "Administration"
 msgstr "Verwaltung"
 
@@ -1325,6 +1357,15 @@ msgstr ""
 #: AKModel/views/manage.py:257
 msgid "AK Schedule JSON Import"
 msgstr "AK-Plan JSON-Import"
+
+#: AKModel/views/manage.py:265
+#, python-brace-format
+msgid "Successfully imported {n} slot(s)"
+msgstr "Erfolgreich {n} Slot(s) importiert"
+
+#: AKModel/views/manage.py:271
+msgid "Importing an AK schedule failed! Reason: "
+msgstr "AK-Plan importieren fehlgeschlagen! Grund: "
 
 #: AKModel/views/room.py:37
 #, python-format

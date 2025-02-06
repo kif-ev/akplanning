@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-25 00:24+0200\n"
+"POT-Creation-Date: 2025-01-22 19:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,7 +27,7 @@ msgstr "Ende"
 
 #: AKScheduling/forms.py:26
 msgid "Duration"
-msgstr ""
+msgstr "Dauer"
 
 #: AKScheduling/forms.py:27
 #: AKScheduling/templates/admin/AKScheduling/scheduling.html:171
@@ -107,6 +107,7 @@ msgid "Event Status"
 msgstr "Event-Status"
 
 #: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:113
+#: AKScheduling/views.py:48
 msgid "Scheduling"
 msgstr "Scheduling"
 
@@ -239,6 +240,7 @@ msgstr[1] ""
 "        "
 
 #: AKScheduling/templates/admin/AKScheduling/unscheduled.html:7
+#: AKScheduling/views.py:25
 msgid "Unscheduled AK Slots"
 msgstr "Noch nicht geschedulte AK-Slots"
 
@@ -246,9 +248,21 @@ msgstr "Noch nicht geschedulte AK-Slots"
 msgid "Count"
 msgstr "Anzahl"
 
+#: AKScheduling/views.py:89
+msgid "Constraint violations for"
+msgstr "Constraintverletzungen für"
+
+#: AKScheduling/views.py:104
+msgid "AKs requiring special attention for"
+msgstr "AKs die besondere Aufmerksamkeit erfordern für"
+
 #: AKScheduling/views.py:150
 msgid "Interest updated"
 msgstr "Interesse aktualisiert"
+
+#: AKScheduling/views.py:157
+msgid "Enter interest"
+msgstr "Interesse eingeben"
 
 #: AKScheduling/views.py:201
 msgid "Wishes"

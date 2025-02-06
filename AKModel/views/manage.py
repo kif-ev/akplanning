@@ -257,6 +257,18 @@ class AKScheduleJSONImportView(EventSlugMixin, IntermediateAdminView):
     title = _("AK Schedule JSON Import")
 
     def form_valid(self, form):
-        self.event.schedule_from_json(form.data["json_data"])
+        try:
+            number_of_slots_changed = self.event.schedule_from_json(form.data["json_data"])
+            messages.add_message(
+                self.request,
+                messages.SUCCESS,
+                _("Successfully imported {n} slot(s)").format(n=number_of_slots_changed)
+            )
+        except ValueError as ex:
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                _("Importing an AK schedule failed! Reason: ") + str(ex),
+            )
 
         return redirect("admin:event_status", self.event.slug)

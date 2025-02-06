@@ -420,7 +420,11 @@ msgstr ""
 msgid "Currently planned AKs"
 msgstr "Aktuell geplante AKs"
 
-#: AKSubmission/views.py:305
+#: AKSubmission/views.py:231
+msgid "AKs with Track"
+msgstr "AK mit Track"
+
+#: AKSubmission/views.py:300
 msgid "Event inactive. Cannot create or update."
 msgstr "Event inaktiv. Hinzufügen/Bearbeiten nicht möglich."
 

@@ -8,7 +8,7 @@ from typing import Iterable, Generator
 
 from django.core.validators import RegexValidator
 from django.apps import apps
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Count
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -413,7 +413,8 @@ class Event(models.Model):
         else:
             yield from self.uniform_time_slots(slots_in_an_hour=slots_in_an_hour)
 
-    def schedule_from_json(self, schedule: str) -> None:
+    @transaction.atomic
+    def schedule_from_json(self, schedule: str) -> int:
         """Load AK schedule from a json string.
 
         :param schedule: A string that can be decoded to json, describing
@@ -431,18 +432,63 @@ class Event(models.Model):
             for timeslot in block
         }
 
+        slots_updated = 0
         for scheduled_slot in schedule["scheduled_aks"]:
-            slot = AKSlot.objects.get(id=int(scheduled_slot["ak_id"]))
-            slot.room = Room.objects.get(id=int(scheduled_slot["room_id"]))
-
             scheduled_slot["timeslot_ids"] = list(map(int, scheduled_slot["timeslot_ids"]))
+            slot = AKSlot.objects.get(id=int(scheduled_slot["ak_id"]))
+
+            if not scheduled_slot["timeslot_ids"]:
+                raise ValueError(
+                    _("AK {ak_name} is not assigned any timeslot by the solver").format(ak_name=slot.ak.name)
+                )
 
             start_timeslot = timeslot_dict[min(scheduled_slot["timeslot_ids"])].avail
             end_timeslot = timeslot_dict[max(scheduled_slot["timeslot_ids"])].avail
+            solver_duration = (end_timeslot.end - start_timeslot.start).total_seconds() / 3600.0
 
-            slot.start = start_timeslot.start
-            slot.duration = (end_timeslot.end - start_timeslot.start).total_seconds() / 3600.0
-            slot.save()
+            if solver_duration + 2e-4 < slot.duration:
+                raise ValueError(
+                    _(
+                        "Duration of AK {ak_name} assigned by solver ({solver_duration} hours) "
+                        "is less than the duration required by the slot ({slot_duration} hours)"
+                    ).format(
+                        ak_name=slot.ak.name,
+                        solver_duration=solver_duration,
+                        slot_duration=slot.duration,
+                    )
+                )
+
+            if slot.fixed:
+                solver_room = Room.objects.get(id=int(scheduled_slot["room_id"]))
+                if slot.room != solver_room:
+                    raise ValueError(
+                        _(
+                            "Fixed AK {ak_name} assigned by solver to room {solver_room} "
+                            "is fixed to room {slot_room}"
+                        ).format(
+                            ak_name=slot.ak.name,
+                            solver_room=solver_room.name,
+                            slot_room=slot.room.name,
+                        )
+                    )
+                if slot.start != start_timeslot.start:
+                    raise ValueError(
+                        _(
+                            "Fixed AK {ak_name} assigned by solver to start at {solver_start} "
+                            "is fixed to start at {slot_start}"
+                        ).format(
+                            ak_name=slot.ak.name,
+                            solver_start=start_timeslot.start,
+                            slot_start=slot.start,
+                        )
+                    )
+            else:
+                slot.room = Room.objects.get(id=int(scheduled_slot["room_id"]))
+                slot.start = start_timeslot.start
+                slot.save()
+                slots_updated += 1
+
+        return slots_updated
 
 class AKOwner(models.Model):
     """ An AKOwner describes the person organizing/holding an AK.
