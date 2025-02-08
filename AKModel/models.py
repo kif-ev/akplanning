@@ -1061,7 +1061,8 @@ class AKSlot(models.Model):
             ak_time_constraints = []
 
         def _owner_time_constraints(owner: AKOwner):
-            if Availability.is_event_covered(self.event, owner.availabilities.all()):
+            owner_avails = owner.availabilities.all()
+            if not owner_avails or Availability.is_event_covered(self.event, owner_avails):
                 return []
             return [f"availability-person-{owner.pk}"]
 

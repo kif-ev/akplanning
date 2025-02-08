@@ -479,6 +479,10 @@ class JSONExportTest(TestCase):
 
                     for owner in slot.ak.owners.all():
                         # restricted owner availability
+                        if not owner.availabilities.all():
+                            # no availability for owner -> assume full event is covered
+                            continue
+
                         if not Availability.is_event_covered(
                             slot.event, owner.availabilities.all()
                         ):
