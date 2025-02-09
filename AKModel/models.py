@@ -925,7 +925,7 @@ class Room(models.Model):
             time_constraints = [f"availability-room-{self.pk}"]
 
         data = {
-            "id": str(self.pk),
+            "id": self.pk,
             "info": {
                 "name": self.name,
             },
@@ -1073,13 +1073,13 @@ class AKSlot(models.Model):
         ceil_offet_eps = decimal.Decimal(1e-4)
 
         data = {
-            "id": str(self.pk),
+            "id": self.pk,
             "duration": math.ceil(self.duration / self.event.export_slot - ceil_offet_eps),
             "properties": {
                 "conflicts":
-                    [str(conflict.pk) for conflict in conflict_slots.all()]
-                  + [str(second_slot.pk) for second_slot in other_ak_slots.all()],
-                "dependencies": [str(dep.pk) for dep in dependency_slots.all()],
+                    [conflict.pk for conflict in conflict_slots.all()]
+                  + [second_slot.pk for second_slot in other_ak_slots.all()],
+                "dependencies": [dep.pk for dep in dependency_slots.all()],
             },
             "room_constraints": [constraint.name
                                  for constraint in self.ak.requirements.all()],
@@ -1091,7 +1091,7 @@ class AKSlot(models.Model):
                 "description": self.ak.description,
                 "reso": self.ak.reso,
                 "duration_in_hours": float(self.duration),
-                "django_ak_id": str(self.ak.pk),
+                "django_ak_id": self.ak.pk,
                 },
             }
 

@@ -168,7 +168,7 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
                 time_constraints.extend(block_timeconstraints)
 
                 current_block.append({
-                    "id": str(timeslot.idx),
+                    "id": timeslot.idx,
                     "info": {
                         "start": timeslot.avail.start.astimezone(self.event.timezone).strftime("%Y-%m-%d %H:%M"),
                         "end": timeslot.avail.end.astimezone(self.event.timezone).strftime("%Y-%m-%d %H:%M"),
