@@ -86,10 +86,10 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["participants"] = json.dumps([])
+        data = {}
 
         rooms = Room.objects.filter(event=self.event)
-        context["rooms"] = rooms
+        data["rooms"] = [r.as_json_dict() for r in rooms]
 
         timeslots = {
             "info": {"duration": float(self.event.export_slot)},
@@ -179,17 +179,21 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
 
         timeslots["info"]["blocknames"] = block_names
 
-        context["timeslots"] = json.dumps(timeslots)
-
         info_dict = {
             "title": self.event.name,
             "slug": self.event.slug
         }
+
         for attr in ["contact_email", "place"]:
             if hasattr(self.event, attr) and getattr(self.event, attr):
                 info_dict[attr] = getattr(self.event, attr)
 
-        context["info_dict"] = json.dumps(info_dict)
+        data["timeslots"] = timeslots
+        data["info"] = info_dict
+        data["participants"] = []
+        data["aks"] = [ak.as_json_dict() for ak in context["slots"]]
+
+        context["json_data"] = json.dumps(data, indent=2)
 
         return context
 

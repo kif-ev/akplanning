@@ -4,17 +4,6 @@
 
 {% block content %}
 <pre>
-  {"aks": [
-      {% for slot in slots %}{{ slot.as_json }}{% if not forloop.last %},
-      {% endif %}{% endfor %}
-    ],
-  "rooms": [
-      {% for room in rooms %}{{ room.as_json }}{% if not forloop.last %},
-      {% endif %}{% endfor %}
-    ],
-  "participants": {{ participants }},
-  "timeslots": {{ timeslots }},
-  "info": {{ info_dict }}
-  }
+{{ json_data }}
 </pre>
 {% endblock %}

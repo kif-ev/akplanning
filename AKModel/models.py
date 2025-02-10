@@ -4,7 +4,7 @@ import json
 import math
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Iterable, Generator
+from typing import Any, Iterable, Generator
 
 from django.core.validators import RegexValidator
 from django.apps import apps
@@ -906,7 +906,7 @@ class Room(models.Model):
     def __str__(self):
         return self.title
 
-    def as_json(self) -> str:
+    def as_json_dict(self) -> dict[str, Any]:
         """Return a json string representation of this room object.
 
         :return: The json string representation is constructed
@@ -941,7 +941,7 @@ class Room(models.Model):
         if not any(constr.startswith("proxy") for constr in data["fulfilled_room_constraints"]):
             data["fulfilled_room_constraints"].append("no-proxy")
 
-        return json.dumps(data)
+        return data
 
 
 class AKSlot(models.Model):
@@ -1039,7 +1039,7 @@ class AKSlot(models.Model):
         super().save(*args,
                      force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
-    def as_json(self) -> str:
+    def as_json_dict(self) -> dict[str, Any]:
         """Return a json string representation of the AK object of this slot.
 
         :return: The json string representation is constructed
@@ -1111,7 +1111,7 @@ class AKSlot(models.Model):
         if not any(constr.startswith("proxy") for constr in data["room_constraints"]):
             data["room_constraints"].append("no-proxy")
 
-        return json.dumps(data)
+        return data
 
 class AKOrgaMessage(models.Model):
     """
