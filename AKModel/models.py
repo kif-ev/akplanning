@@ -1592,6 +1592,33 @@ class EventParticipant(models.Model):
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
+    def as_json_dict(self) -> dict[str, Any]:
+        """Return a json representation of this participant object.
+
+        :return: The json dict representation is constructed
+            following the input specification of the KoMa conference optimizer, cf.
+            https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
+        :rtype: dict[str, Any]
+        """
+
+        preference_score = self.preference if self.preference != PreferenceLevel.REQUIRED else -1
+        data = {
+            "id": self.pk,
+            "info": {"name": self.name},
+            "room_constraints": [],
+            "time_constraints": [],
+        }
+        data["preferences"] = [
+            pref.as_json()
+            for pref in AKPreference.objects.filter(
+                participant=self, preference__gt=0
+            ).select_related("ak")
+        ]
+        # TODO: Add time constraints based on availabilities
+        # TODO: Add room constraints?
+        return data
+
+
 class AKPreference(models.Model):
     """Model representing the preference of a participant to an AK."""
 
