@@ -581,9 +581,28 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
     ordering = ['name']
 
 
+class AKPreferenceAdminForm(forms.ModelForm):
+    """
+    Adapted admin form for constraint violations for usage in :class:`ConstraintViolationAdmin`)
+    """
+    class Meta:
+        widgets = {
+            'participant': forms.Select,
+            "ak": forms.Select,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter possible values for foreign keys & m2m when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["participant"].queryset = EventParticipant.objects.filter(event=self.instance.event)
+            self.fields["ak"].queryset = AK.objects.filter(event=self.instance.event)
+
+
 @admin.register(AKPreference)
 class AKPreferenceAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
     model = AKPreference
+    form = AKPreferenceAdminForm
     list_display = ['preference', 'participant', 'ak', 'event']
     list_filter = ['event', 'ak', 'participant']
     list_editable = []
