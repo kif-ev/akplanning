@@ -1608,15 +1608,14 @@ class EventParticipant(models.Model):
         :rtype: dict[str, Any]
         """
 
-        preference_score = self.preference if self.preference != PreferenceLevel.REQUIRED else -1
         data = {
             "id": self.pk,
-            "info": {"name": self.name},
+            "info": {"name": str(self)},
             "room_constraints": [],
             "time_constraints": [],
         }
         data["preferences"] = [
-            pref.as_json()
+            pref.as_json_dict()
             for pref in AKPreference.objects.filter(
                 participant=self, preference__gt=0
             ).select_related("ak")
@@ -1656,17 +1655,20 @@ class AKPreference(models.Model):
                                              blank=False,
                                              default=PreferenceLevel.IGNORE)
 
-    def as_json_dict(self) -> dict[str, Any]:
-        """Return a json representation of this preference object.
+    def __str__(self) -> str:
+        return "AKPreference: " + json.dumps(self.as_json_dict())
+
+    def as_json_dict(self) -> dict[str, int | bool]:
+        """Return a json representation of this AKPreference object.
 
         :return: The json dict representation is constructed
             following the input specification of the KoMa conference optimizer, cf.
             https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
         :rtype: dict[str, Any]
         """
-        preference_score = self.preference if self.preference != PreferenceLevel.REQUIRED else -1
+        preference_score = self.preference if self.preference != self.PreferenceLevel.REQUIRED else -1
         return {
             "ak_id": self.ak.pk,
-            "required": self.preference == PreferenceLevel.REQUIRED,
+            "required": self.preference == self.PreferenceLevel.REQUIRED,
             "preference_score": preference_score
         }
