@@ -3,7 +3,18 @@
 {% load tz %}
 
 {% block content %}
+
+<p>
+Exported JSON:
+<pre>
+{{ json_data_oneline }}
+</pre>
+</p>
+
+<p>
+Exported JSON (indented for better readability):
 <pre>
 {{ json_data }}
 </pre>
+</p>
 {% endblock %}

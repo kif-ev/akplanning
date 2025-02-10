@@ -193,6 +193,7 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
         data["participants"] = []
         data["aks"] = [ak.as_json_dict() for ak in context["slots"]]
 
+        context["json_data_oneline"] = json.dumps(data)
         context["json_data"] = json.dumps(data, indent=2)
 
         return context
