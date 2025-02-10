@@ -17,7 +17,7 @@ from simple_history.admin import SimpleHistoryAdmin
 from AKModel.availability.models import Availability
 from AKModel.forms import RoomFormWithAvailabilities
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
-    ConstraintViolation, DefaultSlot, AKType
+    ConstraintViolation, DefaultSlot, AKType, EventParticipant, AKPreference
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
 from AKModel.views.ak import AKResetInterestView, AKResetInterestCounterView
 from AKModel.views.manage import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView
@@ -570,6 +570,24 @@ class DefaultSlotAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
     list_display = ['start_simplified', 'end_simplified', 'event']
     list_filter = ['event']
     form = DefaultSlotAdminForm
+
+
+@admin.register(EventParticipant)
+class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    model = EventParticipant
+    list_display = ['name', 'institution', 'event']
+    list_filter = ['event', 'institution']
+    list_editable = []
+    ordering = ['name']
+
+
+@admin.register(AKPreference)
+class AKPreferenceAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    model = AKPreference
+    list_display = ['preference', 'participant', 'ak', 'event']
+    list_filter = ['event', 'ak', 'participant']
+    list_editable = []
+    ordering = ['participant', 'preference', 'ak']
 
 
 # Define a new User admin

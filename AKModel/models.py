@@ -1593,6 +1593,12 @@ class EventParticipant(models.Model):
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
+    def __str__(self) -> str:
+        string = _("Anonymous {pk}").format(pk=self.pk) if not self.name else self.name
+        if self.institution:
+            string += f" ({self.institution})"
+        return string
+
     def as_json_dict(self) -> dict[str, Any]:
         """Return a json representation of this participant object.
 
