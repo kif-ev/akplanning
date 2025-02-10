@@ -1646,7 +1646,9 @@ class AKPreference(models.Model):
         REQUIRED = 3, _("Required")
 
     preference = models.PositiveSmallIntegerField(verbose_name=_('Preference'), choices=PreferenceLevel.choices,
-                                             help_text=_('Preference level for the AK'))
+                                             help_text=_('Preference level for the AK'),
+                                             blank=False,
+                                             default=PreferenceLevel.IGNORE)
 
     def as_json_dict(self) -> dict[str, Any]:
         """Return a json representation of this preference object.
