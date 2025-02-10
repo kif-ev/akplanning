@@ -573,6 +573,10 @@ class Event(models.Model):
             person.pk: Availability.union(person.availabilities.all())
             for person in AKOwner.objects.filter(event=self)
         }
+        participant_availabilities = {
+            participant.pk: Availability.union(participant.availabilities.all())
+            for participant in EventParticipant.objects.filter(event=self.event)
+        }
 
         blocks = list(self.discretize_timeslots())
 
@@ -618,6 +622,11 @@ class Event(models.Model):
                 # add fulfilled time constraints for all rooms that are not available for full event
                 time_constraints.extend(
                     _generate_time_constraints("room", room_availabilities, timeslot.avail)
+                )
+
+                # add fulfilled time constraints for all participants that are not available for full event
+                time_constraints.extend(
+                    self._generate_time_constraints("participant", participant_availabilities, timeslot.avail)
                 )
 
                 # add fulfilled time constraints for all AKSlots fixed to happen during timeslot
@@ -1599,6 +1608,15 @@ class EventParticipant(models.Model):
             string += f" ({self.institution})"
         return string
 
+    @property
+    def availabilities(self):
+        """
+        Get all availabilities associated to this EventParticipant
+        :return: availabilities
+        :rtype: QuerySet[Availability]
+        """
+        return "Availability".objects.filter(participant=self)
+
     def as_json_dict(self) -> dict[str, Any]:
         """Return a json representation of this participant object.
 
@@ -1607,6 +1625,9 @@ class EventParticipant(models.Model):
             https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
         :rtype: dict[str, Any]
         """
+        # local import to prevent cyclic import
+        # pylint: disable=import-outside-toplevel
+        from AKModel.availability.models import Availability
 
         data = {
             "id": self.pk,
@@ -1620,7 +1641,18 @@ class EventParticipant(models.Model):
                 participant=self, preference__gt=0
             ).select_related("ak")
         ]
-        # TODO: Add time constraints based on availabilities
+
+        avails = self.availabilities.all()
+        if avails and not Availability.is_event_covered(self.event, avails):
+            # participant has restricted availability
+            if AKPreference.objects.filter(
+                event=self.event,
+                participant=self,
+                preference=AKPreference.PreferenceLevel.REQUIRED,
+            ):
+                # partipant is actually required for AKs
+                data["time_constraints"].append(f"availability-participant-{self.pk}")
+
         # TODO: Add room constraints?
         return data
 
