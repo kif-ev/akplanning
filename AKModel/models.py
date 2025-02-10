@@ -559,6 +559,7 @@ class Event(models.Model):
 
         rooms = Room.objects.filter(event=self).order_by()
         slots = AKSlot.objects.filter(event=self).order_by()
+        participants = EventParticipant.objects.filter(event=self).order_by()
 
         ak_availabilities = {
             ak.pk: Availability.union(ak.availabilities.all())
@@ -652,7 +653,7 @@ class Event(models.Model):
                 info_dict[attr] = getattr(self, attr)
 
         return {
-            "participants": [],
+            "participants": [p.as_json_dict() for p in participants],
             "rooms": [r.as_json_dict() for r in rooms],
             "timeslots": timeslots,
             "info": info_dict,
