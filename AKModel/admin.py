@@ -574,6 +574,9 @@ class DefaultSlotAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
 
 @admin.register(EventParticipant)
 class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    """
+    Admin interface for EventParticipant
+    """
     model = EventParticipant
     list_display = ['name', 'institution', 'event']
     list_filter = ['event', 'institution']
@@ -583,7 +586,7 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
 
 class AKPreferenceAdminForm(forms.ModelForm):
     """
-    Adapted admin form for constraint violations for usage in :class:`ConstraintViolationAdmin`)
+    Adapted admin form for AK preferences for usage in :class:`AKPreferenceAdmin`)
     """
     class Meta:
         widgets = {
@@ -601,6 +604,10 @@ class AKPreferenceAdminForm(forms.ModelForm):
 
 @admin.register(AKPreference)
 class AKPreferenceAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    """
+    Admin interface for AK preferences.
+    Uses an adapted form (see :class:`AKPreferenceAdminForm`)
+    """
     model = AKPreference
     form = AKPreferenceAdminForm
     list_display = ['preference', 'participant', 'slot', 'event']

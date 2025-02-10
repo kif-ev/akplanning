@@ -62,7 +62,10 @@ class JSONExportTest(TestCase):
 
         self.ak_slots: Iterable[AKSlot] = []
         self.rooms: Iterable[Room] = []
+        self.participants: Iterable[EventParticipant] = []
+        self.owners: Iterable[AKOwner] = []
         self.slots_in_an_hour: float = 1.0
+        self.max_participant_pk = 0
         self.event: Event | None = None
 
     def set_up_event(self, event: Event) -> None:

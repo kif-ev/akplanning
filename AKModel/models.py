@@ -560,7 +560,7 @@ class Event(models.Model):
         rooms = Room.objects.filter(event=self).order_by()
         slots = AKSlot.objects.filter(event=self).order_by()
         participants = EventParticipant.objects.filter(event=self).order_by()
-        owners = AKOwner.objects.filter(event=self.event).order_by().all()
+        owners = AKOwner.objects.filter(event=self).order_by().all()
 
         ak_availabilities = {
             ak.pk: Availability.union(ak.availabilities.all())
@@ -576,7 +576,7 @@ class Event(models.Model):
         }
         participant_availabilities = {
             participant.pk: Availability.union(participant.availabilities.all())
-            for participant in EventParticipant.objects.filter(event=self.event)
+            for participant in EventParticipant.objects.filter(event=self)
         }
 
         blocks = list(self.discretize_timeslots())
@@ -627,7 +627,7 @@ class Event(models.Model):
 
                 # add fulfilled time constraints for all participants that are not available for full event
                 time_constraints.extend(
-                    self._generate_time_constraints("participant", participant_availabilities, timeslot.avail)
+                    _generate_time_constraints("participant", participant_availabilities, timeslot.avail)
                 )
 
                 # add fulfilled time constraints for all AKSlots fixed to happen during timeslot
@@ -639,6 +639,7 @@ class Event(models.Model):
 
                 time_constraints.extend(timeslot.constraints)
                 time_constraints.extend(block_timeconstraints)
+                time_constraints.sort()
 
                 current_block.append({
                     "id": timeslot.idx,
@@ -646,7 +647,7 @@ class Event(models.Model):
                         "start": timeslot.avail.start.astimezone(self.timezone).strftime("%Y-%m-%d %H:%M"),
                         "end": timeslot.avail.end.astimezone(self.timezone).strftime("%Y-%m-%d %H:%M"),
                     },
-                    "fulfilled_time_constraints": sorted(time_constraints),
+                    "fulfilled_time_constraints": time_constraints,
                     })
 
             timeslots["blocks"].append(current_block)
@@ -670,18 +671,14 @@ class Event(models.Model):
             "aks": [ak.as_json_dict() for ak in slots],
         }
 
-        event_ak_slots = AKSlot.objects.filter(event=self.event)
         if EventParticipant.objects.exists():
             next_participant_pk = EventParticipant.objects.latest("pk").pk + 1
         else:
             next_participant_pk = 1
         # add one dummy participant per owner
         # this ensures that the hard constraints from each owner are considered
-        for new_pk, owner in enumerate(
-            owners,
-            next_participant_pk,
-        ):
-            owned_slots = event_ak_slots.filter(ak__owners=owner).all()
+        for new_pk, owner in enumerate(owners, next_participant_pk):
+            owned_slots = slots.filter(ak__owners=owner).order_by().all()
             if not owned_slots:
                 continue
             new_participant_data = {
@@ -695,6 +692,7 @@ class Event(models.Model):
                 ]
             }
             data["participants"].append(new_participant_data)
+        return data
 
 
 class AKOwner(models.Model):
@@ -1128,8 +1126,7 @@ class Room(models.Model):
                 "name": self.name,
             },
             "capacity": self.capacity,
-            "fulfilled_room_constraints": [constraint.name
-                                           for constraint in self.properties.all()],
+            "fulfilled_room_constraints": list(self.properties.values_list("name", flat=True)),
             "time_constraints": time_constraints
         }
 
@@ -1275,20 +1272,14 @@ class AKSlot(models.Model):
             "id": self.pk,
             "duration": math.ceil(self.duration / self.event.export_slot - ceil_offet_eps),
             "properties": {
-                "conflicts":
-                    sorted(
-                        [conflict.pk for conflict in conflict_slots.all()]
-                      + [second_slot.pk for second_slot in other_ak_slots.all()]
-                    ),
-                "dependencies": sorted([dep.pk for dep in dependency_slots.all()]),
+                "conflicts": list((conflict_slots | other_ak_slots).values_list("pk", flat=True).order_by()),
+                "dependencies": list(dependency_slots.values_list("pk", flat=True).order_by()),
             },
-            "room_constraints": [constraint.name
-                                 for constraint in self.ak.requirements.all()],
+            "room_constraints": list(self.ak.requirements.values_list("name", flat=True).order_by()),
             "time_constraints": ["resolution"] if self.ak.reso else [],
             "info": {
                 "name": self.ak.name,
-                "head": ", ".join([str(owner)
-                                   for owner in self.ak.owners.all()]),
+                "head": ", ".join([str(owner) for owner in self.ak.owners.order_by().all()]),
                 "description": self.ak.description,
                 "reso": self.ak.reso,
                 "duration_in_hours": float(self.duration),
@@ -1662,14 +1653,14 @@ class EventParticipant(models.Model):
         data = {
             "id": self.pk,
             "info": {"name": str(self)},
-            "room_constraints": [constraint.name for constraint in self.requirements.all()],
+            "room_constraints": list(self.requirements.values_list("name", flat=True).order_by()),
             "time_constraints": [],
         }
         data["preferences"] = [
             pref.as_json_dict()
             for pref in AKPreference.objects.filter(
                 participant=self, preference__gt=0
-            ).select_related("slot")
+            ).select_related("slot").order_by()
         ]
 
         avails = self.availabilities.all()
@@ -1683,6 +1674,7 @@ class EventParticipant(models.Model):
                 # partipant is actually required for AKs
                 data["time_constraints"].append(f"availability-participant-{self.pk}")
 
+        data["time_constraints"].sort()
         return data
 
 

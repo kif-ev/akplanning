@@ -99,11 +99,29 @@ class Availability(models.Model):
         event = getattr(getattr(self, 'event', None), 'name', None)
         ak = getattr(self.ak, 'name', None)
         ak_category = getattr(self.ak_category, 'name', None)
-        return f'Availability(event={event}, person={person}, room={room}, ak={ak}, ak category={ak_category}, participant={participant})'
+        arg_list = [
+            f"event={event}",
+            f"person={person}",
+            f"room={room}",
+            f"ak={ak}",
+            f"ak category={ak_category}",
+            f"participant={participant}",
+        ]
+        return f'Availability({", ".join(arg_list)})'
 
     def __hash__(self):
         return hash(
-            (getattr(self, 'event', None), self.person, self.room, self.ak, self.ak_category, self.participant, self.start, self.end))
+            (
+                getattr(self, 'event', None),
+                self.person,
+                self.room,
+                self.ak,
+                self.ak_category,
+                self.participant,
+                self.start,
+                self.end,
+            )
+        )
 
     def __eq__(self, other: 'Availability') -> bool:
         """Comparisons like ``availability1 == availability2``.
