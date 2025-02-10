@@ -671,7 +671,12 @@ class Event(models.Model):
         }
 
         event_ak_slots = AKSlot.objects.filter(event=self.event)
-        next_participant_pk = EventParticipant.objects.latest("pk").pk + 1
+        if EventParticipant.objects.exists():
+            next_participant_pk = EventParticipant.objects.latest("pk").pk + 1
+        else:
+            next_participant_pk = 1
+        # add one dummy participant per owner
+        # this ensures that the hard constraints from each owner are considered
         for new_pk, owner in enumerate(
             owners,
             next_participant_pk,
