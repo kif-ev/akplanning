@@ -1575,3 +1575,47 @@ class DefaultSlot(models.Model):
 
     def __str__(self):
         return f"{self.event}: {self.start_simplified} - {self.end_simplified}"
+
+
+class EventParticipant(models.Model):
+    """ A participant describes a person taking part in an event."""
+
+    class Meta:
+        verbose_name = _('Participant')
+        verbose_name_plural = _('Participants')
+        ordering = ['name']
+
+    name = models.CharField(max_length=64, blank=True, verbose_name=_('Nickname'),
+                            help_text=_('Name to identify a participant by (in case of questions from the organizers)'))
+    institution = models.CharField(max_length=128, blank=True, verbose_name=_('Institution'), help_text=_('Uni etc.'))
+
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
+                              help_text=_('Associated event'))
+
+class AKPreference(models.Model):
+    """Model representing the preference of a participant to an AK."""
+
+    class Meta:
+        verbose_name = _('AK Preference')
+        verbose_name_plural = _('AK Preferences')
+
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
+                              help_text=_('Associated event'))
+
+    participant = models.ForeignKey(to=EventParticipant, on_delete=models.CASCADE, verbose_name=_('Participant'),
+                              help_text=_('Participant this preference belongs to'))
+
+    ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'),
+                           help_text=_('AK this preference belongs to'))
+
+    class PreferenceLevel(models.IntegerChoices):
+        """
+        Possible preference values
+        """
+        IGNORE = 0, _('Ignore')
+        PREFER = 1, _('Prefer')
+        STRONG_PREFER = 2, _("Strong prefer")
+        REQUIRED = 3, _("Required")
+
+    preference = models.PositiveSmallIntegerField(verbose_name=_('Preference'), choices=PreferenceLevel.choices,
+                                             help_text=_('Preference level for the AK'))
