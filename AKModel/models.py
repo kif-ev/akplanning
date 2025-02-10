@@ -560,6 +560,7 @@ class Event(models.Model):
         rooms = Room.objects.filter(event=self).order_by()
         slots = AKSlot.objects.filter(event=self).order_by()
         participants = EventParticipant.objects.filter(event=self).order_by()
+        owners = AKOwner.objects.filter(event=self.event).order_by().all()
 
         ak_availabilities = {
             ak.pk: Availability.union(ak.availabilities.all())
@@ -571,7 +572,7 @@ class Event(models.Model):
         }
         person_availabilities = {
             person.pk: Availability.union(person.availabilities.all())
-            for person in AKOwner.objects.filter(event=self)
+            for person in owners
         }
         participant_availabilities = {
             participant.pk: Availability.union(participant.availabilities.all())
@@ -661,13 +662,34 @@ class Event(models.Model):
             if hasattr(self, attr) and getattr(self, attr):
                 info_dict[attr] = getattr(self, attr)
 
-        return {
+        data = {
             "participants": [p.as_json_dict() for p in participants],
             "rooms": [r.as_json_dict() for r in rooms],
             "timeslots": timeslots,
             "info": info_dict,
             "aks": [ak.as_json_dict() for ak in slots],
         }
+
+        event_ak_slots = AKSlot.objects.filter(event=self.event)
+        next_participant_pk = EventParticipant.objects.latest("pk").pk + 1
+        for new_pk, owner in enumerate(
+            owners,
+            next_participant_pk,
+        ):
+            owned_slots = event_ak_slots.filter(ak__owners=owner).all()
+            if not owned_slots:
+                continue
+            new_participant_data = {
+                "id": new_pk,
+                "info": {"name": f"{owner} [AKOwner]"},
+                "room_constraints": [],
+                "time_constraints": [],
+                "preferences": [
+                    {"ak_id": slot.pk, "required": True, "preference_score": -1}
+                    for slot in owned_slots
+                ]
+            }
+            data["participants"].append(new_participant_data)
 
 
 class AKOwner(models.Model):
@@ -1639,7 +1661,7 @@ class EventParticipant(models.Model):
             pref.as_json_dict()
             for pref in AKPreference.objects.filter(
                 participant=self, preference__gt=0
-            ).select_related("ak")
+            ).select_related("slot")
         ]
 
         avails = self.availabilities.all()
@@ -1663,7 +1685,7 @@ class AKPreference(models.Model):
     class Meta:
         verbose_name = _('AK Preference')
         verbose_name_plural = _('AK Preferences')
-        unique_together = [['event', 'participant', 'ak']]
+        unique_together = [['event', 'participant', 'slot']]
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
@@ -1671,8 +1693,8 @@ class AKPreference(models.Model):
     participant = models.ForeignKey(to=EventParticipant, on_delete=models.CASCADE, verbose_name=_('Participant'),
                               help_text=_('Participant this preference belongs to'))
 
-    ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'),
-                           help_text=_('AK this preference belongs to'))
+    slot = models.ForeignKey(to=AKSlot, on_delete=models.CASCADE, verbose_name=_('AKSlot'),
+                           help_text=_('AKSlot this preference belongs to'))
 
     class PreferenceLevel(models.IntegerChoices):
         """
@@ -1701,7 +1723,7 @@ class AKPreference(models.Model):
         """
         preference_score = self.preference if self.preference != self.PreferenceLevel.REQUIRED else -1
         return {
-            "ak_id": self.ak.pk,
+            "ak_id": self.slot.pk,
             "required": self.preference == self.PreferenceLevel.REQUIRED,
             "preference_score": preference_score
         }
