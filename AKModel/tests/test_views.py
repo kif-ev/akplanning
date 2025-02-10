@@ -5,20 +5,20 @@ from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.base import Message
 from django.test import TestCase
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse, reverse_lazy
 
 from AKModel.models import (
-    Event,
-    AKOwner,
-    AKCategory,
-    AKTrack,
-    AKRequirement,
     AK,
-    Room,
-    AKSlot,
+    AKCategory,
     AKOrgaMessage,
+    AKOwner,
+    AKRequirement,
+    AKSlot,
+    AKTrack,
     ConstraintViolation,
     DefaultSlot,
+    Event,
+    Room,
 )
 
 
