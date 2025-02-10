@@ -1663,6 +1663,7 @@ class AKPreference(models.Model):
     class Meta:
         verbose_name = _('AK Preference')
         verbose_name_plural = _('AK Preferences')
+        unique_together = [['event', 'participant', 'ak']]
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
