@@ -1085,6 +1085,10 @@ msgid ""
 msgstr "Name, zur Identifikation bei Rückfragen von den Organisator*innen"
 
 #: AKModel/models.py:1370
+msgid "Participant's Requirements"
+msgstr "Anforderungen der Teilnehmer*in"
+
+#: AKModel/models.py:1370
 #, python-brace-format
 msgid "Anonymous {pk}"
 msgstr "Anonym {pk}"

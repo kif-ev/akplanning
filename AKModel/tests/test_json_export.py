@@ -805,7 +805,12 @@ class JSONExportTest(TestCase):
                     export_participant = self.export_objects["participants"][
                         participant.pk
                     ]
-                    self.assertEqual(export_participant["room_constraints"], [])
+                    room_constraints = [
+                        constr.name for constr in participant.requirements.all()
+                    ]
+                    self.assertCountEqual(
+                        export_participant["room_constraints"], room_constraints
+                    )
 
                 for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
                     if not self._owner_has_ak(owner):

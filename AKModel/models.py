@@ -1629,6 +1629,9 @@ class EventParticipant(models.Model):
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
+    requirements = models.ManyToManyField(to=AKRequirement, blank=True, verbose_name=_('Requirements'),
+                                          help_text=_("Participant's Requirements"))
+
     def __str__(self) -> str:
         string = _("Anonymous {pk}").format(pk=self.pk) if not self.name else self.name
         if self.institution:
@@ -1659,7 +1662,7 @@ class EventParticipant(models.Model):
         data = {
             "id": self.pk,
             "info": {"name": str(self)},
-            "room_constraints": [],
+            "room_constraints": [constraint.name for constraint in self.requirements.all()],
             "time_constraints": [],
         }
         data["preferences"] = [
@@ -1680,7 +1683,6 @@ class EventParticipant(models.Model):
                 # partipant is actually required for AKs
                 data["time_constraints"].append(f"availability-participant-{self.pk}")
 
-        # TODO: Add room constraints?
         return data
 
 
@@ -1699,7 +1701,7 @@ class AKPreference(models.Model):
                               help_text=_('Participant this preference belongs to'))
 
     slot = models.ForeignKey(to=AKSlot, on_delete=models.CASCADE, verbose_name=_('AK Slot'),
-                           help_text=_('AKSlot this preference belongs to'))
+                           help_text=_('AK Slot this preference belongs to'))
 
     class PreferenceLevel(models.IntegerChoices):
         """
