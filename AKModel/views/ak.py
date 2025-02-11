@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from typing import List
 
 from django.contrib import messages
@@ -109,10 +110,29 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
             for person in AKOwner.objects.filter(event=self.event)
         }
 
-        blocks = self.event.discretize_timeslots()
+        blocks = list(self.event.discretize_timeslots())
 
-        for block in blocks:
+        block_names = []
+
+        for block_idx, block in enumerate(blocks):
             current_block = []
+
+            if not block:
+                continue
+
+            block_start = block[0].avail.start.astimezone(self.event.timezone)
+            block_end = block[-1].avail.end.astimezone(self.event.timezone)
+
+            start_day = block_start.strftime("%A, %d. %b")
+            if block_start.date() == block_end.date():
+                # same day
+                time_str = block_start.strftime("%H:%M") + " – " + block_end.strftime("%H:%M")
+            else:
+                # different days
+                time_str = block_start.strftime("%a %H:%M") + " – " + block_end.strftime("%a %H:%M")
+            block_names.append([start_day, time_str])
+
+            block_timeconstraints = [f"notblock{idx}" for idx in range(len(blocks)) if idx != block_idx]
 
             for timeslot in block:
                 time_constraints = []
@@ -145,6 +165,7 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
                 ])
 
                 time_constraints.extend(timeslot.constraints)
+                time_constraints.extend(block_timeconstraints)
 
                 current_block.append({
                     "id": str(timeslot.idx),
@@ -156,6 +177,8 @@ class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
                     })
 
             timeslots["blocks"].append(current_block)
+
+        timeslots["info"]["blocknames"] = block_names
 
         context["timeslots"] = json.dumps(timeslots)
 

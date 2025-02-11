@@ -248,7 +248,7 @@ class JSONExportTest(TestCase):
                 )
                 self.assertEqual(
                     self.export_dict["timeslots"]["info"].keys(),
-                    {"duration"},
+                    {"duration", "blocknames"},
                     "timeslot info keys not as expected",
                 )
                 self._check_type(
@@ -257,6 +257,21 @@ class JSONExportTest(TestCase):
                     "info/duration",
                     item=item,
                 )
+                self._check_lst(
+                    self.export_dict["timeslots"]["info"]["blocknames"],
+                    "info/blocknames",
+                    item=item,
+                    contained_type=list,
+                )
+                for blockname in self.export_dict["timeslots"]["info"]["blocknames"]:
+                    self.assertEqual(len(blockname), 2)
+                    self._check_lst(
+                        blockname,
+                        "info/blocknames/entry",
+                        item=item,
+                        contained_type=str,
+                    )
+
                 self._check_lst(
                     self.export_dict["timeslots"]["blocks"],
                     "blocks",
@@ -710,72 +725,120 @@ class JSONExportTest(TestCase):
                 self.set_up_event(event=event)
 
                 cat_avails = self._get_cat_availability()
-                for timeslot in chain.from_iterable(
+                num_blocks = len(self.export_dict["timeslots"]["blocks"])
+                for block_idx, block in enumerate(
                     self.export_dict["timeslots"]["blocks"]
                 ):
-                    start, end = self._get_timeslot_start_end(timeslot)
-                    timeslot_avail = Availability(
-                        event=self.event, start=start, end=end
-                    )
-
-                    fulfilled_time_constraints = set()
-
-                    # reso deadline
-                    if self.event.reso_deadline is not None:
-                        # timeslot ends before deadline
-                        if end < self.event.reso_deadline.astimezone(
-                            self.event.timezone
-                        ):
-                            fulfilled_time_constraints.add("resolution")
-
-                    # add category constraints
-                    fulfilled_time_constraints |= (
-                        AKCategory.create_category_constraints(
-                            [
-                                cat
-                                for cat in AKCategory.objects.filter(
-                                    event=self.event
-                                ).all()
-                                if timeslot_avail.is_covered(cat_avails[cat.name])
-                            ]
+                    for timeslot in block:
+                        start, end = self._get_timeslot_start_end(timeslot)
+                        timeslot_avail = Availability(
+                            event=self.event, start=start, end=end
                         )
-                    )
 
-                    # add owner constraints
-                    fulfilled_time_constraints |= {
-                        f"availability-person-{owner.id}"
-                        for owner in AKOwner.objects.filter(event=self.event).all()
-                        if self._is_restricted_and_contained_slot(
-                            timeslot_avail,
-                            Availability.union(owner.availabilities.all()),
+                        fulfilled_time_constraints = set()
+
+                        # reso deadline
+                        if self.event.reso_deadline is not None:
+                            # timeslot ends before deadline
+                            if end < self.event.reso_deadline.astimezone(
+                                self.event.timezone
+                            ):
+                                fulfilled_time_constraints.add("resolution")
+
+                        # add category constraints
+                        fulfilled_time_constraints |= (
+                            AKCategory.create_category_constraints(
+                                [
+                                    cat
+                                    for cat in AKCategory.objects.filter(
+                                        event=self.event
+                                    ).all()
+                                    if timeslot_avail.is_covered(cat_avails[cat.name])
+                                ]
+                            )
                         )
-                    }
 
-                    # add room constraints
-                    fulfilled_time_constraints |= {
-                        f"availability-room-{room.id}"
-                        for room in self.rooms
-                        if self._is_restricted_and_contained_slot(
-                            timeslot_avail,
-                            Availability.union(room.availabilities.all()),
+                        # add owner constraints
+                        fulfilled_time_constraints |= {
+                            f"availability-person-{owner.id}"
+                            for owner in AKOwner.objects.filter(event=self.event).all()
+                            if self._is_restricted_and_contained_slot(
+                                timeslot_avail,
+                                Availability.union(owner.availabilities.all()),
+                            )
+                        }
+
+                        # add room constraints
+                        fulfilled_time_constraints |= {
+                            f"availability-room-{room.id}"
+                            for room in self.rooms
+                            if self._is_restricted_and_contained_slot(
+                                timeslot_avail,
+                                Availability.union(room.availabilities.all()),
+                            )
+                        }
+
+                        # add ak constraints
+                        fulfilled_time_constraints |= {
+                            f"availability-ak-{ak.id}"
+                            for ak in AK.objects.filter(event=event)
+                            if self._is_restricted_and_contained_slot(
+                                timeslot_avail,
+                                Availability.union(ak.availabilities.all()),
+                            )
+                        }
+                        fulfilled_time_constraints |= {
+                            f"fixed-akslot-{slot.id}"
+                            for slot in self.ak_slots
+                            if self._is_ak_fixed_in_slot(slot, timeslot_avail)
+                        }
+
+                        fulfilled_time_constraints |= {
+                            f"notblock{idx}"
+                            for idx in range(num_blocks)
+                            if idx != block_idx
+                        }
+
+                        self.assertEqual(
+                            fulfilled_time_constraints,
+                            set(timeslot["fulfilled_time_constraints"]),
                         )
-                    }
 
-                    # add ak constraints
-                    fulfilled_time_constraints |= {
-                        f"availability-ak-{ak.id}"
-                        for ak in AK.objects.filter(event=event)
-                        if self._is_restricted_and_contained_slot(
-                            timeslot_avail, Availability.union(ak.availabilities.all())
+    def test_timeslots_info(self):
+        """Test timeslots info dict"""
+        for event in Event.objects.all():
+            with self.subTest(event=event):
+                self.set_up_event(event=event)
+
+                self.assertAlmostEqual(
+                    self.export_dict["timeslots"]["info"]["duration"],
+                    float(self.event.export_slot),
+                )
+
+                block_names = []
+                for block in self.export_dict["timeslots"]["blocks"]:
+                    if not block:
+                        continue
+
+                    block_start, _ = self._get_timeslot_start_end(block[0])
+                    _, block_end = self._get_timeslot_start_end(block[-1])
+
+                    start_day = block_start.strftime("%A, %d. %b")
+                    if block_start.date() == block_end.date():
+                        # same day
+                        time_str = (
+                            block_start.strftime("%H:%M")
+                            + " – "
+                            + block_end.strftime("%H:%M")
                         )
-                    }
-                    fulfilled_time_constraints |= {
-                        f"fixed-akslot-{slot.id}"
-                        for slot in self.ak_slots
-                        if self._is_ak_fixed_in_slot(slot, timeslot_avail)
-                    }
-
-                    self.assertEqual(
-                        fulfilled_time_constraints,
-                        set(timeslot["fulfilled_time_constraints"]),
-                    )
+                    else:
+                        # different days
+                        time_str = (
+                            block_start.strftime("%a %H:%M")
+                            + " – "
+                            + block_end.strftime("%a %H:%M")
+                        )
+                    block_names.append([start_day, time_str])
+                self.assertEqual(
+                    block_names, self.export_dict["timeslots"]["info"]["blocknames"]
+                )
