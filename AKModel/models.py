@@ -1698,7 +1698,7 @@ class AKPreference(models.Model):
     participant = models.ForeignKey(to=EventParticipant, on_delete=models.CASCADE, verbose_name=_('Participant'),
                               help_text=_('Participant this preference belongs to'))
 
-    slot = models.ForeignKey(to=AKSlot, on_delete=models.CASCADE, verbose_name=_('AKSlot'),
+    slot = models.ForeignKey(to=AKSlot, on_delete=models.CASCADE, verbose_name=_('AK Slot'),
                            help_text=_('AKSlot this preference belongs to'))
 
     class PreferenceLevel(models.IntegerChoices):
