@@ -76,10 +76,15 @@ class EventRoomsWidget(TemplateStatusWidget):
     def render_actions(self, context: {}) -> list[dict]:
         actions = super().render_actions(context)
         # Action has to be added here since it depends on the event for URL building
+        import_room_url = reverse_lazy("admin:room-import", kwargs={"event_slug": context["event"].slug})
+        for action in actions:
+            if action["url"] == import_room_url:
+                return actions
+
         actions.append(
             {
                 "text": _("Import Rooms from CSV"),
-                "url": reverse_lazy("admin:room-import", kwargs={"event_slug": context["event"].slug}),
+                "url": import_room_url,
             }
         )
         return actions
