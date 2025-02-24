@@ -227,7 +227,7 @@ LOGIN_REDIRECT_URL = SIMPLE_BACKEND_REDIRECT_URL
 
 # Content Security Policy
 CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'")
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "'unsafe-eval'")
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "fonts.googleapis.com")
 CSP_IMG_SRC = ("'self'", "data:")
 CSP_FRAME_SRC = ("'self'", )

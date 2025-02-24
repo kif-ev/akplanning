@@ -27,6 +27,55 @@
     {% block imports %}
         {% include "AKPlan/plan_akslot.html" %}
 
+        <script type="module">
+          const { createApp } = Vue
+
+          function getCurrentTimestamp() {
+                return Date.now() / 1000
+            }
+
+          createApp({
+            delimiters: ["[[", "]]"],
+            data() {
+              return {
+                  featuredSlot: "{% if featured_slot %}true{% else %}false{% endif %}",
+                  timer: null,
+                  now: getCurrentTimestamp(),
+                  akStart: "{{ featured_slot.start | date:'U' }}",
+                  akEnd: "{{ featured_slot.end | date:'U' }}",
+                  showBoxWithoutJS: false,
+              }
+            },
+            computed: {
+                showFeatured() {
+                    return this.featuredSlot && this.now < this.akEnd
+                },
+                isBefore() {
+                    return this.featuredSlot && this.now < this.akStart
+                },
+                isDuring() {
+                    return this.featuredSlot && this.akStart < this.now && this.now < this.akEnd
+                },
+                timeUntilStart() {
+                    return Math.ceil((this.akStart - this.now) / 60)
+                },
+                timeUntilEnd() {
+                    return Math.floor((this.akEnd - this.now) / 60)
+                }
+            },
+            mounted: function () {
+                if(this.featuredSlot) {
+                    this.timer = setInterval(() => {
+                        this.now = getCurrentTimestamp()
+                    }, 10000)
+                }
+            },
+            beforeUnmount() {
+                clearInterval(this.timer)
+            }
+          }).mount('#app')
+        </script>
+
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 // CSRF Protection/Authentication
@@ -128,30 +177,28 @@
 
     <h2>{% if ak.wish %}{% trans "AK Wish" %}: {% endif %}{{ ak.name }}</h2>
 
-    {# Show current or upcoming slot featured in a box on top of the plage #}
-    {% if featured_slot_type != "NONE" %}
-        <div class="card border-success mt-3 mb-3">
-            <div class="card-body font-weight-bold">
-                {% if featured_slot_type == "CURRENT" %}
-                    {% blocktrans with room=featured_slot.room %}
-                        This AK currently takes place for another {{ featured_slot_remaining }} minute(s) in {{ room }}.
-                        &nbsp;
-                    {% endblocktrans %}
+    <div id="app">
+        {# Show current or upcoming slot featured in a box on top of the plage #}
+        {% if featured_slot_type != "NONE" %}
+            <div class="card border-success mt-3 mb-3" v-show="showFeatured">
+                <div class="card-body font-weight-bold">
+                    <span v-show="isDuring" style="{% if not featured_slot_type == "CURRENT" %}display:none;{% endif %}">
+                        {% blocktrans with room=featured_slot.room %}This AK currently takes place for another <span v-html="timeUntilEnd">{{ featured_slot_remaining }}</span> minute(s) in {{ room }}.&nbsp;{% endblocktrans %}
+                    </span>
+                    <span v-show="isBefore" style="{% if not featured_slot_type == "UPCOMING" %}display:none;{% endif %}">
+                        {% blocktrans with room=featured_slot.room %}This AK starts in <span v-html="timeUntilStart">{{ featured_slot_remaining }}</span> minute(s) in {{ room }}.&nbsp;{% endblocktrans %}
+                    </span>
 
-                {% elif featured_slot_type == "UPCOMING" %}
-                    {% blocktrans with room=featured_slot.room %}
-                        This AK starts in {{ featured_slot_remaining }} minute(s) in {{ room }}.&nbsp;
-                    {% endblocktrans %}
-                {% endif %}
-
-                {% if "AKOnline"|check_app_installed and featured_slot.room.virtual and featured_slot.room.virtual.url != '' %}
-                    <a class="btn btn-success" target="_parent" href="{{ featured_slot.room.virtual.url }}">
-                        {% fa6_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
-                    </a>
-                {% endif %}
+                    {% if "AKOnline"|check_app_installed and featured_slot.room.virtual and featured_slot.room.virtual.url != '' %}
+                        <a class="btn btn-success" target="_parent" href="{{ featured_slot.room.virtual.url }}">
+                            {% fa6_icon 'external-link-alt' 'fas' %} {% trans "Go to virtual room" %}
+                        </a>
+                    {% endif %}
+                </div>
             </div>
-        </div>
-    {% endif %}
+        {% endif %}
+    </div>
+
 
     <table class="table table-borderless">
         <tr>
