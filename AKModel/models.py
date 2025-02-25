@@ -306,6 +306,25 @@ class AKRequirement(models.Model):
         return self.name
 
 
+class AKType(models.Model):
+    """ An AKType allows to associate one or multiple types with an AK, e.g., to better describe the format of that AK
+    or to which group of people it is addressed. Types are specified per event and are an optional feature.
+    """
+    name = models.CharField(max_length=128, verbose_name=_('Name'), help_text=_('Name describing the type'))
+
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
+                              help_text=_('Associated event'))
+
+    class Meta:
+        verbose_name = _('AK Type')
+        verbose_name_plural = _('AK Types')
+        ordering = ['name']
+        unique_together = ['event', 'name']
+
+    def __str__(self):
+        return self.name
+
+
 class AK(models.Model):
     """ An AK is a slot-based activity to be scheduled during an event.
     """
@@ -323,6 +342,8 @@ class AK(models.Model):
 
     category = models.ForeignKey(to=AKCategory, on_delete=models.PROTECT, verbose_name=_('Category'),
                                  help_text=_('Category of the AK'))
+    types = models.ManyToManyField(to=AKType, blank=True, verbose_name=_('Types'),
+                                          help_text=_("This AK is"))
     track = models.ForeignKey(to=AKTrack, blank=True, on_delete=models.SET_NULL, null=True, verbose_name=_('Track'),
                               help_text=_('Track the AK belongs to'))
 
@@ -385,6 +406,8 @@ class AK(models.Model):
         {_('Interest')}: {self.interest}"""
         if self.requirements.count() > 0:
             detail_string += f"\n{_('Requirements')}: {', '.join(str(r) for r in self.requirements.all())}"
+        if self.types.count() > 0:
+            detail_string += f"\n{_('Types')}: {', '.join(str(r) for r in self.types.all())}"
         if self.conflicts.count() > 0:
             detail_string += f"\n{_('Conflicts')}: {', '.join(str(c) for c in self.conflicts.all())}"
         if self.prerequisites.count() > 0:

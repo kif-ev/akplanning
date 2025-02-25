@@ -15,7 +15,7 @@ from simple_history.admin import SimpleHistoryAdmin
 from AKModel.availability.models import Availability
 from AKModel.forms import RoomFormWithAvailabilities
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
-    ConstraintViolation, DefaultSlot
+    ConstraintViolation, DefaultSlot, AKType
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
 from AKModel.views.ak import AKResetInterestView, AKResetInterestCounterView
 from AKModel.views.manage import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView
@@ -215,6 +215,18 @@ class AKRequirementAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
     ordering = ['name']
 
 
+@admin.register(AKType)
+class AKTypeAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    """
+    Admin interface for AKRequirements
+    """
+    model = AKType
+    list_display = ['name', 'event']
+    list_filter = ['event']
+    list_editable = []
+    ordering = ['name']
+
+
 class WishFilter(SimpleListFilter):
     """
     Re-usable filter for wishes
@@ -257,6 +269,7 @@ class AKAdminForm(forms.ModelForm):
             self.fields["requirements"].queryset = AKRequirement.objects.filter(event=self.instance.event)
             self.fields["conflicts"].queryset = AK.objects.filter(event=self.instance.event)
             self.fields["prerequisites"].queryset = AK.objects.filter(event=self.instance.event)
+            self.fields["types"].queryset = AKType.objects.filter(event=self.instance.event)
 
 
 @admin.register(AK)

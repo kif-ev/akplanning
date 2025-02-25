@@ -9,6 +9,9 @@
         <th>{% trans "Name" %}</th>
         <th>{% trans "Who?" %}</th>
         <th>{% trans 'Category' %}</th>
+        {% if show_types %}
+            <th>{% trans 'Types' %}</th>
+        {% endif %}
         <th></th>
     </tr>
     </thead>
@@ -37,6 +40,13 @@
                 {% endif %}
             </td>
             <td>{% category_linked_badge ak.category event.slug %}</td>
+            {% if show_types %}
+                <td>
+                    {% for aktype in ak.types.all %}
+                        <span class="badge bg-info">{{ aktype }}</span>
+                    {% endfor %}
+                </td>
+            {% endif %}
             <td class="text-end" style="white-space: nowrap;">
                 <a href="{{ ak.detail_url }}" data-bs-toggle="tooltip"
                    title="{% trans 'Details' %}"

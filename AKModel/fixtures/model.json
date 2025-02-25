@@ -194,6 +194,14 @@
     }
 },
 {
+    "model": "AKModel.aktype",
+    "pk": 1,
+    "fields": {
+        "name": "Input",
+        "event": 2
+    }
+},
+{
     "model": "AKModel.historicalak",
     "pk": 1,
     "fields": {
