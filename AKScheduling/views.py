@@ -43,7 +43,7 @@ class SchedulingAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
     def get_queryset(self):
         return super().get_queryset().filter(start__isnull=True).select_related('event', 'ak', 'ak__track',
             'ak__category').prefetch_related('ak__types', 'ak__owners', 'ak__conflicts', 'ak__prerequisites',
-            'ak__requirements').order_by('ak__track', 'ak')
+            'ak__requirements', 'ak__conflict').order_by('ak__track', 'ak')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
