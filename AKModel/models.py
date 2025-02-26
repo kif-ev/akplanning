@@ -424,7 +424,7 @@ class Event(models.Model):
             yield from self.uniform_time_slots(slots_in_an_hour=slots_in_an_hour)
 
     @transaction.atomic
-    def schedule_from_json(self, schedule: str) -> int:
+    def schedule_from_json(self, schedule: str, *, check_for_data_inconsistency: bool = True) -> int:
         """Load AK schedule from a json string.
 
         :param schedule: A string that can be decoded to json, describing
@@ -433,6 +433,10 @@ class Event(models.Model):
             https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
         """
         schedule = json.loads(schedule)
+        export_dict = self.as_json_dict()
+
+        if check_for_data_inconsistency and schedule["input"] != export_dict:
+            raise ValueError("Data has changed since the export. Reexport and run the solver again.")
 
         slots_in_an_hour = schedule["input"]["timeslots"]["info"]["duration"]
 
