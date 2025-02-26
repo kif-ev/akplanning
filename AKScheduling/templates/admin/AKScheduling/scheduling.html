@@ -157,6 +157,7 @@
                     $('#id_start').val(info.startStr);
                     $('#id_end').val(info.endStr);
                     $('#id_room').val(info.resource._resource.id);
+                    $('#id_room_name').val(info.resource._resource.title);
                     $('#id_duration').val(Math.abs(info.end-info.start)/1000/60/60);
                     $('#id_ak').val("");
                     $('#newAKSlotModal').modal('show');
