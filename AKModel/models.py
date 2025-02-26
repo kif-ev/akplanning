@@ -941,7 +941,7 @@ class AK(models.Model):
         Get a list of stringified representations of all owners
 
         :return: list of owners
-        :rtype: List[str]
+        :rtype: list[str]
         """
         return ", ".join(str(owner) for owner in self.owners.all())
 
@@ -951,7 +951,7 @@ class AK(models.Model):
         Get a list of stringified representations of all durations of associated slots
 
         :return: list of durations
-        :rtype: List[str]
+        :rtype: list[str]
         """
         return ", ".join(str(slot.duration_simplified) for slot in self.akslot_set.select_related('event').all())
 
@@ -1058,12 +1058,12 @@ class Room(models.Model):
         return self.title
 
     def as_json_dict(self) -> dict[str, Any]:
-        """Return a json string representation of this room object.
+        """Return a json representation of this room object.
 
-        :return: The json string representation is constructed
+        :return: The json dict representation is constructed
             following the input specification of the KoMa conference optimizer, cf.
             https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
-        :rtype: str
+        :rtype: dict[str, Any]
         """
         # local import to prevent cyclic import
         # pylint: disable=import-outside-toplevel
@@ -1191,12 +1191,12 @@ class AKSlot(models.Model):
                      force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
     def as_json_dict(self) -> dict[str, Any]:
-        """Return a json string representation of the AK object of this slot.
+        """Return a json representation of the AK object of this slot.
 
-        :return: The json string representation is constructed
+        :return: The json dict representation is constructed
             following the input specification of the KoMa conference optimizer, cf.
             https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
-        :rtype: str
+        :rtype: dict[str, Any]
         """
         # local import to prevent cyclic import
         # pylint: disable=import-outside-toplevel
