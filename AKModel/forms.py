@@ -10,7 +10,7 @@ from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
-from AKModel.models import Event, AKCategory, AKRequirement, Room
+from AKModel.models import Event, AKCategory, AKRequirement, Room, AKType
 
 
 class DateTimeInput(forms.DateInput):
@@ -101,6 +101,13 @@ class NewEventWizardImportForm(forms.Form):
         required=False,
     )
 
+    import_types = forms.ModelMultipleChoiceField(
+        queryset=AKType.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        label=_("Copy types"),
+        required=False,
+    )
+
     # pylint: disable=too-many-arguments
     def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None, initial=None, error_class=ErrorList,
                  label_suffix=None, empty_permitted=False, field_order=None, use_required_attribute=None,
@@ -110,6 +117,8 @@ class NewEventWizardImportForm(forms.Form):
         self.fields["import_categories"].queryset = self.fields["import_categories"].queryset.filter(
             event=self.initial["import_event"])
         self.fields["import_requirements"].queryset = self.fields["import_requirements"].queryset.filter(
+            event=self.initial["import_event"])
+        self.fields["import_types"].queryset = self.fields["import_types"].queryset.filter(
             event=self.initial["import_event"])
 
         # pylint: disable=import-outside-toplevel

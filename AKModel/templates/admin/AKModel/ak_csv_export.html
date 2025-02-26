@@ -4,8 +4,8 @@
 
 {% block content %}
 <pre>
-title;duration;who;requirements;prerequisites;conflicts;availabilities;category;track;reso;notes;
-{% for slot in slots %}{{ slot.ak.short_name }};{{ slot.duration }};{{ slot.ak.owners.all|join:", " }};{{ slot.ak.requirements.all|join:", " }};{{ slot.ak.prerequisites.all|join:", " }};{{ slot.ak.conflicts.all|join:", " }};{% for a in slot.ak.availabilities.all %}{{ a.start | timezone:event.timezone | date:"l H:i"  }} - {{ a.end | timezone:event.timezone | date:"l H:i" }}, {% endfor %};{{ slot.ak.category }};{{ slot.ak.track }};{{ slot.ak.reso }};{{ slot.ak.notes }};
+title;duration;who;requirements;prerequisites;conflicts;availabilities;category;types;track;reso;notes;
+{% for slot in slots %}{{ slot.ak.short_name }};{{ slot.duration }};{{ slot.ak.owners.all|join:", " }};{{ slot.ak.requirements.all|join:", " }};{{ slot.ak.prerequisites.all|join:", " }};{{ slot.ak.conflicts.all|join:", " }};{% for a in slot.ak.availabilities.all %}{{ a.start | timezone:event.timezone | date:"l H:i"  }} - {{ a.end | timezone:event.timezone | date:"l H:i" }}, {% endfor %};{{ slot.ak.category }};{{ slot.ak.types.all|join:", " }};{{ slot.ak.track }};{{ slot.ak.reso }};{{ slot.ak.notes }};
 {% endfor %}
 </pre>
 {% endblock %}

@@ -59,7 +59,7 @@ class AKOverviewView(FilterByEventSlugMixin, ListView):
         :rtype: QuerySet[AK]
         """
         # Use prefetching and relation selection/joining to reduce the amount of necessary queries
-        return category.ak_set.select_related('event').prefetch_related('owners').all()
+        return category.ak_set.select_related('event').prefetch_related('owners').prefetch_related('types').all()
 
     def get_active_category_name(self, context):
         """
@@ -129,6 +129,8 @@ class AKOverviewView(FilterByEventSlugMixin, ListView):
         context["categories_with_aks"] = categories_with_aks
         context["active_category"] = self.get_active_category_name(context)
         context['table_title'] = self.get_table_title(context)
+
+        context['show_types'] = self.event.aktype_set.count() > 0
 
         # ==========================================================
         # Display interest indication button?

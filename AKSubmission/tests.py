@@ -6,6 +6,7 @@ from django.utils.datetime_safe import datetime
 
 from AKModel.models import AK, AKSlot, Event
 from AKModel.tests import BasicViewTests
+from AKSubmission.forms import AKSubmissionForm
 
 
 class ModelViewTests(BasicViewTests, TestCase):
@@ -236,3 +237,37 @@ class ModelViewTests(BasicViewTests, TestCase):
                              msg_prefix=f"No correct redirect: {add_new_user_to_ak_url} (POST) -> {detail_url}")
         self._assert_message(response, "Added 'New test owner' as new owner of 'Test AK Inhalt'")
         self.assertEqual(AK.objects.get(pk=1).owners.count(), 2)
+
+    def test_visibility_requirements_in_submission_form(self):
+        """
+        Test visibility of requirements field in submission form
+        """
+        event = Event.get_by_slug('kif42')
+        form = AKSubmissionForm(data={'name': 'Test AK', 'event': event}, instance=None, initial={"event":event})
+        self.assertIn('requirements', form.fields,
+                      msg="Requirements field not present in form even though event has requirements")
+
+        event2 = Event.objects.create(name='Event without requirements',
+                                      slug='no_req',
+                                      start=datetime.now(), end=datetime.now(),
+                                      active=True)
+        form2 = AKSubmissionForm(data={'name': 'Test AK', 'event': event2}, instance=None, initial={"event": event2})
+        self.assertNotIn('requirements', form2.fields,
+                         msg="Requirements field should not be present for events without requirements")
+
+    def test_visibility_types_in_submission_form(self):
+        """
+        Test visibility of types field in submission form
+        """
+        event = Event.get_by_slug('kif42')
+        form = AKSubmissionForm(data={'name': 'Test AK', 'event': event}, instance=None, initial={"event":event})
+        self.assertIn('types', form.fields,
+                      msg="Requirements field not present in form even though event has requirements")
+
+        event2 = Event.objects.create(name='Event without types',
+                                      slug='no_types',
+                                      start=datetime.now(), end=datetime.now(),
+                                      active=True)
+        form2 = AKSubmissionForm(data={'name': 'Test AK', 'event': event2}, instance=None, initial={"event": event2})
+        self.assertNotIn('types', form2.fields,
+                         msg="Requirements field should not be present for events without types")

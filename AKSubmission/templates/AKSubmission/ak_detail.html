@@ -213,6 +213,16 @@
                 {% category_linked_badge ak.category ak.event.slug %}
             </td>
         </tr>
+        {% if ak.types.count > 0 %}
+            <tr>
+                <td>{% trans "Types" %}</td>
+                <td>
+                    {% for type in ak.types.all %}
+                        <span class="badge bg-info">{{ type }}</span>
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endif %}
         {% if ak.track %}
             <tr>
                 <td>{% trans 'Track' %}</td>

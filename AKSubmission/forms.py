@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
-from AKModel.models import AK, AKOwner, AKCategory, AKRequirement, AKSlot, AKOrgaMessage
+from AKModel.models import AK, AKOwner, AKCategory, AKRequirement, AKSlot, AKOrgaMessage, AKType
 
 
 class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
@@ -37,6 +37,7 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
                   'owners',
                   'description',
                   'category',
+                  'types',
                   'reso',
                   'present',
                   'requirements',
@@ -48,6 +49,7 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
 
         widgets = {
             'requirements': forms.CheckboxSelectMultiple,
+            'types': forms.CheckboxSelectMultiple,
             'event': forms.HiddenInput,
         }
 
@@ -61,6 +63,10 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
         self.fields["prerequisites"].widget.attrs = {'class': 'chosen-select'}
 
         self.fields['category'].queryset = AKCategory.objects.filter(event=self.initial.get('event'))
+        self.fields['types'].queryset = AKType.objects.filter(event=self.initial.get('event'))
+        # Don't ask for types if there are no types configured for this event
+        if self.fields['types'].queryset.count() == 0:
+            self.fields.pop('types')
         self.fields['requirements'].queryset = AKRequirement.objects.filter(event=self.initial.get('event'))
         # Don't ask for requirements if there are no requirements configured for this event
         if self.fields['requirements'].queryset.count() == 0:
