@@ -374,7 +374,7 @@ class AK(models.Model):
     include_in_export = models.BooleanField(default=True, verbose_name=_('Export?'),
                                             help_text=_("Include AK in wiki export?"))
 
-    history = HistoricalRecords(excluded_fields=['interest_counter', 'include_in_export'])
+    history = HistoricalRecords(excluded_fields=['interest', 'interest_counter', 'include_in_export'])
 
     class Meta:
         verbose_name = _('AK')
