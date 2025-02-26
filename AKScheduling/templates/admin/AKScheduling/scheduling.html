@@ -355,7 +355,7 @@
                         <h5 class="mt-2">{{ track_slots.grouper }}</h5>
                     {% endif %}
                     {% for slot in track_slots.list %}
-                        <div class="unscheduled-slot badge" style='background-color: {{ slot.ak.category.color }}'
+                        <div class="unscheduled-slot badge" style='background-color: {% with slot.ak.category.color as color %} {% if color %}{{ color }}{% else  %}#000000;{% endif %}{% endwith %}'
                              {% with slot.ak.details as details %}
                              data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}", "url": "{% url "admin:AKModel_akslot_change" slot.pk %}"}' data-details="{{ details }}">{{ slot.ak.short_name }}
                             ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
