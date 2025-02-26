@@ -540,7 +540,7 @@ msgstr "Name, der den Typ beschreibt"
 
 #: AKModel/models.py:319
 msgid "AK Type"
-msgstr "Typ"
+msgstr "AK Typ"
 
 #: AKModel/models.py:320
 msgid "AK Types"
