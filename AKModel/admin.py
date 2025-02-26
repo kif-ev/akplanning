@@ -2,6 +2,8 @@ from django import forms
 from django.apps import apps
 from django.contrib import admin, messages
 from django.contrib.admin import SimpleListFilter, RelatedFieldListFilter, action, display
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
 from django.db.models import Count, F
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -568,3 +570,24 @@ class DefaultSlotAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
     list_display = ['start_simplified', 'end_simplified', 'event']
     list_filter = ['event']
     form = DefaultSlotAdminForm
+
+
+# Define a new User admin
+class UserAdmin(BaseUserAdmin):
+    list_display = ["username", "email", "is_active", "is_staff", "is_superuser"]
+    actions = ['activate', 'deactivate']
+
+    @admin.action(description=_("Activate selected users"))
+    def activate(self, request, queryset):
+        queryset.update(is_active=True)
+        self.message_user(request, _("The selected users have been activated."))
+
+    @admin.action(description=_("Deactivate selected users"))
+    def deactivate(self, request, queryset):
+        queryset.update(is_active=False)
+        self.message_user(request, _("The selected users have been deactivated."))
+
+
+# Re-register UserAdmin
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
