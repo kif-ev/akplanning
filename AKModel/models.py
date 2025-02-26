@@ -548,8 +548,8 @@ class Event(models.Model):
             "blocks": [],
             }
 
-        rooms = Room.objects.filter(event=self)
-        slots = AKSlot.objects.filter(event=self)
+        rooms = Room.objects.filter(event=self).order_by()
+        slots = AKSlot.objects.filter(event=self).order_by()
 
         ak_availabilities = {
             ak.pk: Availability.union(ak.availabilities.all())
@@ -626,7 +626,7 @@ class Event(models.Model):
                         "start": timeslot.avail.start.astimezone(self.timezone).strftime("%Y-%m-%d %H:%M"),
                         "end": timeslot.avail.end.astimezone(self.timezone).strftime("%Y-%m-%d %H:%M"),
                     },
-                    "fulfilled_time_constraints": time_constraints,
+                    "fulfilled_time_constraints": sorted(time_constraints),
                     })
 
             timeslots["blocks"].append(current_block)
@@ -1092,6 +1092,7 @@ class Room(models.Model):
         if not any(constr.startswith("proxy") for constr in data["fulfilled_room_constraints"]):
             data["fulfilled_room_constraints"].append("no-proxy")
 
+        data["fulfilled_room_constraints"].sort()
         return data
 
 
@@ -1229,9 +1230,11 @@ class AKSlot(models.Model):
             "duration": math.ceil(self.duration / self.event.export_slot - ceil_offet_eps),
             "properties": {
                 "conflicts":
-                    [conflict.pk for conflict in conflict_slots.all()]
-                  + [second_slot.pk for second_slot in other_ak_slots.all()],
-                "dependencies": [dep.pk for dep in dependency_slots.all()],
+                    sorted(
+                        [conflict.pk for conflict in conflict_slots.all()]
+                      + [second_slot.pk for second_slot in other_ak_slots.all()]
+                    ),
+                "dependencies": sorted([dep.pk for dep in dependency_slots.all()]),
             },
             "room_constraints": [constraint.name
                                  for constraint in self.ak.requirements.all()],
@@ -1261,6 +1264,9 @@ class AKSlot(models.Model):
 
         if not any(constr.startswith("proxy") for constr in data["room_constraints"]):
             data["room_constraints"].append("no-proxy")
+
+        data["room_constraints"].sort()
+        data["time_constraints"].sort()
 
         return data
 
