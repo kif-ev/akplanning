@@ -285,6 +285,7 @@ class Event(models.Model):
         start: datetime,
         end: datetime,
         slot_duration: timedelta,
+        *,
         slot_index: int = 0,
         constraints: set[str] | None = None,
     ) -> Generator[TimeslotBlock, None, int]:
