@@ -1,0 +1,22 @@
+{% extends 'AKPreferencePoll/poll_base.html' %}
+
+{% load i18n %}
+{% load fontawesome_6 %}
+{% load static %}
+
+{% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Preference Poll" %}{% endblock %}
+
+{% block breadcrumbs %}
+    {% include "AKPreferencePoll/poll_breadcrumbs.html" %}
+    <li class="breadcrumb-item active">{% trans "AK Preference Poll" %}</li>
+{% endblock %}
+
+{% block content %}
+    <h1>{{ event.name }}</h1>
+
+    {% include "messages.html" %}
+
+    <div class="alert alert-warning" style="margin-top:20px;margin-bottom: 20px;">
+            {% trans "System is not yet configured for AK preference polling. Please try again later." %}
+        </div>
+{% endblock %}
