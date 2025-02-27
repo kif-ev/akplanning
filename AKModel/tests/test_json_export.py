@@ -143,6 +143,7 @@ class JSONExportTest(TestCase):
                             "reso",
                             "duration_in_hours",
                             "django_ak_id",
+                            "types",
                         },
                         f"{item} info keys not as expected",
                     )
@@ -445,6 +446,10 @@ class JSONExportTest(TestCase):
                     )
                     self.assertEqual(ak["info"]["description"], slot.ak.description)
                     self.assertEqual(ak["info"]["django_ak_id"], slot.ak.pk)
+                    self.assertEqual(
+                        ak["info"]["types"],
+                        list(slot.ak.types.values_list("name", flat=True).order_by()),
+                    )
 
     def test_ak_room_constraints(self):
         """Test if AK room constraints are exported as expected."""
