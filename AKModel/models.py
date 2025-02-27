@@ -408,8 +408,22 @@ class AK(models.Model):
             detail_string += f"\n{_('Requirements')}: {', '.join(str(r) for r in self.requirements.all())}"
         if self.types.count() > 0:
             detail_string += f"\n{_('Types')}: {', '.join(str(r) for r in self.types.all())}"
+
+        # Find conflicts
+        # (both directions, those specified for this AK and those were this AK was specified as conflict)
+        # Deduplicate and order list alphabetically
+        conflicts = set()
         if self.conflicts.count() > 0:
-            detail_string += f"\n{_('Conflicts')}: {', '.join(str(c) for c in self.conflicts.all())}"
+            for c in self.conflicts.all():
+                conflicts.add(str(c))
+        if self.conflict.count() > 0:
+            for c in self.conflict.all():
+                conflicts.add(str(c))
+        if len(conflicts) > 0:
+            conflicts = list(conflicts)
+            conflicts.sort()
+            detail_string += f"\n{_('Conflicts')}: {', '.join(conflicts)}"
+
         if self.prerequisites.count() > 0:
             detail_string += f"\n{_('Prerequisites')}: {', '.join(str(p) for p in self.prerequisites.all())}"
         detail_string += f"\n{_('Availabilities')}: \n{availabilities}"

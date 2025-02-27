@@ -24,7 +24,8 @@ class AKAddSlotForm(forms.Form):
     start = forms.CharField(label=_("Start"), disabled=True)
     end = forms.CharField(label=_("End"), disabled=True)
     duration = forms.CharField(label=_("Duration"), disabled=True)
-    room = forms.IntegerField(label=_("Room"), disabled=True)
+    room = forms.IntegerField(label=_("Room"), disabled=True, widget=forms.HiddenInput())
+    room_name = forms.CharField(label=_("Room"), disabled=True)
 
     def __init__(self, event):
         super().__init__()

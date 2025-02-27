@@ -157,6 +157,7 @@
                     $('#id_start').val(info.startStr);
                     $('#id_end').val(info.endStr);
                     $('#id_room').val(info.resource._resource.id);
+                    $('#id_room_name').val(info.resource._resource.title);
                     $('#id_duration').val(Math.abs(info.end-info.start)/1000/60/60);
                     $('#id_ak').val("");
                     $('#newAKSlotModal').modal('show');
@@ -354,9 +355,11 @@
                         <h5 class="mt-2">{{ track_slots.grouper }}</h5>
                     {% endif %}
                     {% for slot in track_slots.list %}
-                        <div class="unscheduled-slot badge" style='background-color: {{ slot.ak.category.color }}'
-                             data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ slot.ak.details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}", "url": "{% url "admin:AKModel_akslot_change" slot.pk %}"}' data-details="{{ slot.ak.details }}">{{ slot.ak.short_name }}
+                        <div class="unscheduled-slot badge" style='background-color: {% with slot.ak.category.color as color %} {% if color %}{{ color }}{% else  %}#000000;{% endif %}{% endwith %}'
+                             {% with slot.ak.details as details %}
+                             data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}", "url": "{% url "admin:AKModel_akslot_change" slot.pk %}"}' data-details="{{ details }}">{{ slot.ak.short_name }}
                             ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
+                            {% endwith %}
                         </div>
                     {% endfor %}
                 {% endfor %}

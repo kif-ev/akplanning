@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-25 22:33+0100\n"
+"POT-Creation-Date: 2025-02-26 16:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKModel/admin.py:86 AKModel/admin.py:96
+#: AKModel/admin.py:88 AKModel/admin.py:98
 #: AKModel/templates/admin/AKModel/event_wizard/activate.html:35
 #: AKModel/templates/admin/AKModel/event_wizard/created_prepare_import.html:51
 #: AKModel/templates/admin/AKModel/event_wizard/finish.html:21
@@ -21,68 +21,84 @@ msgstr ""
 msgid "Status"
 msgstr "Status"
 
-#: AKModel/admin.py:98
+#: AKModel/admin.py:100
 msgid "Toggle plan visibility"
 msgstr "Plansichtbarkeit ändern"
 
-#: AKModel/admin.py:110 AKModel/admin.py:121 AKModel/views/manage.py:138
+#: AKModel/admin.py:112 AKModel/admin.py:123 AKModel/views/manage.py:138
 msgid "Publish plan"
 msgstr "Plan veröffentlichen"
 
-#: AKModel/admin.py:113 AKModel/admin.py:129 AKModel/views/manage.py:151
+#: AKModel/admin.py:115 AKModel/admin.py:131 AKModel/views/manage.py:151
 msgid "Unpublish plan"
 msgstr "Plan verbergen"
 
-#: AKModel/admin.py:168 AKModel/models.py:381 AKModel/models.py:707
+#: AKModel/admin.py:170 AKModel/models.py:381 AKModel/models.py:707
 #: AKModel/templates/admin/AKModel/aks_by_user.html:12
 #: AKModel/templates/admin/AKModel/status/event_aks.html:10
 #: AKModel/views/manage.py:73 AKModel/views/status.py:102
 msgid "AKs"
 msgstr "AKs"
 
-#: AKModel/admin.py:234
+#: AKModel/admin.py:236
 msgid "Wish"
 msgstr "AK-Wunsch"
 
-#: AKModel/admin.py:240
+#: AKModel/admin.py:242
 msgid "Is wish"
 msgstr "Ist ein Wunsch"
 
-#: AKModel/admin.py:241
+#: AKModel/admin.py:243
 msgid "Is not a wish"
 msgstr "Ist kein Wunsch"
 
-#: AKModel/admin.py:301
+#: AKModel/admin.py:303
 msgid "Export to wiki syntax"
 msgstr "In Wiki-Syntax exportieren"
 
-#: AKModel/admin.py:318
+#: AKModel/admin.py:320
 msgid "Cannot export AKs from more than one event at the same time."
 msgstr "Kann nicht AKs von mehreren Events zur selben Zeit exportieren."
 
-#: AKModel/admin.py:333 AKModel/views/ak.py:99
+#: AKModel/admin.py:335 AKModel/views/ak.py:99
 msgid "Reset interest in AKs"
 msgstr "Interesse an AKs zurücksetzen"
 
-#: AKModel/admin.py:343 AKModel/views/ak.py:114
+#: AKModel/admin.py:345 AKModel/views/ak.py:114
 msgid "Reset AKs' interest counters"
 msgstr "Interessenszähler der AKs zurücksetzen"
 
-#: AKModel/admin.py:442 AKModel/admin.py:456
+#: AKModel/admin.py:444 AKModel/admin.py:458
 msgid "AK Details"
 msgstr "AK-Details"
 
-#: AKModel/admin.py:518 AKModel/views/manage.py:99
+#: AKModel/admin.py:520 AKModel/views/manage.py:99
 msgid "Mark Constraint Violations as manually resolved"
 msgstr "Markiere Constraintverletzungen als manuell behoben"
 
-#: AKModel/admin.py:527 AKModel/views/manage.py:112
+#: AKModel/admin.py:529 AKModel/views/manage.py:112
 msgid "Set Constraint Violations to level \"violation\""
 msgstr "Constraintverletzungen auf Level \"Violation\" setzen"
 
-#: AKModel/admin.py:536 AKModel/views/manage.py:125
+#: AKModel/admin.py:538 AKModel/views/manage.py:125
 msgid "Set Constraint Violations to level \"warning\""
 msgstr "Constraintverletzungen auf Level \"Warning\" setzen"
+
+#: AKModel/admin.py:580
+msgid "Activate selected users"
+msgstr "Ausgewählte Benutzer*innen aktivieren"
+
+#: AKModel/admin.py:583
+msgid "The selected users have been activated."
+msgstr "Benutzer*innen aktiviert"
+
+#: AKModel/admin.py:585
+msgid "Deactivate selected users"
+msgstr "Ausgewählte Benutzer*innen deaktivieren"
+
+#: AKModel/admin.py:588
+msgid "The selected users have been deactivated."
+msgstr "Benutzer*innen deaktiviert"
 
 #: AKModel/availability/forms.py:25 AKModel/availability/models.py:271
 msgid "Availability"

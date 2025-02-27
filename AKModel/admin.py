@@ -2,6 +2,8 @@ from django import forms
 from django.apps import apps
 from django.contrib import admin, messages
 from django.contrib.admin import SimpleListFilter, RelatedFieldListFilter, action, display
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User # pylint: disable=E5142
 from django.db.models import Count, F
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -568,3 +570,41 @@ class DefaultSlotAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
     list_display = ['start_simplified', 'end_simplified', 'event']
     list_filter = ['event']
     form = DefaultSlotAdminForm
+
+
+# Define a new User admin
+class UserAdmin(BaseUserAdmin):
+    """
+    Admin interface for Users
+    Enhances the built-in UserAdmin with additional actions to activate and deactivate users and a custom selection
+    of displayed properties in overview list
+    """
+    list_display = ["username", "email", "is_active", "is_staff", "is_superuser"]
+    actions = ['activate', 'deactivate']
+
+    @admin.action(description=_("Activate selected users"))
+    def activate(self, request, queryset):
+        """
+        Bulk activate users
+
+        :param request: HTTP request
+        :param queryset: queryset containing all users that should be activated
+        """
+        queryset.update(is_active=True)
+        self.message_user(request, _("The selected users have been activated."))
+
+    @admin.action(description=_("Deactivate selected users"))
+    def deactivate(self, request, queryset):
+        """
+        Bulk deactivate users
+
+        :param request: HTTP request
+        :param queryset: queryset containing all users that should be deactivated
+        """
+        queryset.update(is_active=False)
+        self.message_user(request, _("The selected users have been deactivated."))
+
+
+# Re-register UserAdmin
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
