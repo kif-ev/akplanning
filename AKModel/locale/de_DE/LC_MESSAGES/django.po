@@ -94,7 +94,7 @@ msgstr "Benutzer*innen aktiviert"
 
 #: AKModel/admin.py:585
 msgid "Deactivate selected users"
-msgstr "Ausgewählte Benutzer*innen löschen"
+msgstr "Ausgewählte Benutzer*innen deaktivieren"
 
 #: AKModel/admin.py:588
 msgid "The selected users have been deactivated."
