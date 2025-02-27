@@ -154,6 +154,13 @@ class InterestEnteringAdminView(SuccessMessageMixin, AdminViewMixin, EventSlugMi
     def get_success_url(self):
         return self.request.path
 
+    def form_valid(self, form):
+        # Don't create a history entry for this change
+        form.instance.skip_history_when_saving = True
+        r = super().form_valid(form)
+        del form.instance.skip_history_when_saving
+        return r
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = f"{_('Enter interest')}"
