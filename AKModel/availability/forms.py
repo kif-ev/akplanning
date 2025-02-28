@@ -183,7 +183,7 @@ class AvailabilitiesFormMixin(forms.Form):
         for avail in availabilities:
             setattr(avail, reference_name, instance.id)
 
-    def _replace_availabilities(self, instance, availabilities: [Availability]):
+    def _replace_availabilities(self, instance, availabilities: list[Availability]):
         """
         Replace the existing list of availabilities belonging to an entity with a new, updated one
 

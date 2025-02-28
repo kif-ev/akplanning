@@ -78,7 +78,13 @@ class JSONExportTest(TestCase):
             for participant in self.export_dict["participants"]
         }
 
-        self.ak_slots = AKSlot.objects.filter(event__slug=event.slug).all()
+        self.ak_slots = (
+            AKSlot.objects.filter(event__slug=event.slug)
+            .select_related("ak")
+            .prefetch_related("ak__conflicts")
+            .prefetch_related("ak__prerequisites")
+            .all()
+        )
         self.rooms = Room.objects.filter(event__slug=event.slug).all()
         self.slots_in_an_hour = 1 / self.export_dict["timeslots"]["info"]["duration"]
         self.event = event
@@ -563,7 +569,7 @@ class JSONExportTest(TestCase):
 
                     # test if time availability of room is restricted
                     if not Availability.is_event_covered(
-                        room.event, room.availabilities.all()
+                        event, room.availabilities.all()
                     ):
                         time_constraints.add(f"availability-room-{room.pk}")
 
