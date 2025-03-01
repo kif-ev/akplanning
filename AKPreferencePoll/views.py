@@ -66,9 +66,7 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, CreateView):
         context["formset"].extra = len(initial_lst)
 
         for form, init in zip(context["formset"], initial_lst, strict=True):
-            form.fields["preference"].label = (
-                _("Preferences for %s") % init["slot"].ak.name
-            )
+            form.fields["preference"].label = init["slot"].ak.name
             form.fields["preference"].help_text = (
                 "Description: " + init["slot"].ak.description
             )
