@@ -37,6 +37,7 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, CreateView):
             widgets={
                 "slot": forms.HiddenInput,
                 "event": forms.HiddenInput,
+                "preference": forms.RadioSelect,
             },
             extra=0,
         )
