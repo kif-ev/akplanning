@@ -65,7 +65,7 @@ class AvailabilitiesFormMixin(forms.Form):
         if isinstance(self.event, int):
             self.event = Event.objects.get(pk=self.event)
         initial = kwargs.pop('initial', {})
-        initial['availabilities'] = self._serialize(self.event, kwargs['instance'])
+        initial['availabilities'] = self._serialize(self.event, kwargs.get('instance'))
         if not isinstance(self, forms.BaseModelForm):
             kwargs.pop('instance')
         kwargs['initial'] = initial
