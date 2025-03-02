@@ -31,14 +31,14 @@
 
 {% block breadcrumbs %}
   {% include "AKPreferencePoll/poll_breadcrumbs.html" %}
-  <li class="breadcrumb-item active">{% trans "Preference poll" %}</li>
+  <li class="breadcrumb-item active">{% trans "AK Preferences" %}</li>
 {% endblock %}
 
 {% block content %}
   {% include "messages.html" %}
 
   {% block headline %}
-    <h2>{% trans 'Preference poll' %}</h2>
+    <h2>{% trans 'AK Preferences' %}</h2>
   {% endblock %}
   <form method="POST" class="post-form">{% csrf_token %}
     {% block form_contents %}
@@ -76,7 +76,7 @@
                   {% endif %}
                   {% if innerform.ak.reso %}
                     <!-- TODO: reso as an icon -->
-                    <p><i>{% trans "Eine Resoerstellung ist angedacht." %}</i></p>
+                    <p><i>{% trans "Intends to submit a resolution" %}.</i></p>
                   {% endif %}
                 </details>
               </div>
