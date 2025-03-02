@@ -302,9 +302,13 @@ class JSONScheduleImportForm(AdminIntermediateForm):
     def clean(self):
         cleaned_data = super().clean()
         if cleaned_data.get("json_file") and cleaned_data.get("json_data"):
-            raise ValidationError("Please enter data as a file OR via text, not both.")
-        if not (cleaned_data.get("json_file") or cleaned_data.get("json_data")):
-            raise ValidationError("No data entered.")
+            err = ValidationError(_("Please enter data as a file OR via text, not both."), "invalid")
+            self.add_error("json_data", err)
+            self.add_error("json_file", err)
+        elif not (cleaned_data.get("json_file") or cleaned_data.get("json_data")):
+            err = ValidationError(_("No data entered. Please enter data as a file or via text."), "invalid")
+            self.add_error("json_data", err)
+            self.add_error("json_file", err)
 
         # TODO Check input data if it is a valid JSON
 
