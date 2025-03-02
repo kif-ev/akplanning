@@ -39,23 +39,20 @@ class AKCSVExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
         return super().get_queryset().order_by("ak__track")
 
 
-class AKJSONExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
+class AKJSONExportView(AdminViewMixin, DetailView):
     """
     View: Export all AK slots of this event in JSON format ordered by tracks
     """
     template_name = "admin/AKModel/ak_json_export.html"
-    model = AKSlot
-    context_object_name = "slots"
+    model = Event
+    context_object_name = "event"
     title = _("AK JSON Export")
-
-    def get_queryset(self):
-        return super().get_queryset().order_by("ak__track")
+    slug_url_kwarg = "event_slug"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        data = self.event.as_json_dict()
-
+        data = context["event"].as_json_dict()
         context["json_data_oneline"] = json.dumps(data)
         context["json_data"] = json.dumps(data, indent=2)
 
