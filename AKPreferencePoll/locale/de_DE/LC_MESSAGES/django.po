@@ -82,6 +82,5 @@ msgstr ""
 "konfiguriert. Bitte versuche es später wieder."
 
 #: AKPreferencePoll/views.py:18
-#, python-format
-msgid "Preferences of %(name)s were registered successfully"
-msgstr "Präferenzen von %(name)s erfolgreich registriert"
+msgid "AK preferences were registered successfully"
+msgstr "AK-Präferenzen erfolgreich registriert"
