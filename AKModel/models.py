@@ -1508,6 +1508,7 @@ class AKPreference(models.Model):
         verbose_name = _('AK Preference')
         verbose_name_plural = _('AK Preferences')
         unique_together = [['event', 'participant', 'slot']]
+        ordering = ["-timestamp"]
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
@@ -1531,6 +1532,8 @@ class AKPreference(models.Model):
                                              help_text=_('Preference level for the AK'),
                                              blank=False,
                                              default=PreferenceLevel.IGNORE)
+
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_('Timestamp'), help_text=_('Time of creation'))
 
     def __str__(self) -> str:
         json_repr = json.dumps(
