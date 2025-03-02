@@ -60,7 +60,12 @@
 
             <div class="container radio-group">
               <div class="container radio-info">
-                <h4>{{ innerform.preference.label }}</h4>
+                <h4>{{ innerform.preference.label }}
+                  {% if innerform.ak.reso %}
+                    <span class="badge bg-dark rounded-pill"
+                      title="{% trans 'Intends to submit a resolution' %}">{% fa6_icon "scroll" 'fas' %}</span>
+                  {% endif %}
+                </h4>
                 <details>
                   <summary>{% trans "Description" %}</summary>
 
