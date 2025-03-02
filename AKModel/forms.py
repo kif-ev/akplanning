@@ -6,6 +6,7 @@ import csv
 import io
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _
 
@@ -286,8 +287,25 @@ class RoomFormWithAvailabilities(AvailabilitiesFormMixin, RoomForm):
 class JSONScheduleImportForm(AdminIntermediateForm):
     """Form to import an AK schedule from a json file."""
     json_data = forms.CharField(
-        required=True,
+        required=False,
         widget=forms.Textarea,
         label=_("JSON data"),
         help_text=_("JSON data from the scheduling solver"),
     )
+
+    json_file = forms.FileField(
+        required=False,
+        label=_("File with JSON data"),
+        help_text=_("File with JSON data from the scheduling solver"),
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get("json_file") and cleaned_data.get("json_data"):
+            raise ValidationError("Please enter data as a file OR via text, not both.")
+        if not (cleaned_data.get("json_file") or cleaned_data.get("json_data")):
+            raise ValidationError("No data entered.")
+
+        # TODO Check input data if it is a valid JSON
+
+        return cleaned_data

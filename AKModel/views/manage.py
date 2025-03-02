@@ -253,12 +253,21 @@ class AKScheduleJSONImportView(EventSlugMixin, IntermediateAdminView):
     """
     View: Import an AK schedule from a json file that can be pasted into this view.
     """
+    template_name = "admin/AKModel/import_json.html"
     form_class = JSONScheduleImportForm
     title = _("AK Schedule JSON Import")
 
     def form_valid(self, form):
         try:
-            number_of_slots_changed = self.event.schedule_from_json(form.data["json_data"])
+            if form.cleaned_data.get("json_data"):
+                data = form.cleaned_data["json_data"]
+            elif form.cleaned_data.get("json_file"):
+                with form.cleaned_data["json_file"].open() as ff:
+                    data = ff.read()
+            else:
+                raise ValueError("No data entered!")
+
+            number_of_slots_changed = self.event.schedule_from_json(data)
             messages.add_message(
                 self.request,
                 messages.SUCCESS,

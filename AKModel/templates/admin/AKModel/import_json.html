@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load django_bootstrap5 %}
+{% load fontawesome_6 %}
+
+
+{% block title %}{{event}}: {{ title }}{% endblock %}
+
+{% block content %}
+    {% block action_preview %}
+        <p>
+            {{ preview|linebreaksbr }}
+        </p>
+    {% endblock %}
+
+    <form enctype="multipart/form-data" method="post">{% csrf_token %}
+        {% bootstrap_form form %}
+
+        <div class="float-end">
+            <button type="submit" class="save btn btn-success" value="Submit">
+                {% fa6_icon "check" 'fas' %} {% trans "Confirm" %}
+            </button>
+        </div>
+        <a href="javascript:history.back()" class="btn btn-info">
+            {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
+        </a>
+    </form>
+{% endblock %}
