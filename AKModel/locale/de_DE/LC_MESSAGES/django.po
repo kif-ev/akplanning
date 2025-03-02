@@ -1080,13 +1080,13 @@ msgstr "AK-Slot zu dem die Präferenz gehört"
 msgid "Ignore"
 msgstr "Ignorieren"
 
-#: AKModel/models.py:1446
-msgid "Prefer"
-msgstr "Präferenz"
+#: AKModel/models.py:1487
+msgid "Interested"
+msgstr "Interessiert"
 
-#: AKModel/models.py:1447
-msgid "Strong prefer"
-msgstr "Große Präferenz"
+#: AKModel/models.py:1488
+msgid "Great interest"
+msgstr "Großes Interesse"
 
 #: AKModel/models.py:1448
 msgid "Required"

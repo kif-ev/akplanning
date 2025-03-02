@@ -1524,8 +1524,8 @@ class AKPreference(models.Model):
         Possible preference values
         """
         IGNORE = 0, _('Ignore')
-        PREFER = 1, _('Prefer')
-        STRONG_PREFER = 2, _("Strong prefer")
+        PREFER = 1, _('Interested')
+        STRONG_PREFER = 2, _("Great interest")
         REQUIRED = 3, _("Required")
 
     preference = models.PositiveSmallIntegerField(verbose_name=_('Preference'), choices=PreferenceLevel.choices,
