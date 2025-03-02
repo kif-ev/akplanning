@@ -39,10 +39,39 @@
     <form method="POST" class="post-form">{% csrf_token %}
         {% block form_contents %}
             {% bootstrap_form participant_form %}
+            <section>
+            <h3>Präferenzen</h3>
             {{ formset.management_form }}
-            {% for form in formset %}
-                {% bootstrap_form form %}<br><br>
+
+            {% for innerform in formset %}
+
+            {% bootstrap_form_errors innerform type='non_fields' %}
+
+            {% for field in innerform.hidden_fields %}
+                {{ field }}
             {% endfor %}
+
+            <div class="radio-group">
+                <!-- <legend> -->
+                  <h4> {{ innerform.preference.label }} </h4>
+                  <details>
+                    <summary>Beschreibung</summary>
+
+                    <p>{{ innerform.ak.description }}</p>
+
+                    {% if innerform.ak.owners_list %}
+                      <p>Verantwortlich: {{ innerform.ak.owners_list }}</p>
+                    {% endif %}
+                    {% if innerform.ak.reso %}
+                        <p><i>Eine Resoerstellung ist angedacht.</i></p>
+                    {% endif %}
+                  </details>
+                <!-- </legend> -->
+                {% bootstrap_field innerform.preference show_label=False show_help=False %}
+              </div>
+
+            {% endfor %}
+            </section>
         {% endblock %}
         <button type="submit" class="save btn btn-primary float-end">
             {% fa6_icon "check" 'fas' %} {% trans "Submit" %}

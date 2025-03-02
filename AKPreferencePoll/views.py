@@ -4,7 +4,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView
+from django.views.generic import FormView
 
 from AKModel.metaviews.admin import EventSlugMixin
 from AKModel.models import AK, AKPreference
@@ -12,7 +12,7 @@ from AKModel.models import AK, AKPreference
 from .forms import EventParticipantForm
 
 
-class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, CreateView):
+class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
     """
     View: Show a form to register the AK preference of a participant.
 
@@ -23,6 +23,7 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, CreateView):
     For the preferences, a ModelFormset is created.
     """
 
+    form_class = forms.Form
     model = AKPreference
     form_class = forms.modelform_factory(
         model=AKPreference, fields=["preference", "slot", "event"]
@@ -70,6 +71,7 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, CreateView):
             form.fields["preference"].help_text = (
                 "Description: " + init["slot"].ak.description
             )
+            form.ak = init["slot"].ak
 
         context["participant_form"] = EventParticipantForm(
             initial={"event": self.event}
