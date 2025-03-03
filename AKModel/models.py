@@ -1,6 +1,7 @@
 import itertools
 from datetime import datetime, timedelta
 
+from django.core.validators import RegexValidator
 from django.apps import apps
 from django.db import models
 from django.db.models import Count
@@ -10,6 +11,16 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 from timezone_field import TimeZoneField
+
+
+# Custom validators to be used for some of the fields
+# Prevent inclusion of the quotation marks ' " ´ `
+# This may be necessary to prevent javascript issues
+no_quotation_marks_validator = RegexValidator(regex=r"['\"´`]+", inverse_match=True,
+                                              message=_('May not contain quotation marks'))
+# Enforce that the field contains of at least one letter or digit (and not just special characters
+# This prevents issues when autogenerating slugs from that field
+slugable_validator = RegexValidator(regex=r"[\w\s]+", message=_('Must contain at least one letter or digit'))
 
 
 class Event(models.Model):
@@ -166,7 +177,9 @@ class Event(models.Model):
 class AKOwner(models.Model):
     """ An AKOwner describes the person organizing/holding an AK.
     """
-    name = models.CharField(max_length=64, verbose_name=_('Nickname'), help_text=_('Name to identify an AK owner by'))
+    name = models.CharField(max_length=64, verbose_name=_('Nickname'),
+                            validators=[no_quotation_marks_validator, slugable_validator],
+                            help_text=_('Name to identify an AK owner by'))
     slug = models.SlugField(max_length=64, blank=True, verbose_name=_('Slug'), help_text=_('Slug for URL generation'))
     institution = models.CharField(max_length=128, blank=True, verbose_name=_('Institution'), help_text=_('Uni etc.'))
     link = models.URLField(blank=True, verbose_name=_('Web Link'), help_text=_('Link to Homepage'))
@@ -328,8 +341,10 @@ class AKType(models.Model):
 class AK(models.Model):
     """ An AK is a slot-based activity to be scheduled during an event.
     """
-    name = models.CharField(max_length=256, verbose_name=_('Name'), help_text=_('Name of the AK'))
+    name = models.CharField(max_length=256, verbose_name=_('Name'), help_text=_('Name of the AK'),
+                            validators=[no_quotation_marks_validator, slugable_validator])
     short_name = models.CharField(max_length=64, blank=True, verbose_name=_('Short Name'),
+                                  validators=[no_quotation_marks_validator],
                                   help_text=_('Name displayed in the schedule'))
     description = models.TextField(blank=True, verbose_name=_('Description'), help_text=_('Description of the AK'))
 
