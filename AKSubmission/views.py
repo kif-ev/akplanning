@@ -185,8 +185,9 @@ class AKListByCategoryView(AKOverviewView):
     def dispatch(self, request, *args, **kwargs):
         # Override dispatching
         # Needed to handle the checking whether the category exists
-        self.category = get_object_or_404(AKCategory, pk=kwargs[
-            'category_pk'])  # pylint: disable=attribute-defined-outside-init,line-too-long
+        # noinspection PyAttributeOutsideInit
+        # pylint: disable=attribute-defined-outside-init
+        self.category = get_object_or_404(AKCategory, pk=kwargs['category_pk'])
         return super().dispatch(request, *args, **kwargs)
 
     def get_active_category_name(self, context):

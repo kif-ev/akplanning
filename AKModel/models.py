@@ -32,7 +32,8 @@ class Event(models.Model):
 
     interest_start = models.DateTimeField(verbose_name=_('Interest Window Start'), blank=True, null=True,
                                           help_text=
-                                          _('Opening time for expression of interest. When left blank, no interest indication will be possible.'))
+                                          _('Opening time for expression of interest. When left blank, no interest '
+                                            'indication will be possible.'))
 
     interest_end = models.DateTimeField(verbose_name=_('Interest Window End'), blank=True, null=True,
                                         help_text=_('Closing time for expression of interest.'))
@@ -244,8 +245,8 @@ class AKCategory(models.Model):
     description = models.TextField(blank=True, verbose_name=_("Description"),
                                    help_text=_("Short description of this AK Category"))
     present_by_default = models.BooleanField(blank=True, default=True, verbose_name=_("Present by default"),
-                                             help_text=_("Present AKs of this category by default "
-                                                         "if AK owner did not specify whether this AK should be presented?"))
+                                             help_text=_("Present AKs of this category by default if AK owner did not "
+                                                         "specify whether this AK should be presented?"))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
@@ -511,7 +512,7 @@ class AK(models.Model):
             # Tell Django that we have updated the link field
             if update_fields is not None:
                 update_fields = {"link"}.union(update_fields)
-        super().save(force_insert, force_update, using, update_fields)
+        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
 
 class Room(models.Model):
@@ -642,7 +643,7 @@ class AKSlot(models.Model):
             event_duration = self.event.end - self.event.start
             event_duration_hours = event_duration.days * 24 + event_duration.seconds // 3600
             self.duration = min(self.duration, event_duration_hours)
-        super().save(force_insert, force_update, using, update_fields)
+        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
 
 class AKOrgaMessage(models.Model):

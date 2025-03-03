@@ -146,7 +146,8 @@ class ModelViewTests(BasicViewTests, TestCase):
         add_redirect_url = reverse_lazy(f"{self.APP_NAME}:submit_ak", kwargs={'event_slug': 'kif42', 'owner_slug': 'a'})
         response = self.client.post(select_url, {'owner_id': 1})
         self.assertRedirects(response, add_redirect_url, status_code=302, target_status_code=200,
-                             msg_prefix=f"Dispatch redirect to ak submission page failed (should go to {add_redirect_url})")
+                             msg_prefix=f"Dispatch redirect to ak submission page failed "
+                                        "(should go to {add_redirect_url})")
 
     def test_orga_message_submission(self):
         """
@@ -200,7 +201,8 @@ class ModelViewTests(BasicViewTests, TestCase):
         # Test indication outside of indication window -> HTTP 403, counter not increased
         response = self.client.post(interest_api_url)
         self.assertEqual(response.status_code, 403,
-                         "API end point still reachable even though interest indication window ended ({interest_api_url})")
+                         "API end point still reachable even though interest indication window ended "
+                         "({interest_api_url})")
         self.assertEqual(AK.objects.get(pk=1).interest_counter, ak_interest_counter + 1,
                          "Counter was increased even though interest indication window ended")
 
