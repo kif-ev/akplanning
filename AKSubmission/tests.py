@@ -249,7 +249,8 @@ class ModelViewTests(BasicViewTests, TestCase):
 
         event2 = Event.objects.create(name='Event without requirements',
                                       slug='no_req',
-                                      start=datetime.now(), end=datetime.now(),
+                                      start=datetime.now().astimezone(event.timezone),
+                                      end=datetime.now().astimezone(event.timezone),
                                       active=True)
         form2 = AKSubmissionForm(data={'name': 'Test AK', 'event': event2}, instance=None, initial={"event": event2})
         self.assertNotIn('requirements', form2.fields,
@@ -266,7 +267,8 @@ class ModelViewTests(BasicViewTests, TestCase):
 
         event2 = Event.objects.create(name='Event without types',
                                       slug='no_types',
-                                      start=datetime.now(), end=datetime.now(),
+                                      start=datetime.now().astimezone(event.timezone),
+                                      end=datetime.now().astimezone(event.timezone),
                                       active=True)
         form2 = AKSubmissionForm(data={'name': 'Test AK', 'event': event2}, instance=None, initial={"event": event2})
         self.assertNotIn('types', form2.fields,
