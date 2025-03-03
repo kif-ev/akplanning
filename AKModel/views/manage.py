@@ -172,26 +172,16 @@ class ClearScheduleView(IntermediateAdminActionView, ListView):
         super().__init__(*args, **kwargs)
         self.entities = AKSlot.objects.none()
 
-    def get_queryset(self):
-        query_set = super().get_queryset()
+    def get_queryset(self, *args, **kwargs):
+        query_set = super().get_queryset(*args, **kwargs)
+        # do not reset fixed AKs
         query_set = query_set.filter(fixed=False)
         query_set = query_set.filter(Q(room__isnull=False) | Q(start__isnull=False))
         return query_set
 
-    def action(self):
+    def action(self, form):
         """Reset rooms and start for all selected slots."""
         self.entities.update(room=None, start=None)
-
-    def get_preview(self):
-        self.entities = self.get_queryset()
-        joined_entities = '\n'.join(str(e) for e in self.entities)
-        return f"{self.confirmation_message}:\n\n {joined_entities}"
-
-    def form_valid(self, form):
-        self.entities = self.get_queryset()
-        self.action()
-        messages.add_message(self.request, messages.SUCCESS, self.success_message)
-        return redirect("admin:event_status", self.event.slug)
 
 class PlanPublishView(IntermediateAdminActionView):
     """
