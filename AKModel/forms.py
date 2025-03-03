@@ -4,6 +4,7 @@ Central and admin forms
 
 import csv
 import io
+import json
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -299,17 +300,44 @@ class JSONScheduleImportForm(AdminIntermediateForm):
         help_text=_("File with JSON data from the scheduling solver"),
     )
 
+    def _check_json_data(self, data: str):
+        try:
+            schedule = json.loads(data)
+        except json.JSONDecodeError as ex:
+            return ValidationError(_("Cannot decode as JSON"), "invalid")
+        for field in ["input", "scheduled_aks"]:
+            if not field in schedule:
+                return ValidationError(
+                    _("Invalid JSON format: field '%(field)s' is missing"),
+                    "invalid",
+                    params={"field": field}
+                )
+        # TODO: Add further checks on json input
+
     def clean(self):
         cleaned_data = super().clean()
         if cleaned_data.get("json_file") and cleaned_data.get("json_data"):
-            err = ValidationError(_("Please enter data as a file OR via text, not both."), "invalid")
+            err = ValidationError(
+                _("Please enter data as a file OR via text, not both."), "invalid"
+            )
             self.add_error("json_data", err)
             self.add_error("json_file", err)
         elif not (cleaned_data.get("json_file") or cleaned_data.get("json_data")):
-            err = ValidationError(_("No data entered. Please enter data as a file or via text."), "invalid")
+            err = ValidationError(
+                _("No data entered. Please enter data as a file or via text."), "invalid"
+            )
             self.add_error("json_data", err)
             self.add_error("json_file", err)
-
-        # TODO Check input data if it is a valid JSON
+        elif cleaned_data.get("json_file"):
+            data = self.cleaned_data.get("json_file")
+            with data.open() as ff:
+                read_data = ff.read()
+            err = self._check_json_data(read_data)
+            if err is not None:
+                self.add_error("json_file", err)
+        elif cleaned_data.get("json_data"):
+            err = self._check_json_data(cleaned_data.get("json_data"))
+            if err is not None:
+                self.add_error("json_data", err)
 
         return cleaned_data
