@@ -1,11 +1,12 @@
 import zoneinfo
+
 from django.apps import apps
-from django.test import TestCase, override_settings
+from django.test import override_settings, TestCase
 from django.urls import reverse
 from django.utils.timezone import now
 
 from AKDashboard.models import DashboardButton
-from AKModel.models import Event, AK, AKCategory
+from AKModel.models import AK, AKCategory, Event
 from AKModel.tests import BasicViewTests
 
 
@@ -13,6 +14,7 @@ class DashboardTests(TestCase):
     """
     Specific Dashboard Tests
     """
+
     @classmethod
     def setUpTestData(cls):
         """
@@ -20,17 +22,17 @@ class DashboardTests(TestCase):
         """
         super().setUpTestData()
         cls.event = Event.objects.create(
-            name="Dashboard Test Event",
-            slug="dashboardtest",
-            timezone=zoneinfo.ZoneInfo("Europe/Berlin"),
-            start=now(),
-            end=now(),
-            active=True,
-            plan_hidden=False,
+                name="Dashboard Test Event",
+                slug="dashboardtest",
+                timezone=zoneinfo.ZoneInfo("Europe/Berlin"),
+                start=now(),
+                end=now(),
+                active=True,
+                plan_hidden=False,
         )
         cls.default_category = AKCategory.objects.create(
-            name="Test Category",
-            event=cls.event,
+                name="Test Category",
+                event=cls.event,
         )
 
     def test_dashboard_view(self):
@@ -62,12 +64,12 @@ class DashboardTests(TestCase):
 
         # History should be empty
         response = self.client.get(url)
-        self.assertQuerysetEqual(response.context["recent_changes"], [])
+        self.assertQuerySetEqual(response.context["recent_changes"], [])
 
         AK.objects.create(
-            name="Test AK",
-            category=self.default_category,
-            event=self.event,
+                name="Test AK",
+                category=self.default_category,
+                event=self.event,
         )
 
         # History should now contain one AK (Test AK)
@@ -154,8 +156,8 @@ class DashboardTests(TestCase):
         self.assertNotContains(response, "Dashboard Button Test")
 
         DashboardButton.objects.create(
-            text="Dashboard Button Test",
-            event=self.event
+                text="Dashboard Button Test",
+                event=self.event
         )
 
         response = self.client.get(url_event_dashboard)
