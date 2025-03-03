@@ -304,15 +304,16 @@ class JSONScheduleImportForm(AdminIntermediateForm):
         try:
             schedule = json.loads(data)
         except json.JSONDecodeError as ex:
-            return ValidationError(_("Cannot decode as JSON"), "invalid")
+            raise ValidationError(_("Cannot decode as JSON"), "invalid")
         for field in ["input", "scheduled_aks"]:
             if not field in schedule:
-                return ValidationError(
+                raise ValidationError(
                     _("Invalid JSON format: field '%(field)s' is missing"),
                     "invalid",
                     params={"field": field}
                 )
         # TODO: Add further checks on json input
+        return schedule
 
     def clean(self):
         cleaned_data = super().clean()
@@ -328,16 +329,15 @@ class JSONScheduleImportForm(AdminIntermediateForm):
             )
             self.add_error("json_data", err)
             self.add_error("json_file", err)
-        elif cleaned_data.get("json_file"):
-            data = self.cleaned_data.get("json_file")
-            with data.open() as ff:
-                read_data = ff.read()
-            err = self._check_json_data(read_data)
-            if err is not None:
-                self.add_error("json_file", err)
-        elif cleaned_data.get("json_data"):
-            err = self._check_json_data(cleaned_data.get("json_data"))
-            if err is not None:
-                self.add_error("json_data", err)
-
+        else:
+            source_field = "json_data"
+            data = cleaned_data.get(source_field)
+            if not data:
+                source_field = "json_file"
+                with cleaned_data.get(source_field).open() as ff:
+                    data = ff.read()
+            try:
+                cleaned_data["data"] = self._check_json_data(data)
+            except ValidationError as ex:
+                self.add_error(source_field, ex)
         return cleaned_data

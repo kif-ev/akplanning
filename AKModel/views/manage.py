@@ -259,15 +259,7 @@ class AKScheduleJSONImportView(EventSlugMixin, IntermediateAdminView):
 
     def form_valid(self, form):
         try:
-            if form.cleaned_data.get("json_data"):
-                data = form.cleaned_data["json_data"]
-            elif form.cleaned_data.get("json_file"):
-                with form.cleaned_data["json_file"].open() as ff:
-                    data = ff.read()
-            else:
-                raise ValueError("No data entered!")
-
-            number_of_slots_changed = self.event.schedule_from_json(data)
+            number_of_slots_changed = self.event.schedule_from_json(form.cleaned_data["data"])
             messages.add_message(
                 self.request,
                 messages.SUCCESS,

@@ -423,7 +423,9 @@ class Event(models.Model):
             yield from self.uniform_time_slots(slots_in_an_hour=slots_in_an_hour)
 
     @transaction.atomic
-    def schedule_from_json(self, schedule: str, *, check_for_data_inconsistency: bool = True) -> int:
+    def schedule_from_json(
+        self, schedule: str | dict[str, Any], *, check_for_data_inconsistency: bool = True
+    ) -> int:
         """Load AK schedule from a json string.
 
         :param schedule: A string that can be decoded to json, describing
@@ -431,7 +433,8 @@ class Event(models.Model):
             following the output specification of the KoMa conference optimizer, cf.
             https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
         """
-        schedule = json.loads(schedule)
+        if isinstance(schedule, str):
+            schedule = json.loads(schedule)
         export_dict = self.as_json_dict()
 
         if "input" not in schedule or "scheduled_aks" not in schedule:
