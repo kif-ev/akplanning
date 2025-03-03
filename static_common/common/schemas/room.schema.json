@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schema/room.schema.json",
+  "title": "Room",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The unique identifier of a room",
+      "type": "integer",
+      "minimum": 0
+    },
+    "capacity": {
+      "description": "The maximum number of total participants. Unbounded capacity is represented by -1",
+      "type": "integer",
+      "minimum": -1
+    },
+    "fulfilled_room_constraints": {
+      "description": "Constraints fulfilled by this room",
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "time_constraints": {
+      "description": "Time constraints required by this room",
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "info": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Name of the room",
+          "type": "string"
+        }
+      },
+      "required": ["name"]
+    }
+  },
+  "required": ["id", "capacity", "fulfilled_room_constraints", "time_constraints", "info"]
+}

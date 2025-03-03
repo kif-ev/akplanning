@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schema/solver-input.schema.json",
+  "type": "object",
+  "properties": {
+      "aks": {"$ref": "schema/ak.schema.json"},
+      "rooms": {"$ref": "schema/room.schema.json"},
+      "participants": {"$ref": "schema/participant.schema.json"},
+      "timeslots": {"$ref": "schema/timeslot.schema.json"},
+      "info": {
+        "type": "object",
+        "properties": {
+          "title": {"type": "string"},
+          "slug": {"type": "string"},
+          "place": {"type": "string"},
+          "contact_email": {"type": "string"}
+        }
+      }
+  }
+}

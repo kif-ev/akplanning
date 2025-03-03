@@ -1,0 +1,60 @@
+ {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schema/timeslot.schema.json",
+  "title": "Timeslot",
+  "type": "object",
+  "required": ["info", "blocks"],
+  "properties": {
+    "info": {
+      "type": "object",
+      "properties": {
+        "duration": {"description": "Duration in hours of a slot unit", "type": "number"},
+        "blocknames": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {"type": "string"},
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      },
+      "required": ["duration"]
+    },
+    "blocks": {
+      "type": "array",
+      "description": "Blocks of consecutive timeslots",
+      "items": {
+        "type": "array",
+        "description": "A single block of consecutive timeslots",
+        "items": {
+          "type": "object",
+          "description": "A single timeslot",
+          "properties": {
+            "id": {
+              "description": "The unique identifier of the single timeslot. Accross all blocks, the ids must be sorted chronologically.",
+              "type": "integer",
+              "minimum": 0
+            },
+            "info": {
+              "type": "object",
+              "properties": {
+                "start": {"description": "Start datetime of the timeslot", "type": "string"},
+                "end": {"description": "End datetime of the timeslot", "type": "string"}
+              },
+              "required": ["start", "end"]
+            },
+            "fulfilled_time_constraints": {
+              "description": "Time constraints fulfilled by this timeslot",
+              "type": "array",
+              "items": {"type": "string"},
+              "uniqueItems": true
+            }
+          },
+          "required": ["id", "info", "fulfilled_time_constraints"]
+        }
+      }
+    }
+  }
+}
+ 

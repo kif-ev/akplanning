@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schema/ak.schema.json",
+  "title": "AK",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The unique identifier of a room",
+      "type": "integer",
+      "minimum": 0
+    },
+    "duration": {
+      "description": "The number of consecutive slot units",
+      "type": "integer",
+      "exclusiveMinimum": 0
+    },
+    "room_constraints": {
+      "description": "Room constraints required by this AK",
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "time_constraints": {
+      "description": "Time constraints required by this AK",
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "properties": {
+      "type": "object",
+      "properties": {
+        "conflicts": {
+          "description": "IDs of all AKs that are in conflict with this AK",
+          "type": "array",
+          "items": {"type": "integer"},
+          "uniqueItems": true
+        },
+        "dependencies": {
+          "description": "IDs of all AKs that should be scheduled before this AK",
+          "type": "array",
+          "items": {"type": "integer"},
+          "uniqueItems": true
+        }
+      },
+      "required": ["conflicts", "dependencies"]
+    },
+    "info": {
+      "type": "object",
+      "properties": {
+        "name": {"description": "Name of the AK", "type": "string"},
+        "head": {"description": "Name of the head of the AK", "type": "string"},
+        "description": {"description": "Short description of the AK", "type": "string"},
+        "reso": {"description": "Whether this AK intends to introduce a resolution", "type": "boolean"}
+      },
+      "required": ["name", "head", "description", "reso"]
+    }
+  },
+  "required": ["id", "duration", "room_constraints", "time_constraints", "properties", "info"]
+}

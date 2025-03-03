@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schema/participant.schema.json",
+  "title": "Participant",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The unique identifier of a participant",
+      "type": "integer",
+      "minimum": 0
+    },
+    "preferences": {
+        "description": "AK preferences of the participant",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "ak_id": {
+              "type": "integer",
+              "description": "The unique identifier of the AK",
+              "minimum": 0
+            },
+            "required": {
+              "type": "boolean",
+              "description": "whether this participant is required for the AK"
+            },
+            "preference_score": {
+              "type": "integer",
+              "description": "The prefeference score for this AK",
+              "default": 0,
+              "minimum": -1,
+              "maximum": 2,
+              "anyOf": [
+                {"const": -1}, {"const": 1}, {"const": 2}
+              ]
+            }
+          },
+          "required": ["ak_id", "required", "preference_score"]
+        },
+        "uniqueItems": true
+    },
+    "room_constraints": {
+      "description": "Room constraints required by this participant",
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "time_constraints": {
+      "description": "Time constraints required by this participant",
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "info": {
+      "type": "object",
+      "properties": {"name": {"description": "Name of the person", "type": "string"}},
+      "required": ["name"]
+    }
+  },
+  "required": ["id", "room_constraints", "time_constraints", "info"]
+}
