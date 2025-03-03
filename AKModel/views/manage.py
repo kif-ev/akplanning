@@ -9,12 +9,13 @@ from django.db.models import Q
 from django.db.models.functions import Now
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import DetailView, ListView, TemplateView
 from django_tex.core import render_template_with_context, run_tex_in_directory
 from django_tex.response import PDFResponse
 
 from AKModel.forms import SlideExportForm, DefaultSlotEditorForm
-from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
+from AKModel.metaviews.admin import EventSlugMixin, FilterByEventSlugMixin, \
+    IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
 from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner, AKSlot, AKType
 
 
@@ -158,7 +159,7 @@ class CVSetLevelWarningView(IntermediateAdminActionView):
     def action(self, form):
         self.entities.update(level=ConstraintViolation.ViolationLevel.WARNING)
 
-class ClearScheduleView(EventSlugMixin, IntermediateAdminView):
+class ClearScheduleView(FilterByEventSlugMixin, IntermediateAdminView, ListView):
     """
     Admin action view: Clear schedule
     """
@@ -167,12 +168,18 @@ class ClearScheduleView(EventSlugMixin, IntermediateAdminView):
     confirmation_message = _('Clear schedule. The following scheduled AKSlots will be reset')
     success_message = _('Schedule cleared')
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.entities = AKSlot.objects.none()
+
     def get_queryset(self):
-        query_set = AKSlot.objects.filter(fixed=False, event=self.event)
+        query_set = super().get_queryset()
+        query_set = query_set.filter(fixed=False)
         query_set = query_set.filter(Q(room__isnull=False) | Q(start__isnull=False))
         return query_set
 
-    def action(self, form):
+    def action(self):
+        """Reset rooms and start for all selected slots."""
         self.entities.update(room=None, start=None)
 
     def get_preview(self):
@@ -182,7 +189,7 @@ class ClearScheduleView(EventSlugMixin, IntermediateAdminView):
 
     def form_valid(self, form):
         self.entities = self.get_queryset()
-        self.action(form)
+        self.action()
         messages.add_message(self.request, messages.SUCCESS, self.success_message)
         return redirect("admin:event_status", self.event.slug)
 
