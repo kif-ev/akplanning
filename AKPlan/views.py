@@ -1,13 +1,12 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.utils.datetime_safe import datetime
-from django.views.generic import ListView, DetailView
+from django.views.generic import DetailView, ListView
 
-from AKModel.models import AKSlot, Room, AKTrack
 from AKModel.metaviews.admin import FilterByEventSlugMixin
+from AKModel.models import AKSlot, AKTrack, Room
 
 
 class PlanIndexView(FilterByEventSlugMixin, ListView):
@@ -152,7 +151,7 @@ class PlanTrackView(FilterByEventSlugMixin, DetailView):
         context = super().get_context_data(object_list=object_list, **kwargs)
         # Restrict AKSlot list to given track
         # while joining AK, room and category information to reduce the amount of necessary SQL queries
-        context["slots"] = AKSlot.objects.\
-            filter(event=self.event, ak__track=context['track']).\
+        context["slots"] = AKSlot.objects. \
+            filter(event=self.event, ak__track=context['track']). \
             select_related('ak', 'room', 'ak__category')
         return context

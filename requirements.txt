@@ -1,4 +1,4 @@
-Django==4.2.19
+Django==5.1.6
 django-bootstrap5==24.2
 fontawesomefree==6.5.1 # Makes static files (css, fonts) available locally
 django-fontawesome-6==1.0.0.0 # Provides an icon field for models and forms as well as handy shortcuts to render icons
