@@ -8,14 +8,21 @@ if [ -z ${VIRTUAL_ENV+x} ]; then
 fi
 
 # enable really all warnings, some of them are silenced by default
-if [[ "$@" == *"--all"* ]]; then
-    export PYTHONWARNINGS=all
-fi
+for arg in "$@"; do
+    if [[ "$arg" == "--all" ]]; then
+        export PYTHONWARNINGS=all
+    fi
+done
 
 # in case of checking production setup
-if [[ "$@" == *"--prod"* ]]; then
-    export DJANGO_SETTINGS_MODULE=AKPlanning.settings_production
-    ./manage.py check --deploy
-fi
+for arg in "$@"; do
+    if [[ "$arg" == "--prod" ]]; then
+      export DJANGO_SETTINGS_MODULE=AKPlanning.settings_production
+      ./manage.py check --deploy
+      ./manage.py makemigrations --dry-run --check
+    fi
+done
 
+# check the setup
 ./manage.py check
+./manage.py makemigrations --dry-run --check
