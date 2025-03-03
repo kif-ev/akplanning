@@ -10,7 +10,7 @@ setup.
 
 ### System Requirements
 
-* Python 3.8+ incl. development tools
+* Python3.11+ incl. development tools
 * Virtualenv
 * pdflatex & beamer
   class (`texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-extra texlive-luatex`)
