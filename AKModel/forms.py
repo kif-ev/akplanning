@@ -304,7 +304,7 @@ class JSONScheduleImportForm(AdminIntermediateForm):
         try:
             schedule = json.loads(data)
         except json.JSONDecodeError as ex:
-            raise ValidationError(_("Cannot decode as JSON"), "invalid")
+            raise ValidationError(_("Cannot decode as JSON"), "invalid") from ex
         for field in ["input", "scheduled_aks"]:
             if not field in schedule:
                 raise ValidationError(
