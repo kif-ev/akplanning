@@ -503,7 +503,7 @@ class AK(models.Model):
             return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.event.slug, 'pk': self.id})
         return self.edit_url
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self, *args, force_insert=False, force_update=False, using=None, update_fields=None):
         # Auto-Generate Link if not set yet
         if self.link == "":
             link = self.event.base_url + self.name.replace(" ", "_")
@@ -512,7 +512,8 @@ class AK(models.Model):
             # Tell Django that we have updated the link field
             if update_fields is not None:
                 update_fields = {"link"}.union(update_fields)
-        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        super().save(*args,
+                     force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
 
 class Room(models.Model):
@@ -629,7 +630,7 @@ class AKSlot(models.Model):
 
     def overlaps(self, other: "AKSlot"):
         """
-        Check wether two slots overlap
+        Check whether two slots overlap
 
         :param other: second slot to compare with
         :return: true if they overlap, false if not:
@@ -637,13 +638,14 @@ class AKSlot(models.Model):
         """
         return self.start < other.end <= self.end or self.start <= other.start < self.end
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self, *args, force_insert=False, force_update=False, using=None, update_fields=None):
         # Make sure duration is not longer than the event
         if update_fields is None or 'duration' in update_fields:
             event_duration = self.event.end - self.event.start
             event_duration_hours = event_duration.days * 24 + event_duration.seconds // 3600
             self.duration = min(self.duration, event_duration_hours)
-        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        super().save(*args,
+                     force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
 
 class AKOrgaMessage(models.Model):
