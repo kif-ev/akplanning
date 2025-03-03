@@ -176,7 +176,6 @@ class ClearScheduleView(IntermediateAdminActionView, ListView):
         query_set = super().get_queryset(*args, **kwargs)
         # do not reset fixed AKs
         query_set = query_set.filter(fixed=False)
-        query_set = query_set.filter(Q(room__isnull=False) | Q(start__isnull=False))
         return query_set
 
     def action(self, form):
