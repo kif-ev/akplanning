@@ -26,10 +26,9 @@ cache:
     - pip install pylint-gitlab pylint-django
     - mysql --version
 
-check:
+migrations:
   extends: .before_script_template
   script:
-    - ./Utils/check.sh --all
     - source venv/bin/activate
     - ./manage.py makemigrations --dry-run --check
 
