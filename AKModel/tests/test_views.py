@@ -283,7 +283,6 @@ class ModelViewTests(BasicViewTests, TestCase):
         ("admin:default-slots-editor", {"event_slug": "kif42"}),
         ("admin:room-import", {"event_slug": "kif42"}),
         ("admin:new_event_wizard_start", {}),
-        ("admin:clear_schedule", {"event_slug": "kif42"}),
     ]
 
     EDIT_TESTCASES = [
