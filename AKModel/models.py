@@ -1,12 +1,11 @@
 import itertools
-from datetime import timedelta
+from datetime import datetime, timedelta
 
-from django.db import models
 from django.apps import apps
+from django.db import models
 from django.db.models import Count
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.datetime_safe import datetime
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
@@ -32,8 +31,9 @@ class Event(models.Model):
                                          help_text=_('When should AKs with intention to submit a resolution be done?'))
 
     interest_start = models.DateTimeField(verbose_name=_('Interest Window Start'), blank=True, null=True,
-              help_text=
-              _('Opening time for expression of interest. When left blank, no interest indication will be possible.'))
+                                          help_text=
+                                          _('Opening time for expression of interest. When left blank, no interest '
+                                            'indication will be possible.'))
 
     interest_end = models.DateTimeField(verbose_name=_('Interest Window End'), blank=True, null=True,
                                         help_text=_('Closing time for expression of interest.'))
@@ -45,7 +45,7 @@ class Event(models.Model):
     plan_hidden = models.BooleanField(verbose_name=_('Plan Hidden'), help_text=_('Hides plan for non-staff users'),
                                       default=True)
     plan_published_at = models.DateTimeField(verbose_name=_('Plan published at'), blank=True, null=True,
-                                         help_text=_('Timestamp at which the plan was published'))
+                                             help_text=_('Timestamp at which the plan was published'))
 
     base_url = models.URLField(verbose_name=_("Base URL"), help_text=_("Prefix for wiki link construction"), blank=True)
     wiki_export_template_name = models.CharField(verbose_name=_("Wiki Export Template Name"), blank=True, max_length=50)
@@ -53,8 +53,8 @@ class Event(models.Model):
                                        help_text=_('Default length in hours that is assumed for AKs in this event.'))
 
     contact_email = models.EmailField(verbose_name=_("Contact email address"), blank=True,
-                                        help_text=_("An email address that is displayed on every page "
-                                                    "and can be used for all kinds of questions"))
+                                      help_text=_("An email address that is displayed on every page "
+                                                  "and can be used for all kinds of questions"))
 
     class Meta:
         verbose_name = _('Event')
@@ -85,7 +85,7 @@ class Event(models.Model):
         event = Event.objects.filter(active=True).order_by('start').first()
         # No active event? Return the next event taking place
         if event is None:
-            event = Event.objects.order_by('start').filter(start__gt=datetime.now()).first()
+            event = Event.objects.order_by('start').filter(start__gt=datetime.now().astimezone()).first()
         return event
 
     def get_categories_with_aks(self, wishes_seperately=False,
@@ -245,8 +245,8 @@ class AKCategory(models.Model):
     description = models.TextField(blank=True, verbose_name=_("Description"),
                                    help_text=_("Short description of this AK Category"))
     present_by_default = models.BooleanField(blank=True, default=True, verbose_name=_("Present by default"),
-                                             help_text=_("Present AKs of this category by default "
-                                                 "if AK owner did not specify whether this AK should be presented?"))
+                                             help_text=_("Present AKs of this category by default if AK owner did not "
+                                                         "specify whether this AK should be presented?"))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
@@ -343,7 +343,7 @@ class AK(models.Model):
     category = models.ForeignKey(to=AKCategory, on_delete=models.PROTECT, verbose_name=_('Category'),
                                  help_text=_('Category of the AK'))
     types = models.ManyToManyField(to=AKType, blank=True, verbose_name=_('Types'),
-                                          help_text=_("This AK is"))
+                                   help_text=_("This AK is"))
     track = models.ForeignKey(to=AKTrack, blank=True, on_delete=models.SET_NULL, null=True, verbose_name=_('Track'),
                               help_text=_('Track the AK belongs to'))
 
@@ -361,8 +361,8 @@ class AK(models.Model):
                                            help_text=_('AKs that should precede this AK in the schedule'))
 
     notes = models.TextField(blank=True, verbose_name=_('Organizational Notes'), help_text=_(
-        'Notes to organizers. These are public. For private notes, please use the button for private messages '
-        'on the detail page of this AK (after creation/editing).'))
+            'Notes to organizers. These are public. For private notes, please use the button for private messages '
+            'on the detail page of this AK (after creation/editing).'))
 
     interest = models.IntegerField(default=-1, verbose_name=_('Interest'), help_text=_('Expected number of people'))
     interest_counter = models.IntegerField(default=0, verbose_name=_('Interest Counter'),
@@ -503,7 +503,7 @@ class AK(models.Model):
             return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.event.slug, 'pk': self.id})
         return self.edit_url
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self, *args, force_insert=False, force_update=False, using=None, update_fields=None):
         # Auto-Generate Link if not set yet
         if self.link == "":
             link = self.event.base_url + self.name.replace(" ", "_")
@@ -512,7 +512,8 @@ class AK(models.Model):
             # Tell Django that we have updated the link field
             if update_fields is not None:
                 update_fields = {"link"}.union(update_fields)
-        super().save(force_insert, force_update, using, update_fields)
+        super().save(*args,
+                     force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
 
 class Room(models.Model):
@@ -629,7 +630,7 @@ class AKSlot(models.Model):
 
     def overlaps(self, other: "AKSlot"):
         """
-        Check wether two slots overlap
+        Check whether two slots overlap
 
         :param other: second slot to compare with
         :return: true if they overlap, false if not:
@@ -637,13 +638,14 @@ class AKSlot(models.Model):
         """
         return self.start < other.end <= self.end or self.start <= other.start < self.end
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self, *args, force_insert=False, force_update=False, using=None, update_fields=None):
         # Make sure duration is not longer than the event
         if update_fields is None or 'duration' in update_fields:
             event_duration = self.event.end - self.event.start
             event_duration_hours = event_duration.days * 24 + event_duration.seconds // 3600
             self.duration = min(self.duration, event_duration_hours)
-        super().save(force_insert, force_update, using, update_fields)
+        super().save(*args,
+                     force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
 
 class AKOrgaMessage(models.Model):
@@ -678,6 +680,7 @@ class ConstraintViolation(models.Model):
     Depending on the type, different fields (references to other models) will be filled. Each violation should always
     be related to an event and at least on other instance of a causing entity
     """
+
     class Meta:
         verbose_name = _('Constraint Violation')
         verbose_name_plural = _('Constraint Violations')
@@ -694,7 +697,7 @@ class ConstraintViolation(models.Model):
         AK_CONFLICT_COLLISION = 'acc', _('AK Slot is scheduled at the same time as an AK listed as a conflict')
         AK_BEFORE_PREREQUISITE = 'abp', _('AK Slot is scheduled before an AK listed as a prerequisite')
         AK_AFTER_RESODEADLINE = 'aar', _(
-            'AK Slot for AK with intention to submit a resolution is scheduled after resolution deadline')
+                'AK Slot for AK with intention to submit a resolution is scheduled after resolution deadline')
         AK_CATEGORY_MISMATCH = 'acm', _('AK Slot in a category is outside that categories availabilities')
         AK_SLOT_COLLISION = 'asc', _('Two AK Slots for the same AK scheduled at the same time')
         ROOM_CAPACITY_EXCEEDED = 'rce', _('Room does not have enough space for interest in scheduled AK Slot')
@@ -895,6 +898,7 @@ class DefaultSlot(models.Model):
     Model representing a default slot,
     i.e., a prefered slot to use for typical AKs in the schedule to guarantee enough breaks etc.
     """
+
     class Meta:
         verbose_name = _('Default Slot')
         verbose_name_plural = _('Default Slots')
@@ -907,7 +911,8 @@ class DefaultSlot(models.Model):
                               help_text=_('Associated event'))
 
     primary_categories = models.ManyToManyField(to=AKCategory, verbose_name=_('Primary categories'), blank=True,
-                                            help_text=_('Categories that should be assigned to this slot primarily'))
+                                                help_text=_(
+                                                        'Categories that should be assigned to this slot primarily'))
 
     @property
     def start_simplified(self) -> str:

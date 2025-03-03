@@ -1,6 +1,6 @@
-from datetime import timedelta
-from math import floor
 from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
+from math import floor
 
 from django.apps import apps
 from django.conf import settings
@@ -8,19 +8,17 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.utils.datetime_safe import datetime
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView
 
 from AKModel.availability.models import Availability
 from AKModel.metaviews import status_manager
-from AKModel.metaviews.status import TemplateStatusWidget
-from AKModel.models import AK, AKCategory, AKOwner, AKSlot, AKTrack, AKOrgaMessage
 from AKModel.metaviews.admin import EventSlugMixin, FilterByEventSlugMixin
+from AKModel.metaviews.status import TemplateStatusWidget
+from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKSlot, AKTrack
 from AKSubmission.api import ak_interest_indication_active
-from AKSubmission.forms import AKWishForm, AKOwnerForm, AKSubmissionForm, AKDurationForm, AKOrgaMessageForm, \
-    AKForm
+from AKSubmission.forms import AKDurationForm, AKForm, AKOrgaMessageForm, AKOwnerForm, AKSubmissionForm, AKWishForm
 
 
 class SubmissionErrorNotConfiguredView(EventSlugMixin, TemplateView):
@@ -47,7 +45,7 @@ class AKOverviewView(FilterByEventSlugMixin, ListView):
     template_name = "AKSubmission/ak_overview.html"
     wishes_as_category = False
 
-    def filter_aks(self, context, category): # pylint: disable=unused-argument
+    def filter_aks(self, context, category):  # pylint: disable=unused-argument
         """
         Filter which AKs to display based on the given context and category
 
@@ -73,7 +71,7 @@ class AKOverviewView(FilterByEventSlugMixin, ListView):
         """
         return context["categories_with_aks"][0][0].name
 
-    def get_table_title(self, context): # pylint: disable=unused-argument
+    def get_table_title(self, context):  # pylint: disable=unused-argument
         """
         Specify the title above the AK list/table in this view
 
@@ -91,7 +89,7 @@ class AKOverviewView(FilterByEventSlugMixin, ListView):
         redirect to error page if necessary (see :class:`SubmissionErrorNotConfiguredView`)
         """
         self._load_event()
-        self.object_list = self.get_queryset() # pylint: disable=attribute-defined-outside-init
+        self.object_list = self.get_queryset()  # pylint: disable=attribute-defined-outside-init
 
         # No categories yet? Redirect to configuration error page
         if self.object_list.count() == 0:
@@ -124,7 +122,7 @@ class AKOverviewView(FilterByEventSlugMixin, ListView):
 
         if self.wishes_as_category:
             categories_with_aks.append(
-                (AKCategory(name=_("Wishes"), pk=0, description=_("AKs one would like to have")), ak_wishes))
+                    (AKCategory(name=_("Wishes"), pk=0, description=_("AKs one would like to have")), ak_wishes))
 
         context["categories_with_aks"] = categories_with_aks
         context["active_category"] = self.get_active_category_name(context)
@@ -183,10 +181,13 @@ class AKListByCategoryView(AKOverviewView):
 
     This view inherits from :class:`AKOverviewView`, but produces only one list instead of a tabbed one.
     """
+
     def dispatch(self, request, *args, **kwargs):
         # Override dispatching
         # Needed to handle the checking whether the category exists
-        self.category = get_object_or_404(AKCategory, pk=kwargs['category_pk']) # pylint: disable=attribute-defined-outside-init,line-too-long
+        # noinspection PyAttributeOutsideInit
+        # pylint: disable=attribute-defined-outside-init
+        self.category = get_object_or_404(AKCategory, pk=kwargs['category_pk'])
         return super().dispatch(request, *args, **kwargs)
 
     def get_active_category_name(self, context):
@@ -209,11 +210,12 @@ class AKListByTrackView(AKOverviewView):
     This view inherits from :class:`AKOverviewView` and there will be one list per category
     -- but only AKs of a certain given track will be included in them.
     """
+
     def dispatch(self, request, *args, **kwargs):
         # Override dispatching
         # Needed to handle the checking whether the track exists
 
-        self.track = get_object_or_404(AKTrack, pk=kwargs['track_pk']) # pylint: disable=attribute-defined-outside-init
+        self.track = get_object_or_404(AKTrack, pk=kwargs['track_pk'])  # pylint: disable=attribute-defined-outside-init
         return super().dispatch(request, *args, **kwargs)
 
     def filter_aks(self, context, category):
@@ -292,6 +294,7 @@ class EventInactiveRedirectMixin:
     Will add a message explaining why the action was not performed to the user
     and then redirect to start page of the submission component
     """
+
     def get_error_message(self):
         """
         Error message to display after redirect (can be adjusted by this method)
@@ -351,6 +354,7 @@ class AKSubmissionView(AKAndAKWishSubmissionView):
 
     Extends :class:`AKAndAKWishSubmissionView`
     """
+
     def get_initial(self):
         # Load initial values for the form
         # Used to directly add the first owner and the event this AK will belong to
@@ -499,7 +503,6 @@ class AKOwnerDispatchView(ABC, EventSlugMixin, View):
         :return: redirect to perform
         :rtype: HttpResponseRedirect
         """
-
 
     def post(self, request, *args, **kwargs):
         # This view is solely meant to handle POST requests
