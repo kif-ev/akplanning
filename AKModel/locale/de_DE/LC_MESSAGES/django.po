@@ -289,6 +289,31 @@ msgstr "JSON-Daten"
 msgid "JSON data from the scheduling solver"
 msgstr "JSON-Daten, die der scheduling-solver produziert hat"
 
+#: AKModel/forms.py:299
+msgid "File with JSON data"
+msgstr "Datei mit JSON-Daten"
+
+#: AKModel/forms.py:300
+msgid "File with JSON data from the scheduling solver"
+msgstr "Datei mit JSON-Daten, die der scheduling-solver produziert hat"
+
+#: AKModel/forms.py:307
+msgid "Cannot decode as JSON"
+msgstr "Dekodierung als JSON fehlgeschlagen"
+
+#: AKModel/forms.py:311
+#, python-format
+msgid "Invalid JSON format: field '%(field)s' is missing"
+msgstr "Ungültige JSON-Eingabe: das Feld '%(field)s' fehlt"
+
+#: AKModel/forms.py:321
+msgid "Please enter data as a file OR via text, not both."
+msgstr "Gib die Daten bitte als Datei oder als Text ein, nicht beides."
+
+#: AKModel/forms.py:327
+msgid "No data entered. Please enter data as a file or via text."
+msgstr "Keine Daten eingegeben. Gib die Daten bitte als Datei oder als Text ein."
+
 #: AKModel/metaviews/admin.py:156 AKModel/models.py:40
 msgid "Start"
 msgstr "Start"
@@ -477,6 +502,14 @@ msgstr ""
 #: AKModel/models.py:72
 msgid "Events"
 msgstr "Events"
+
+#: AKModel/models.py:427
+msgid "Cannot parse malformed JSON input."
+msgstr "Kann fehlerhafte JSON-Eingabe nicht verarbeiten"
+
+#: AKModel/models.py:430
+msgid "Data has changed since the export. Reexport and run the solver again."
+msgstr "Seit dem Export wurden die Daten verändert. Wiederhole den Export und führe den Solver erneut aus."
 
 #: AKModel/models.py:430
 #, python-brace-format
