@@ -147,7 +147,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         response = self.client.post(select_url, {'owner_id': 1})
         self.assertRedirects(response, add_redirect_url, status_code=302, target_status_code=200,
                              msg_prefix=f"Dispatch redirect to ak submission page failed "
-                                        "(should go to {add_redirect_url})")
+                                        f"(should go to {add_redirect_url})")
 
     def test_orga_message_submission(self):
         """
