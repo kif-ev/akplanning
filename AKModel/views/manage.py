@@ -159,7 +159,7 @@ class CVSetLevelWarningView(IntermediateAdminActionView):
     def action(self, form):
         self.entities.update(level=ConstraintViolation.ViolationLevel.WARNING)
 
-class ClearScheduleView(FilterByEventSlugMixin, IntermediateAdminView, ListView):
+class ClearScheduleView(IntermediateAdminActionView, ListView):
     """
     Admin action view: Clear schedule
     """

@@ -139,10 +139,6 @@ class EventAKsWidget(TemplateStatusWidget):
                     "url": reverse_lazy("admin:tracks_manage", kwargs={"event_slug": context["event"].slug}),
                 },
                 {
-                    "text": _("Clear schedule"),
-                    "url": reverse_lazy("admin:clear_schedule", kwargs={"event_slug": context["event"].slug}),
-                },
-                {
                     "text": _("Export AKs as CSV"),
                     "url": reverse_lazy("admin:ak_csv_export", kwargs={"event_slug": context["event"].slug}),
                 },
