@@ -3,10 +3,10 @@
   "$id": "/schema/solver-input.schema.json",
   "type": "object",
   "properties": {
-      "aks": {"$ref": "/schema/ak.schema.json"},
-      "rooms": {"$ref": "/schema/room.schema.json"},
-      "participants": {"$ref": "/schema/participant.schema.json"},
-      "timeslots": {"$ref": "/schema/timeslot.schema.json"},
+      "aks": {"type": "array", "items": {"$ref": "/schema/ak.schema.json"}},
+      "rooms": {"type": "array", "items": {"$ref": "/schema/room.schema.json"}},
+      "participants": {"type": "array", "items": {"$ref": "/schema/participant.schema.json"}},
+      "timeslots": {"type": "array", "items": {"$ref": "/schema/timeslot.schema.json"}},
       "info": {
         "type": "object",
         "properties": {
