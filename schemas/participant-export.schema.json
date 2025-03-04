@@ -2,7 +2,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "schemas/participant-export.schema.json",
-  "allOf": [{ "$ref": "participant.schema.json" }],
   "properties": {
     "preferences": {
         "items": {
