@@ -47,7 +47,7 @@ class JSONExportTest(TestCase):
                 res = Resource.from_contents(json.load(ff))
             resources.append((res.id(), res))
         registry = Registry().with_resources(resources)
-        with (schema_base_path / "solver-input.json").open("r") as ff:
+        with (schema_base_path / "solver-input.schema.json").open("r") as ff:
             schema = json.load(ff)
         cls.json_export_validator = Draft202012Validator(
             schema=schema, registry=registry
