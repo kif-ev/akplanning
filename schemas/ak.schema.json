@@ -42,9 +42,18 @@
         "name": {"description": "Name of the AK", "type": "string"},
         "head": {"description": "Name of the head of the AK", "type": "string"},
         "description": {"description": "Short description of the AK", "type": "string"},
-        "reso": {"description": "Whether this AK intends to introduce a resolution", "type": "boolean"}
+        "reso": {"description": "Whether this AK intends to introduce a resolution", "type": "boolean"},
+        "duration_in_hours": {"description": "AK duration in hours", "type": "number"},
+        "django_ak_id": {
+          "$ref": "/schema/common/id.schema.json",
+          "description": "Unique identifier of the AK object in the django database"
+        },
+        "types": {
+          "$ref": "/schema/common/constraints.schema.json",
+          "description": "Types of this AK"
+        }
       },
-      "required": ["name", "head", "description", "reso"],
+      "required": ["name", "head", "description", "reso", "duration_in_hours", "django_ak_id", "types"],
       "additionalProperties": false
     }
   },
