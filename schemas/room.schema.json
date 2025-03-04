@@ -28,8 +28,7 @@
       "properties": {
         "name": {"description": "Name of the room", "type": "string"}
       },
-      "required": ["name"],
-      "additionalProperties": false
+      "required": ["name"]
     }
   },
   "required": ["id", "capacity", "fulfilled_room_constraints", "time_constraints", "info"],

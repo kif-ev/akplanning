@@ -38,7 +38,7 @@ class JSONExportTest(TestCase):
         )
 
         cls.json_export_validator = construct_schema_validator(
-            "solver-input.schema.json"
+            "solver-input-export.schema.json"
         )
 
     def setUp(self):

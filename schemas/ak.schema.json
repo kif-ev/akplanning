@@ -53,8 +53,7 @@
           "description": "Types of this AK"
         }
       },
-      "required": ["name", "head", "description", "reso", "duration_in_hours", "django_ak_id", "types"],
-      "additionalProperties": false
+      "required": ["name", "head", "description", "reso", "duration_in_hours", "django_ak_id", "types"]
     }
   },
   "required": ["id", "duration", "room_constraints", "time_constraints", "properties", "info"],

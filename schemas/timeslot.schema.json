@@ -20,8 +20,7 @@
           }
         }
       },
-      "required": ["duration"],
-      "additionalProperties": false
+      "required": ["duration"]
     },
     "blocks": {
       "type": "array",
@@ -43,8 +42,7 @@
                 "start": {"description": "Start datetime of the timeslot", "type": "string"},
                 "end": {"description": "End datetime of the timeslot", "type": "string"}
               },
-              "required": ["start", "end"],
-              "additionalProperties": false
+              "required": ["start", "end"]
             },
             "fulfilled_time_constraints": {
               "$ref": "common/constraints.schema.json",

@@ -14,8 +14,7 @@
           "slug": {"type": "string"},
           "place": {"type": "string"},
           "contact_email": {"type": "string"}
-        },
-        "additionalProperties": false
+        }
       }
   },
   "required": ["aks", "rooms", "participants", "timeslots", "info"],

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/ak-export.schema.json",
+  "allOf": [{ "$ref": "ak.schema.json" }],
+  "properties": {
+    "info": {"unevaluatedProperties": false}
+  }
+}
