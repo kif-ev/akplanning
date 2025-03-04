@@ -120,9 +120,9 @@ class JSONExportTest(TestCase):
             with self.subTest(event=event):
                 self.set_up_event(event=event)
 
-                errors = list(self.json_export_validator.iter_errors(self.export_dict))
-                msg = "" if not errors else best_match(errors).message
-                self.assertFalse(errors, msg)
+                error = best_match(self.json_export_validator.iter_errors(self.export_dict))
+                msg = "" if error is None else error.message
+                self.assertTrue(error is None, msg)
 
     def test_id_uniqueness(self):
         """Test if objects are only exported once."""
