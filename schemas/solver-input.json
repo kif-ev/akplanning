@@ -3,9 +3,9 @@
   "$id": "/schema/solver-input.schema.json",
   "type": "object",
   "properties": {
-      "aks": {"type": "array", "items": {"$ref": "/schema/ak.schema.json"}},
-      "rooms": {"type": "array", "items": {"$ref": "/schema/room.schema.json"}},
-      "participants": {"type": "array", "items": {"$ref": "/schema/participant.schema.json"}},
+      "aks": {"type": "array", "items": {"$ref": "/schema/ak.schema.json"}, "uniqueItems": true},
+      "rooms": {"type": "array", "items": {"$ref": "/schema/room.schema.json"}, "uniqueItems": true},
+      "participants": {"type": "array", "items": {"$ref": "/schema/participant.schema.json"}, "uniqueItems": true},
       "timeslots": {"$ref": "/schema/timeslot.schema.json"},
       "info": {
         "type": "object",
@@ -14,7 +14,10 @@
           "slug": {"type": "string"},
           "place": {"type": "string"},
           "contact_email": {"type": "string"}
-        }
+        },
+        "additionalProperties": false
       }
-  }
+  },
+  "required": ["aks", "rooms", "participants", "timeslots", "info"],
+  "additionalProperties": false
 }
