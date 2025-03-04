@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/schema/solver-output.schema.json",
+  "$id": "/schema/solver-output.schema.json",
   "type": "object",
   "properties": {
-    "input": {"$ref": "schema/solver-input.schema.json"},
+    "input": {"$ref": "/schema/solver-input.schema.json"},
     "scheduled_aks": {
       "type": "array",
       "items": {

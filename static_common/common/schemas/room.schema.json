@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/schema/room.schema.json",
+  "$id": "/schema/room.schema.json",
   "title": "Room",
   "type": "object",
   "properties": {

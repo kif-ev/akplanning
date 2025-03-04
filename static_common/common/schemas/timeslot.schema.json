@@ -1,6 +1,6 @@
  {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/schema/timeslot.schema.json",
+  "$id": "/schema/timeslot.schema.json",
   "title": "Timeslot",
   "type": "object",
   "required": ["info", "blocks"],
