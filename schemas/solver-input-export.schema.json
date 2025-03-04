@@ -7,6 +7,9 @@
     "rooms": {"items": {"$ref": "room-export.schema.json"}},
     "timeslots": {"items": {"$ref": "timeslot-export.schema.json"}},
     "aks": {"items": {"$ref": "ak-export.schema.json"}},
-    "info": {"unevaluatedProperties": false}
+    "info": {
+      "$ref": "solver-input.schema.json#/properties/info",
+      "unevaluatedProperties": false
+    }
   }
 }

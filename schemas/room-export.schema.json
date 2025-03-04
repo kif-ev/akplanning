@@ -2,6 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "schemas/room-export.schema.json",
   "properties": {
-    "info": {"unevaluatedProperties": false}
+    "info": {
+      "$ref": "room.schema.json#/properties/info",
+      "unevaluatedProperties": false
+    }
   }
 }
