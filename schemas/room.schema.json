@@ -11,7 +11,9 @@
     "capacity": {
       "description": "The maximum number of total participants. Unbounded capacity is represented by -1",
       "type": "integer",
-      "minimum": -1
+      "anyOf": [
+        {"minimum": 1}, {"const": -1}
+      ]
     },
     "fulfilled_room_constraints": {
       "$ref": "/schema/common/constraints.schema.json",
