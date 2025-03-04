@@ -4,19 +4,16 @@ from collections import defaultdict
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 from itertools import chain
-from pathlib import Path
 
 from bs4 import BeautifulSoup
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
-from jsonschema import Draft202012Validator
 from jsonschema.exceptions import best_match
-from referencing import Registry, Resource
 
 from AKModel.availability.models import Availability
 from AKModel.models import AK, AKCategory, AKOwner, AKSlot, DefaultSlot, Event, Room
-from AKPlanning import settings
+from AKModel.utils import construct_schema_validator
 
 
 class JSONExportTest(TestCase):
@@ -40,18 +37,7 @@ class JSONExportTest(TestCase):
             is_active=True,
         )
 
-        schema_base_path = Path(settings.BASE_DIR) / "schemas"
-        resources = []
-        for schema_path in schema_base_path.glob("**/*.schema.json"):
-            with schema_path.open("r") as ff:
-                res = Resource.from_contents(json.load(ff))
-            resources.append((res.id(), res))
-        registry = Registry().with_resources(resources)
-        with (schema_base_path / "solver-input.schema.json").open("r") as ff:
-            schema = json.load(ff)
-        cls.json_export_validator = Draft202012Validator(
-            schema=schema, registry=registry
-        )
+        cls.json_export_validator = construct_schema_validator("solver-input.schema.json")
 
     def setUp(self):
         self.client.force_login(self.admin_user)
