@@ -37,7 +37,9 @@ class JSONExportTest(TestCase):
             is_active=True,
         )
 
-        cls.json_export_validator = construct_schema_validator("solver-input.schema.json")
+        cls.json_export_validator = construct_schema_validator(
+            "solver-input.schema.json"
+        )
 
     def setUp(self):
         self.client.force_login(self.admin_user)
@@ -120,7 +122,9 @@ class JSONExportTest(TestCase):
             with self.subTest(event=event):
                 self.set_up_event(event=event)
 
-                error = best_match(self.json_export_validator.iter_errors(self.export_dict))
+                error = best_match(
+                    self.json_export_validator.iter_errors(self.export_dict)
+                )
                 msg = "" if error is None else error.message
                 self.assertTrue(error is None, msg)
 
