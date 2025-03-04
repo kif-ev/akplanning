@@ -32,9 +32,8 @@
           "description": "A single timeslot",
           "properties": {
             "id": {
-              "description": "The unique identifier of the single timeslot. Accross all blocks, the ids must be sorted chronologically.",
-              "type": "integer",
-              "minimum": 0
+              "$ref": "/schema/common/id.schema.json",
+              "description": "The unique identifier of the single timeslot. Accross all blocks, the ids must be sorted chronologically."
             },
             "info": {
               "type": "object",
@@ -45,10 +44,8 @@
               "required": ["start", "end"]
             },
             "fulfilled_time_constraints": {
-              "description": "Time constraints fulfilled by this timeslot",
-              "type": "array",
-              "items": {"type": "string"},
-              "uniqueItems": true
+              "$ref": "/schema/common/constraints.schema.json",
+              "description": "Time constraints fulfilled by this timeslot"
             }
           },
           "required": ["id", "info", "fulfilled_time_constraints"]

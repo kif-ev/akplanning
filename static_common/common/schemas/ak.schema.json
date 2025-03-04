@@ -5,9 +5,8 @@
   "type": "object",
   "properties": {
     "id": {
-      "description": "The unique identifier of a room",
-      "type": "integer",
-      "minimum": 0
+      "$ref": "/schema/common/id.schema.json",
+      "description": "The unique identifier of an AK"
     },
     "duration": {
       "description": "The number of consecutive slot units",
@@ -15,31 +14,23 @@
       "exclusiveMinimum": 0
     },
     "room_constraints": {
-      "description": "Room constraints required by this AK",
-      "type": "array",
-      "items": {"type": "string"},
-      "uniqueItems": true
+      "$ref": "/schema/common/constraints.schema.json",
+      "description": "Room constraints required by this AK"
     },
     "time_constraints": {
-      "description": "Time constraints required by this AK",
-      "type": "array",
-      "items": {"type": "string"},
-      "uniqueItems": true
+      "$ref": "/schema/common/constraints.schema.json",
+      "description": "Time constraints required by this AK"
     },
     "properties": {
       "type": "object",
       "properties": {
         "conflicts": {
-          "description": "IDs of all AKs that are in conflict with this AK",
-          "type": "array",
-          "items": {"type": "integer"},
-          "uniqueItems": true
+          "$ref": "/schema/common/id_array.schema.json",
+          "description": "IDs of all AKs that are in conflict with this AK"
         },
         "dependencies": {
-          "description": "IDs of all AKs that should be scheduled before this AK",
-          "type": "array",
-          "items": {"type": "integer"},
-          "uniqueItems": true
+          "$ref": "/schema/common/id_array.schema.json",
+          "description": "IDs of all AKs that should be scheduled before this AK"
         }
       },
       "required": ["conflicts", "dependencies"]

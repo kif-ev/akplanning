@@ -5,9 +5,8 @@
   "type": "object",
   "properties": {
     "id": {
-      "description": "The unique identifier of a participant",
-      "type": "integer",
-      "minimum": 0
+      "$ref": "/schema/common/id.schema.json",
+      "description": "The unique identifier of a participant"
     },
     "preferences": {
         "description": "AK preferences of the participant",
@@ -16,9 +15,8 @@
           "type": "object",
           "properties": {
             "ak_id": {
-              "type": "integer",
-              "description": "The unique identifier of the AK",
-              "minimum": 0
+              "$ref": "/schema/common/id.schema.json",
+              "description": "The unique identifier of the AK"
             },
             "required": {
               "type": "boolean",
@@ -40,16 +38,12 @@
         "uniqueItems": true
     },
     "room_constraints": {
-      "description": "Room constraints required by this participant",
-      "type": "array",
-      "items": {"type": "string"},
-      "uniqueItems": true
+      "$ref": "/schema/common/constraints.schema.json",
+      "description": "Room constraints required by this participant"
     },
     "time_constraints": {
-      "description": "Time constraints required by this participant",
-      "type": "array",
-      "items": {"type": "string"},
-      "uniqueItems": true
+      "$ref": "/schema/common/constraints.schema.json",
+      "description": "Time constraints required by this participant"
     },
     "info": {
       "type": "object",

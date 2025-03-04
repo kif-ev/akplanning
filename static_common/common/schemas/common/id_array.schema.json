@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "/schema/common/id_array.schema.json",
+  "type": "array",
+  "items": {"type": "integer"},
+  "uniqueItems": true
+}

@@ -5,9 +5,8 @@
   "type": "object",
   "properties": {
     "id": {
-      "description": "The unique identifier of a room",
-      "type": "integer",
-      "minimum": 0
+      "$ref": "/schema/common/id.schema.json",
+      "description": "The unique identifier of a room"
     },
     "capacity": {
       "description": "The maximum number of total participants. Unbounded capacity is represented by -1",
@@ -15,24 +14,17 @@
       "minimum": -1
     },
     "fulfilled_room_constraints": {
-      "description": "Constraints fulfilled by this room",
-      "type": "array",
-      "items": {"type": "string"},
-      "uniqueItems": true
+      "$ref": "/schema/common/constraints.schema.json",
+      "description": "Constraints fulfilled by this room"
     },
     "time_constraints": {
-      "description": "Time constraints required by this room",
-      "type": "array",
-      "items": {"type": "string"},
-      "uniqueItems": true
+      "$ref": "/schema/common/constraints.schema.json",
+      "description": "Time constraints required by this room"
     },
     "info": {
       "type": "object",
       "properties": {
-        "name": {
-          "description": "Name of the room",
-          "type": "string"
-        }
+        "name": {"description": "Name of the room", "type": "string"}
       },
       "required": ["name"]
     }
