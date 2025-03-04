@@ -10,9 +10,11 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _
+from jsonschema.exceptions import best_match
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.models import Event, AKCategory, AKRequirement, Room, AKType
+from AKModel.utils import construct_schema_validator
 
 
 class DateTimeInput(forms.DateInput):
@@ -300,19 +302,29 @@ class JSONScheduleImportForm(AdminIntermediateForm):
         help_text=_("File with JSON data from the scheduling solver"),
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.json_schema_validator = construct_schema_validator(
+            schema="solver-output.schema.json"
+        )
+
     def _check_json_data(self, data: str):
         try:
             schedule = json.loads(data)
         except json.JSONDecodeError as ex:
             raise ValidationError(_("Cannot decode as JSON"), "invalid") from ex
-        for field in ["input", "scheduled_aks"]:
-            if not field in schedule:
-                raise ValidationError(
-                    _("Invalid JSON format: field '%(field)s' is missing"),
-                    "invalid",
-                    params={"field": field}
-                )
-        # TODO: Add further checks on json input
+
+        error = best_match(self.json_schema_validator.iter_errors(schedule))
+        if error:
+            raise ValidationError(
+                _("Invalid JSON format: %(msg)s at %(error_path)s"),
+                "invalid",
+                params={
+                    "msg": error.message,
+                    "error_path": error.json_path
+                }
+            ) from error
+
         return schedule
 
     def clean(self):
