@@ -4,10 +4,10 @@ import json
 import math
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Iterable, Generator
+from typing import Any, Generator, Iterable
 
-from django.core.validators import RegexValidator
 from django.apps import apps
+from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.db.models import Count
 from django.urls import reverse_lazy
@@ -16,7 +16,6 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 from timezone_field import TimeZoneField
-
 
 # Custom validators to be used for some of the fields
 # Prevent inclusion of the quotation marks ' " ´ `
