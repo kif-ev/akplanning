@@ -128,204 +128,41 @@ class JSONExportTest(TestCase):
         if contained_type in {str, int}:
             self._check_uniqueness(lst, name, key=None)
 
-    def test_ak_conformity_to_spec(self):
-        """Test if AK JSON structure and types conform to standard."""
+    def test_conformity_to_schema(self):
+        """Test if JSON structure and types conform to schema."""
         for event in Event.objects.all():
             with self.subTest(event=event):
                 self.set_up_event(event=event)
 
-                self._check_uniqueness(self.export_dict["aks"], "AK")
-                for ak in self.export_dict["aks"]:
-                    item = f"AK {ak['id']}"
-                    self.assertEqual(
-                        ak.keys(),
-                        {
-                            "id",
-                            "duration",
-                            "properties",
-                            "room_constraints",
-                            "time_constraints",
-                            "info",
-                        },
-                        f"{item} keys not as expected",
-                    )
-                    self.assertEqual(
-                        ak["info"].keys(),
-                        {
-                            "name",
-                            "head",
-                            "description",
-                            "reso",
-                            "duration_in_hours",
-                            "django_ak_id",
-                            "types",
-                        },
-                        f"{item} info keys not as expected",
-                    )
-                    self.assertEqual(
-                        ak["properties"].keys(),
-                        {"conflicts", "dependencies"},
-                        f"{item} properties keys not as expected",
-                    )
+                errors = list(self.json_export_validator.iter_errors(self.export_dict))
+                msg = "" if not errors else best_match(errors).message
+                self.assertFalse(errors, msg)
 
-                    self._check_type(ak["id"], int, "id", item=item)
-                    self._check_type(ak["duration"], int, "duration", item=item)
-                    self._check_type(ak["info"]["name"], str, "info/name", item=item)
-                    self._check_type(ak["info"]["head"], str, "info/head", item=item)
-                    self._check_type(
-                        ak["info"]["description"], str, "info/description", item=item
-                    )
-                    self._check_type(ak["info"]["reso"], bool, "info/reso", item=item)
-                    self._check_type(
-                        ak["info"]["duration_in_hours"],
-                        float,
-                        "info/duration_in_hours",
-                        item=item,
-                    )
-                    self._check_type(
-                        ak["info"]["django_ak_id"],
-                        int,
-                        "info/django_ak_id",
-                        item=item,
-                    )
-
-                    self._check_lst(
-                        ak["properties"]["conflicts"],
-                        "conflicts",
-                        item=item,
-                        contained_type=int,
-                    )
-                    self._check_lst(
-                        ak["properties"]["dependencies"],
-                        "dependencies",
-                        item=item,
-                        contained_type=int,
-                    )
-                    self._check_lst(
-                        ak["time_constraints"], "time_constraints", item=item
-                    )
-                    self._check_lst(
-                        ak["room_constraints"], "room_constraints", item=item
-                    )
-
-    def test_room_conformity_to_spec(self):
-        """Test if Room JSON structure and types conform to standard."""
+    def test_id_uniqueness(self):
+        """Test if objects are only exported once."""
         for event in Event.objects.all():
             with self.subTest(event=event):
                 self.set_up_event(event=event)
 
-                self._check_uniqueness(self.export_dict["rooms"], "Room")
-                for room in self.export_dict["rooms"]:
-                    item = f"Room {room['id']}"
-                    self.assertEqual(
-                        room.keys(),
-                        {
-                            "id",
-                            "info",
-                            "capacity",
-                            "fulfilled_room_constraints",
-                            "time_constraints",
-                        },
-                        f"{item} keys not as expected",
-                    )
-                    self.assertEqual(
-                        room["info"].keys(),
-                        {"name"},
-                        f"{item} info keys not as expected",
-                    )
-
-                    self._check_type(room["id"], int, "id", item=item)
-                    self._check_type(room["capacity"], int, "capacity", item=item)
-                    self._check_type(room["info"]["name"], str, "info/name", item=item)
-
-                    self.assertTrue(
-                        room["capacity"] > 0 or room["capacity"] == -1,
-                        "invalid room capacity",
-                    )
-
-                    self._check_lst(
-                        room["time_constraints"], "time_constraints", item=item
-                    )
-                    self._check_lst(
-                        room["fulfilled_room_constraints"],
-                        "fulfilled_room_constraints",
-                        item=item,
-                    )
-
-    def test_timeslots_conformity_to_spec(self):
-        """Test if Timeslots JSON structure and types conform to standard."""
-        for event in Event.objects.all():
-            with self.subTest(event=event):
-                self.set_up_event(event=event)
+                self._check_uniqueness(self.export_dict["aks"], "AKs")
+                self._check_uniqueness(self.export_dict["rooms"], "Rooms")
+                self._check_uniqueness(self.export_dict["participants"], "Participants")
 
                 self._check_uniqueness(
                     chain.from_iterable(self.export_dict["timeslots"]["blocks"]),
                     "Timeslots",
                 )
-                item = "timeslots"
-                self.assertEqual(
-                    self.export_dict["timeslots"].keys(),
-                    {"info", "blocks"},
-                    "timeslot keys not as expected",
-                )
-                self.assertEqual(
-                    self.export_dict["timeslots"]["info"].keys(),
-                    {"duration", "blocknames"},
-                    "timeslot info keys not as expected",
-                )
-                self._check_type(
-                    self.export_dict["timeslots"]["info"]["duration"],
-                    float,
-                    "info/duration",
-                    item=item,
-                )
-                self._check_lst(
-                    self.export_dict["timeslots"]["info"]["blocknames"],
-                    "info/blocknames",
-                    item=item,
-                    contained_type=list,
-                )
-                for blockname in self.export_dict["timeslots"]["info"]["blocknames"]:
-                    self.assertEqual(len(blockname), 2)
-                    self._check_lst(
-                        blockname,
-                        "info/blocknames/entry",
-                        item=item,
-                        contained_type=str,
-                    )
 
-                self._check_lst(
-                    self.export_dict["timeslots"]["blocks"],
-                    "blocks",
-                    item=item,
-                    contained_type=list,
-                )
+    def test_timeslot_ids_consecutive(self):
+        """Test if Timeslots ids are chronologically consecutive."""
+        for event in Event.objects.all():
+            with self.subTest(event=event):
+                self.set_up_event(event=event)
 
                 prev_id = None
                 for timeslot in chain.from_iterable(
                     self.export_dict["timeslots"]["blocks"]
                 ):
-                    item = f"timeslot {timeslot['id']}"
-                    self.assertEqual(
-                        timeslot.keys(),
-                        {"id", "info", "fulfilled_time_constraints"},
-                        f"{item} keys not as expected",
-                    )
-                    self.assertEqual(
-                        timeslot["info"].keys(),
-                        {"start", "end"},
-                        f"{item} info keys not as expected",
-                    )
-                    self._check_type(timeslot["id"], int, "id", item=item)
-                    self._check_type(
-                        timeslot["info"]["start"], str, "info/start", item=item
-                    )
-                    self._check_lst(
-                        timeslot["fulfilled_time_constraints"],
-                        "fulfilled_time_constraints",
-                        item=item,
-                    )
-
                     if prev_id is not None:
                         self.assertLess(
                             prev_id,
@@ -359,8 +196,6 @@ class JSONExportTest(TestCase):
                     self.assertEqual(
                         getattr(self.event, attr_field), self.export_dict["info"][attr]
                     )
-
-                self._check_uniqueness(self.export_dict["participants"], "Participants")
 
     def test_ak_durations(self):
         """Test if all AK durations are correct."""
