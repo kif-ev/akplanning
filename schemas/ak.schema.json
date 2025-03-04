@@ -33,7 +33,8 @@
           "description": "IDs of all AKs that should be scheduled before this AK"
         }
       },
-      "required": ["conflicts", "dependencies"]
+      "required": ["conflicts", "dependencies"],
+      "additionalProperties": false
     },
     "info": {
       "type": "object",
@@ -43,8 +44,10 @@
         "description": {"description": "Short description of the AK", "type": "string"},
         "reso": {"description": "Whether this AK intends to introduce a resolution", "type": "boolean"}
       },
-      "required": ["name", "head", "description", "reso"]
+      "required": ["name", "head", "description", "reso"],
+      "additionalProperties": false
     }
   },
-  "required": ["id", "duration", "room_constraints", "time_constraints", "properties", "info"]
+  "required": ["id", "duration", "room_constraints", "time_constraints", "properties", "info"],
+  "additionalProperties": false
 }

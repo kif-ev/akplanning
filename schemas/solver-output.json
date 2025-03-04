@@ -41,7 +41,8 @@
             "uniqueItems": true
           }
         },
-        "required": ["ak_id", "room_id", "timeslot_ids", "participant_ids"] 
+        "required": ["ak_id", "room_id", "timeslot_ids", "participant_ids"],
+        "additionalProperties": false
       },
       "uniqueItems": true
     }

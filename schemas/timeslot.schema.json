@@ -4,6 +4,7 @@
   "title": "Timeslot",
   "type": "object",
   "required": ["info", "blocks"],
+  "additionalProperties": false,
   "properties": {
     "info": {
       "type": "object",
@@ -19,7 +20,8 @@
           }
         }
       },
-      "required": ["duration"]
+      "required": ["duration"],
+      "additionalProperties": false
     },
     "blocks": {
       "type": "array",
@@ -41,14 +43,16 @@
                 "start": {"description": "Start datetime of the timeslot", "type": "string"},
                 "end": {"description": "End datetime of the timeslot", "type": "string"}
               },
-              "required": ["start", "end"]
+              "required": ["start", "end"],
+              "additionalProperties": false
             },
             "fulfilled_time_constraints": {
               "$ref": "/schema/common/constraints.schema.json",
               "description": "Time constraints fulfilled by this timeslot"
             }
           },
-          "required": ["id", "info", "fulfilled_time_constraints"]
+          "required": ["id", "info", "fulfilled_time_constraints"],
+          "additionalProperties": false
         }
       }
     }

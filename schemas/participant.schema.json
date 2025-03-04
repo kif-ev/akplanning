@@ -33,7 +33,8 @@
               ]
             }
           },
-          "required": ["ak_id", "required", "preference_score"]
+          "required": ["ak_id", "required", "preference_score"],
+          "additionalProperties": false
         },
         "uniqueItems": true
     },
@@ -48,8 +49,10 @@
     "info": {
       "type": "object",
       "properties": {"name": {"description": "Name of the person", "type": "string"}},
-      "required": ["name"]
+      "required": ["name"],
+      "additionalProperties": false
     }
   },
-  "required": ["id", "room_constraints", "time_constraints", "info"]
+  "required": ["id", "room_constraints", "time_constraints", "info"],
+  "additionalProperties": false
 }
