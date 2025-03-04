@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "/schema/solver-input.schema.json",
+  "$id": "schemas/solver-input.schema.json",
   "type": "object",
   "properties": {
-      "aks": {"type": "array", "items": {"$ref": "/schema/ak.schema.json"}, "uniqueItems": true},
-      "rooms": {"type": "array", "items": {"$ref": "/schema/room.schema.json"}, "uniqueItems": true},
-      "participants": {"type": "array", "items": {"$ref": "/schema/participant.schema.json"}, "uniqueItems": true},
-      "timeslots": {"$ref": "/schema/timeslot.schema.json"},
+      "aks": {"type": "array", "items": {"$ref": "ak.schema.json"}, "uniqueItems": true},
+      "rooms": {"type": "array", "items": {"$ref": "room.schema.json"}, "uniqueItems": true},
+      "participants": {"type": "array", "items": {"$ref": "participant.schema.json"}, "uniqueItems": true},
+      "timeslots": {"$ref": "timeslot.schema.json"},
       "info": {
         "type": "object",
         "properties": {

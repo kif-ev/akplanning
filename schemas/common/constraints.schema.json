@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "/schema/common/constraints.schema.json",
+  "$id": "schemas/common/constraints.schema.json",
   "type": "array",
   "items": {"type": "string"},
   "uniqueItems": true

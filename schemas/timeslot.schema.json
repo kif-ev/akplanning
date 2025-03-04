@@ -1,6 +1,6 @@
  {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "/schema/timeslot.schema.json",
+  "$id": "schemas/timeslot.schema.json",
   "title": "Timeslot",
   "type": "object",
   "required": ["info", "blocks"],
@@ -34,7 +34,7 @@
           "description": "A single timeslot",
           "properties": {
             "id": {
-              "$ref": "/schema/common/id.schema.json",
+              "$ref": "common/id.schema.json",
               "description": "The unique identifier of the single timeslot. Accross all blocks, the ids must be sorted chronologically."
             },
             "info": {
@@ -47,7 +47,7 @@
               "additionalProperties": false
             },
             "fulfilled_time_constraints": {
-              "$ref": "/schema/common/constraints.schema.json",
+              "$ref": "common/constraints.schema.json",
               "description": "Time constraints fulfilled by this timeslot"
             }
           },

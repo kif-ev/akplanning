@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "/schema/participant.schema.json",
+  "$id": "schemas/participant.schema.json",
   "title": "Participant",
   "type": "object",
   "properties": {
     "id": {
-      "$ref": "/schema/common/id.schema.json",
+      "$ref": "common/id.schema.json",
       "description": "The unique identifier of a participant"
     },
     "preferences": {
@@ -15,7 +15,7 @@
           "type": "object",
           "properties": {
             "ak_id": {
-              "$ref": "/schema/common/id.schema.json",
+              "$ref": "common/id.schema.json",
               "description": "The unique identifier of the AK"
             },
             "required": {
@@ -39,11 +39,11 @@
         "uniqueItems": true
     },
     "room_constraints": {
-      "$ref": "/schema/common/constraints.schema.json",
+      "$ref": "common/constraints.schema.json",
       "description": "Room constraints required by this participant"
     },
     "time_constraints": {
-      "$ref": "/schema/common/constraints.schema.json",
+      "$ref": "common/constraints.schema.json",
       "description": "Time constraints required by this participant"
     },
     "info": {

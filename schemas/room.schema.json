@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "/schema/room.schema.json",
+  "$id": "schemas/room.schema.json",
   "title": "Room",
   "type": "object",
   "properties": {
     "id": {
-      "$ref": "/schema/common/id.schema.json",
+      "$ref": "common/id.schema.json",
       "description": "The unique identifier of a room"
     },
     "capacity": {
@@ -16,11 +16,11 @@
       ]
     },
     "fulfilled_room_constraints": {
-      "$ref": "/schema/common/constraints.schema.json",
+      "$ref": "common/constraints.schema.json",
       "description": "Constraints fulfilled by this room"
     },
     "time_constraints": {
-      "$ref": "/schema/common/constraints.schema.json",
+      "$ref": "common/constraints.schema.json",
       "description": "Time constraints required by this room"
     },
     "info": {
