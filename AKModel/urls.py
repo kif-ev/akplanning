@@ -24,6 +24,7 @@ api_router.register('akslot', AKModel.views.api.AKSlotViewSet, basename='AKSlot'
 
 # TODO Can we move this functionality to the individual apps instead?
 extra_paths = []
+extra_paths.append(path('api/solver-export/', AKModel.views.api.ExportEventForSolverView.as_view(), name='solver-export'))
 # If AKScheduling is active, register additional API endpoints
 if apps.is_installed("AKScheduling"):
     from AKScheduling.api import ResourcesViewSet, RoomAvailabilitiesView, EventsView, EventsViewSet, \

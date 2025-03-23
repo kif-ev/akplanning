@@ -1,9 +1,9 @@
-from rest_framework import mixins, viewsets, permissions
+from rest_framework import generics, mixins, viewsets, permissions
 
 from AKModel.metaviews.admin import EventSlugMixin
-from AKModel.models import AKOwner, AKCategory, AKTrack, AK, Room, AKSlot
+from AKModel.models import AKOwner, AKCategory, AKTrack, AK, Room, AKSlot, Event
 from AKModel.serializers import AKOwnerSerializer, AKCategorySerializer, AKTrackSerializer, AKSerializer, \
-    RoomSerializer, AKSlotSerializer
+    RoomSerializer, AKSlotSerializer, ExportEventSerializer
 
 
 class AKOwnerViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -79,3 +79,16 @@ class AKSlotViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.CreateMode
 
     def get_queryset(self):
         return AKSlot.objects.filter(event=self.event)
+
+
+class ExportEventForSolverView(generics.RetrieveAPIView):
+    permission_classes = (permissions.DjangoModelPermissions,)
+    serializer_class = ExportEventSerializer
+    lookup_url_kwarg = "event_slug"
+    lookup_field = "slug"
+    queryset = Event.objects.filter(active=True)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["event"] = self.get_object()
+        return context
