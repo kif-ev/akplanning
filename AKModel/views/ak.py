@@ -9,6 +9,7 @@ from django.views.generic import ListView, DetailView
 from AKModel.metaviews.admin import AdminViewMixin, FilterByEventSlugMixin, EventSlugMixin, IntermediateAdminView, \
     IntermediateAdminActionView
 from AKModel.models import AKRequirement, AKSlot, Event, AKOrgaMessage, AK
+from AKModel.serializers import ExportEventSerializer
 
 
 class AKRequirementOverview(AdminViewMixin, FilterByEventSlugMixin, ListView):
@@ -53,9 +54,9 @@ class AKJSONExportView(AdminViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            data = context["event"].as_json_dict()
-            context["json_data_oneline"] = json.dumps(data, ensure_ascii=False)
-            context["json_data"] = json.dumps(data, indent=2, ensure_ascii=False)
+            serialized_event = ExportEventSerializer(context["event"], context={"event": context["event"]})
+            context["json_data_oneline"] = json.dumps(serialized_event.data, ensure_ascii=False)
+            context["json_data"] = json.dumps(serialized_event.data, indent=2, ensure_ascii=False)
             context["is_valid"] = True
         except ValueError as ex:
             messages.add_message(

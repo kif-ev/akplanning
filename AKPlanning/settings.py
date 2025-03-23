@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+import decimal
 import os
 
 from django.utils.translation import gettext_lazy as _
@@ -220,6 +221,9 @@ DASHBOARD_RECENT_MAX = 25
 # How many events should be featured in the dashboard
 # (active events will always be featured, even if their number is higher than this threshold)
 DASHBOARD_MAX_FEATURED_EVENTS = 3
+
+
+CEIL_OFFSET_EPS = decimal.Decimal(1e-4)
 
 # Registration/login behavior
 SIMPLE_BACKEND_REDIRECT_URL = "/user/"

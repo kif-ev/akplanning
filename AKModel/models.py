@@ -1,4 +1,3 @@
-import decimal
 import itertools
 import json
 import math
@@ -7,6 +6,7 @@ from datetime import datetime, timedelta
 from typing import Any, Generator, Iterable
 
 from django.apps import apps
+from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.db.models import Count
@@ -439,7 +439,8 @@ class Event(models.Model):
             raise ValueError(_("Cannot parse malformed JSON input."))
 
         if check_for_data_inconsistency:
-            export_dict = self.as_json_dict()
+            from .serializers import ExportEventSerializer
+            export_dict = ExportEventSerializer(self).data
             if schedule["input"] != export_dict:
                 raise ValueError(_("Data has changed since the export. Reexport and run the solver again."))
 
@@ -509,190 +510,21 @@ class Event(models.Model):
 
         return slots_updated
 
-    def as_json_dict(self) -> dict[str, Any]:
-        """Return the json representation of this Event.
+    @property
+    def rooms(self):
+        return Room.objects.filter(event=self).order_by()
 
-        :return: The json dict representation is constructed
-            following the input specification of the KoMa conference optimizer, cf.
-            https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
-        :rtype: dict[str, Any]
-        """
+    @property
+    def slots(self):
+        return AKSlot.objects.filter(event=self).order_by()
 
-        # local import to prevent cyclic import
-        # pylint: disable=import-outside-toplevel
-        from AKModel.availability.models import Availability
+    @property
+    def participants(self):
+        return EventParticipant.objects.filter(event=self).order_by()
 
-        def _check_event_not_covered(availabilities: list[Availability]) -> bool:
-            """Test if event is not covered by availabilities."""
-            return not Availability.is_event_covered(self, availabilities)
-
-        def _check_akslot_fixed_in_timeslot(ak_slot: AKSlot, timeslot: Availability) -> bool:
-            """Test if an AKSlot is fixed to overlap a timeslot slot."""
-            if not ak_slot.fixed or ak_slot.start is None:
-                return False
-
-            fixed_avail = Availability(event=self, start=ak_slot.start, end=ak_slot.end)
-            return fixed_avail.overlaps(timeslot, strict=True)
-
-        def _check_add_constraint(slot: Availability, availabilities: list[Availability]) -> bool:
-            """Test if object is not available for whole event and may happen during slot."""
-            return (
-                _check_event_not_covered(availabilities) and slot.is_covered(availabilities)
-            )
-
-        def _generate_time_constraints(
-            avail_label: str,
-            avail_dict: dict,
-            timeslot_avail: Availability,
-            prefix: str = "availability",
-        ) -> list[str]:
-            return [
-                f"{prefix}-{avail_label}-{pk}"
-                for pk, availabilities in avail_dict.items()
-                if _check_add_constraint(timeslot_avail, availabilities)
-            ]
-
-        timeslots = {
-            "info": {"duration": float(self.export_slot)},
-            "blocks": [],
-            }
-
-        rooms = Room.objects.filter(event=self).order_by()
-        slots = AKSlot.objects.filter(event=self).order_by()
-        participants = EventParticipant.objects.filter(event=self).order_by()
-        owners = AKOwner.objects.filter(event=self).order_by().all()
-
-        ak_availabilities = {
-            ak.pk: Availability.union(ak.availabilities.all())
-            for ak in AK.objects.filter(event=self).all()
-        }
-        room_availabilities = {
-            room.pk: Availability.union(room.availabilities.all())
-            for room in rooms
-        }
-        person_availabilities = {
-            person.pk: Availability.union(person.availabilities.all())
-            for person in owners
-        }
-        participant_availabilities = {
-            participant.pk: Availability.union(participant.availabilities.all())
-            for participant in EventParticipant.objects.filter(event=self)
-        }
-
-        blocks = list(self.discretize_timeslots())
-
-        block_names = []
-
-        for block_idx, block in enumerate(blocks):
-            current_block = []
-
-            if not block:
-                continue
-
-            block_start = block[0].avail.start.astimezone(self.timezone)
-            block_end = block[-1].avail.end.astimezone(self.timezone)
-
-            start_day = block_start.strftime("%A, %d. %b")
-            if block_start.date() == block_end.date():
-                # same day
-                time_str = block_start.strftime("%H:%M") + " - " + block_end.strftime("%H:%M")
-            else:
-                # different days
-                time_str = block_start.strftime("%a %H:%M") + " - " + block_end.strftime("%a %H:%M")
-            block_names.append([start_day, time_str])
-
-            block_timeconstraints = [f"notblock{idx}" for idx in range(len(blocks)) if idx != block_idx]
-
-            for timeslot in block:
-                time_constraints = []
-                # if reso_deadline is set and timeslot ends before it,
-                #   add fulfilled time constraint 'resolution'
-                if self.reso_deadline is None or timeslot.avail.end < self.reso_deadline:
-                    time_constraints.append("resolution")
-
-                # add fulfilled time constraints for all AKs that cannot happen during full event
-                time_constraints.extend(
-                    _generate_time_constraints("ak", ak_availabilities, timeslot.avail)
-                )
-
-                # add fulfilled time constraints for all persons that are not available for full event
-                time_constraints.extend(
-                    _generate_time_constraints("person", person_availabilities, timeslot.avail)
-                )
-
-                # add fulfilled time constraints for all rooms that are not available for full event
-                time_constraints.extend(
-                    _generate_time_constraints("room", room_availabilities, timeslot.avail)
-                )
-
-                # add fulfilled time constraints for all participants that are not available for full event
-                time_constraints.extend(
-                    _generate_time_constraints("participant", participant_availabilities, timeslot.avail)
-                )
-
-                # add fulfilled time constraints for all AKSlots fixed to happen during timeslot
-                time_constraints.extend([
-                    f"fixed-akslot-{slot.id}"
-                    for slot in AKSlot.objects.filter(event=self, fixed=True).exclude(start__isnull=True)
-                    if _check_akslot_fixed_in_timeslot(slot, timeslot.avail)
-                ])
-
-                time_constraints.extend(timeslot.constraints)
-                time_constraints.extend(block_timeconstraints)
-                time_constraints.sort()
-
-                current_block.append({
-                    "id": timeslot.idx,
-                    "info": {
-                        "start": timeslot.avail.start.astimezone(self.timezone).strftime("%Y-%m-%d %H:%M"),
-                        "end": timeslot.avail.end.astimezone(self.timezone).strftime("%Y-%m-%d %H:%M"),
-                    },
-                    "fulfilled_time_constraints": time_constraints,
-                    })
-
-            timeslots["blocks"].append(current_block)
-
-        timeslots["info"]["blocknames"] = block_names
-
-        info_dict = {
-            "title": self.name,
-            "slug": self.slug
-        }
-
-        for attr in ["contact_email", "place"]:
-            if hasattr(self, attr) and getattr(self, attr):
-                info_dict[attr] = getattr(self, attr)
-
-        data = {
-            "participants": [p.as_json_dict() for p in participants],
-            "rooms": [r.as_json_dict() for r in rooms],
-            "timeslots": timeslots,
-            "info": info_dict,
-            "aks": [ak.as_json_dict() for ak in slots],
-        }
-
-        if EventParticipant.objects.exists():
-            next_participant_pk = EventParticipant.objects.latest("pk").pk + 1
-        else:
-            next_participant_pk = 1
-        # add one dummy participant per owner
-        # this ensures that the hard constraints from each owner are considered
-        for new_pk, owner in enumerate(owners, next_participant_pk):
-            owned_slots = slots.filter(ak__owners=owner).order_by().all()
-            if not owned_slots:
-                continue
-            new_participant_data = {
-                "id": new_pk,
-                "info": {"name": f"{owner} [AKOwner]"},
-                "room_constraints": [],
-                "time_constraints": [],
-                "preferences": [
-                    {"ak_id": slot.pk, "required": True, "preference_score": -1}
-                    for slot in owned_slots
-                ]
-            }
-            data["participants"].append(new_participant_data)
-        return data
+    @property
+    def owners(self):
+        return AKOwner.objects.filter(event=self).order_by()
 
 
 class AKOwner(models.Model):
@@ -1101,14 +933,7 @@ class Room(models.Model):
     def __str__(self):
         return self.title
 
-    def as_json_dict(self) -> dict[str, Any]:
-        """Return a json representation of this room object.
-
-        :return: The json dict representation is constructed
-            following the input specification of the KoMa conference optimizer, cf.
-            https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
-        :rtype: dict[str, Any]
-        """
+    def get_time_constraints(self) -> list[str]:
         # local import to prevent cyclic import
         # pylint: disable=import-outside-toplevel
         from AKModel.availability.models import Availability
@@ -1120,23 +945,17 @@ class Room(models.Model):
         else:
             time_constraints = [f"availability-room-{self.pk}"]
 
-        data = {
-            "id": self.pk,
-            "info": {
-                "name": self.name,
-            },
-            "capacity": self.capacity,
-            "fulfilled_room_constraints": list(self.properties.values_list("name", flat=True)),
-            "time_constraints": time_constraints
-        }
+        return time_constraints
 
-        data["fulfilled_room_constraints"].append(f"fixed-room-{self.pk}")
+    def get_fulfilled_room_constraints(self) -> list[str]:
+        fulfilled_room_constraints = list(self.properties.values_list("name", flat=True))
+        fulfilled_room_constraints.append(f"fixed-room-{self.pk}")
 
-        if not any(constr.startswith("proxy") for constr in data["fulfilled_room_constraints"]):
-            data["fulfilled_room_constraints"].append("no-proxy")
+        if not any(constr.startswith("proxy") for constr in fulfilled_room_constraints):
+            fulfilled_room_constraints.append("no-proxy")
 
-        data["fulfilled_room_constraints"].sort()
-        return data
+        fulfilled_room_constraints.sort()
+        return fulfilled_room_constraints
 
 
 class AKSlot(models.Model):
@@ -1234,27 +1053,21 @@ class AKSlot(models.Model):
         super().save(*args,
                      force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
-    def as_json_dict(self) -> dict[str, Any]:
-        """Return a json representation of the AK object of this slot.
+    def get_room_constraints(self) -> list[str]:
+        room_constraints = list(self.ak.requirements.values_list("name", flat=True).order_by())
+        if self.fixed and self.room is not None:
+            room_constraints.append(f"fixed-room-{self.room.pk}")
 
-        :return: The json dict representation is constructed
-            following the input specification of the KoMa conference optimizer, cf.
-            https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
-        :rtype: dict[str, Any]
-        """
+        if not any(constr.startswith("proxy") for constr in room_constraints):
+            room_constraints.append("no-proxy")
+
+        room_constraints.sort()
+        return room_constraints
+
+    def get_time_constraints(self) -> list[str]:
         # local import to prevent cyclic import
         # pylint: disable=import-outside-toplevel
         from AKModel.availability.models import Availability
-
-        # check if ak resp. owner is available for the whole event
-        # -> no time constraint needs to be introduced
-
-        if self.fixed and self.start is not None:
-            ak_time_constraints = [f"fixed-akslot-{self.id}"]
-        elif not Availability.is_event_covered(self.event, self.ak.availabilities.all()):
-            ak_time_constraints = [f"availability-ak-{self.ak.pk}"]
-        else:
-            ak_time_constraints = []
 
         def _owner_time_constraints(owner: AKOwner):
             owner_avails = owner.availabilities.all()
@@ -1262,50 +1075,46 @@ class AKSlot(models.Model):
                 return []
             return [f"availability-person-{owner.pk}"]
 
-        conflict_slots = AKSlot.objects.filter(ak__in=self.ak.conflicts.all())
-        dependency_slots = AKSlot.objects.filter(ak__in=self.ak.prerequisites.all())
-        other_ak_slots = AKSlot.objects.filter(ak=self.ak).exclude(pk=self.pk)
+        # check if ak resp. owner is available for the whole event
+        # -> no time constraint needs to be introduced
+        if self.fixed and self.start is not None:
+            time_constraints = [f"fixed-akslot-{self.id}"]
+        elif not Availability.is_event_covered(self.event, self.ak.availabilities.all()):
+            time_constraints = [f"availability-ak-{self.ak.pk}"]
+        else:
+            time_constraints = []
 
-        ceil_offet_eps = decimal.Decimal(1e-4)
-
-        data = {
-            "id": self.pk,
-            "duration": math.ceil(self.duration / self.event.export_slot - ceil_offet_eps),
-            "properties": {
-                "conflicts": list((conflict_slots | other_ak_slots).values_list("pk", flat=True).order_by()),
-                "dependencies": list(dependency_slots.values_list("pk", flat=True).order_by()),
-            },
-            "room_constraints": list(self.ak.requirements.values_list("name", flat=True).order_by()),
-            "time_constraints": ["resolution"] if self.ak.reso else [],
-            "info": {
-                "name": self.ak.name,
-                "head": ", ".join([str(owner) for owner in self.ak.owners.order_by().all()]),
-                "description": self.ak.description,
-                "reso": self.ak.reso,
-                "duration_in_hours": float(self.duration),
-                "django_ak_id": self.ak.pk,
-                "types": list(self.ak.types.values_list("name", flat=True).order_by()),
-                },
-            }
-
-        data["time_constraints"].extend(ak_time_constraints)
+        if self.ak.reso:
+            time_constraints.append("resolution")
         for owner in self.ak.owners.all():
-            data["time_constraints"].extend(_owner_time_constraints(owner))
+            time_constraints.extend(_owner_time_constraints(owner))
 
         if self.ak.category:
             category_constraints = AKCategory.create_category_optimizer_constraints([self.ak.category])
-            data["time_constraints"].extend(category_constraints)
+            time_constraints.extend(category_constraints)
 
-        if self.fixed and self.room is not None:
-            data["room_constraints"].append(f"fixed-room-{self.room.pk}")
+        time_constraints.sort()
+        return time_constraints
 
-        if not any(constr.startswith("proxy") for constr in data["room_constraints"]):
-            data["room_constraints"].append("no-proxy")
+    @property
+    def export_duration(self):
+        return math.ceil(self.duration / self.event.export_slot - settings.CEIL_OFFSET_EPS)
 
-        data["room_constraints"].sort()
-        data["time_constraints"].sort()
+    @property
+    def type_names(self):
+        return self.ak.types.values_list("name", flat=True).order_by()
 
-        return data
+    @property
+    def conflict_pks(self) -> list[int]:
+        conflict_slots = AKSlot.objects.filter(ak__in=self.ak.conflicts.all())
+        other_ak_slots = AKSlot.objects.filter(ak=self.ak).exclude(pk=self.pk)
+        return list((conflict_slots | other_ak_slots).values_list("pk", flat=True).order_by())
+
+    @property
+    def depencency_pks(self) -> list[int]:
+        dependency_slots = AKSlot.objects.filter(ak__in=self.ak.prerequisites.all())
+        return list(dependency_slots.values_list("pk", flat=True).order_by())
+
 
 class AKOrgaMessage(models.Model):
     """
@@ -1638,44 +1447,33 @@ class EventParticipant(models.Model):
         """
         return "Availability".objects.filter(participant=self)
 
-    def as_json_dict(self) -> dict[str, Any]:
-        """Return a json representation of this participant object.
-
-        :return: The json dict representation is constructed
-            following the input specification of the KoMa conference optimizer, cf.
-            https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
-        :rtype: dict[str, Any]
-        """
-        # local import to prevent cyclic import
-        # pylint: disable=import-outside-toplevel
-        from AKModel.availability.models import Availability
-
-        data = {
-            "id": self.pk,
-            "info": {"name": str(self)},
-            "room_constraints": list(self.requirements.values_list("name", flat=True).order_by()),
-            "time_constraints": [],
-        }
-        data["preferences"] = [
-            pref.as_json_dict()
-            for pref in AKPreference.objects.filter(
-                participant=self, preference__gt=0
-            ).select_related("slot").order_by()
-        ]
-
+    def get_time_constraints(self) -> list[str]:
         avails = self.availabilities.all()
-        if avails and not Availability.is_event_covered(self.event, avails):
-            # participant has restricted availability
-            if AKPreference.objects.filter(
-                event=self.event,
-                participant=self,
-                preference=AKPreference.PreferenceLevel.REQUIRED,
-            ):
-                # partipant is actually required for AKs
-                data["time_constraints"].append(f"availability-participant-{self.pk}")
+        participant_required_preferences = AKPreference.objects.filter(
+            event=self.event,
+            participant=self,
+            preference=AKPreference.PreferenceLevel.REQUIRED,
+        ).exists()
 
-        data["time_constraints"].sort()
-        return data
+        if (
+            avails
+            and not Availability.is_event_covered(self.event, avails)
+            and participant_required_preferences.exists()
+        ):
+            # participant has restricted availability and is actually required for AKs
+            return [f"availability-participant-{self.pk}"]
+
+        return []
+
+    def get_room_constraints(self) -> list[str]:
+        return list(self.requirements.values_list("name", flat=True).order_by())
+
+    @property
+    def export_preferences(self):
+        """Preferences of this participant with positive score."""
+        return AKPreference.objects.filter(
+            participant=self, preference__gt=0
+        ).order_by()
 
 
 class AKPreference(models.Model):
@@ -1710,19 +1508,19 @@ class AKPreference(models.Model):
                                              default=PreferenceLevel.IGNORE)
 
     def __str__(self) -> str:
-        return "AKPreference: " + json.dumps(self.as_json_dict())
+        json_repr = json.dumps(
+            {
+                "ak_id": self.slot.pk,
+                "required": self.required,
+                "preference_score": self.preference_score,
+            }
+        )
+        return f"AKPreference: {json_repr}"
 
-    def as_json_dict(self) -> dict[str, int | bool]:
-        """Return a json representation of this AKPreference object.
+    @property
+    def required(self) -> bool:
+        return self.preference == self.PreferenceLevel.REQUIRED
 
-        :return: The json dict representation is constructed
-            following the input specification of the KoMa conference optimizer, cf.
-            https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
-        :rtype: dict[str, Any]
-        """
-        preference_score = self.preference if self.preference != self.PreferenceLevel.REQUIRED else -1
-        return {
-            "ak_id": self.slot.pk,
-            "required": self.preference == self.PreferenceLevel.REQUIRED,
-            "preference_score": preference_score
-        }
+    @property
+    def preference_score(self) -> int:
+        return self.preference if self.preference != self.PreferenceLevel.REQUIRED else -1
