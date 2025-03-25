@@ -23,6 +23,13 @@
         );
     });
     </script>
+
+    <style>
+        #id_present_helptext::after {
+            content: " ({% trans "only relevant for KIF-AKs - determines whether the AK appears in the slides for the closing plenary session" %})";
+            color: #6c757d;
+        }
+    </style>
 {% endblock %}
 
 {% block breadcrumbs %}
