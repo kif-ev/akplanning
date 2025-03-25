@@ -281,39 +281,6 @@ msgstr "Standardverfügbarkeiten für alle Räume anlegen?"
 msgid "CSV must contain a name column"
 msgstr "CSV muss eine name-Spalte enthalten"
 
-#: AKModel/forms.py:281
-msgid "JSON data"
-msgstr "JSON-Daten"
-
-#: AKModel/forms.py:282
-msgid "JSON data from the scheduling solver"
-msgstr "JSON-Daten, die der scheduling-solver produziert hat"
-
-#: AKModel/forms.py:299
-msgid "File with JSON data"
-msgstr "Datei mit JSON-Daten"
-
-#: AKModel/forms.py:300
-msgid "File with JSON data from the scheduling solver"
-msgstr "Datei mit JSON-Daten, die der scheduling-solver produziert hat"
-
-#: AKModel/forms.py:307
-msgid "Cannot decode as JSON"
-msgstr "Dekodierung als JSON fehlgeschlagen"
-
-#: AKModel/forms.py:311
-#, python-format
-msgid "Invalid JSON format: %(msg)s at %(error_path)s"
-msgstr "Ungültige JSON-Eingabe: %(msg)s bei %(error_path)s"
-
-#: AKModel/forms.py:321
-msgid "Please enter data as a file OR via text, not both."
-msgstr "Gib die Daten bitte als Datei oder als Text ein, nicht beides."
-
-#: AKModel/forms.py:327
-msgid "No data entered. Please enter data as a file or via text."
-msgstr "Keine Daten eingegeben. Gib die Daten bitte als Datei oder als Text ein."
-
 #: AKModel/metaviews/admin.py:156 AKModel/models.py:40
 msgid "Start"
 msgstr "Start"
@@ -1344,14 +1311,6 @@ msgstr "Anforderungen für das Event"
 msgid "AK CSV Export"
 msgstr "AK-CSV-Export"
 
-#: AKModel/views/ak.py:50
-msgid "AK JSON Export"
-msgstr "AK-JSON-Export"
-
-#: AKModel/views/ak.py:64
-msgid "Exporting AKs for the solver failed! Reason: "
-msgstr "Daten für den Solver exportieren fehlgeschlagen! Grund: "
-
 #: AKModel/views/ak.py:133
 msgid "AK Wiki Export"
 msgstr "AK-Wiki-Export"
@@ -1478,19 +1437,6 @@ msgid "Updated {u} slot(s). created {c} new slot(s) and deleted {d} slot(s)"
 msgstr ""
 "{u} Slot(s) aktualisiert, {c} Slot(s) hinzugefügt und {d} Slot(s) gelöscht"
 
-#: AKModel/views/manage.py:257
-msgid "AK Schedule JSON Import"
-msgstr "AK-Plan JSON-Import"
-
-#: AKModel/views/manage.py:265
-#, python-brace-format
-msgid "Successfully imported {n} slot(s)"
-msgstr "Erfolgreich {n} Slot(s) importiert"
-
-#: AKModel/views/manage.py:271
-msgid "Importing an AK schedule failed! Reason: "
-msgstr "AK-Plan importieren fehlgeschlagen! Grund: "
-
 #: AKModel/views/room.py:37
 #, python-format
 msgid "Created Room '%(room)s'"
@@ -1543,20 +1489,20 @@ msgid "Manage ak tracks"
 msgstr "AK-Tracks verwalten"
 
 #: AKModel/views/status.py:142
-msgid "Import AK schedule from JSON"
-msgstr "AK-Plan aus JSON importieren"
-
-#: AKModel/views/status.py:142
 msgid "Export AKs as CSV"
 msgstr "AKs als CSV exportieren"
-
-#: AKModel/views/status.py:145
-msgid "Export AKs as JSON"
-msgstr "AKs als JSON exportieren"
 
 #: AKModel/views/status.py:146
 msgid "Export AKs for Wiki"
 msgstr "AKs im Wiki-Format exportieren"
+
+#: AKModel/views/status.py:158
+msgid "Export AKs as JSON"
+msgstr "AKs als JSON exportieren"
+
+#: AKModel/views/status.py:162
+msgid "Import AK schedule from JSON"
+msgstr "AK-Plan aus JSON importieren"
 
 #: AKModel/views/status.py:179
 msgid "Show AKs for requirements"
