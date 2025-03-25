@@ -5,8 +5,8 @@ from rest_framework.routers import DefaultRouter
 
 import AKModel.views.api
 from AKModel.views.manage import ExportSlidesView, PlanPublishView, PlanUnpublishView, DefaultSlotEditorView, \
-    AKsByUserView, AKScheduleJSONImportView
-from AKModel.views.ak import AKRequirementOverview, AKCSVExportView, AKJSONExportView, AKWikiExportView, \
+    AKsByUserView
+from AKModel.views.ak import AKRequirementOverview, AKCSVExportView, AKWikiExportView, \
      AKMessageDeleteView
 from AKModel.views.event_wizard import NewEventWizardStartView, NewEventWizardPrepareImportView, \
     NewEventWizardImportView, NewEventWizardActivateView, NewEventWizardFinishView, NewEventWizardSettingsView
@@ -24,7 +24,6 @@ api_router.register('akslot', AKModel.views.api.AKSlotViewSet, basename='AKSlot'
 
 # TODO Can we move this functionality to the individual apps instead?
 extra_paths = []
-extra_paths.append(path('api/solver-export/', AKModel.views.api.ExportEventForSolverView.as_view(), name='solver-export'))
 # If AKScheduling is active, register additional API endpoints
 if apps.is_installed("AKScheduling"):
     from AKScheduling.api import ResourcesViewSet, RoomAvailabilitiesView, EventsView, EventsViewSet, \
@@ -45,6 +44,11 @@ if apps.is_installed("AKScheduling"):
 if apps.is_installed("AKSubmission"):
     from AKSubmission.api import increment_interest_counter
     extra_paths.append(path('api/ak/<pk>/indicate-interest/', increment_interest_counter, name='submission-ak-indicate-interest'))
+
+# If AKSolverInterface is active, register additional API endpoints
+if apps.is_installed("AKSolverInterface"):
+     from AKSolverInterface.api import ExportEventForSolverView
+     extra_paths.append(path('api/solver-export/', ExportEventForSolverView.as_view(), name='solver-export'))
 
 event_specific_paths = [
     path('api/', include(api_router.urls), name='api'),
@@ -98,10 +102,6 @@ def get_admin_urls_event(admin_site):
              name="aks_by_owner"),
         path('<slug:event_slug>/ak-csv-export/', admin_site.admin_view(AKCSVExportView.as_view()),
              name="ak_csv_export"),
-        path('<slug:event_slug>/ak-json-export/', admin_site.admin_view(AKJSONExportView.as_view()),
-             name="ak_json_export"),
-        path('<slug:event_slug>/ak-schedule-json-import/', admin_site.admin_view(AKScheduleJSONImportView.as_view()),
-             name="ak_schedule_json_import"),
         path('<slug:slug>/ak-wiki-export/', admin_site.admin_view(AKWikiExportView.as_view()),
              name="ak_wiki_export"),
         path('<slug:event_slug>/delete-orga-messages/', admin_site.admin_view(AKMessageDeleteView.as_view()),

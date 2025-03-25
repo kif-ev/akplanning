@@ -81,6 +81,10 @@ class EventAdmin(admin.ModelAdmin):
             from AKScheduling.urls import get_admin_urls_scheduling  # pylint: disable=import-outside-toplevel
             urls.extend(get_admin_urls_scheduling(self.admin_site))
 
+        if apps.is_installed("AKSolverInterface"):
+            from AKSolverInterface.urls import get_admin_urls_solver_interface  # pylint: disable=import-outside-toplevel
+            urls.extend(get_admin_urls_solver_interface(self.admin_site))
+
         # Make sure built-in URLs are available as well
         urls.extend(super().get_urls())
         return urls

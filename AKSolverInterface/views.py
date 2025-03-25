@@ -1,3 +1,85 @@
-from django.shortcuts import render
+import json
 
-# Create your views here.
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import DetailView
+
+from AKModel.metaviews.admin import (
+    AdminViewMixin,
+    EventSlugMixin,
+    IntermediateAdminView,
+)
+from AKModel.models import Event
+from AKSolverInterface.forms import JSONScheduleImportForm
+from AKSolverInterface.serializers import ExportEventSerializer
+
+
+class AKJSONExportView(AdminViewMixin, DetailView):
+    """
+    View: Export all AK slots of this event in JSON format ordered by tracks
+    """
+
+    template_name = "admin/AKSolverInterface/ak_json_export.html"
+    model = Event
+    context_object_name = "event"
+    title = _("AK JSON Export")
+    slug_url_kwarg = "event_slug"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            serialized_event = ExportEventSerializer(context["event"], context={"event": context["event"]})
+            context["json_data_oneline"] = json.dumps(serialized_event.data, ensure_ascii=False)
+            context["json_data"] = json.dumps(serialized_event.data, indent=2, ensure_ascii=False)
+            context["is_valid"] = True
+        except ValueError as ex:
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                _("Exporting AKs for the solver failed! Reason: ") + str(ex),
+            )
+        return context
+
+    def get(self, request, *args, **kwargs):
+        # as this code is adapted from BaseDetailView::get
+        # pylint: disable=attribute-defined-outside-init
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+
+        # if serialization failed in `get_context_data` we redirect to
+        #   the status page and show a message instead
+        if not context.get("is_valid", False):
+            return redirect("admin:event_status", context["event"].slug)
+        return self.render_to_response(context)
+
+
+class AKScheduleJSONImportView(EventSlugMixin, IntermediateAdminView):
+    """
+    View: Import an AK schedule from a json file that can be pasted into this view.
+    """
+
+    template_name = "admin/AKSolverInterface/import_json.html"
+    form_class = JSONScheduleImportForm
+    title = _("AK Schedule JSON Import")
+
+    def form_valid(self, form):
+        try:
+            number_of_slots_changed = self.event.schedule_from_json(
+                form.cleaned_data["data"]
+            )
+            messages.add_message(
+                self.request,
+                messages.SUCCESS,
+                _("Successfully imported {n} slot(s)").format(
+                    n=number_of_slots_changed
+                ),
+            )
+        except ValueError as ex:
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                _("Importing an AK schedule failed! Reason: ") + str(ex),
+            )
+
+        return redirect("admin:event_status", self.event.slug)

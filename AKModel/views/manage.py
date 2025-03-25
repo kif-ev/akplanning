@@ -7,14 +7,13 @@ from itertools import zip_longest
 
 from django.contrib import messages
 from django.db.models.functions import Now
-from django.shortcuts import redirect
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, DetailView
 from django_tex.core import render_template_with_context, run_tex_in_directory
 from django_tex.response import PDFResponse
 
-from AKModel.forms import SlideExportForm, DefaultSlotEditorForm, JSONScheduleImportForm
+from AKModel.forms import SlideExportForm, DefaultSlotEditorForm
 from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
 from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner
 
@@ -247,29 +246,3 @@ class AKsByUserView(AdminViewMixin, EventSlugMixin, DetailView):
     model = AKOwner
     context_object_name = 'owner'
     template_name = "admin/AKModel/aks_by_user.html"
-
-
-class AKScheduleJSONImportView(EventSlugMixin, IntermediateAdminView):
-    """
-    View: Import an AK schedule from a json file that can be pasted into this view.
-    """
-    template_name = "admin/AKModel/import_json.html"
-    form_class = JSONScheduleImportForm
-    title = _("AK Schedule JSON Import")
-
-    def form_valid(self, form):
-        try:
-            number_of_slots_changed = self.event.schedule_from_json(form.cleaned_data["data"])
-            messages.add_message(
-                self.request,
-                messages.SUCCESS,
-                _("Successfully imported {n} slot(s)").format(n=number_of_slots_changed)
-            )
-        except ValueError as ex:
-            messages.add_message(
-                self.request,
-                messages.ERROR,
-                _("Importing an AK schedule failed! Reason: ") + str(ex),
-            )
-
-        return redirect("admin:event_status", self.event.slug)

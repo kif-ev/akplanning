@@ -438,9 +438,10 @@ class Event(models.Model):
         if "input" not in schedule or "scheduled_aks" not in schedule:
             raise ValueError(_("Cannot parse malformed JSON input."))
 
-        if check_for_data_inconsistency:
-            from .serializers import ExportEventSerializer
+        if apps.is_installed("AKSolverInterface") and check_for_data_inconsistency:
+            from AKSolverInterface.serializers import ExportEventSerializer   # pylint: disable=import-outside-toplevel
             export_dict = ExportEventSerializer(self).data
+
             if schedule["input"] != export_dict:
                 raise ValueError(_("Data has changed since the export. Reexport and run the solver again."))
 

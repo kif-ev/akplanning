@@ -5,4 +5,5 @@ class AksolverinterfaceConfig(AppConfig):
     """
     App configuration for the solver interface (default)
     """
+
     name = "AKSolverInterface"

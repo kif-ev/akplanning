@@ -23,7 +23,7 @@ from AKModel.models import (
     EventParticipant,
     Room,
 )
-from AKModel.utils import construct_schema_validator
+from AKSolverInterface.utils import construct_schema_validator
 
 
 class JSONExportTest(TestCase):
