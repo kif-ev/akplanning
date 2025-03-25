@@ -152,6 +152,9 @@ class AKSubmissionForm(AKForm):
     class Meta(AKForm.Meta):
         # Exclude fields again that were previously included in the parent class
         exclude = ['link', 'protocol_link'] #pylint: disable=modelform-uses-exclude
+        widgets = AKForm.Meta.widgets | {
+            'types': forms.CheckboxSelectMultiple(attrs={'checked' : 'checked'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -188,6 +191,9 @@ class AKWishForm(AKForm):
     class Meta(AKForm.Meta):
         # Exclude fields again that were previously included in the parent class
         exclude = ['owners', 'link', 'protocol_link'] #pylint: disable=modelform-uses-exclude
+        widgets = AKForm.Meta.widgets | {
+            'types': forms.CheckboxSelectMultiple(attrs={'checked': 'checked'}),
+        }
 
 
 class AKOwnerForm(forms.ModelForm):
