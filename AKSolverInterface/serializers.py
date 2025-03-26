@@ -5,7 +5,6 @@ from rest_framework import serializers
 from AKModel.availability.models import Availability
 from AKModel.models import (
     AK,
-    AKOwner,
     AKPreference,
     AKSlot,
     Event,
@@ -16,14 +15,26 @@ from AKModel.models import (
 
 
 class StringListField(serializers.ListField):
+    """List field containing strings."""
+
     child = serializers.CharField()
 
 
 class IntListField(serializers.ListField):
+    """List field containing integers."""
+
     child = serializers.IntegerField()
 
 
 class ExportRoomInfoSerializer(serializers.ModelSerializer):
+    """Serializer of Room objects for the 'info' field.
+
+    Used in `ExportRoomSerializer` to serialize Room objects
+    for the export to a solver. Part of the implementation of the
+    format of the KoMa solver:
+    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
+    """
+
     class Meta:
         model = Room
         fields = ["name"]
@@ -31,6 +42,13 @@ class ExportRoomInfoSerializer(serializers.ModelSerializer):
 
 
 class ExportRoomSerializer(serializers.ModelSerializer):
+    """Export serializer for Room objects.
+
+    Used to serialize Room objects for the export to a solver.
+    Part of the implementation of the format of the KoMa solver:
+    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
+    """
+
     time_constraints = StringListField(source="get_time_constraints", read_only=True)
     fulfilled_room_constraints = StringListField(
         source="get_fulfilled_room_constraints", read_only=True
@@ -56,6 +74,14 @@ class ExportRoomSerializer(serializers.ModelSerializer):
 
 
 class ExportAKSlotInfoSerializer(serializers.ModelSerializer):
+    """Serializer of AKSlot objects for the 'info' field.
+
+    Used in `ExportAKSlotSerializer` to serialize AKSlot objects
+    for the export to a solver. Part of the implementation of the
+    format of the KoMa solver:
+    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
+    """
+
     name = serializers.CharField(source="ak.name")
     head = serializers.SerializerMethodField()
     reso = serializers.BooleanField(source="ak.reso")
@@ -64,7 +90,8 @@ class ExportAKSlotInfoSerializer(serializers.ModelSerializer):
     django_ak_id = serializers.IntegerField(source="ak.pk")
     types = StringListField(source="type_names")
 
-    def get_head(self, slot: AKSlot):
+    def get_head(self, slot: AKSlot) -> str:
+        """Get string representation for 'head' field."""
         return ", ".join([str(owner) for owner in slot.ak.owners.all()])
 
     class Meta:
@@ -90,6 +117,14 @@ class ExportAKSlotInfoSerializer(serializers.ModelSerializer):
 
 
 class ExportAKSlotPropertiesSerializer(serializers.ModelSerializer):
+    """Serializer of AKSlot objects for the 'properties' field.
+
+    Used in `ExportAKSlotSerializer` to serialize AKSlot objects
+    for the export to a solver. Part of the implementation of the
+    format of the KoMa solver:
+    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
+    """
+
     conflicts = IntListField(source="conflict_pks")
     dependencies = IntListField(source="depencency_pks")
 
@@ -100,6 +135,13 @@ class ExportAKSlotPropertiesSerializer(serializers.ModelSerializer):
 
 
 class ExportAKSlotSerializer(serializers.ModelSerializer):
+    """Export serializer for AKSlot objects.
+
+    Used to serialize AKSlot objects for the export to a solver.
+    Part of the implementation of the format of the KoMa solver:
+    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
+    """
+
     duration = serializers.IntegerField(source="export_duration")
     room_constraints = StringListField(source="get_room_constraints")
     time_constraints = StringListField(source="get_time_constraints")
@@ -127,6 +169,13 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
 
 
 class ExportAKPreferenceSerializer(serializers.ModelSerializer):
+    """Export serializer for AKPreference objects.
+
+    Used to serialize AKPreference objects for the export to a solver.
+    Part of the implementation of the format of the KoMa solver:
+    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
+    """
+
     ak_id = serializers.IntegerField(source="slot.pk")
     required = serializers.BooleanField(source="required")
     preference_score = serializers.IntegerField(source="preference_score")
@@ -138,6 +187,13 @@ class ExportAKPreferenceSerializer(serializers.ModelSerializer):
 
 
 class ExportParticipantInfoSerializer(serializers.ModelSerializer):
+    """Serializer of EventParticipant objects for the 'info' field.
+
+    Used in `ExportParticipantSerializer` to serialize EventParticipant objects
+    for the export to a solver. Part of the implementation of the
+    format of the KoMa solver:
+    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
+    """
     name = serializers.CharField(source="__str__")
 
     class Meta:
@@ -147,6 +203,13 @@ class ExportParticipantInfoSerializer(serializers.ModelSerializer):
 
 
 class ExportParticipantSerializer(serializers.ModelSerializer):
+    """Export serializer for EventParticipant objects.
+
+    Used to serialize EventParticipant objects for the export to a solver.
+    Part of the implementation of the format of the KoMa solver:
+    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
+    """
+
     room_constraints = StringListField(source="get_room_constraints")
     time_constraints = StringListField(source="get_time_constraints")
     preferences = ExportAKPreferenceSerializer(source="export_preferences", many=True)
@@ -159,7 +222,30 @@ class ExportParticipantSerializer(serializers.ModelSerializer):
 
 
 class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
-    def to_representation(self, event: Event):
+    """Export serializer for EventParticipant objects that includes 'dummy' participants.
+
+    This serializer is a work-around to make the solver compatible with the AKOwner model.
+
+    Internally, `ExportParticipantSerializer` is used to serialize all EventParticipants of
+    the event to serialize. To avoid scheduling conflicts, a 'dummy' participant is then added
+    to the list for each AKOwner of the event. These dummy participants only have 'required'
+    preference for all AKs of the owner, so the target of the optimization is not impacted.
+
+    Part of the implementation of the format of the KoMa solver:
+    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
+    """
+
+    def create(self, validated_data):
+        raise ValueError("`ExportParticipantAndDummiesSerializer` is read-only.")
+
+    def to_internal_value(self, data):
+        raise ValueError("`ExportParticipantAndDummiesSerializer` is read-only.")
+
+    def update(self, instance, validated_data):
+        raise ValueError("`ExportParticipantAndDummiesSerializer` is read-only.")
+
+    def to_representation(self, instance: Event):
+        event = instance
         real_participants = ExportParticipantSerializer(event.participants, many=True).data
 
         dummies = []
@@ -188,6 +274,14 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
 
 
 class ExportEventInfoSerializer(serializers.ModelSerializer):
+    """Serializer of an Event object for the 'info' field.
+
+    Used in `ExportEventSerializer` to serialize an Event object
+    for the export to a solver. Part of the implementation of the
+    format of the KoMa solver:
+    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
+    """
+
     title = serializers.CharField(source="name")
     contact_email = serializers.EmailField(required=False)
     place = serializers.CharField(required=False)
@@ -198,8 +292,28 @@ class ExportEventInfoSerializer(serializers.ModelSerializer):
 
 
 class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
-    def to_representation(self, blocks: Iterable[TimeslotBlock]):
-        blocks = list(blocks)
+    """Read-only serializer for timeslots.
+
+    Used to serialize timeslots for the export to a solver.
+    Part of the implementation of the format of the KoMa solver:
+    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
+    """
+
+    def create(self, validated_data):
+        raise ValueError("`ExportTimeslotBlockSerializer` is read-only.")
+
+    def to_internal_value(self, data):
+        raise ValueError("`ExportTimeslotBlockSerializer` is read-only.")
+
+    def update(self, instance, validated_data):
+        raise ValueError("`ExportTimeslotBlockSerializer` is read-only.")
+
+    def to_representation(self, instance: Iterable[TimeslotBlock]):
+        """Construct serialized representation of the timeslots of an event.
+
+        Expects the event to be passed via the serializer context as 'event'.
+        """
+        blocks = list(instance)
         event = self.context["event"]
 
         def _check_event_not_covered(availabilities: list[Availability]) -> bool:
@@ -362,6 +476,13 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
 
 
 class ExportEventSerializer(serializers.ModelSerializer):
+    """Export serializer for an Event object.
+
+    Used to serialize an Event for the export to a solver.
+    Part of the implementation of the format of the KoMa solver:
+    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
+    """
+
     info = ExportEventInfoSerializer(source="*")
     rooms = ExportRoomSerializer(many=True)
     aks = ExportAKSlotSerializer(source="slots", many=True)

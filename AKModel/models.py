@@ -513,18 +513,22 @@ class Event(models.Model):
 
     @property
     def rooms(self):
+        """Ordered queryset of all rooms associated to this event."""
         return Room.objects.filter(event=self).order_by()
 
     @property
     def slots(self):
+        """Ordered queryset of all AKSlots associated to this event."""
         return AKSlot.objects.filter(event=self).order_by()
 
     @property
     def participants(self):
+        """Ordered queryset of all participants associated to this event."""
         return EventParticipant.objects.filter(event=self).order_by()
 
     @property
     def owners(self):
+        """Ordered queryset of all AK owners associated to this event."""
         return AKOwner.objects.filter(event=self).order_by()
 
 
@@ -935,6 +939,7 @@ class Room(models.Model):
         return self.title
 
     def get_time_constraints(self) -> list[str]:
+        """Construct list of required time constraint labels."""
         # local import to prevent cyclic import
         # pylint: disable=import-outside-toplevel
         from AKModel.availability.models import Availability
@@ -949,6 +954,7 @@ class Room(models.Model):
         return time_constraints
 
     def get_fulfilled_room_constraints(self) -> list[str]:
+        """Construct list of fulfilled room constraint labels."""
         fulfilled_room_constraints = list(self.properties.values_list("name", flat=True))
         fulfilled_room_constraints.append(f"fixed-room-{self.pk}")
 
@@ -1055,6 +1061,7 @@ class AKSlot(models.Model):
                      force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
     def get_room_constraints(self) -> list[str]:
+        """Construct list of required room constraint labels."""
         room_constraints = list(self.ak.requirements.values_list("name", flat=True).order_by())
         if self.fixed and self.room is not None:
             room_constraints.append(f"fixed-room-{self.room.pk}")
@@ -1066,6 +1073,7 @@ class AKSlot(models.Model):
         return room_constraints
 
     def get_time_constraints(self) -> list[str]:
+        """Construct list of required time constraint labels."""
         # local import to prevent cyclic import
         # pylint: disable=import-outside-toplevel
         from AKModel.availability.models import Availability
@@ -1099,20 +1107,24 @@ class AKSlot(models.Model):
 
     @property
     def export_duration(self):
+        """Number of discrete export timeslots covered by this AKSlot."""
         return math.ceil(self.duration / self.event.export_slot - settings.CEIL_OFFSET_EPS)
 
     @property
     def type_names(self):
+        """Ordered queryset of the names of all types of this slot's AK."""
         return self.ak.types.values_list("name", flat=True).order_by()
 
     @property
     def conflict_pks(self) -> list[int]:
+        """Ordered queryset of the PKs of all AKSlots that in conflict to this slot."""
         conflict_slots = AKSlot.objects.filter(ak__in=self.ak.conflicts.all())
         other_ak_slots = AKSlot.objects.filter(ak=self.ak).exclude(pk=self.pk)
         return list((conflict_slots | other_ak_slots).values_list("pk", flat=True).order_by())
 
     @property
     def depencency_pks(self) -> list[int]:
+        """Ordered queryset of the PKs of all AKSlots that this slot depends on."""
         dependency_slots = AKSlot.objects.filter(ak__in=self.ak.prerequisites.all())
         return list(dependency_slots.values_list("pk", flat=True).order_by())
 
@@ -1449,8 +1461,13 @@ class EventParticipant(models.Model):
         return "Availability".objects.filter(participant=self)
 
     def get_time_constraints(self) -> list[str]:
+        """Construct list of required time constraint labels."""
+        # local import to prevent cyclic import
+        # pylint: disable=import-outside-toplevel
+        from AKModel.availability.models import Availability
+
         avails = self.availabilities.all()
-        participant_required_preferences = AKPreference.objects.filter(
+        participant_required_prefs = AKPreference.objects.filter(
             event=self.event,
             participant=self,
             preference=AKPreference.PreferenceLevel.REQUIRED,
@@ -1459,7 +1476,7 @@ class EventParticipant(models.Model):
         if (
             avails
             and not Availability.is_event_covered(self.event, avails)
-            and participant_required_preferences.exists()
+            and participant_required_prefs.exists()
         ):
             # participant has restricted availability and is actually required for AKs
             return [f"availability-participant-{self.pk}"]
@@ -1467,6 +1484,7 @@ class EventParticipant(models.Model):
         return []
 
     def get_room_constraints(self) -> list[str]:
+        """Construct list of required room constraint labels."""
         return list(self.requirements.values_list("name", flat=True).order_by())
 
     @property
@@ -1520,8 +1538,10 @@ class AKPreference(models.Model):
 
     @property
     def required(self) -> bool:
+        """Whether this preference is a 'REQUIRED'"""
         return self.preference == self.PreferenceLevel.REQUIRED
 
     @property
     def preference_score(self) -> int:
+        """Score of this preference for the solver"""
         return self.preference if self.preference != self.PreferenceLevel.REQUIRED else -1
