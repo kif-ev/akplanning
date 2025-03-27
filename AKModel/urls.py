@@ -48,8 +48,7 @@ if apps.is_installed("AKSubmission"):
 # If AKSolverInterface is active, register additional API endpoints
 if apps.is_installed("AKSolverInterface"):
      from AKSolverInterface.api import ExportEventForSolverView
-     extra_paths.append(path('api/solver-export/', ExportEventForSolverView.as_view(), name='solver-export'))
-
+     api_router.register("solver-export", ExportEventForSolverView, basename="solver-export")
 event_specific_paths = [
     path('api/', include(api_router.urls), name='api'),
 ]
