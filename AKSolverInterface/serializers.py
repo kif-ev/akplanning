@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from AKModel.availability.models import Availability
 from AKModel.models import (
     AK,
     AKPreference,
@@ -307,6 +306,9 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
 
     def to_representation(self, instance: Event):
         """Construct serialized representation of the timeslots of an event."""
+        # pylint: disable=import-outside-toplevel
+        from AKModel.availability.models import Availability
+
         event = instance
         blocks = list(event.discretize_timeslots())
 
