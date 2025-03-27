@@ -5,7 +5,7 @@ from AKModel.models import Event
 from AKSolverInterface.serializers import ExportEventSerializer
 
 
-class ExportEventForSolverView(viewsets.GenericViewSet):
+class ExportEventForSolverViewSet(viewsets.GenericViewSet):
     """
     API View: Current event, formatted to be consumed by a solver.
     Read-only
