@@ -1,5 +1,3 @@
-from collections.abc import Iterable
-
 from rest_framework import serializers
 
 from AKModel.availability.models import Availability
@@ -10,7 +8,6 @@ from AKModel.models import (
     Event,
     EventParticipant,
     Room,
-    TimeslotBlock,
 )
 
 
@@ -308,13 +305,10 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
     def update(self, instance, validated_data):
         raise ValueError("`ExportTimeslotBlockSerializer` is read-only.")
 
-    def to_representation(self, instance: Iterable[TimeslotBlock]):
-        """Construct serialized representation of the timeslots of an event.
-
-        Expects the event to be passed via the serializer context as 'event'.
-        """
-        blocks = list(instance)
-        event = self.context["event"]
+    def to_representation(self, instance: Event):
+        """Construct serialized representation of the timeslots of an event."""
+        event = instance
+        blocks = list(event.discretize_timeslots())
 
         def _check_event_not_covered(availabilities: list[Availability]) -> bool:
             """Test if event is not covered by availabilities."""
@@ -487,7 +481,7 @@ class ExportEventSerializer(serializers.ModelSerializer):
     rooms = ExportRoomSerializer(many=True)
     aks = ExportAKSlotSerializer(source="slots", many=True)
     participants = ExportParticipantAndDummiesSerializer(source="*")
-    timeslots = ExportTimeslotBlockSerializer(source="discretize_timeslots")
+    timeslots = ExportTimeslotBlockSerializer(source="*")
 
     class Meta:
         model = Event

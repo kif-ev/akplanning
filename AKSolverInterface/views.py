@@ -29,7 +29,7 @@ class AKJSONExportView(AdminViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            serialized_event = ExportEventSerializer(context["event"], context={"event": context["event"]})
+            serialized_event = ExportEventSerializer(context["event"])
             context["json_data_oneline"] = json.dumps(serialized_event.data, ensure_ascii=False)
             context["json_data"] = json.dumps(serialized_event.data, indent=2, ensure_ascii=False)
             context["is_valid"] = True

@@ -21,12 +21,6 @@ class ExportEventForSolverView(viewsets.GenericViewSet):
     # only allow exporting of active events
     queryset = Event.objects.filter(active=True)
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        # pass event to serializer
-        context["event"] = self.get_object()
-        return context
-
     # rename view name to avoid 'List' suffix
     def get_view_name(self):
         return "JSON-Export for scheduling solver"
