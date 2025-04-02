@@ -11,6 +11,14 @@
 
 <div class="mb-3">
   <label class="form-label">Exported JSON (indented for better readability):</label>
-  <pre class="border rounded p-1">{{ json_data }}</pre>
+  <pre class="prettyprint border rounded p-2">{{ json_data }}</pre>
 </div>
+
+<script>
+  $(document).ready(function() {
+    // JSON highlighting.
+    prettyPrint();
+    }
+  )
+</script>
 {% endblock %}
