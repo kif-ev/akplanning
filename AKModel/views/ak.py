@@ -66,6 +66,8 @@ class AKJSONExportView(AdminViewMixin, DetailView):
         return context
 
     def get(self, request, *args, **kwargs):
+        # as this code is adapted from BaseDetailView::get
+        # pylint: disable=attribute-defined-outside-init
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
 
