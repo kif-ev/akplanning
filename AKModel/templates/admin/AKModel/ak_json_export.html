@@ -4,17 +4,13 @@
 
 {% block content %}
 
-<p>
-Exported JSON:
-<pre>
-{{ json_data_oneline }}
-</pre>
-</p>
+<div class="mb-3">
+  <label for="export_single_line" class="form-label">Exported JSON:</label>
+  <input readonly type="text" name="export_single_line" class="form-control form-control-sm" value="{{ json_data_oneline }}"  style="font-family:var(--font-family-monospace);">
+</div>
 
-<p>
-Exported JSON (indented for better readability):
-<pre>
-{{ json_data }}
-</pre>
-</p>
+<div class="mb-3">
+  <label class="form-label">Exported JSON (indented for better readability):</label>
+  <pre class="border rounded p-1">{{ json_data }}</pre>
+</div>
 {% endblock %}
