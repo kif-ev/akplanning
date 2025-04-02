@@ -434,13 +434,14 @@ class Event(models.Model):
         """
         if isinstance(schedule, str):
             schedule = json.loads(schedule)
-        export_dict = self.as_json_dict()
 
         if "input" not in schedule or "scheduled_aks" not in schedule:
             raise ValueError(_("Cannot parse malformed JSON input."))
 
-        if check_for_data_inconsistency and schedule["input"] != export_dict:
-            raise ValueError(_("Data has changed since the export. Reexport and run the solver again."))
+        if check_for_data_inconsistency:
+            export_dict = self.as_json_dict()
+            if schedule["input"] != export_dict:
+                raise ValueError(_("Data has changed since the export. Reexport and run the solver again."))
 
         slots_in_an_hour = schedule["input"]["timeslots"]["info"]["duration"]
 
