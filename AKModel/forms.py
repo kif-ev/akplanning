@@ -309,6 +309,13 @@ class JSONScheduleImportForm(AdminIntermediateForm):
         )
 
     def _check_json_data(self, data: str):
+        """Validate `data` against our JSON schema.
+
+        :param data: The JSON string to validate using `self.json_schema_validator`.
+        :type data: str
+        :raises ValidationError: if the validation fails, with a description of the cause.
+        :return: The parsed JSON dict, if validation is successful.
+        """
         try:
             schedule = json.loads(data)
         except json.JSONDecodeError as ex:
@@ -328,6 +335,16 @@ class JSONScheduleImportForm(AdminIntermediateForm):
         return schedule
 
     def clean(self):
+        """Extract and validate entered JSON data.
+
+        We allow entering of the schedule from two sources:
+        1. from an uploaded file
+        2. from a text field.
+
+        This function checks that data is entered from exactly one source.
+        If so, the entered JSON string is validated against our schema.
+        Any errors are reported at the corresponding form field.
+        """
         cleaned_data = super().clean()
         if cleaned_data.get("json_file") and cleaned_data.get("json_data"):
             err = ValidationError(
