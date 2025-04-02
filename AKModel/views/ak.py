@@ -1,6 +1,7 @@
 import json
 
 from django.contrib import messages
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView
@@ -51,12 +52,29 @@ class AKJSONExportView(AdminViewMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        data = context["event"].as_json_dict()
-        context["json_data_oneline"] = json.dumps(data)
-        context["json_data"] = json.dumps(data, indent=2)
-
+        try:
+            data = context["event"].as_json_dict()
+            context["json_data_oneline"] = json.dumps(data)
+            context["json_data"] = json.dumps(data, indent=2)
+            context["is_valid"] = True
+        except ValueError as ex:
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                _("Exporting AKs for the solver failed! Reason: ") + str(ex),
+            )
         return context
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+
+        # if serialization failed in `get_context_data` we redirect to
+        #   the status page and show a message instead
+        if not context.get("is_valid", False):
+            return redirect("admin:event_status", context["event"].slug)
+        return self.render_to_response(context)
+
 
 class AKWikiExportView(AdminViewMixin, DetailView):
     """

@@ -104,7 +104,6 @@ def merge_blocks(
                 current_block[-1] = current_block[-1].merge(slot)
             else:
                 # partial overlap of interiors -> not supported
-                # TODO: Show comprehensive message in production
                 raise ValueError(
                     "Partially overlapping timeslots are not supported!"
                     f" ({current_block[-1].avail.simplified}, {slot.avail.simplified})"
