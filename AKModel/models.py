@@ -522,11 +522,11 @@ class Event(models.Model):
         # pylint: disable=import-outside-toplevel
         from AKModel.availability.models import Availability
 
-        def _test_event_not_covered(availabilities: list[Availability]) -> bool:
+        def _check_event_not_covered(availabilities: list[Availability]) -> bool:
             """Test if event is not covered by availabilities."""
             return not Availability.is_event_covered(self, availabilities)
 
-        def _test_akslot_fixed_in_timeslot(ak_slot: AKSlot, timeslot: Availability) -> bool:
+        def _check_akslot_fixed_in_timeslot(ak_slot: AKSlot, timeslot: Availability) -> bool:
             """Test if an AKSlot is fixed to overlap a timeslot slot."""
             if not ak_slot.fixed or ak_slot.start is None:
                 return False
@@ -534,10 +534,10 @@ class Event(models.Model):
             fixed_avail = Availability(event=self, start=ak_slot.start, end=ak_slot.end)
             return fixed_avail.overlaps(timeslot, strict=True)
 
-        def _test_add_constraint(slot: Availability, availabilities: list[Availability]) -> bool:
+        def _check_add_constraint(slot: Availability, availabilities: list[Availability]) -> bool:
             """Test if object is not available for whole event and may happen during slot."""
             return (
-                _test_event_not_covered(availabilities) and slot.is_covered(availabilities)
+                _check_event_not_covered(availabilities) and slot.is_covered(availabilities)
             )
 
         def _generate_time_constraints(
@@ -549,7 +549,7 @@ class Event(models.Model):
             return [
                 f"{prefix}-{avail_label}-{pk}"
                 for pk, availabilities in avail_dict.items()
-                if _test_add_constraint(timeslot_avail, availabilities)
+                if _check_add_constraint(timeslot_avail, availabilities)
             ]
 
         timeslots = {
@@ -623,7 +623,7 @@ class Event(models.Model):
                 time_constraints.extend([
                     f"fixed-akslot-{slot.id}"
                     for slot in AKSlot.objects.filter(event=self, fixed=True).exclude(start__isnull=True)
-                    if _test_akslot_fixed_in_timeslot(slot, timeslot.avail)
+                    if _check_akslot_fixed_in_timeslot(slot, timeslot.avail)
                 ])
 
                 time_constraints.extend(timeslot.constraints)
