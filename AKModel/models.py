@@ -589,10 +589,10 @@ class Event(models.Model):
             start_day = block_start.strftime("%A, %d. %b")
             if block_start.date() == block_end.date():
                 # same day
-                time_str = block_start.strftime("%H:%M") + " – " + block_end.strftime("%H:%M")
+                time_str = block_start.strftime("%H:%M") + " - " + block_end.strftime("%H:%M")
             else:
                 # different days
-                time_str = block_start.strftime("%a %H:%M") + " – " + block_end.strftime("%a %H:%M")
+                time_str = block_start.strftime("%a %H:%M") + " - " + block_end.strftime("%a %H:%M")
             block_names.append([start_day, time_str])
 
             block_timeconstraints = [f"notblock{idx}" for idx in range(len(blocks)) if idx != block_idx]

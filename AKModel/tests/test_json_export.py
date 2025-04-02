@@ -542,8 +542,8 @@ class JSONExportTest(TestCase):
                         # check that all category availabilities are covered
                         self.assertTrue(
                             avail.is_covered(export_cat_avails[cat_name]),
-                            f"AKCategory {cat_name}: avail ({avail.start} – {avail.end}) "
-                            f"not covered by {[f'({a.start} – {a.end})' for a in export_cat_avails[cat_name]]}",
+                            f"AKCategory {cat_name}: avail ({avail.start} - {avail.end}) "
+                            f"not covered by {[f'({a.start} - {a.end})' for a in export_cat_avails[cat_name]]}",
                         )
 
     def _is_restricted_and_contained_slot(
@@ -678,14 +678,14 @@ class JSONExportTest(TestCase):
                         # same day
                         time_str = (
                             block_start.strftime("%H:%M")
-                            + " – "
+                            + " - "
                             + block_end.strftime("%H:%M")
                         )
                     else:
                         # different days
                         time_str = (
                             block_start.strftime("%a %H:%M")
-                            + " – "
+                            + " - "
                             + block_end.strftime("%a %H:%M")
                         )
                     block_names.append([start_day, time_str])
