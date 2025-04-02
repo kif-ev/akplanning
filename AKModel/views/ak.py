@@ -54,8 +54,8 @@ class AKJSONExportView(AdminViewMixin, DetailView):
         context = super().get_context_data(**kwargs)
         try:
             data = context["event"].as_json_dict()
-            context["json_data_oneline"] = json.dumps(data)
-            context["json_data"] = json.dumps(data, indent=2)
+            context["json_data_oneline"] = json.dumps(data, ensure_ascii=False)
+            context["json_data"] = json.dumps(data, indent=2, ensure_ascii=False)
             context["is_valid"] = True
         except ValueError as ex:
             messages.add_message(
