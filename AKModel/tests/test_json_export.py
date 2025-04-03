@@ -328,7 +328,7 @@ class JSONExportTest(TestCase):
 
                     # add time constraints for AK category
                     if slot.ak.category:
-                        category_constraints = AKCategory.create_category_constraints(
+                        category_constraints = AKCategory.create_category_optimizer_constraints(
                             [slot.ak.category]
                         )
                         time_constraints |= category_constraints
@@ -597,7 +597,7 @@ class JSONExportTest(TestCase):
 
                         # add category constraints
                         fulfilled_time_constraints |= (
-                            AKCategory.create_category_constraints(
+                            AKCategory.create_category_optimizer_constraints(
                                 [
                                     cat
                                     for cat in AKCategory.objects.filter(

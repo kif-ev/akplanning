@@ -364,7 +364,7 @@ class Event(models.Model):
         :yield: Block of optimizer timeslots as the discretization result.
         :ytype: list of OptimizerTimeslot
         """
-        all_category_constraints = AKCategory.create_category_constraints(
+        all_category_constraints = AKCategory.create_category_optimizer_constraints(
             AKCategory.objects.filter(event=self).all()
         )
 
@@ -389,7 +389,7 @@ class Event(models.Model):
         slot_index = 0
 
         for block_slot in DefaultSlot.objects.filter(event=self).order_by("start", "end"):
-            category_constraints = AKCategory.create_category_constraints(
+            category_constraints = AKCategory.create_category_optimizer_constraints(
                 block_slot.primary_categories.all()
             )
 
@@ -760,7 +760,7 @@ class AKCategory(models.Model):
         return self.name
 
     @staticmethod
-    def create_category_constraints(categories: Iterable["AKCategory"]) -> set[str]:
+    def create_category_optimizer_constraints(categories: Iterable["AKCategory"]) -> set[str]:
         """Create a set of constraint strings from an AKCategory iterable.
 
         :param categories: The iterable of categories to derive the constraint strings from.
@@ -1265,7 +1265,7 @@ class AKSlot(models.Model):
             data["time_constraints"].extend(_owner_time_constraints(owner))
 
         if self.ak.category:
-            category_constraints = AKCategory.create_category_constraints([self.ak.category])
+            category_constraints = AKCategory.create_category_optimizer_constraints([self.ak.category])
             data["time_constraints"].extend(category_constraints)
 
         if self.fixed and self.room is not None:
