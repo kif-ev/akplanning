@@ -1281,6 +1281,10 @@ msgstr "AK-CSV-Export"
 msgid "AK JSON Export"
 msgstr "AK-JSON-Export"
 
+#: AKModel/views/ak.py:64
+msgid "Exporting AKs for the solver failed! Reason: "
+msgstr "Daten für den Solver exportieren fehlgeschlagen! Grund: "
+
 #: AKModel/views/ak.py:133
 msgid "AK Wiki Export"
 msgstr "AK-Wiki-Export"
