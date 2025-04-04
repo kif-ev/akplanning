@@ -33,6 +33,18 @@ msgstr "Plan veröffentlichen"
 msgid "Unpublish plan"
 msgstr "Plan verbergen"
 
+#: AKModel/admin.py:122
+msgid "Toggle poll visibility"
+msgstr "Sichtbarkeit der Abfrage ändern"
+
+#: AKModel/admin.py:134 AKModel/admin.py:162 AKModel/views/manage.py:166
+msgid "Publish preference poll"
+msgstr "Präferenzen-Abfrage veröffentlichen"
+
+#: AKModel/admin.py:137 AKModel/admin.py:170 AKModel/views/manage.py:179
+msgid "Unpublish preference poll"
+msgstr "Präferenzen-Abfrage verbergen"
+
 #: AKModel/admin.py:170 AKModel/models.py:396 AKModel/models.py:736
 #: AKModel/templates/admin/AKModel/aks_by_user.html:12
 #: AKModel/templates/admin/AKModel/status/event_aks.html:10
@@ -421,6 +433,22 @@ msgstr "Plan veröffentlicht am/um"
 #: AKModel/models.py:59
 msgid "Timestamp at which the plan was published"
 msgstr "Zeitpunkt, zu dem der Plan veröffentlicht wurde"
+
+#: AKModel/models.py:160
+msgid "Poll Hidden"
+msgstr "Präferenzen-Abfrage verborgen"
+
+#: AKModel/models.py:161
+msgid "Hides preference poll for non-staff users"
+msgstr "Verbirgt die Präferenzen-Abfrage für Nutzer*innen ohne erweiterte Rechte"
+
+#: AKModel/models.py:163
+msgid "Poll published at"
+msgstr "Präferenzen-Abfrage veröffentlicht am/um"
+
+#: AKModel/models.py:164
+msgid "Timestamp at which the preference poll was published"
+msgstr "Zeitpunkt, zu dem die Präferenzen-Abfrage veröffentlicht wurde"
 
 #: AKModel/models.py:61
 msgid "Base URL"
@@ -1420,6 +1448,18 @@ msgstr "Den Plan/die Pläne verbergen von:"
 #: AKModel/views/manage.py:154
 msgid "Plan unpublished"
 msgstr "Plan verborgen"
+
+#: AKModel/views/manage.py:169
+msgid "Preference poll published"
+msgstr "Präferenzen-Abfrage veröffentlicht"
+
+#: AKModel/views/manage.py:181
+msgid "Unpublish the preference poll(s) of:"
+msgstr "Die Präferenzen-Abfrage(n) verbergen von:"
+
+#: AKModel/views/manage.py:182
+msgid "Preference poll unpublished"
+msgstr "Präferenzen-Abfrage verborgen"
 
 #: AKModel/views/manage.py:166 AKModel/views/status.py:134
 msgid "Edit Default Slots"
