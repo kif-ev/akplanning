@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
@@ -42,6 +42,13 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
             },
             extra=0,
         )
+
+    def get(self, request, *args, **kwargs):
+        s = super().get(request, *args, **kwargs)
+        # Don't show preference form when event is not active or poll is hidden -> redirect to dashboard
+        if not self.event.active or (self.event.poll_hidden and not request.user.is_staff):
+            return redirect(self.get_success_url())
+        return s
 
     def get_success_url(self):
         return reverse_lazy(
@@ -99,4 +106,4 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
         success_message = self.get_success_message(participant_form.cleaned_data)
         if success_message:
             messages.success(self.request, success_message)
-        return HttpResponseRedirect(self.get_success_url())
+        return redirect(self.get_success_url())

@@ -4,8 +4,8 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 import AKModel.views.api
-from AKModel.views.manage import ExportSlidesView, PlanPublishView, PlanUnpublishView, DefaultSlotEditorView, \
-    AKsByUserView
+from AKModel.views.manage import ExportSlidesView, PlanPublishView, PlanUnpublishView, \
+     PollPublishView, PollUnpublishView, DefaultSlotEditorView, AKsByUserView
 from AKModel.views.ak import AKRequirementOverview, AKCSVExportView, AKWikiExportView, \
      AKMessageDeleteView
 from AKModel.views.event_wizard import NewEventWizardStartView, NewEventWizardPrepareImportView, \
@@ -109,6 +109,8 @@ def get_admin_urls_event(admin_site):
         path('<slug:event_slug>/ak-slide-export/', admin_site.admin_view(ExportSlidesView.as_view()), name="ak_slide_export"),
         path('plan/publish/', admin_site.admin_view(PlanPublishView.as_view()), name="plan-publish"),
         path('plan/unpublish/', admin_site.admin_view(PlanUnpublishView.as_view()), name="plan-unpublish"),
+        path('poll/publish/', admin_site.admin_view(PollPublishView.as_view()), name="poll-publish"),
+        path('poll/unpublish/', admin_site.admin_view(PollUnpublishView.as_view()), name="poll-unpublish"),
         path('<slug:event_slug>/defaultSlots/', admin_site.admin_view(DefaultSlotEditorView.as_view()),
              name="default-slots-editor"),
         path('<slug:event_slug>/importRooms/', admin_site.admin_view(RoomBatchCreationView.as_view()),

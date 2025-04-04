@@ -51,12 +51,16 @@ class EventAdmin(admin.ModelAdmin):
     wizard.
     """
     model = Event
-    list_display = ['name', 'status_url', 'place', 'start', 'end', 'active', 'plan_hidden']
+    list_display = ['name', 'status_url', 'place', 'start', 'end', 'active', 'plan_hidden', 'poll_hidden']
     list_filter = ['active']
     list_editable = ['active']
     ordering = ['-start']
-    readonly_fields = ['status_url', 'plan_hidden', 'plan_published_at', 'toggle_plan_visibility']
-    actions = ['publish', 'unpublish']
+    readonly_fields = [
+        'status_url',
+        'plan_hidden', 'plan_published_at', 'toggle_plan_visibility',
+        'poll_hidden', 'poll_published_at', 'toggle_poll_visibility',
+    ]
+    actions = ['publish_plan', 'unpublish_plan', 'publish_poll', 'unpublish_poll']
 
     def add_view(self, request, form_url='', extra_context=None):
         # Override
@@ -119,13 +123,31 @@ class EventAdmin(admin.ModelAdmin):
             text = _('Unpublish plan')
         return format_html("<a href='{url}'>{text}</a>", url=url, text=text)
 
+    @display(description=_("Toggle poll visibility"))
+    def toggle_poll_visibility(self, obj):
+        """
+        Define a read-only field to toggle the visibility of the preference poll of this event
+        This will choose from two different link targets/views depending on the current visibility status
+
+        :param obj: event to change the visibility of the plan for
+        :return: toggling link (HTML)
+        :rtype: str
+        """
+        if obj.poll_hidden:
+            url = f"{reverse_lazy('admin:poll-publish')}?pks={obj.pk}"
+            text = _('Publish preference poll')
+        else:
+            url = f"{reverse_lazy('admin:poll-unpublish')}?pks={obj.pk}"
+            text = _('Unpublish preference poll')
+        return format_html("<a href='{url}'>{text}</a>", url=url, text=text)
+
     def get_form(self, request, obj=None, change=False, **kwargs):
         # Override (update) form rendering to make sure the timezone of the event is used
         timezone.activate(obj.timezone)
         return super().get_form(request, obj, change, **kwargs)
 
     @action(description=_('Publish plan'))
-    def publish(self, request, queryset):
+    def publish_plan(self, request, queryset):
         """
         Admin action to publish the plan
         """
@@ -133,13 +155,30 @@ class EventAdmin(admin.ModelAdmin):
         return HttpResponseRedirect(f"{reverse_lazy('admin:plan-publish')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_('Unpublish plan'))
-    def unpublish(self, request, queryset):
+    def unpublish_plan(self, request, queryset):
         """
         Admin action to hide the plan
         """
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
             f"{reverse_lazy('admin:plan-unpublish')}?pks={','.join(str(pk) for pk in selected)}")
+
+    @action(description=_('Publish preference poll'))
+    def publish_poll(self, request, queryset):
+        """
+        Admin action to publish the preference poll
+        """
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(f"{reverse_lazy('admin:poll-publish')}?pks={','.join(str(pk) for pk in selected)}")
+
+    @action(description=_('Unpublish preference poll'))
+    def unpublish_poll(self, request, queryset):
+        """
+        Admin action to hide the preference poll
+        """
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(
+            f"{reverse_lazy('admin:poll-unpublish')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 class PrepopulateWithNextActiveEventMixin:

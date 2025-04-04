@@ -157,6 +157,12 @@ class Event(models.Model):
     plan_published_at = models.DateTimeField(verbose_name=_('Plan published at'), blank=True, null=True,
                                              help_text=_('Timestamp at which the plan was published'))
 
+    poll_hidden = models.BooleanField(verbose_name=_('Poll Hidden'),
+                                      help_text=_('Hides preference poll for non-staff users'),
+                                      default=True)
+    poll_published_at = models.DateTimeField(verbose_name=_('Poll published at'), blank=True, null=True,
+                                             help_text=_('Timestamp at which the preference poll was published'))
+
     base_url = models.URLField(verbose_name=_("Base URL"), help_text=_("Prefix for wiki link construction"), blank=True)
     wiki_export_template_name = models.CharField(verbose_name=_("Wiki Export Template Name"), blank=True, max_length=50)
     default_slot = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Default Slot Length'),

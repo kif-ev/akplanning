@@ -29,6 +29,7 @@ class DashboardTests(TestCase):
                 end=now(),
                 active=True,
                 plan_hidden=False,
+                poll_hidden=False,
         )
         cls.default_category = AKCategory.objects.create(
                 name="Test Category",
@@ -145,6 +146,26 @@ class DashboardTests(TestCase):
             response = self.client.get(url_event_dashboard)
             self.assertContains(response, "Current AKs")
             self.assertContains(response, "AK Wall")
+
+    def test_poll_hidden(self):
+        """
+        Test visibility of poll buttons with regard to poll visibility status for a given event
+        """
+        url_event_dashboard = reverse('dashboard:dashboard_event', kwargs={"slug": self.event.slug})
+
+        if apps.is_installed('AKPreferencePoll'):
+            # Poll hidden? No buttons should show up
+            self.event.poll_hidden = True
+            self.event.save()
+            response = self.client.get(url_event_dashboard)
+            self.assertNotContains(response, "AK Preferences")
+
+            # Poll not hidden?
+            # Buttons to preference poll should be on the page
+            self.event.poll_hidden = False
+            self.event.save()
+            response = self.client.get(url_event_dashboard)
+            self.assertContains(response, "AK Preferences")
 
     def test_dashboard_buttons(self):
         """
