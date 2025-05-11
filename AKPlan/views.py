@@ -22,7 +22,10 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
 
     def get_queryset(self):
         # Ignore slots not scheduled yet
-        return super().get_queryset().filter(start__isnull=False).select_related('ak', 'room', 'ak__category')
+        return (super().get_queryset().filter(start__isnull=False).
+                select_related('event', 'ak', 'room', 'ak__category', 'ak__event'))
+                # Need to prefetch both event and ak__event
+                # since django is not aware that the two are always the same
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
@@ -38,6 +41,7 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
 
         # Get list of current and next slots
         for akslot in context["akslots"]:
+            self._process_slot(akslot)
             # Construct a list of all rooms used by these slots on the fly
             if akslot.room is not None:
                 rooms.add(akslot.room)
@@ -61,6 +65,16 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
         context["tracks"] = self.event.aktrack_set.all()
 
         return context
+
+    def _process_slot(self, akslot):
+        """
+        Function to be called for each slot when looping over the slots
+        (meant to be overridden in inherited views)
+
+        :param akslot: current slot
+        :type akslot: AKSlot
+        """
+        pass
 
 
 class PlanScreenView(PlanIndexView):
@@ -95,32 +109,31 @@ class PlanScreenView(PlanIndexView):
 
         # Restrict AK slots to relevant ones
         # This will automatically filter all rooms not needed for the selected range in the orginal get_context method
-        akslots = super().get_queryset().filter(start__gt=self.start)
+        return super().get_queryset().filter(start__gt=self.start)
 
+    def get_context_data(self, *, object_list=None, **kwargs):
         # Find the earliest hour AKs start and end (handle 00:00 as 24:00)
         self.earliest_start_hour = 23
         self.latest_end_hour = 1
-        for akslot in akslots.all():
-            start_hour = akslot.start.astimezone(self.event.timezone).hour
-            if start_hour < self.earliest_start_hour:
-                # Use hour - 1 to improve visibility of date change
-                self.earliest_start_hour = max(start_hour - 1, 0)
-            end_hour = akslot.end.astimezone(self.event.timezone).hour
-            # Special case: AK starts before but ends after midnight -- show until midnight
-            if end_hour < start_hour:
-                self.latest_end_hour = 24
-            elif end_hour > self.latest_end_hour:
-                # Always use hour + 1, since AK may end at :xy and not always at :00
-                self.latest_end_hour = min(end_hour + 1, 24)
-        return akslots
-
-    def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context["start"] = self.start
         context["end"] = self.event.end
         context["earliest_start_hour"] = self.earliest_start_hour
         context["latest_end_hour"] = self.latest_end_hour
         return context
+
+    def _process_slot(self, akslot):
+        start_hour = akslot.start.astimezone(self.event.timezone).hour
+        if start_hour < self.earliest_start_hour:
+            # Use hour - 1 to improve visibility of date change
+            self.earliest_start_hour = max(start_hour - 1, 0)
+        end_hour = akslot.end.astimezone(self.event.timezone).hour
+        # Special case: AK starts before but ends after midnight -- show until midnight
+        if end_hour < start_hour:
+            self.latest_end_hour = 24
+        elif end_hour > self.latest_end_hour:
+            # Always use hour + 1, since AK may end at :xy and not always at :00
+            self.latest_end_hour = min(end_hour + 1, 24)
 
 
 class PlanRoomView(FilterByEventSlugMixin, DetailView):
