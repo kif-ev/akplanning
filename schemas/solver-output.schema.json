@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/solver-output.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["input", "scheduled_aks"],
+  "properties": {
+    "input": {"$ref": "solver-input.schema.json"},
+    "scheduled_aks": {
+      "type": "array",
+      "items": {
+        "description": "An object representing the scheduling information for one AK",
+        "type": "object",
+        "properties": {
+          "ak_id": {
+            "description": "The unique identifier of the scheduled AK",
+            "type": "integer",
+            "minimum": 0
+          },
+          "room_id": {
+            "description": "The unique identifier of the room the AK takes place in",
+            "type": "integer",
+            "minimum": 0
+          },
+          "timeslot_ids": {
+            "description": "The unique identifiers of all timeslots the AK takes place in",
+            "type": "array",
+            "items": {
+              "description": "The unique identifier of the referenced timeslot",
+              "type": "integer",
+              "minimum": 0
+            },
+            "uniqueItems": true
+          },
+          "participant_ids": {
+            "description": "The unique identifiers of all participants assigned to the AK",
+            "type": "array",
+            "items": {
+              "description": "The unique identifier of the referenced participant",
+              "type": "integer",
+              "minimum": 0
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": ["ak_id", "room_id", "timeslot_ids", "participant_ids"],
+        "additionalProperties": false
+      },
+      "uniqueItems": true
+    }
+  }
+}

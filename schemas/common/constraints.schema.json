@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/common/constraints.schema.json",
+  "type": "array",
+  "items": {"type": "string"},
+  "uniqueItems": true
+}

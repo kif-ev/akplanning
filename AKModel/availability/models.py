@@ -151,9 +151,12 @@ class Availability(models.Model):
         if not other.overlaps(self, strict=False):
             raise Exception('Only overlapping Availabilities can be merged.')
 
-        return Availability(
+        avail = Availability(
             start=min(self.start, other.start), end=max(self.end, other.end)
         )
+        if self.event == other.event:
+            avail.event = self.event
+        return avail
 
     def __or__(self, other: 'Availability') -> 'Availability':
         """Performs the merge operation: ``availability1 | availability2``"""
@@ -168,9 +171,12 @@ class Availability(models.Model):
         if not other.overlaps(self, False):
             raise Exception('Only overlapping Availabilities can be intersected.')
 
-        return Availability(
+        avail = Availability(
             start=max(self.start, other.start), end=min(self.end, other.end)
         )
+        if self.event == other.event:
+            avail.event = self.event
+        return avail
 
     def __and__(self, other: 'Availability') -> 'Availability':
         """Performs the intersect operation: ``availability1 &
@@ -247,7 +253,14 @@ class Availability(models.Model):
                 f'{self.end.astimezone(self.event.timezone).strftime("%a %H:%M")}')
 
     @classmethod
-    def with_event_length(cls, event, person=None, room=None, ak=None, ak_category=None):
+    def with_event_length(
+        cls,
+        event: Event,
+        person: AKOwner | None = None,
+        room: Room | None = None,
+        ak: AK | None = None,
+        ak_category: AKCategory | None = None,
+    ) -> "Availability":
         """
         Create an availability covering exactly the time between event start and event end.
         Can e.g., be used to create default availabilities.
@@ -266,6 +279,30 @@ class Availability(models.Model):
         timeframe_end = timeframe_end + datetime.timedelta(days=1)
         return Availability(start=timeframe_start, end=timeframe_end, event=event, person=person,
                                     room=room, ak=ak, ak_category=ak_category)
+
+    def is_covered(self, availabilities: List['Availability']):
+        """Check if list of availibilities cover this object.
+
+        :param availabilities: availabilities to check.
+        :return: whether the availabilities cover full event.
+        :rtype: bool
+        """
+        avail_union = Availability.union(availabilities)
+        return any(avail.contains(self) for avail in avail_union)
+
+    @classmethod
+    def is_event_covered(cls, event: Event, availabilities: List['Availability']) -> bool:
+        """Check if list of availibilities cover whole event.
+
+        :param event: event to check.
+        :param availabilities: availabilities to check.
+        :return: whether the availabilities cover full event.
+        :rtype: bool
+        """
+        # NOTE: Cannot use `Availability.with_event_length` as its end is the
+        #       event end + 1 day
+        full_event = Availability(event=event, start=event.start, end=event.end)
+        return full_event.is_covered(availabilities)
 
     class Meta:
         verbose_name = _('Availability')

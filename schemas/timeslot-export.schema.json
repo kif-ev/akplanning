@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/timeslot-export.schema.json",
+  "properties": {
+    "info": {
+      "$ref": "timeslot.schema.json#/properties/info",
+      "unevaluatedProperties": false
+    },
+    "blocks": {
+      "items": {
+        "items": {
+          "info": {
+            "$ref": "timeslot.schema.json#/properties/blocks/items/items/info",
+            "unevaluatedProperties": false
+          }
+        }
+      }
+    }
+  }
+}

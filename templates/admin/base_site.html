@@ -16,6 +16,7 @@
         {% if not debug %}
             <link rel="stylesheet" type="text/css" href="{% static "common/css/admin-color.css" %}"/>
         {% endif %}
+        <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
         <style>
         a.btn {
             color: #FFFFFF;
@@ -47,5 +48,6 @@
         {% bootstrap_javascript %}
         <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
         {% fontawesome_6_js %}
+        <script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
     {% endcompress %}
 {% endblock %}

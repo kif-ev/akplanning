@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/ak.schema.json",
+  "title": "AK",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "common/id.schema.json",
+      "description": "The unique identifier of an AK"
+    },
+    "duration": {
+      "description": "The number of consecutive slot units",
+      "type": "integer",
+      "exclusiveMinimum": 0
+    },
+    "room_constraints": {
+      "$ref": "common/constraints.schema.json",
+      "description": "Room constraints required by this AK"
+    },
+    "time_constraints": {
+      "$ref": "common/constraints.schema.json",
+      "description": "Time constraints required by this AK"
+    },
+    "properties": {
+      "type": "object",
+      "properties": {
+        "conflicts": {
+          "$ref": "common/id_array.schema.json",
+          "description": "IDs of all AKs that are in conflict with this AK"
+        },
+        "dependencies": {
+          "$ref": "common/id_array.schema.json",
+          "description": "IDs of all AKs that should be scheduled before this AK"
+        }
+      },
+      "required": ["conflicts", "dependencies"],
+      "additionalProperties": false
+    },
+    "info": {
+      "type": "object",
+      "properties": {
+        "name": {"description": "Name of the AK", "type": "string"},
+        "head": {"description": "Name of the head of the AK", "type": "string"},
+        "description": {"description": "Short description of the AK", "type": "string"},
+        "reso": {"description": "Whether this AK intends to introduce a resolution", "type": "boolean"},
+        "duration_in_hours": {"description": "AK duration in hours", "type": "number"},
+        "django_ak_id": {
+          "$ref": "common/id.schema.json",
+          "description": "Unique identifier of the AK object in the django database"
+        },
+        "types": {
+          "$ref": "common/constraints.schema.json",
+          "description": "Types of this AK"
+        }
+      },
+      "required": ["name", "head", "description", "reso", "duration_in_hours", "django_ak_id", "types"]
+    }
+  },
+  "required": ["id", "duration", "room_constraints", "time_constraints", "properties", "info"],
+  "additionalProperties": false
+}

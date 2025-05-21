@@ -17,6 +17,7 @@ djangorestframework==3.15.2
 fontawesomefree==6.6.0  # Makes static files (css, fonts) available locally
 mysqlclient==2.2.7  # for production deployment
 tzdata==2025.1
+jsonschema==4.23.0
 
 # Documentation
 Sphinx==8.2.3
@@ -25,3 +26,7 @@ sphinxcontrib-apidoc==0.5.0
 sphinxcontrib-django==2.5.0
 recommonmark==0.7.1
 django-docs==0.3.3
+
+# Testing
+unittest-xml-reporting==3.2.0
+beautifulsoup4==4.13.3

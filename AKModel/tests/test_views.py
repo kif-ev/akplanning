@@ -7,8 +7,19 @@ from django.contrib.messages.storage.base import Message
 from django.test import TestCase
 from django.urls import reverse_lazy, reverse
 
-from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKRequirement, AK, Room, AKSlot, AKOrgaMessage, \
-    ConstraintViolation, DefaultSlot
+from AKModel.models import (
+    Event,
+    AKOwner,
+    AKCategory,
+    AKTrack,
+    AKRequirement,
+    AK,
+    Room,
+    AKSlot,
+    AKOrgaMessage,
+    ConstraintViolation,
+    DefaultSlot,
+)
 
 
 class BasicViewTests:
@@ -29,9 +40,10 @@ class BasicViewTests:
     since the test framework does not understand the concept of abstract test definitions and would handle this class
     as real test case otherwise, distorting the test results.
     """
+
     # pylint: disable=no-member
     VIEWS = []
-    APP_NAME = ''
+    APP_NAME = ""
     VIEWS_STAFF_ONLY = []
     EDIT_TESTCASES = []
 
@@ -41,16 +53,26 @@ class BasicViewTests:
         """
         user_model = get_user_model()
         self.staff_user = user_model.objects.create(
-            username='Test Staff User', email='teststaff@example.com', password='staffpw',
-            is_staff=True, is_active=True
+            username="Test Staff User",
+            email="teststaff@example.com",
+            password="staffpw",
+            is_staff=True,
+            is_active=True,
         )
         self.admin_user = user_model.objects.create(
-            username='Test Admin User', email='testadmin@example.com', password='adminpw',
-            is_staff=True, is_superuser=True, is_active=True
+            username="Test Admin User",
+            email="testadmin@example.com",
+            password="adminpw",
+            is_staff=True,
+            is_superuser=True,
+            is_active=True,
         )
         self.deactivated_user = user_model.objects.create(
-            username='Test Deactivated User', email='testdeactivated@example.com', password='deactivatedpw',
-            is_staff=True, is_active=False
+            username="Test Deactivated User",
+            email="testdeactivated@example.com",
+            password="deactivatedpw",
+            is_staff=True,
+            is_active=False,
         )
 
     def _name_and_url(self, view_name):
@@ -62,7 +84,9 @@ class BasicViewTests:
         :return: full view name with prefix if applicable, url of the view
         :rtype: str, str
         """
-        view_name_with_prefix = f"{self.APP_NAME}:{view_name[0]}" if self.APP_NAME != "" else view_name[0]
+        view_name_with_prefix = (
+            f"{self.APP_NAME}:{view_name[0]}" if self.APP_NAME != "" else view_name[0]
+        )
         url = reverse(view_name_with_prefix, kwargs=view_name[1])
         return view_name_with_prefix, url
 
@@ -74,7 +98,7 @@ class BasicViewTests:
         :param expected_message: message that should be shown
         :param msg_prefix: prefix for the error message when test fails
         """
-        messages:List[Message] = list(get_messages(response.wsgi_request))
+        messages: List[Message] = list(get_messages(response.wsgi_request))
 
         msg_count = "No message shown to user"
         msg_content = "Wrong message, expected '{expected_message}'"
@@ -95,10 +119,16 @@ class BasicViewTests:
             view_name_with_prefix, url = self._name_and_url(view_name)
             try:
                 response = self.client.get(url)
-                self.assertEqual(response.status_code, 200, msg=f"{view_name_with_prefix} ({url}) broken")
-            except Exception: # pylint: disable=broad-exception-caught
-                self.fail(f"An error occurred during rendering of {view_name_with_prefix} ({url}):"
-                          f"\n\n{traceback.format_exc()}")
+                self.assertEqual(
+                    response.status_code,
+                    200,
+                    msg=f"{view_name_with_prefix} ({url}) broken",
+                )
+            except Exception:  # pylint: disable=broad-exception-caught
+                self.fail(
+                    f"An error occurred during rendering of {view_name_with_prefix} ({url}):"
+                    f"\n\n{traceback.format_exc()}"
+                )
 
     def test_access_control_staff_only(self):
         """
@@ -107,11 +137,16 @@ class BasicViewTests:
         # Not logged in? Views should not be visible
         self.client.logout()
         for view_name_info in self.VIEWS_STAFF_ONLY:
-            expected_response_code = 302 if len(view_name_info) == 2 else view_name_info[2]
+            expected_response_code = (
+                302 if len(view_name_info) == 2 else view_name_info[2]
+            )
             view_name_with_prefix, url = self._name_and_url(view_name_info)
             response = self.client.get(url)
-            self.assertEqual(response.status_code, expected_response_code,
-                             msg=f"{view_name_with_prefix} ({url}) accessible by non-staff")
+            self.assertEqual(
+                response.status_code,
+                expected_response_code,
+                msg=f"{view_name_with_prefix} ({url}) accessible by non-staff",
+            )
 
         # Logged in? Views should be visible
         self.client.force_login(self.staff_user)
@@ -119,20 +154,30 @@ class BasicViewTests:
             view_name_with_prefix, url = self._name_and_url(view_name_info)
             try:
                 response = self.client.get(url)
-                self.assertEqual(response.status_code, 200,
-                                 msg=f"{view_name_with_prefix} ({url}) should be accessible for staff (but isn't)")
+                self.assertEqual(
+                    response.status_code,
+                    200,
+                    msg=f"{view_name_with_prefix} ({url}) should be accessible for staff (but isn't)",
+                )
             except Exception:  # pylint: disable=broad-exception-caught
-                self.fail(f"An error occurred during rendering of {view_name_with_prefix} ({url}):"
-                          f"\n\n{traceback.format_exc()}")
+                self.fail(
+                    f"An error occurred during rendering of {view_name_with_prefix} ({url}):"
+                    f"\n\n{traceback.format_exc()}"
+                )
 
         # Disabled user? Views should not be visible
         self.client.force_login(self.deactivated_user)
         for view_name_info in self.VIEWS_STAFF_ONLY:
-            expected_response_code = 302 if len(view_name_info) == 2 else view_name_info[2]
+            expected_response_code = (
+                302 if len(view_name_info) == 2 else view_name_info[2]
+            )
             view_name_with_prefix, url = self._name_and_url(view_name_info)
             response = self.client.get(url)
-            self.assertEqual(response.status_code, expected_response_code,
-                             msg=f"{view_name_with_prefix} ({url}) still accessible for deactivated user")
+            self.assertEqual(
+                response.status_code,
+                expected_response_code,
+                msg=f"{view_name_with_prefix} ({url}) still accessible for deactivated user",
+            )
 
     def _to_sendable_value(self, val):
         """
@@ -182,16 +227,26 @@ class BasicViewTests:
             self.client.logout()
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200, msg=f"{name}: Could not load edit form via GET ({url})")
+        self.assertEqual(
+            response.status_code,
+            200,
+            msg=f"{name}: Could not load edit form via GET ({url})",
+        )
 
         form = response.context[form_name]
-        data = {k:self._to_sendable_value(v) for k,v in form.initial.items()}
+        data = {k: self._to_sendable_value(v) for k, v in form.initial.items()}
 
         response = self.client.post(url, data=data)
         if expected_code == 200:
-            self.assertEqual(response.status_code, 200, msg=f"{name}: Did not return 200 ({url}")
+            self.assertEqual(
+                response.status_code, 200, msg=f"{name}: Did not return 200 ({url}"
+            )
         elif expected_code == 302:
-            self.assertRedirects(response, target_url, msg_prefix=f"{name}: Did not redirect ({url} -> {target_url}")
+            self.assertRedirects(
+                response,
+                target_url,
+                msg_prefix=f"{name}: Did not redirect ({url} -> {target_url}",
+            )
         if expected_message != "":
             self._assert_message(response, expected_message, msg_prefix=f"{name}")
 
@@ -200,30 +255,44 @@ class ModelViewTests(BasicViewTests, TestCase):
     """
     Basic view test cases for views from AKModel plus some custom tests
     """
-    fixtures = ['model.json']
+
+    fixtures = ["model.json"]
 
     ADMIN_MODELS = [
-        (Event, 'event'), (AKOwner, 'akowner'), (AKCategory, 'akcategory'), (AKTrack, 'aktrack'),
-        (AKRequirement, 'akrequirement'), (AK, 'ak'), (Room, 'room'), (AKSlot, 'akslot'),
-        (AKOrgaMessage, 'akorgamessage'), (ConstraintViolation, 'constraintviolation'),
-        (DefaultSlot, 'defaultslot')
+        (Event, "event"),
+        (AKOwner, "akowner"),
+        (AKCategory, "akcategory"),
+        (AKTrack, "aktrack"),
+        (AKRequirement, "akrequirement"),
+        (AK, "ak"),
+        (Room, "room"),
+        (AKSlot, "akslot"),
+        (AKOrgaMessage, "akorgamessage"),
+        (ConstraintViolation, "constraintviolation"),
+        (DefaultSlot, "defaultslot"),
     ]
 
     VIEWS_STAFF_ONLY = [
-        ('admin:index', {}),
-        ('admin:event_status', {'event_slug': 'kif42'}),
-        ('admin:event_requirement_overview', {'event_slug': 'kif42'}),
-        ('admin:ak_csv_export', {'event_slug': 'kif42'}),
-        ('admin:ak_wiki_export', {'slug': 'kif42'}),
-        ('admin:ak_delete_orga_messages', {'event_slug': 'kif42'}),
-        ('admin:ak_slide_export', {'event_slug': 'kif42'}),
-        ('admin:default-slots-editor', {'event_slug': 'kif42'}),
-        ('admin:room-import', {'event_slug': 'kif42'}),
-        ('admin:new_event_wizard_start', {}),
+        ("admin:index", {}),
+        ("admin:event_status", {"event_slug": "kif42"}),
+        ("admin:event_requirement_overview", {"event_slug": "kif42"}),
+        ("admin:ak_csv_export", {"event_slug": "kif42"}),
+        ("admin:ak_json_export", {"event_slug": "kif42"}),
+        ("admin:ak_wiki_export", {"slug": "kif42"}),
+        ("admin:ak_schedule_json_import", {"event_slug": "kif42"}),
+        ("admin:ak_delete_orga_messages", {"event_slug": "kif42"}),
+        ("admin:ak_slide_export", {"event_slug": "kif42"}),
+        ("admin:default-slots-editor", {"event_slug": "kif42"}),
+        ("admin:room-import", {"event_slug": "kif42"}),
+        ("admin:new_event_wizard_start", {}),
     ]
 
     EDIT_TESTCASES = [
-        {'view': 'admin:default-slots-editor', 'kwargs': {'event_slug': 'kif42'}, "admin": True},
+        {
+            "view": "admin:default-slots-editor",
+            "kwargs": {"event_slug": "kif42"},
+            "admin": True,
+        },
     ]
 
     def test_admin(self):
@@ -234,24 +303,32 @@ class ModelViewTests(BasicViewTests, TestCase):
         for model in self.ADMIN_MODELS:
             # Special treatment for a subset of views (where we exchanged default functionality, e.g., create views)
             if model[1] == "event":
-                _, url = self._name_and_url(('admin:new_event_wizard_start', {}))
+                _, url = self._name_and_url(("admin:new_event_wizard_start", {}))
             elif model[1] == "room":
-                _, url = self._name_and_url(('admin:room-new', {}))
+                _, url = self._name_and_url(("admin:room-new", {}))
             # Otherwise, just call the creation form view
             else:
-                _, url = self._name_and_url((f'admin:AKModel_{model[1]}_add', {}))
+                _, url = self._name_and_url((f"admin:AKModel_{model[1]}_add", {}))
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200, msg=f"Add form for model {model[1]} ({url}) broken")
+            self.assertEqual(
+                response.status_code,
+                200,
+                msg=f"Add form for model {model[1]} ({url}) broken",
+            )
 
         for model in self.ADMIN_MODELS:
             # Test the update view using the first existing instance of each model
             m = model[0].objects.first()
             if m is not None:
                 _, url = self._name_and_url(
-                    (f'admin:AKModel_{model[1]}_change', {'object_id': m.pk})
+                    (f"admin:AKModel_{model[1]}_change", {"object_id": m.pk})
                 )
                 response = self.client.get(url)
-                self.assertEqual(response.status_code, 200, msg=f"Edit form for model {model[1]} ({url}) broken")
+                self.assertEqual(
+                    response.status_code,
+                    200,
+                    msg=f"Edit form for model {model[1]} ({url}) broken",
+                )
 
     def test_wiki_export(self):
         """
@@ -260,17 +337,27 @@ class ModelViewTests(BasicViewTests, TestCase):
         """
         self.client.force_login(self.admin_user)
 
-        export_url = reverse_lazy("admin:ak_wiki_export", kwargs={'slug': 'kif42'})
+        export_url = reverse_lazy("admin:ak_wiki_export", kwargs={"slug": "kif42"})
         response = self.client.get(export_url)
         self.assertEqual(response.status_code, 200, "Export not working at all")
 
         export_count = 0
         for _, aks in response.context["categories_with_aks"]:
             for ak in aks:
-                self.assertEqual(ak.include_in_export, True,
-                                 f"AK with export flag set to False (pk={ak.pk}) included in export")
-                self.assertNotEqual(ak.pk, 1, "AK known to be excluded from export (PK 1) included in export")
+                self.assertEqual(
+                    ak.include_in_export,
+                    True,
+                    f"AK with export flag set to False (pk={ak.pk}) included in export",
+                )
+                self.assertNotEqual(
+                    ak.pk,
+                    1,
+                    "AK known to be excluded from export (PK 1) included in export",
+                )
                 export_count += 1
 
-        self.assertEqual(export_count, AK.objects.filter(event_id=2, include_in_export=True).count(),
-                         "Wiki export contained the wrong number of AKs")
+        self.assertEqual(
+            export_count,
+            AK.objects.filter(event_id=2, include_in_export=True).count(),
+            "Wiki export contained the wrong number of AKs",
+        )

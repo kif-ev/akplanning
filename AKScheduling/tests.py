@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.test import TestCase
 from django.utils import timezone
 
-from AKModel.tests import BasicViewTests
+from AKModel.tests.test_views import BasicViewTests
 from AKModel.models import AKSlot, Event, Room
 
 class ModelViewTests(BasicViewTests, TestCase):

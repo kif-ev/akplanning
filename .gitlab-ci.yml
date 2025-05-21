@@ -37,7 +37,7 @@ test:
   script:
     - source venv/bin/activate
     - echo "GRANT ALL on *.* to '${MYSQL_USER}';"| mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -h mysql
-    - pip install pytest-cov unittest-xml-reporting
+    - pip install pytest-cov
     - coverage run --source='.' manage.py test --settings AKPlanning.settings_ci
   after_script:
     - source venv/bin/activate

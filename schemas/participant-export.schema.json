@@ -1,0 +1,22 @@
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/participant-export.schema.json",
+  "properties": {
+    "preferences": {
+        "items": {
+          "properties": {
+            "preference_score": {
+              "anyOf": [
+                {"const": -1}, {"const": 1}, {"const": 2}
+              ]
+            }
+          }
+        }
+    },
+    "info": {
+      "$ref": "participant.schema.json#/properties/info",
+      "unevaluatedProperties": false
+    }
+  }
+}

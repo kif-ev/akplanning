@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+
+{% load tz %}
+
+{% block content %}
+
+<div class="mb-3">
+  <label for="export_single_line" class="form-label">Exported JSON:</label>
+  <input readonly type="text" name="export_single_line" class="form-control form-control-sm" value="{{ json_data_oneline }}"  style="font-family:var(--font-family-monospace);">
+</div>
+
+<div class="mb-3">
+  <label class="form-label">Exported JSON (indented for better readability):</label>
+  <pre class="prettyprint border rounded p-2">{{ json_data }}</pre>
+</div>
+
+<script>
+  $(document).ready(function() {
+    // JSON highlighting.
+    prettyPrint();
+    }
+  )
+</script>
+{% endblock %}

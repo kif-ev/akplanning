@@ -7,7 +7,7 @@ from django.utils.timezone import now
 
 from AKDashboard.models import DashboardButton
 from AKModel.models import AK, AKCategory, Event
-from AKModel.tests import BasicViewTests
+from AKModel.tests.test_views import BasicViewTests
 
 
 class DashboardTests(TestCase):

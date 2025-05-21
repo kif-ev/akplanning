@@ -1,4 +1,7 @@
+import json
+
 from django.contrib import messages
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView
@@ -35,6 +38,44 @@ class AKCSVExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
 
     def get_queryset(self):
         return super().get_queryset().order_by("ak__track")
+
+
+class AKJSONExportView(AdminViewMixin, DetailView):
+    """
+    View: Export all AK slots of this event in JSON format ordered by tracks
+    """
+    template_name = "admin/AKModel/ak_json_export.html"
+    model = Event
+    context_object_name = "event"
+    title = _("AK JSON Export")
+    slug_url_kwarg = "event_slug"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            data = context["event"].as_json_dict()
+            context["json_data_oneline"] = json.dumps(data, ensure_ascii=False)
+            context["json_data"] = json.dumps(data, indent=2, ensure_ascii=False)
+            context["is_valid"] = True
+        except ValueError as ex:
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                _("Exporting AKs for the solver failed! Reason: ") + str(ex),
+            )
+        return context
+
+    def get(self, request, *args, **kwargs):
+        # as this code is adapted from BaseDetailView::get
+        # pylint: disable=attribute-defined-outside-init
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+
+        # if serialization failed in `get_context_data` we redirect to
+        #   the status page and show a message instead
+        if not context.get("is_valid", False):
+            return redirect("admin:event_status", context["event"].slug)
+        return self.render_to_response(context)
 
 
 class AKWikiExportView(AdminViewMixin, DetailView):

@@ -288,6 +288,8 @@ def ak_requirements_changed_handler(sender, instance: AK, action: str, **kwargs)
     for slot in slots_of_this_ak:
 
         room = slot.room
+        if room is None:
+            continue
         room_requirements = room.properties.all()
 
         for requirement in instance.requirements.all():
@@ -363,8 +365,8 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     new_violations = []
 
     # For all slots in this room...
-    if instance.room:
-        for other_slot in instance.room.akslot_set.all():
+    if instance.room and instance.start:
+        for other_slot in instance.room.akslot_set.filter(start__isnull=False):
             if other_slot != instance:
                 # ... find overlapping slots...
                 if instance.overlaps(other_slot):
