@@ -173,8 +173,6 @@ class ExportAKPreferenceSerializer(serializers.ModelSerializer):
     """
 
     ak_id = serializers.IntegerField(source="slot.pk")
-    required = serializers.BooleanField(source="required")
-    preference_score = serializers.IntegerField(source="preference_score")
 
     class Meta:
         model = AKPreference
