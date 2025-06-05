@@ -559,6 +559,8 @@ class Event(models.Model):
 
         rooms = Room.objects.filter(event=self).order_by()
         slots = AKSlot.objects.filter(event=self).order_by()
+        participants = EventParticipant.objects.filter(event=self).order_by()
+        owners = AKOwner.objects.filter(event=self).order_by().all()
 
         ak_availabilities = {
             ak.pk: Availability.union(ak.availabilities.all())
@@ -570,7 +572,11 @@ class Event(models.Model):
         }
         person_availabilities = {
             person.pk: Availability.union(person.availabilities.all())
-            for person in AKOwner.objects.filter(event=self)
+            for person in owners
+        }
+        participant_availabilities = {
+            participant.pk: Availability.union(participant.availabilities.all())
+            for participant in EventParticipant.objects.filter(event=self)
         }
 
         blocks = list(self.discretize_timeslots())
@@ -619,6 +625,11 @@ class Event(models.Model):
                     _generate_time_constraints("room", room_availabilities, timeslot.avail)
                 )
 
+                # add fulfilled time constraints for all participants that are not available for full event
+                time_constraints.extend(
+                    _generate_time_constraints("participant", participant_availabilities, timeslot.avail)
+                )
+
                 # add fulfilled time constraints for all AKSlots fixed to happen during timeslot
                 time_constraints.extend([
                     f"fixed-akslot-{slot.id}"
@@ -628,6 +639,7 @@ class Event(models.Model):
 
                 time_constraints.extend(timeslot.constraints)
                 time_constraints.extend(block_timeconstraints)
+                time_constraints.sort()
 
                 current_block.append({
                     "id": timeslot.idx,
@@ -635,7 +647,7 @@ class Event(models.Model):
                         "start": timeslot.avail.start.astimezone(self.timezone).strftime("%Y-%m-%d %H:%M"),
                         "end": timeslot.avail.end.astimezone(self.timezone).strftime("%Y-%m-%d %H:%M"),
                     },
-                    "fulfilled_time_constraints": sorted(time_constraints),
+                    "fulfilled_time_constraints": time_constraints,
                     })
 
             timeslots["blocks"].append(current_block)
@@ -651,13 +663,36 @@ class Event(models.Model):
             if hasattr(self, attr) and getattr(self, attr):
                 info_dict[attr] = getattr(self, attr)
 
-        return {
-            "participants": [],
+        data = {
+            "participants": [p.as_json_dict() for p in participants],
             "rooms": [r.as_json_dict() for r in rooms],
             "timeslots": timeslots,
             "info": info_dict,
             "aks": [ak.as_json_dict() for ak in slots],
         }
+
+        if EventParticipant.objects.exists():
+            next_participant_pk = EventParticipant.objects.latest("pk").pk + 1
+        else:
+            next_participant_pk = 1
+        # add one dummy participant per owner
+        # this ensures that the hard constraints from each owner are considered
+        for new_pk, owner in enumerate(owners, next_participant_pk):
+            owned_slots = slots.filter(ak__owners=owner).order_by().all()
+            if not owned_slots:
+                continue
+            new_participant_data = {
+                "id": new_pk,
+                "info": {"name": f"{owner} [AKOwner]"},
+                "room_constraints": [],
+                "time_constraints": [],
+                "preferences": [
+                    {"ak_id": slot.pk, "required": True, "preference_score": -1}
+                    for slot in owned_slots
+                ]
+            }
+            data["participants"].append(new_participant_data)
+        return data
 
 
 class AKOwner(models.Model):
@@ -1091,8 +1126,7 @@ class Room(models.Model):
                 "name": self.name,
             },
             "capacity": self.capacity,
-            "fulfilled_room_constraints": [constraint.name
-                                           for constraint in self.properties.all()],
+            "fulfilled_room_constraints": list(self.properties.values_list("name", flat=True)),
             "time_constraints": time_constraints
         }
 
@@ -1238,20 +1272,14 @@ class AKSlot(models.Model):
             "id": self.pk,
             "duration": math.ceil(self.duration / self.event.export_slot - ceil_offet_eps),
             "properties": {
-                "conflicts":
-                    sorted(
-                        [conflict.pk for conflict in conflict_slots.all()]
-                      + [second_slot.pk for second_slot in other_ak_slots.all()]
-                    ),
-                "dependencies": sorted([dep.pk for dep in dependency_slots.all()]),
+                "conflicts": list((conflict_slots | other_ak_slots).values_list("pk", flat=True).order_by()),
+                "dependencies": list(dependency_slots.values_list("pk", flat=True).order_by()),
             },
-            "room_constraints": [constraint.name
-                                 for constraint in self.ak.requirements.all()],
+            "room_constraints": list(self.ak.requirements.values_list("name", flat=True).order_by()),
             "time_constraints": ["resolution"] if self.ak.reso else [],
             "info": {
                 "name": self.ak.name,
-                "head": ", ".join([str(owner)
-                                   for owner in self.ak.owners.all()]),
+                "head": ", ".join([str(owner) for owner in self.ak.owners.order_by().all()]),
                 "description": self.ak.description,
                 "reso": self.ak.reso,
                 "duration_in_hours": float(self.duration),
@@ -1575,3 +1603,126 @@ class DefaultSlot(models.Model):
 
     def __str__(self):
         return f"{self.event}: {self.start_simplified} - {self.end_simplified}"
+
+
+class EventParticipant(models.Model):
+    """ A participant describes a person taking part in an event."""
+
+    class Meta:
+        verbose_name = _('Participant')
+        verbose_name_plural = _('Participants')
+        ordering = ['name']
+
+    name = models.CharField(max_length=64, blank=True, verbose_name=_('Nickname'),
+                            help_text=_('Name to identify a participant by (in case of questions from the organizers)'))
+    institution = models.CharField(max_length=128, blank=True, verbose_name=_('Institution'), help_text=_('Uni etc.'))
+
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
+                              help_text=_('Associated event'))
+
+    requirements = models.ManyToManyField(to=AKRequirement, blank=True, verbose_name=_('Requirements'),
+                                          help_text=_("Participant's Requirements"))
+
+    def __str__(self) -> str:
+        string = _("Anonymous {pk}").format(pk=self.pk) if not self.name else self.name
+        if self.institution:
+            string += f" ({self.institution})"
+        return string
+
+    @property
+    def availabilities(self):
+        """
+        Get all availabilities associated to this EventParticipant
+        :return: availabilities
+        :rtype: QuerySet[Availability]
+        """
+        return "Availability".objects.filter(participant=self)
+
+    def as_json_dict(self) -> dict[str, Any]:
+        """Return a json representation of this participant object.
+
+        :return: The json dict representation is constructed
+            following the input specification of the KoMa conference optimizer, cf.
+            https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
+        :rtype: dict[str, Any]
+        """
+        # local import to prevent cyclic import
+        # pylint: disable=import-outside-toplevel
+        from AKModel.availability.models import Availability
+
+        data = {
+            "id": self.pk,
+            "info": {"name": str(self)},
+            "room_constraints": list(self.requirements.values_list("name", flat=True).order_by()),
+            "time_constraints": [],
+        }
+        data["preferences"] = [
+            pref.as_json_dict()
+            for pref in AKPreference.objects.filter(
+                participant=self, preference__gt=0
+            ).select_related("slot").order_by()
+        ]
+
+        avails = self.availabilities.all()
+        if avails and not Availability.is_event_covered(self.event, avails):
+            # participant has restricted availability
+            if AKPreference.objects.filter(
+                event=self.event,
+                participant=self,
+                preference=AKPreference.PreferenceLevel.REQUIRED,
+            ):
+                # partipant is actually required for AKs
+                data["time_constraints"].append(f"availability-participant-{self.pk}")
+
+        data["time_constraints"].sort()
+        return data
+
+
+class AKPreference(models.Model):
+    """Model representing the preference of a participant to an AK."""
+
+    class Meta:
+        verbose_name = _('AK Preference')
+        verbose_name_plural = _('AK Preferences')
+        unique_together = [['event', 'participant', 'slot']]
+
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
+                              help_text=_('Associated event'))
+
+    participant = models.ForeignKey(to=EventParticipant, on_delete=models.CASCADE, verbose_name=_('Participant'),
+                              help_text=_('Participant this preference belongs to'))
+
+    slot = models.ForeignKey(to=AKSlot, on_delete=models.CASCADE, verbose_name=_('AK Slot'),
+                           help_text=_('AK Slot this preference belongs to'))
+
+    class PreferenceLevel(models.IntegerChoices):
+        """
+        Possible preference values
+        """
+        IGNORE = 0, _('Ignore')
+        PREFER = 1, _('Prefer')
+        STRONG_PREFER = 2, _("Strong prefer")
+        REQUIRED = 3, _("Required")
+
+    preference = models.PositiveSmallIntegerField(verbose_name=_('Preference'), choices=PreferenceLevel.choices,
+                                             help_text=_('Preference level for the AK'),
+                                             blank=False,
+                                             default=PreferenceLevel.IGNORE)
+
+    def __str__(self) -> str:
+        return "AKPreference: " + json.dumps(self.as_json_dict())
+
+    def as_json_dict(self) -> dict[str, int | bool]:
+        """Return a json representation of this AKPreference object.
+
+        :return: The json dict representation is constructed
+            following the input specification of the KoMa conference optimizer, cf.
+            https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
+        :rtype: dict[str, Any]
+        """
+        preference_score = self.preference if self.preference != self.PreferenceLevel.REQUIRED else -1
+        return {
+            "ak_id": self.slot.pk,
+            "required": self.preference == self.PreferenceLevel.REQUIRED,
+            "preference_score": preference_score
+        }

@@ -17,7 +17,7 @@ from simple_history.admin import SimpleHistoryAdmin
 from AKModel.availability.models import Availability
 from AKModel.forms import RoomFormWithAvailabilities
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
-    ConstraintViolation, DefaultSlot, AKType
+    ConstraintViolation, DefaultSlot, AKType, EventParticipant, AKPreference
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
 from AKModel.views.ak import AKResetInterestView, AKResetInterestCounterView
 from AKModel.views.manage import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView
@@ -570,6 +570,50 @@ class DefaultSlotAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
     list_display = ['start_simplified', 'end_simplified', 'event']
     list_filter = ['event']
     form = DefaultSlotAdminForm
+
+
+@admin.register(EventParticipant)
+class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    """
+    Admin interface for EventParticipant
+    """
+    model = EventParticipant
+    list_display = ['name', 'institution', 'event']
+    list_filter = ['event', 'institution']
+    list_editable = []
+    ordering = ['name']
+
+
+class AKPreferenceAdminForm(forms.ModelForm):
+    """
+    Adapted admin form for AK preferences for usage in :class:`AKPreferenceAdmin`)
+    """
+    class Meta:
+        widgets = {
+            'participant': forms.Select,
+            'slot': forms.Select,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter possible values for foreign keys & m2m when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["participant"].queryset = EventParticipant.objects.filter(event=self.instance.event)
+            self.fields["slot"].queryset = AKSlot.objects.filter(event=self.instance.event)
+
+
+@admin.register(AKPreference)
+class AKPreferenceAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    """
+    Admin interface for AK preferences.
+    Uses an adapted form (see :class:`AKPreferenceAdminForm`)
+    """
+    model = AKPreference
+    form = AKPreferenceAdminForm
+    list_display = ['preference', 'participant', 'slot', 'event']
+    list_filter = ['event', 'slot', 'participant']
+    list_editable = []
+    ordering = ['participant', 'preference', 'slot']
 
 
 # Define a new User admin

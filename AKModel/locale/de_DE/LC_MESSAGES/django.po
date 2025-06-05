@@ -1066,6 +1066,73 @@ msgstr "Konflikte"
 msgid "Prerequisites"
 msgstr "Voraussetzungen"
 
+#: AKModel/availability/models.py:89 AKModel/models.py:1358
+#: AKModel/models.py:1435
+msgid "Participant"
+msgstr "Teilnehmer*in"
+
+#: AKModel/availability/models.py:90
+msgid "Participant whose availability this is"
+msgstr "Teilnehmer*in, deren Verfügbarkeit hier abgebildet wird"
+
+#: AKModel/models.py:1359
+msgid "Participants"
+msgstr "Teilnehmende"
+
+#: AKModel/models.py:1363
+msgid ""
+"Name to identify a participant by (in case of questions from the organizers)"
+msgstr "Name, zur Identifikation bei Rückfragen von den Organisator*innen"
+
+#: AKModel/models.py:1370
+msgid "Participant's Requirements"
+msgstr "Anforderungen der Teilnehmer*in"
+
+#: AKModel/models.py:1370
+#, python-brace-format
+msgid "Anonymous {pk}"
+msgstr "Anonym {pk}"
+
+#: AKModel/models.py:1428
+msgid "AK Preference"
+msgstr "AK Präferenz"
+
+#: AKModel/models.py:1429
+msgid "AK Preferences"
+msgstr "AK Präferenzen"
+
+#: AKModel/models.py:1436
+msgid "Participant this preference belongs to"
+msgstr "Teilnehmer*in, zu der die Präferenz gehört"
+
+#: AKModel/models.py:1439
+msgid "AK Slot this preference belongs to"
+msgstr "AK-Slot zu dem die Präferenz gehört"
+
+#: AKModel/models.py:1445
+msgid "Ignore"
+msgstr "Ignorieren"
+
+#: AKModel/models.py:1446
+msgid "Prefer"
+msgstr "Präferenz"
+
+#: AKModel/models.py:1447
+msgid "Strong prefer"
+msgstr "Große Präferenz"
+
+#: AKModel/models.py:1448
+msgid "Required"
+msgstr "Erforderlich"
+
+#: AKModel/models.py:1450
+msgid "Preference"
+msgstr "Präferenz"
+
+#: AKModel/models.py:1451
+msgid "Preference level for the AK"
+msgstr "Präferenz-Level für den AK"
+
 #: AKModel/site.py:13 AKModel/site.py:14
 msgid "Administration"
 msgstr "Verwaltung"

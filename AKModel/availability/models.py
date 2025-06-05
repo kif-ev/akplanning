@@ -10,7 +10,7 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from AKModel.models import Event, AKOwner, Room, AK, AKCategory
+from AKModel.models import Event, AKOwner, Room, AK, AKCategory, EventParticipant
 
 zero_time = datetime.time(0, 0)
 
@@ -24,6 +24,7 @@ zero_time = datetime.time(0, 0)
 # enable availabilities for AKs and AKCategories
 # add verbose names and help texts to model attributes
 # adapt or extemd documentation
+# add participants
 
 
 class Availability(models.Model):
@@ -79,20 +80,48 @@ class Availability(models.Model):
         verbose_name=_('AK Category'),
         help_text=_('AK Category whose availability this is'),
     )
+    participant = models.ForeignKey(
+        to=EventParticipant,
+        related_name='availabilities',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name=_('Participant'),
+        help_text=_('Participant whose availability this is'),
+    )
     start = models.DateTimeField()
     end = models.DateTimeField()
 
     def __str__(self) -> str:
         person = self.person.name if self.person else None
+        participant = self.participant.name if self.participant else None
         room = getattr(self.room, 'name', None)
         event = getattr(getattr(self, 'event', None), 'name', None)
         ak = getattr(self.ak, 'name', None)
         ak_category = getattr(self.ak_category, 'name', None)
-        return f'Availability(event={event}, person={person}, room={room}, ak={ak}, ak category={ak_category})'
+        arg_list = [
+            f"event={event}",
+            f"person={person}",
+            f"room={room}",
+            f"ak={ak}",
+            f"ak category={ak_category}",
+            f"participant={participant}",
+        ]
+        return f'Availability({", ".join(arg_list)})'
 
     def __hash__(self):
         return hash(
-            (getattr(self, 'event', None), self.person, self.room, self.ak, self.ak_category, self.start, self.end))
+            (
+                getattr(self, 'event', None),
+                self.person,
+                self.room,
+                self.ak,
+                self.ak_category,
+                self.participant,
+                self.start,
+                self.end,
+            )
+        )
 
     def __eq__(self, other: 'Availability') -> bool:
         """Comparisons like ``availability1 == availability2``.
@@ -103,7 +132,7 @@ class Availability(models.Model):
         return all(
             (
                 getattr(self, attribute, None) == getattr(other, attribute, None)
-                for attribute in ['event', 'person', 'room', 'ak', 'ak_category', 'start', 'end']
+                for attribute in ['event', 'person', 'room', 'ak', 'ak_category', 'participant', 'start', 'end']
             )
         )
 
@@ -260,6 +289,7 @@ class Availability(models.Model):
         room: Room | None = None,
         ak: AK | None = None,
         ak_category: AKCategory | None = None,
+        participant: EventParticipant | None = None,
     ) -> "Availability":
         """
         Create an availability covering exactly the time between event start and event end.
@@ -278,7 +308,7 @@ class Availability(models.Model):
         timeframe_end = event.end  # adapt to our event model
         timeframe_end = timeframe_end + datetime.timedelta(days=1)
         return Availability(start=timeframe_start, end=timeframe_end, event=event, person=person,
-                                    room=room, ak=ak, ak_category=ak_category)
+                                    room=room, ak=ak, ak_category=ak_category, participant=participant)
 
     def is_covered(self, availabilities: List['Availability']):
         """Check if list of availibilities cover this object.

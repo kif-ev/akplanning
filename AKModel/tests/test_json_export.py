@@ -12,7 +12,17 @@ from django.urls import reverse
 from jsonschema.exceptions import best_match
 
 from AKModel.availability.models import Availability
-from AKModel.models import AK, AKCategory, AKOwner, AKSlot, DefaultSlot, Event, Room
+from AKModel.models import (
+    AK,
+    AKCategory,
+    AKOwner,
+    AKPreference,
+    AKSlot,
+    DefaultSlot,
+    Event,
+    EventParticipant,
+    Room,
+)
 from AKModel.utils import construct_schema_validator
 
 
@@ -52,7 +62,10 @@ class JSONExportTest(TestCase):
 
         self.ak_slots: Iterable[AKSlot] = []
         self.rooms: Iterable[Room] = []
+        self.participants: Iterable[EventParticipant] = []
+        self.owners: Iterable[AKOwner] = []
         self.slots_in_an_hour: float = 1.0
+        self.max_participant_pk = 0
         self.event: Event | None = None
 
     def set_up_event(self, event: Event) -> None:
@@ -83,6 +96,15 @@ class JSONExportTest(TestCase):
             .all()
         )
         self.rooms = Room.objects.filter(event__slug=event.slug).all()
+        self.participants = EventParticipant.objects.filter(
+            event__slug=event.slug
+        ).all()
+        self.owners = AKOwner.objects.filter(event__slug=event.slug).all()
+
+        self.max_participant_pk = (
+            self.participants.latest("pk").pk if self.participants else 0
+        )
+
         self.slots_in_an_hour = 1 / self.export_dict["timeslots"]["info"]["duration"]
         self.event = event
 
@@ -166,12 +188,6 @@ class JSONExportTest(TestCase):
         for event in Event.objects.all():
             with self.subTest(event=event):
                 self.set_up_event(event=event)
-
-                self.assertEqual(
-                    self.export_dict["participants"],
-                    [],
-                    "Empty participant list expected",
-                )
 
                 info_keys = {"title": "name", "slug": "slug"}
                 for attr in ["contact_email", "place"]:
@@ -611,7 +627,7 @@ class JSONExportTest(TestCase):
                         # add owner constraints
                         fulfilled_time_constraints |= {
                             f"availability-person-{owner.id}"
-                            for owner in AKOwner.objects.filter(event=self.event).all()
+                            for owner in self.owners
                             if self._is_restricted_and_contained_slot(
                                 timeslot_avail,
                                 Availability.union(owner.availabilities.all()),
@@ -625,6 +641,16 @@ class JSONExportTest(TestCase):
                             if self._is_restricted_and_contained_slot(
                                 timeslot_avail,
                                 Availability.union(room.availabilities.all()),
+                            )
+                        }
+
+                        # add participant constraints
+                        fulfilled_time_constraints |= {
+                            f"availability-participant-{participant.id}"
+                            for participant in self.participants
+                            if self._is_restricted_and_contained_slot(
+                                timeslot_avail,
+                                Availability.union(participant.availabilities.all()),
                             )
                         }
 
@@ -692,3 +718,153 @@ class JSONExportTest(TestCase):
                 self.assertEqual(
                     block_names, self.export_dict["timeslots"]["info"]["blocknames"]
                 )
+
+    def _owner_has_ak(self, owner: AKOwner) -> bool:
+        owned_aks = self.ak_slots.filter(ak__owners=owner).all()
+        return bool(owned_aks)
+
+    def test_all_participants_exported(self):
+        """Test if exported Rooms match the rooms of Event."""
+        for event in Event.objects.all():
+            with self.subTest(event=event):
+                self.set_up_event(event=event)
+
+                participant_ids = set(self.participants.values_list("pk", flat=True))
+                for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
+                    if self._owner_has_ak(owner):
+                        participant_ids.add(idx)
+
+                self.assertEqual(
+                    participant_ids,
+                    self.export_objects["participants"].keys(),
+                    "Exported Participants does not match the Participants of the event",
+                )
+
+    def test_participant_info(self):
+        """Test if contents of participants info dict is correct."""
+        for event in Event.objects.all():
+            with self.subTest(event=event):
+                self.set_up_event(event=event)
+
+                for participant in self.participants:
+                    export_participant = self.export_objects["participants"][
+                        participant.pk
+                    ]
+                    self.assertEqual(
+                        str(participant), export_participant["info"]["name"]
+                    )
+
+                for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
+                    if not self._owner_has_ak(owner):
+                        continue
+                    export_participant = self.export_objects["participants"][idx]
+                    self.assertEqual(
+                        str(owner) + " [AKOwner]", export_participant["info"]["name"]
+                    )
+
+    def test_participant_timeconstraints(self):
+        """Test if participant time constraints are exported as expected."""
+        for event in Event.objects.all():
+            with self.subTest(event=event):
+                self.set_up_event(event=event)
+                for participant in self.participants:
+                    export_participant = self.export_objects["participants"][
+                        participant.pk
+                    ]
+
+                    time_constraints = set()
+                    participant_avails = participant.availabilities.all()
+                    if participant_avails and not Availability.is_event_covered(
+                        self.event, participant_avails
+                    ):
+                        # participant has restricted availability
+                        if AKPreference.objects.filter(
+                            event=self.event,
+                            participant=participant,
+                            preference=AKPreference.PreferenceLevel.REQUIRED,
+                        ):
+                            # partipant is actually required for AKs
+                            time_constraints.add(
+                                f"availability-participant-{participant.pk}"
+                            )
+
+                    self.assertEqual(
+                        set(export_participant["time_constraints"]), time_constraints
+                    )
+
+                # dummy participants have no time constraints
+                for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
+                    if not self._owner_has_ak(owner):
+                        continue
+                    export_participant = self.export_objects["participants"][idx]
+                    self.assertEqual(export_participant["time_constraints"], [])
+
+    def test_participant_roomconstraints(self):
+        """Test if participant room constraints are exported as expected."""
+        for event in Event.objects.all():
+            with self.subTest(event=event):
+                self.set_up_event(event=event)
+                for participant in self.participants:
+                    export_participant = self.export_objects["participants"][
+                        participant.pk
+                    ]
+                    room_constraints = [
+                        constr.name for constr in participant.requirements.all()
+                    ]
+                    self.assertCountEqual(
+                        export_participant["room_constraints"], room_constraints
+                    )
+
+                for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
+                    if not self._owner_has_ak(owner):
+                        continue
+                    export_participant = self.export_objects["participants"][idx]
+                    self.assertEqual(export_participant["room_constraints"], [])
+
+    def test_preferences(self):
+        """Test if preferences are exported as expected."""
+
+        def _preference_json(pref: AKPreference):
+            return {
+                "ak_id": pref.slot.pk,
+                "required": pref.preference == AKPreference.PreferenceLevel.REQUIRED,
+                "preference_score": (
+                    pref.preference
+                    if pref.preference != AKPreference.PreferenceLevel.REQUIRED
+                    else -1
+                ),
+            }
+
+        for event in Event.objects.all():
+            with self.subTest(event=event):
+                self.set_up_event(event=event)
+                for participant in self.participants:
+                    export_participant = self.export_objects["participants"][
+                        participant.pk
+                    ]
+                    preferences = [
+                        _preference_json(pref)
+                        for pref in AKPreference.objects.filter(
+                            participant=participant, preference__gt=0
+                        ).select_related("slot")
+                    ]
+                    self.assertCountEqual(
+                        export_participant["preferences"], preferences
+                    )
+
+                for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
+                    owned_slots = self.ak_slots.filter(ak__owners=owner).all()
+                    if not owned_slots:
+                        continue
+                    preferences = [
+                        {
+                            "ak_id": slot.pk,
+                            "required": True,
+                            "preference_score": -1,
+                        }
+                        for slot in owned_slots
+                    ]
+                    export_participant = self.export_objects["participants"][idx]
+                    self.assertCountEqual(
+                        export_participant["preferences"], preferences
+                    )
