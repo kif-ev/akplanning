@@ -1,13 +1,6 @@
 from rest_framework import serializers
 
-from AKModel.models import (
-    AK,
-    AKCategory,
-    AKOwner,
-    AKSlot,
-    AKTrack,
-    Room,
-)
+from AKModel.models import AK, AKCategory, AKOwner, AKSlot, AKTrack, Room
 
 
 class AKOwnerSerializer(serializers.ModelSerializer):
