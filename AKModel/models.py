@@ -1106,9 +1106,15 @@ class AKSlot(models.Model):
         return time_constraints
 
     @property
-    def export_duration(self):
+    def export_duration(self) -> int:
         """Number of discrete export timeslots covered by this AKSlot."""
-        return math.ceil(self.duration / self.event.export_slot - settings.CEIL_OFFSET_EPS)
+        export_duration = self.duration / self.event.export_slot
+        # We need to return an int, so we round up.
+        # If the exact result for `export_duration` is an integer `k`,
+        # FLOP inaccuracies could yield `k + eps`. Then, rounding up
+        # would return `k + 1` instead of `k`. To avoid this, we subtract
+        # a small epsilon before rounding.
+        return math.ceil(export_duration - settings.EXPORT_CEIL_OFFSET_EPS)
 
     @property
     def type_names(self):
