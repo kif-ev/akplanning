@@ -211,7 +211,7 @@ class Event(models.Model):
         return event
 
     def get_categories_with_aks(self, wishes_seperately=False,
-                                filter_func=lambda ak: True, hide_empty_categories=False):
+                                filter_func=lambda ak: True, hide_empty_categories=False, types=None):
         """
         Get AKCategories as well as a list of AKs belonging to the category for this event
 
@@ -219,6 +219,10 @@ class Event(models.Model):
         :type wishes_seperately: bool
         :param filter_func: Optional filter predicate, only include AK in list if filter returns True
         :type filter_func: (AK)->bool
+        :param hide_empty_categories: If True, categories with no AKs will not be included in the result
+        :type hide_empty_categories: bool
+        :param types: Optional list of AK types to filter by, if None, all types are included
+        :type types: list[AKType] | None
         :return: list of category-AK-list-tuples, optionally the additional list of AK wishes
         :rtype: list[(AKCategory, list[AK])] [, list[AK]]
         """
@@ -230,7 +234,7 @@ class Event(models.Model):
         # A different behavior is needed depending on whether wishes should show up inside their categories
         # or as a separate category
 
-        def _get_category_aks(category):
+        def _get_category_aks(category, types):
             """
             Get all AKs belonging to a category
             Use joining and prefetching to reduce the number of necessary SQL queries
@@ -239,12 +243,15 @@ class Event(models.Model):
             :return: QuerySet over AKs
             :return: QuerySet[AK]
             """
-            return category.ak_set.select_related('event').prefetch_related('owners', 'akslot_set').all()
+            s = category.ak_set
+            if types is not None:
+                s = s.filter(types__in=types).distinct()
+            return s.select_related('event').prefetch_related('owners', 'akslot_set').all()
 
         if wishes_seperately:
             for category in categories:
                 ak_list = []
-                for ak in _get_category_aks(category):
+                for ak in _get_category_aks(category, types):
                     if filter_func(ak):
                         if ak.wish:
                             ak_wishes.append(ak)
@@ -256,7 +263,7 @@ class Event(models.Model):
 
         for category in categories:
             ak_list = []
-            for ak in _get_category_aks(category):
+            for ak in _get_category_aks(category, types):
                 if filter_func(ak):
                     ak_list.append(ak)
             if not hide_empty_categories or len(ak_list) > 0:
