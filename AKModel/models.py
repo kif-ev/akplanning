@@ -696,7 +696,7 @@ class AKType(models.Model):
     or to which group of people it is addressed. Types are specified per event and are an optional feature.
     """
     name = models.CharField(max_length=128, verbose_name=_('Name'), help_text=_('Name describing the type'))
-
+    slug = models.SlugField(max_length=30, blank=False, verbose_name=_('Slug'),)
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
@@ -704,7 +704,7 @@ class AKType(models.Model):
         verbose_name = _('AK Type')
         verbose_name_plural = _('AK Types')
         ordering = ['name']
-        unique_together = ['event', 'name']
+        unique_together = [['event', 'name'], ['event', 'slug']]
 
     def __str__(self):
         return self.name
