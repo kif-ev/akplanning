@@ -74,7 +74,6 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
         :param akslot: current slot
         :type akslot: AKSlot
         """
-        pass
 
 
 class PlanScreenView(PlanIndexView):

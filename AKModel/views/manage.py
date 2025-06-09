@@ -81,7 +81,8 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
         # Get all relevant AKs (wishes separately, and either all AKs or only those who should directly or indirectly
         # be presented when restriction setting was chosen)
         categories_with_aks, ak_wishes = self.event.get_categories_with_aks(wishes_seperately=True, filter_func=lambda
-            ak: not RESULT_PRESENTATION_MODE or (ak.present or (ak.present is None and ak.category.present_by_default)), types=types)
+            ak: not RESULT_PRESENTATION_MODE or (ak.present or (ak.present is None and ak.category.present_by_default)),
+                                                                            types=types)
 
         # Create context for LaTeX rendering
         context = {
