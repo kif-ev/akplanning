@@ -49,3 +49,14 @@ def category_linked_badge(category, event_slug):
     :return: html fragment containing badge
     """
     return {"category": category, "event_slug": event_slug}
+
+
+@register.inclusion_tag("AKSubmission/type_linked_badge.html")
+def type_linked_badge(type, event_slug):
+    """
+    Generate a clickable type badge based upon the type_linked_badge template
+    :param type: type to show/link
+    :param event_slug: slug of this event, required for link creation
+    :return: html fragment containing badge
+    """
+    return {"type": type, "event_slug": event_slug}

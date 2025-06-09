@@ -16,7 +16,7 @@ from AKModel.availability.models import Availability
 from AKModel.metaviews import status_manager
 from AKModel.metaviews.admin import EventSlugMixin, FilterByEventSlugMixin
 from AKModel.metaviews.status import TemplateStatusWidget
-from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKSlot, AKTrack
+from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKSlot, AKTrack, AKType
 from AKSubmission.api import ak_interest_indication_active
 from AKSubmission.forms import AKDurationForm, AKForm, AKOrgaMessageForm, AKOwnerForm, AKSubmissionForm, AKWishForm
 
@@ -235,6 +235,38 @@ class AKListByTrackView(AKOverviewView):
         return f"{_('AKs with Track')} = {self.track.name}"
 
 
+class AKListByTypeView(AKOverviewView):
+    """
+    View: List of only the AKs belonging to a certain type.
+
+    This view inherits from :class:`AKOverviewView` and there will be one list per category
+    -- but only AKs of a certain given type will be included in them.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        # Override dispatching
+        # Needed to handle the checking whether the type exists
+
+        self.type = get_object_or_404(AKType, slug=kwargs['type_slug'])  # pylint: disable=attribute-defined-outside-init
+        return super().dispatch(request, *args, **kwargs)
+
+    def filter_aks(self, context, category):
+        """
+        Filter which AKs to display based on the given context and category
+
+        In this case, the list is further restricted by the type
+
+        :param context: context of the view
+        :param category: category to filter the AK list for
+        :return: filtered list of AKs for the given category
+        :rtype: QuerySet[AK]
+        """
+        return super().filter_aks(context, category).filter(types=self.type)
+
+    def get_table_title(self, context):
+        return f"{_('AKs with Type')} = {self.type.name}"
+
+
 class AKDetailView(EventSlugMixin, DetailView):
     """
     View: AK Details
@@ -245,7 +277,7 @@ class AKDetailView(EventSlugMixin, DetailView):
 
     def get_queryset(self):
         # Get information about the AK and do some query optimization
-        return super().get_queryset().select_related('event').prefetch_related('owners')
+        return super().get_queryset().select_related('event').prefetch_related('owners', 'akslot_set')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)

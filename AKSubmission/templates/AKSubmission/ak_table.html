@@ -43,7 +43,7 @@
             {% if show_types %}
                 <td>
                     {% for aktype in ak.types.all %}
-                        <span class="badge bg-info">{{ aktype }}</span>
+                        {% type_linked_badge aktype event.slug %}
                     {% endfor %}
                 </td>
             {% endif %}
