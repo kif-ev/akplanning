@@ -1,12 +1,15 @@
 from datetime import datetime, timedelta
 
 from django.conf import settings
-from django.shortcuts import redirect
+from django.contrib import messages
+from django.db.models import Q
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, ListView
+from django.utils.translation import gettext_lazy as _
 
 from AKModel.metaviews.admin import FilterByEventSlugMixin
-from AKModel.models import AKSlot, AKTrack, Room
+from AKModel.models import AKSlot, AKTrack, Room, AKType
 
 
 class PlanIndexView(FilterByEventSlugMixin, ListView):
@@ -19,13 +22,62 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
     template_name = "AKPlan/plan_index.html"
     context_object_name = "akslots"
     ordering = "start"
+    types_filter = None
+
+    def get(self, request, *args, **kwargs):
+        if 'types' in request.GET:
+            try:
+                # Initialize types filter, has to be done here such that it is not reused across requests
+                self.types_filter = {
+                    "yes": [],
+                    "no": [],
+                    "strict": False,
+                    "empty": False,
+                }
+                # If types are given, filter the queryset accordingly
+                types_raw = request.GET['types'].split(',')
+                for t in types_raw:
+                    type_slug, type_condition = t.split(':')
+                    if type_condition in ["yes", "no"]:
+                        t = AKType.objects.get(slug=type_slug, event=self.event)
+                        self.types_filter[type_condition].append(t)
+                    else:
+                        raise ValueError(f"Unknown type condition: {type_condition}")
+                if 'strict' in request.GET:
+                    # If strict is specified and marked as "yes", exclude all AKs that have any of the excluded types ("no"),
+                    # even if they have other types that are marked as "yes"
+                    self.types_filter["strict"] = True if request.GET['strict'] == 'yes' else False
+                if 'empty' in request.GET:
+                    # If empty is specified and marked as "yes", include AKs that have no types at all
+                    self.types_filter["empty"] = True if request.GET['empty'] == 'yes' else False
+            except (ValueError, AKType.DoesNotExist):
+                # Display an error message if the types parameter is malformed
+                messages.add_message(request, messages.ERROR, _("Invalid type filter"))
+                self.types_filter = None
+        s = super().get(request, *args, **kwargs)
+        return s
 
     def get_queryset(self):
         # Ignore slots not scheduled yet
-        return (super().get_queryset().filter(start__isnull=False).
+        qs = (super().get_queryset().filter(start__isnull=False).
                 select_related('event', 'ak', 'room', 'ak__category', 'ak__event'))
                 # Need to prefetch both event and ak__event
                 # since django is not aware that the two are always the same
+
+        # Apply type filter if necessary
+        if self.types_filter:
+            print(self.types_filter)
+            # Either include all AKs with the given types or without any types at all
+            if self.types_filter["empty"]:
+                qs = qs.filter(Q(ak__types__in=self.types_filter["yes"]) | Q(ak__types__isnull=True)).distinct()
+            # Or only those with the given types
+            else:
+                qs = qs.filter(ak__types__in=self.types_filter["yes"]).distinct()
+            # Afterwards, if strict, exclude all AKs that have any of the excluded types, even though they were
+            # included by the previous filter
+            if self.types_filter["strict"]:
+                qs = qs.exclude(ak__types__in=self.types_filter["no"]).distinct()
+        return qs
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)

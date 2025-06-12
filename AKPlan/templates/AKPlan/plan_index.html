@@ -83,6 +83,8 @@
 
 
 {% block content %}
+    {% include "messages.html" %}
+
     <div class="float-end">
         <ul class="nav nav-pills">
             {% if rooms|length > 0 %}
