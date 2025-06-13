@@ -634,7 +634,7 @@ class AKPreferenceAdminForm(forms.ModelForm):
     class Meta:
         widgets = {
             'participant': forms.Select,
-            'slot': forms.Select,
+            'ak': forms.Select,
         }
 
     def __init__(self, *args, **kwargs):
@@ -642,7 +642,7 @@ class AKPreferenceAdminForm(forms.ModelForm):
         # Filter possible values for foreign keys & m2m when event is specified
         if hasattr(self.instance, "event") and self.instance.event is not None:
             self.fields["participant"].queryset = EventParticipant.objects.filter(event=self.instance.event)
-            self.fields["slot"].queryset = AKSlot.objects.filter(event=self.instance.event)
+            self.fields["ak"].queryset = AK.objects.filter(event=self.instance.event)
 
 
 @admin.register(AKPreference)
@@ -653,10 +653,10 @@ class AKPreferenceAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
     """
     model = AKPreference
     form = AKPreferenceAdminForm
-    list_display = ['preference', 'participant', 'slot', 'event']
-    list_filter = ['event', 'slot', 'participant']
+    list_display = ['preference', 'participant', 'ak', 'event']
+    list_filter = ['event', 'ak', 'participant']
     list_editable = []
-    ordering = ['participant', 'preference', 'slot']
+    ordering = ['participant', 'preference', 'ak']
 
 
 # Define a new User admin

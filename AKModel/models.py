@@ -1513,7 +1513,7 @@ class AKPreference(models.Model):
     class Meta:
         verbose_name = _('AK Preference')
         verbose_name_plural = _('AK Preferences')
-        unique_together = [['event', 'participant', 'slot']]
+        unique_together = [['event', 'participant', 'ak']]
         ordering = ["-timestamp"]
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
@@ -1522,8 +1522,8 @@ class AKPreference(models.Model):
     participant = models.ForeignKey(to=EventParticipant, on_delete=models.CASCADE, verbose_name=_('Participant'),
                               help_text=_('Participant this preference belongs to'))
 
-    slot = models.ForeignKey(to=AKSlot, on_delete=models.CASCADE, verbose_name=_('AK Slot'),
-                           help_text=_('AK Slot this preference belongs to'))
+    ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'),
+                           help_text=_('AK this preference belongs to'))
 
     class PreferenceLevel(models.IntegerChoices):
         """
@@ -1542,14 +1542,7 @@ class AKPreference(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_('Timestamp'), help_text=_('Time of creation'))
 
     def __str__(self) -> str:
-        json_repr = json.dumps(
-            {
-                "ak_id": self.slot.pk,
-                "required": self.required,
-                "preference_score": self.preference_score,
-            }
-        )
-        return f"AKPreference: {json_repr}"
+        return f"Preference {self.get_preference_display()} [of '{self.participant}' for AK '{self.ak}']"
 
     @property
     def required(self) -> bool:

@@ -26,7 +26,7 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
     form_class = forms.Form
     model = AKPreference
     form_class = forms.modelform_factory(
-        model=AKPreference, fields=["preference", "slot", "event"]
+        model=AKPreference, fields=["preference", "ak", "event"]
     )
     template_name = "AKPreferencePoll/poll.html"
     success_message = _("AK preferences were registered successfully")
@@ -34,9 +34,9 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
     def _create_modelformset(self):
         return forms.modelformset_factory(
             model=AKPreference,
-            fields=["preference", "slot", "event"],
+            fields=["preference", "ak", "event"],
             widgets={
-                "slot": forms.HiddenInput,
+                "ak": forms.HiddenInput,
                 "event": forms.HiddenInput,
                 "preference": forms.RadioSelect,
             },
@@ -59,12 +59,11 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
         context = super().get_context_data(**kwargs)
         ak_set = (
             AK.objects.filter(event=self.event)
-            .prefetch_related("akslot_set")
             .order_by()
             .all()
         )
         initial_lst = [
-            {"slot": ak.akslot_set.first(), "event": self.event} for ak in ak_set
+            {"ak": ak, "event": self.event} for ak in ak_set
         ]
 
         context["formset"] = self._create_modelformset()(
@@ -74,11 +73,11 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
         context["formset"].extra = len(initial_lst)
 
         for form, init in zip(context["formset"], initial_lst, strict=True):
-            form.fields["preference"].label = init["slot"].ak.name
+            form.fields["preference"].label = init["ak"].name
             form.fields["preference"].help_text = (
-                "Description: " + init["slot"].ak.description
+                "Description: " + init["ak"].description
             )
-            form.ak = init["slot"].ak
+            form.ak_obj = init["ak"]
 
         context["participant_form"] = EventParticipantForm(
             initial={"event": self.event}

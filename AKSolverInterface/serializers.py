@@ -172,7 +172,7 @@ class ExportAKPreferenceSerializer(serializers.ModelSerializer):
     https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
     """
 
-    ak_id = serializers.IntegerField(source="slot.pk")
+    ak_id = serializers.IntegerField(source="ak.pk")
 
     class Meta:
         model = AKPreference

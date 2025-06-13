@@ -61,7 +61,7 @@
             <div class="container radio-group">
               <div class="container radio-info">
                 <h4>{{ innerform.preference.label }}
-                  {% if innerform.ak.reso %}
+                  {% if innerform.ak_obj.reso %}
                     <span class="badge bg-dark rounded-pill"
                       title="{% trans 'Intends to submit a resolution' %}">{% fa6_icon "scroll" 'fas' %}</span>
                   {% endif %}
@@ -69,12 +69,12 @@
                 <details>
                   <summary>{% trans "Description" %}</summary>
 
-                  <p>{{ innerform.ak.description }}</p>
+                  <p>{{ innerform.ak_obj.description }}</p>
 
-                  {% if innerform.ak.owners_list %}
-                    <p>{% trans "Responsible" %}: {{ innerform.ak.owners_list }}</p>
+                  {% if innerform.ak_obj.owners_list %}
+                    <p>{% trans "Responsible" %}: {{ innerform.ak_obj.owners_list }}</p>
                   {% endif %}
-                  {% if innerform.ak.reso %}
+                  {% if innerform.ak_obj.reso %}
                     <!-- TODO: reso as an icon -->
                     <p><i>{% trans "Intends to submit a resolution" %}.</i></p>
                   {% endif %}
