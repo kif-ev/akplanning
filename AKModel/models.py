@@ -1502,9 +1502,15 @@ class EventParticipant(models.Model):
     @property
     def export_preferences(self):
         """Preferences of this participant with positive score."""
-        return AKPreference.objects.filter(
-            participant=self, preference__gt=0
-        ).order_by()
+        return (
+            AKPreference.objects
+            .filter(
+                participant=self, preference__gt=0
+            )
+            .order_by()
+            .select_related('ak')
+            .prefetch_related('ak__akslot_set')
+        )
 
 
 class AKPreference(models.Model):
