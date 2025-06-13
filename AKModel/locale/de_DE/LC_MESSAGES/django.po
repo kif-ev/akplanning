@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-03 20:47+0100\n"
+"POT-Creation-Date: 2025-06-13 23:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1100,9 +1100,9 @@ msgstr "AK Präferenzen"
 msgid "Participant this preference belongs to"
 msgstr "Teilnehmer*in, zu der die Präferenz gehört"
 
-#: AKModel/models.py:1439
-msgid "AK Slot this preference belongs to"
-msgstr "AK-Slot zu dem die Präferenz gehört"
+#: AKModel/models.py:1532
+msgid "AK this preference belongs to"
+msgstr "AK zu dem die Präferenz gehört"
 
 #: AKModel/models.py:1445
 msgid "Ignore"

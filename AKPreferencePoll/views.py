@@ -96,13 +96,23 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
         return self.form_invalid(form=(formset, participant_form))
 
     def form_valid(self, form):
-        formset, participant_form = form
-        participant = participant_form.save()
-        instances = formset.save(commit=False)
-        for instance in instances:
-            instance.participant = participant
-            instance.save()
-        success_message = self.get_success_message(participant_form.cleaned_data)
-        if success_message:
-            messages.success(self.request, success_message)
+        try:
+            formset, participant_form = form
+            participant = participant_form.save()
+            instances = formset.save(commit=False)
+            for instance in instances:
+                instance.participant = participant
+                instance.save()
+            success_message = self.get_success_message(participant_form.cleaned_data)
+            if success_message:
+                messages.success(self.request, success_message)
+        except:
+            messages.error(
+                self.request,
+                _(
+                    "Something went wrong. Your preferences were not saved. "
+                    "Please try again or contact the organizers."
+                ),
+            )
+            return self.form_invalid(form=form)
         return redirect(self.get_success_url())
