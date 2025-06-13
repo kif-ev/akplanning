@@ -129,7 +129,7 @@ class EventAdmin(admin.ModelAdmin):
         Define a read-only field to toggle the visibility of the preference poll of this event
         This will choose from two different link targets/views depending on the current visibility status
 
-        :param obj: event to change the visibility of the plan for
+        :param obj: event to change the visibility of the poll for
         :return: toggling link (HTML)
         :rtype: str
         """

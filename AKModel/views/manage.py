@@ -164,7 +164,7 @@ class PollPublishView(IntermediateAdminActionView):
     """
     title = _('Publish preference poll')
     model = Event
-    confirmation_message = _('Publish the plan(s) of:')
+    confirmation_message = _('Publish the poll(s) of:')
     success_message = _('Preference poll published')
 
     def action(self, form):

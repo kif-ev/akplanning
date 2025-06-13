@@ -1449,6 +1449,10 @@ msgstr "Den Plan/die Pläne verbergen von:"
 msgid "Plan unpublished"
 msgstr "Plan verborgen"
 
+#: AKModel/views/manage.py:168
+msgid "Publish the poll(s) of:"
+msgstr "Die Präferenzen-Abfrage(n) veröffentlichen von:"
+
 #: AKModel/views/manage.py:169
 msgid "Preference poll published"
 msgstr "Präferenzen-Abfrage veröffentlicht"
