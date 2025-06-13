@@ -1483,7 +1483,7 @@ class EventParticipant(models.Model):
             event=self.event,
             participant=self,
             preference=AKPreference.PreferenceLevel.REQUIRED,
-        ).exists()
+        )
 
         if (
             avails
