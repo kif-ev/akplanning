@@ -1,4 +1,4 @@
-{% extends 'AKPreferencePoll/poll_base.html' %}
+{% extends 'AKPreference/poll_base.html' %}
 
 {% load i18n %}
 {% load fontawesome_6 %}
@@ -7,7 +7,7 @@
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "AK Preference Poll" %}{% endblock %}
 
 {% block breadcrumbs %}
-    {% include "AKPreferencePoll/poll_breadcrumbs.html" %}
+    {% include "AKPreference/poll_breadcrumbs.html" %}
     <li class="breadcrumb-item active">{% trans "AK Preference Poll" %}</li>
 {% endblock %}
 

@@ -6,7 +6,7 @@ from AKModel.tests.test_views import BasicViewTests
 
 class PollViewTests(BasicViewTests, TestCase):
     """
-    Tests for AKPreferencePoll
+    Tests for AKPreference Poll
     """
     fixtures = ['model.json']
     APP_NAME = 'poll'
@@ -37,4 +37,4 @@ class PollViewTests(BasicViewTests, TestCase):
             msg=f"{url_poll} broken",
         )
 
-        self.assertTemplateUsed(response, "AKPreferencePoll/poll.html", msg_prefix="Poll is not visible for staff user")
+        self.assertTemplateUsed(response, "AKPreference/poll.html", msg_prefix="Poll is not visible for staff user")

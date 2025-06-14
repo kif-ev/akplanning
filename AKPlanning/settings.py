@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'AKScheduling.apps.AkschedulingConfig',
     'AKPlan.apps.AkplanConfig',
     'AKOnline.apps.AkonlineConfig',
-    'AKPreferencePoll.apps.AkpreferencepollConfig',
+    'AKPreference.apps.AkpreferenceConfig',
     'AKSolverInterface.apps.AksolverinterfaceConfig',
     'AKModel.apps.AKAdminConfig',
     'django.contrib.auth',

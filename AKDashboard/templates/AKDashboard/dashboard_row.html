@@ -63,7 +63,7 @@
             <span class='text'>{% trans 'AK History' %}</span>
         </div>
     </a>
-    {% if 'AKPreferencePoll'|check_app_installed and event.active %}
+    {% if 'AKPreference'|check_app_installed and event.active %}
         {% if not event.poll_hidden or user.is_staff %}
             <a class="dashboard-box btn btn-primary"
             href="{% url 'poll:poll' event_slug=event.slug %}">

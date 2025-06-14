@@ -37,5 +37,5 @@ if apps.is_installed("AKDashboard"):
     urlpatterns.append(path('', include('AKDashboard.urls', namespace='dashboard')))
 if apps.is_installed("AKPlan"):
     urlpatterns.append(path('', include('AKPlan.urls', namespace='plan')))
-if apps.is_installed("AKPreferencePoll"):
-    urlpatterns.append(path('', include('AKPreferencePoll.urls', namespace='poll')))
+if apps.is_installed("AKPreference"):
+    urlpatterns.append(path('', include('AKPreference.urls', namespace='poll')))

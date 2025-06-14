@@ -17,63 +17,63 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll.html:11
-#: AKPreferencePoll/templates/AKPreferencePoll/poll_not_configured.html:7
+#: AKPreference/templates/AKPreference/poll.html:11
+#: AKPreference/templates/AKPreference/poll_not_configured.html:7
 msgid "AKs"
 msgstr "AKs"
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll.html:11
+#: AKPreference/templates/AKPreference/poll.html:11
 msgid "Preferences"
 msgstr "Präferenzen"
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll.html:34
-#: AKPreferencePoll/templates/AKPreferencePoll/poll.html:41
+#: AKPreference/templates/AKPreference/poll.html:34
+#: AKPreference/templates/AKPreference/poll.html:41
 msgid "AK Preferences"
 msgstr "AK-Präferenzen"
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll.html:47
+#: AKPreference/templates/AKPreference/poll.html:47
 msgid "Your preferences"
 msgstr "Deine Präferenzen"
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll.html:49
+#: AKPreference/templates/AKPreference/poll.html:49
 msgid "Please enter your preferences."
 msgstr "Trage bitte deine Präferenzen zu den AKs ein."
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll.html:68
-#: AKPreferencePoll/templates/AKPreferencePoll/poll.html:82
+#: AKPreference/templates/AKPreference/poll.html:68
+#: AKPreference/templates/AKPreference/poll.html:82
 msgid "Intends to submit a resolution"
 msgstr "Beabsichtigt eine Resolution einzureichen"
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll.html:73
+#: AKPreference/templates/AKPreference/poll.html:73
 msgid "Description"
 msgstr "Beschreibung"
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll.html:78
+#: AKPreference/templates/AKPreference/poll.html:78
 msgid "Responsible"
 msgstr "Verantwortlich"
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll.html:93
+#: AKPreference/templates/AKPreference/poll.html:93
 msgid "Submit"
 msgstr "Eintragen"
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll.html:97
+#: AKPreference/templates/AKPreference/poll.html:97
 msgid "Reset Form"
 msgstr "Formular leeren"
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll.html:101
+#: AKPreference/templates/AKPreference/poll.html:101
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll_base.html:13
+#: AKPreference/templates/AKPreference/poll_base.html:13
 msgid "Write to organizers of this event for questions and comments"
 msgstr "Fragen oder Kommentare? Schreib den Orgas dieses Events eine Mail"
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll_not_configured.html:7
-#: AKPreferencePoll/templates/AKPreferencePoll/poll_not_configured.html:11
+#: AKPreference/templates/AKPreference/poll_not_configured.html:7
+#: AKPreference/templates/AKPreference/poll_not_configured.html:11
 msgid "AK Preference Poll"
 msgstr "Abfrage von AK-Präferenzen"
 
-#: AKPreferencePoll/templates/AKPreferencePoll/poll_not_configured.html:20
+#: AKPreference/templates/AKPreference/poll_not_configured.html:20
 msgid ""
 "System is not yet configured for AK preference polling. Please try again "
 "later."
@@ -81,11 +81,11 @@ msgstr ""
 "Das System ist bisher nicht für die Erfassung von AK-Präferenzen "
 "konfiguriert. Bitte versuche es später wieder."
 
-#: AKPreferencePoll/views.py:18
+#: AKPreference/views.py:18
 msgid "AK preferences were registered successfully"
 msgstr "AK-Präferenzen erfolgreich registriert"
 
-#: AKPreferencePoll/views.py:113
+#: AKPreference/views.py:113
 msgid ""
 "Something went wrong. Your preferences were not saved. Please try again or "
 "contact the organizers."

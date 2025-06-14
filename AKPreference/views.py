@@ -32,7 +32,7 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
     form_class = forms.modelform_factory(
         model=AKPreference, fields=["preference", "ak", "event"]
     )
-    template_name = "AKPreferencePoll/poll.html"
+    template_name = "AKPreference/poll.html"
     success_message = _("AK preferences were registered successfully")
 
     def _create_modelformset(self):

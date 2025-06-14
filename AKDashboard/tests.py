@@ -153,7 +153,7 @@ class DashboardTests(TestCase):
         """
         url_event_dashboard = reverse('dashboard:dashboard_event', kwargs={"slug": self.event.slug})
 
-        if apps.is_installed('AKPreferencePoll'):
+        if apps.is_installed('AKPreference'):
             # Poll hidden? No buttons should show up
             self.event.poll_hidden = True
             self.event.save()
