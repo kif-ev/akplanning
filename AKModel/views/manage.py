@@ -80,7 +80,8 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
         show_types = self.event.aktype_set.count() > 0
         if len(form.cleaned_data['types']) > 0:
             types = AKType.objects.filter(id__in=form.cleaned_data['types'])
-            types_filter_string = f"[{_('Type(s)')}: {', '.join(AKType.objects.get(pk=t).name for t in form.cleaned_data['types'])}]"
+            names_string = ', '.join(AKType.objects.get(pk=t).name for t in form.cleaned_data['types'])
+            types_filter_string = f"[{_('Type(s)')}: {names_string}]"
 
         # Get all relevant AKs (wishes separately, and either all AKs or only those who should directly or indirectly
         # be presented when restriction setting was chosen)

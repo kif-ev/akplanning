@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import Q
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, ListView
 from django.utils.translation import gettext_lazy as _
@@ -50,12 +50,13 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
                     else:
                         raise ValueError(f"Unknown type condition: {type_condition}")
                 if 'strict' in request.GET:
-                    # If strict is specified and marked as "yes", exclude all AKs that have any of the excluded types ("no"),
+                    # If strict is specified and marked as "yes",
+                    # exclude all AKs that have any of the excluded types ("no"),
                     # even if they have other types that are marked as "yes"
-                    self.types_filter["strict"] = True if request.GET['strict'] == 'yes' else False
+                    self.types_filter["strict"] = request.GET.get('strict') == 'yes'
                 if 'empty' in request.GET:
                     # If empty is specified and marked as "yes", include AKs that have no types at all
-                    self.types_filter["empty"] = True if request.GET['empty'] == 'yes' else False
+                    self.types_filter["empty"] = request.GET.get('empty') == 'yes'
                 # Will be used for generating a link to the wall view with the same filter
                 self.query_string = request.GET.urlencode(safe=",:")
             except (ValueError, AKType.DoesNotExist):
@@ -80,8 +81,8 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
             # Or only those with the given types
             else:
                 qs = qs.filter(ak__types__in=self.types_filter["yes"]).distinct()
-            # Afterwards, if strict, exclude all AKs that have any of the excluded types, even though they were
-            # included by the previous filter
+            # Afterwards, if strict, exclude all AKs that have any of the excluded types,
+            # even though they were included by the previous filter
             if self.types_filter["strict"]:
                 qs = qs.exclude(ak__types__in=self.types_filter["no"]).distinct()
         return qs
