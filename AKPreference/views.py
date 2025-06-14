@@ -11,7 +11,8 @@ from django.views.generic import FormView
 from AKModel.availability.models import Availability
 from AKModel.availability.serializers import AvailabilityFormSerializer
 from AKModel.metaviews.admin import EventSlugMixin
-from AKModel.models import AK, AKPreference
+from AKModel.models import AK
+from AKPreference.models import AKPreference
 
 from .forms import EventParticipantForm
 

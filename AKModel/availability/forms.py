@@ -12,7 +12,7 @@ from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.models import Availability
-from AKModel.availability.serializers import AvailabilitySerializer, AvailabilityFormSerializer
+from AKModel.availability.serializers import AvailabilityFormSerializer
 from AKModel.models import Event
 
 

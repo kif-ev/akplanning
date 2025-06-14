@@ -3,6 +3,18 @@ from rest_framework import serializers
 from AKModel.models import AK, AKCategory, AKOwner, AKSlot, AKTrack, Room
 
 
+class StringListField(serializers.ListField):
+    """List field containing strings."""
+
+    child = serializers.CharField()
+
+
+class IntListField(serializers.ListField):
+    """List field containing integers."""
+
+    child = serializers.IntegerField()
+
+
 class AKOwnerSerializer(serializers.ModelSerializer):
     """
     REST Framework Serializer for AKOwner

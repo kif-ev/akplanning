@@ -10,7 +10,9 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from AKModel.models import Event, AKOwner, Room, AK, AKCategory, EventParticipant
+from AKModel.models import Event, AKOwner, Room, AK, AKCategory
+# TODO: Decouple from AKPreference app
+from AKPreference.models import EventParticipant
 
 zero_time = datetime.time(0, 0)
 

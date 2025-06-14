@@ -3,7 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
-from AKModel.models import AKRequirement, EventParticipant
+from AKModel.models import AKRequirement
+from AKPreference.models import EventParticipant
 
 
 class EventParticipantForm(AvailabilitiesFormMixin, forms.ModelForm):
