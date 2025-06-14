@@ -246,7 +246,7 @@ class Event(models.Model):
             s = category.ak_set
             if types is not None:
                 s = s.filter(types__in=types).distinct()
-            return s.select_related('event').prefetch_related('owners', 'akslot_set').all()
+            return s.select_related('event').prefetch_related('owners', 'akslot_set', 'types').all()
 
         if wishes_seperately:
             for category in categories:
@@ -837,22 +837,32 @@ class AK(models.Model):
     @property
     def owners_list(self):
         """
-        Get a list of stringified representations of all owners
+        Get a stringified list of stringified representations of all owners
 
-        :return: list of owners
-        :rtype: list[str]
+        :return: stringified list of owners
+        :rtype: str
         """
         return ", ".join(str(owner) for owner in self.owners.all())
 
     @property
     def durations_list(self):
         """
-        Get a list of stringified representations of all durations of associated slots
+        Get a stringified list of stringified representations of all durations of associated slots
 
-        :return: list of durations
-        :rtype: list[str]
+        :return: stringified list of durations
+        :rtype: str
         """
         return ", ".join(str(slot.duration_simplified) for slot in self.akslot_set.select_related('event').all())
+
+    @property
+    def types_list(self):
+        """
+        Get a stringified list of all types of this AK
+
+        :return: stringified list of types
+        :rtype: str
+        """
+        return ", ".join(str(t) for t in self.types.all())
 
     @property
     def wish(self):

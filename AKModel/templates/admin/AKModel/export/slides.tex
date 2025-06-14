@@ -19,6 +19,10 @@
 
     \faUser~ {{ translations.who }}
 
+    {% if show_types %}
+        \faList~ {{ translations.types }}
+    {% endif %}
+
     \faClock~ {{ translations.duration }}
 
     \faScroll~{{ translations.reso }}
@@ -44,6 +48,10 @@
                 \vspace{1em}
 
                 \faUser~ {{ ak.owners_list | latex_escape }}
+
+                {% if show_types %}
+                    \faList~ {{ak.types_list }}
+                {% endif %}
 
                 {% if not result_presentation_mode %}
                     \faClock~ {{ak.durations_list}}

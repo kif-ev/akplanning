@@ -64,6 +64,7 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             'reso': _("Reso intention?"),
             'category': _("Category (for Wishes)"),
             'wishes': _("Wishes"),
+            'types': _("Types"),
         }
 
         def build_ak_list_with_next_aks(ak_list):
@@ -75,8 +76,11 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
 
         # Create a list of types to filter AKs by (if at least one type was selected)
         types = None
+        types_filter_string = ""
+        show_types = self.event.aktype_set.count() > 0
         if len(form.cleaned_data['types']) > 0:
             types = AKType.objects.filter(id__in=form.cleaned_data['types'])
+            types_filter_string = f"[{_('Type(s)')}: {', '.join(AKType.objects.get(pk=t).name for t in form.cleaned_data['types'])}]"
 
         # Get all relevant AKs (wishes separately, and either all AKs or only those who should directly or indirectly
         # be presented when restriction setting was chosen)
@@ -89,11 +93,12 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             'title': self.event.name,
             'categories_with_aks': [(category, build_ak_list_with_next_aks(ak_list)) for category, ak_list in
                                     categories_with_aks],
-            'subtitle': _("AKs"),
+            'subtitle': _("AKs") + " " + types_filter_string,
             "wishes": build_ak_list_with_next_aks(ak_wishes),
             "translations": translations,
             "result_presentation_mode": RESULT_PRESENTATION_MODE,
             "space_for_notes_in_wishes": SPACE_FOR_NOTES_IN_WISHES,
+            "show_types": show_types,
         }
 
         source = render_template_with_context(template_name, context)
