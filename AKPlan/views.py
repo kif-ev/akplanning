@@ -23,6 +23,7 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
     context_object_name = "akslots"
     ordering = "start"
     types_filter = None
+    query_string = ""
 
     def get(self, request, *args, **kwargs):
         if 'types' in request.GET:
@@ -50,6 +51,8 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
                 if 'empty' in request.GET:
                     # If empty is specified and marked as "yes", include AKs that have no types at all
                     self.types_filter["empty"] = True if request.GET['empty'] == 'yes' else False
+                # Will be used for generating a link to the wall view with the same filter
+                self.query_string = request.GET.urlencode(safe=",:")
             except (ValueError, AKType.DoesNotExist):
                 # Display an error message if the types parameter is malformed
                 messages.add_message(request, messages.ERROR, _("Invalid type filter"))
@@ -66,7 +69,6 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
 
         # Apply type filter if necessary
         if self.types_filter:
-            print(self.types_filter)
             # Either include all AKs with the given types or without any types at all
             if self.types_filter["empty"]:
                 qs = qs.filter(Q(ak__types__in=self.types_filter["yes"]) | Q(ak__types__isnull=True)).distinct()
@@ -115,6 +117,9 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
             context["buildings"] = sorted(buildings)
 
         context["tracks"] = self.event.aktrack_set.all()
+
+        # Pass query string to template for generating a matching wall link
+        context["query_string"] = self.query_string
 
         return context
 
