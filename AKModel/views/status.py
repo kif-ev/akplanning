@@ -139,16 +139,8 @@ class EventAKsWidget(TemplateStatusWidget):
                     "url": reverse_lazy("admin:tracks_manage", kwargs={"event_slug": context["event"].slug}),
                 },
                 {
-                    "text": _("Import AK schedule from JSON"),
-                    "url": reverse_lazy("admin:ak_schedule_json_import", kwargs={"event_slug": context["event"].slug}),
-                },
-                {
                     "text": _("Export AKs as CSV"),
                     "url": reverse_lazy("admin:ak_csv_export", kwargs={"event_slug": context["event"].slug}),
-                },
-                {
-                    "text": _("Export AKs as JSON"),
-                    "url": reverse_lazy("admin:ak_json_export", kwargs={"event_slug": context["event"].slug}),
                 },
                 {
                     "text": _("Export AKs for Wiki"),
@@ -160,6 +152,17 @@ class EventAKsWidget(TemplateStatusWidget):
                 },
             ]
         )
+        if apps.is_installed("AKSolverInterface"):
+            actions.extend([
+                {
+                    "text": _("Export AKs as JSON"),
+                    "url": reverse_lazy("admin:ak_json_export", kwargs={"event_slug": context["event"].slug}),
+                },
+                {
+                    "text": _("Import AK schedule from JSON"),
+                    "url": reverse_lazy("admin:ak_schedule_json_import", kwargs={"event_slug": context["event"].slug}),
+                },
+            ])
         return actions
 
 

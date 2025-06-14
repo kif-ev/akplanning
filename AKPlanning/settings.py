@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+import decimal
 import os
 
 from django.utils.translation import gettext_lazy as _
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
     'AKScheduling.apps.AkschedulingConfig',
     'AKPlan.apps.AkplanConfig',
     'AKOnline.apps.AkonlineConfig',
+    'AKSolverInterface.apps.AksolverinterfaceConfig',
     'AKModel.apps.AKAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -220,6 +222,12 @@ DASHBOARD_RECENT_MAX = 25
 # How many events should be featured in the dashboard
 # (active events will always be featured, even if their number is higher than this threshold)
 DASHBOARD_MAX_FEATURED_EVENTS = 3
+
+# In the export to the solver we need to calculate the integer number
+# of discrete time slots covered by an AK. This is done by rounding
+# the 'exact' number up. To avoid 'overshooting' by 1
+# due to FLOP inaccuracies, we subtract this small epsilon before rounding.
+EXPORT_CEIL_OFFSET_EPS = decimal.Decimal(1e-4)
 
 # Registration/login behavior
 SIMPLE_BACKEND_REDIRECT_URL = "/user/"

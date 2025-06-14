@@ -1,0 +1,85 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-03-25 12:03+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: AKSolverInterface/forms.py:18
+msgid "JSON data"
+msgstr "JSON-Daten"
+
+#: AKSolverInterface/forms.py:19
+msgid "JSON data from the scheduling solver"
+msgstr "JSON-Daten, die der scheduling-solver produziert hat"
+
+#: AKSolverInterface/forms.py:24
+msgid "File with JSON data"
+msgstr "Datei mit JSON-Daten"
+
+#: AKSolverInterface/forms.py:25
+msgid "File with JSON data from the scheduling solver"
+msgstr "Datei mit JSON-Daten, die der scheduling-solver produziert hat"
+
+#: AKSolverInterface/forms.py:38
+msgid "Cannot decode as JSON"
+msgstr "Dekodierung als JSON fehlgeschlagen"
+
+#: AKSolverInterface/forms.py:43
+#, python-format
+msgid "Invalid JSON format: %(msg)s at %(error_path)s"
+msgstr "Ungültige JSON-Eingabe: %(msg)s bei %(error_path)s"
+
+#: AKSolverInterface/forms.py:54
+msgid "Please enter data as a file OR via text, not both."
+msgstr "Gib die Daten bitte als Datei oder als Text ein, nicht beides."
+
+#: AKSolverInterface/forms.py:60
+msgid "No data entered. Please enter data as a file or via text."
+msgstr ""
+"Keine Daten eingegeben. Gib die Daten bitte als Datei oder als Text ein."
+
+#: AKSolverInterface/templates/admin/AKSolverInterface/import_json.html:23
+msgid "Confirm"
+msgstr "Bestätigen"
+
+#: AKSolverInterface/templates/admin/AKSolverInterface/import_json.html:27
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: AKSolverInterface/views.py:26
+msgid "AK JSON Export"
+msgstr "AK-JSON-Export"
+
+#: AKSolverInterface/views.py:40
+msgid "Exporting AKs for the solver failed! Reason: "
+msgstr "Daten für den Solver exportieren fehlgeschlagen! Grund: "
+
+#: AKSolverInterface/views.py:48
+msgid "AK Schedule JSON Import"
+msgstr "AK-Plan JSON-Import"
+
+#: AKSolverInterface/views.py:58
+#, python-brace-format
+msgid "Successfully imported {n} slot(s)"
+msgstr "Erfolgreich {n} Slot(s) importiert"
+
+#: AKSolverInterface/views.py:66
+msgid "Importing an AK schedule failed! Reason: "
+msgstr "AK-Plan importieren fehlgeschlagen! Grund: "
+
+#, python-format
+#~ msgid "Invalid JSON format: field '%(field)s' is missing"
+#~ msgstr "Ungültige JSON-Eingabe: das Feld '%(field)s' fehlt"
