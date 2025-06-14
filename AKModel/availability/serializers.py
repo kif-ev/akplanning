@@ -4,9 +4,10 @@
 # Documentation was mainly added by us, other changes are marked in the code
 from django.utils import timezone
 from rest_framework.fields import SerializerMethodField
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import BaseSerializer, ModelSerializer
 
 from AKModel.availability.models import Availability
+from AKModel.models import Event
 
 
 class AvailabilitySerializer(ModelSerializer):
@@ -44,3 +45,28 @@ class AvailabilitySerializer(ModelSerializer):
     class Meta:
         model = Availability
         fields = ('id', 'start', 'end', 'allDay')
+
+
+class AvailabilityFormSerializer(BaseSerializer):
+    """Serializer to configure an availability form."""
+
+    def create(self, validated_data):
+        raise ValueError("`AvailabilityFormSerializer` is read-only.")
+
+    def to_internal_value(self, data):
+        raise ValueError("`AvailabilityFormSerializer` is read-only.")
+
+    def update(self, instance, validated_data):
+        raise ValueError("`AvailabilityFormSerializer` is read-only.")
+
+    def to_representation(self, instance: tuple[Availability, Event], **kwargs):
+        availabilities, event = instance
+
+        return {
+            'availabilities': AvailabilitySerializer(availabilities, many=True).data,
+            'event': {
+                # 'timezone': event.timezone,
+                'date_from': str(event.start),
+                'date_to': str(event.end),
+            },
+        }

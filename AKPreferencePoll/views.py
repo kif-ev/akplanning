@@ -1,3 +1,5 @@
+import json
+
 from django import forms
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -6,6 +8,8 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
+from AKModel.availability.models import Availability
+from AKModel.availability.serializers import AvailabilityFormSerializer
 from AKModel.metaviews.admin import EventSlugMixin
 from AKModel.models import AK, AKPreference
 
@@ -79,8 +83,18 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
             )
             form.ak_obj = init["ak"]
 
+        availabilities_serialization = AvailabilityFormSerializer(
+            (
+                [Availability.with_event_length(event=self.event)],
+                self.event,
+            )
+        )
+
         context["participant_form"] = EventParticipantForm(
-            initial={"event": self.event}
+            initial={
+                "event": self.event,
+                "availabilities": json.dumps(availabilities_serialization.data),
+            }
         )
         return context
 
