@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -32,6 +33,7 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
                 self.types_filter = {
                     "yes": [],
                     "no": [],
+                    "no_set": set(),
                     "strict": False,
                     "empty": False,
                 }
@@ -42,6 +44,9 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
                     if type_condition in ["yes", "no"]:
                         t = AKType.objects.get(slug=type_slug, event=self.event)
                         self.types_filter[type_condition].append(t)
+                        if type_condition == "no":
+                            # Store slugs of excluded types in a set for faster lookup
+                            self.types_filter["no_set"].add(t.slug)
                     else:
                         raise ValueError(f"Unknown type condition: {type_condition}")
                 if 'strict' in request.GET:
@@ -120,6 +125,24 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
 
         # Pass query string to template for generating a matching wall link
         context["query_string"] = self.query_string
+
+        # Generate a list of all types and their current selection state for graphic filtering
+        types = [{"name": t.name, "slug": t.slug, "state": True} for t in self.event.aktype_set.all()]
+        if len(types) > 0:
+            context["type_filtering_active"] = True
+            if self.types_filter:
+                for t in types:
+                    if t["slug"] in self.types_filter["no_set"]:
+                        t["state"] = False
+            # Pass type list as well as filter state for strict filtering and empty types to the template
+            context["types"] = json.dumps(types)
+            context["types_filter_strict"] = False
+            context["types_filter_empty"] = False
+            if self.types_filter:
+                context["types_filter_empty"] = self.types_filter["empty"]
+                context["types_filter_strict"] = self.types_filter["strict"]#
+        else:
+            context["type_filtering_active"] = False
 
         return context
 
