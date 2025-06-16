@@ -1,4 +1,7 @@
+from collections.abc import Callable
+
 from django.apps import apps
+from django.db.models.query import QuerySet
 from rest_framework import serializers
 
 from AKModel.models import AK, AKSlot, Event, Room
@@ -410,21 +413,74 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
         return timeslots
 
 
-class ExportEventSerializer(serializers.ModelSerializer):
+class ExportEventSerializer(serializers.BaseSerializer):
     """Export serializer for an Event object.
+
+    Allows filtering of the exported AKSlots and Rooms by
+    passing a filter callback function as a kwarg to __init__
 
     Used to serialize an Event for the export to a solver.
     Part of the implementation of the format of the KoMa solver:
     https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
     """
 
-    info = ExportEventInfoSerializer(source="*")
-    rooms = ExportRoomSerializer(many=True)
-    aks = ExportAKSlotSerializer(source="slots", many=True)
-    participants = ExportParticipantAndDummiesSerializer(source="*")
-    timeslots = ExportTimeslotBlockSerializer(source="*")
+    def __init__(
+        self,
+        *args,
+        filter_slots_cb: Callable[[QuerySet], QuerySet] | None = None,
+        filter_rooms_cb: Callable[[QuerySet], QuerySet] | None = None,
+        **kwargs,
+    ):
+        def _identity(queryset: QuerySet) -> QuerySet:
+            return queryset
 
-    class Meta:
-        model = Event
-        fields = ["participants", "rooms", "timeslots", "info", "aks"]
-        read_only_fields = ["participants", "rooms", "timeslots", "info", "aks"]
+        # use identity function if not specified
+        self.filter_rooms_cb = filter_rooms_cb or _identity
+        self.filter_slots_cb = filter_slots_cb or _identity
+
+        super().__init__(*args, **kwargs)
+
+
+    def create(self, validated_data):
+        raise ValueError("`ExportEventSerializer` is read-only.")
+
+    def to_internal_value(self, data):
+        raise ValueError("`ExportEventSerializer` is read-only.")
+
+    def update(self, instance, validated_data):
+        raise ValueError("`ExportEventSerializer` is read-only.")
+
+    def to_representation(self, instance: Event):
+        """
+        Object instance -> Dict of primitive datatypes.
+        """
+        event = instance
+
+        def _filter_queryset(
+            queryset: QuerySet, cb: Callable[[QuerySet], QuerySet],
+        ) -> QuerySet:
+            """Applies filter callback if queryset is a QuerySet object."""
+            # check if queryset is actually a queryset (and not e.g. an empty list)
+            return cb(queryset) if isinstance(queryset, QuerySet) else queryset
+
+
+        info = ExportEventInfoSerializer(event)
+        participants = ExportParticipantAndDummiesSerializer(event)
+        timeslots = ExportTimeslotBlockSerializer(event)
+        # we support filtering of Rooms and AKSlots
+        rooms = ExportRoomSerializer(
+            _filter_queryset(event.rooms, self.filter_rooms_cb),
+            many=True,
+        )
+        slots = ExportAKSlotSerializer(
+            _filter_queryset(event.slots, self.filter_slots_cb),
+            many=True
+        )
+
+        return {
+            "participants": participants.data,
+            "rooms": rooms.data,
+            "timeslots": timeslots.data,
+            "info": info.data,
+            "aks": slots.data,
+        }
