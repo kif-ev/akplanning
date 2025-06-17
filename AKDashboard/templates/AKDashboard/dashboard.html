@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block content %}
+    {% include "messages.html" %}
     {% if total_event_count > 0 %}
         {% for event in active_and_current_events %}
             <div class="dashboard-row">

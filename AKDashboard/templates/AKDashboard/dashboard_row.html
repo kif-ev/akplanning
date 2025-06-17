@@ -63,6 +63,17 @@
             <span class='text'>{% trans 'AK History' %}</span>
         </div>
     </a>
+    {% if 'AKPreference'|check_app_installed and event.active %}
+        {% if not event.poll_hidden or user.is_staff %}
+            <a class="dashboard-box btn btn-primary"
+            href="{% url 'poll:poll' event_slug=event.slug %}">
+                <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button">
+                    <span class="fa fa-poll"></span>
+                    <span class='text'>{% trans 'AK Preferences' %}</span>
+                </div>
+            </a>
+        {% endif %}
+    {% endif %}
     {% for button in event.dashboardbutton_set.all %}
         <a class="dashboard-box btn btn-{{ button.get_color_display }}"
            href="{{ button.url }}">

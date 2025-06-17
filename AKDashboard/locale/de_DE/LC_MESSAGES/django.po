@@ -113,6 +113,10 @@ msgstr "AK-Einreichung"
 msgid "AK History"
 msgstr "AK-Verlauf"
 
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:71
+msgid "AK Preferences"
+msgstr "AK-Präferenzen"
+
 #: AKDashboard/views.py:69
 #, python-format
 msgid "New AK: %(ak)s."

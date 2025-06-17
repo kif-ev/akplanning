@@ -34,9 +34,10 @@ class NewEventWizardStartForm(forms.ModelForm):
     """
     class Meta:
         model = Event
-        fields = ['name', 'slug', 'timezone', 'plan_hidden']
+        fields = ['name', 'slug', 'timezone', 'plan_hidden', 'poll_hidden']
         widgets = {
             'plan_hidden': forms.HiddenInput(),
+            'poll_hidden': forms.HiddenInput(),
         }
 
     # Special hidden field for wizard state handling
@@ -53,7 +54,7 @@ class NewEventWizardSettingsForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = "__all__"
-        exclude = ['plan_published_at']
+        exclude = ['plan_published_at', 'poll_published_at']
         widgets = {
             'name': forms.HiddenInput(),
             'slug': forms.HiddenInput(),
@@ -65,6 +66,7 @@ class NewEventWizardSettingsForm(forms.ModelForm):
             'interest_end': DateTimeInput(),
             'reso_deadline': DateTimeInput(),
             'plan_hidden': forms.HiddenInput(),
+            'poll_hidden': forms.HiddenInput(),
         }
 
 

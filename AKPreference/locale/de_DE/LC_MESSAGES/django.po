@@ -1,0 +1,94 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-13 23:58+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: AKPreference/templates/AKPreference/poll.html:11
+#: AKPreference/templates/AKPreference/poll_not_configured.html:7
+msgid "AKs"
+msgstr "AKs"
+
+#: AKPreference/templates/AKPreference/poll.html:11
+msgid "Preferences"
+msgstr "Präferenzen"
+
+#: AKPreference/templates/AKPreference/poll.html:34
+#: AKPreference/templates/AKPreference/poll.html:41
+msgid "AK Preferences"
+msgstr "AK-Präferenzen"
+
+#: AKPreference/templates/AKPreference/poll.html:47
+msgid "Your preferences"
+msgstr "Deine Präferenzen"
+
+#: AKPreference/templates/AKPreference/poll.html:49
+msgid "Please enter your preferences."
+msgstr "Trage bitte deine Präferenzen zu den AKs ein."
+
+#: AKPreference/templates/AKPreference/poll.html:68
+#: AKPreference/templates/AKPreference/poll.html:82
+msgid "Intends to submit a resolution"
+msgstr "Beabsichtigt eine Resolution einzureichen"
+
+#: AKPreference/templates/AKPreference/poll.html:73
+msgid "Description"
+msgstr "Beschreibung"
+
+#: AKPreference/templates/AKPreference/poll.html:78
+msgid "Responsible"
+msgstr "Verantwortlich"
+
+#: AKPreference/templates/AKPreference/poll.html:93
+msgid "Submit"
+msgstr "Eintragen"
+
+#: AKPreference/templates/AKPreference/poll.html:97
+msgid "Reset Form"
+msgstr "Formular leeren"
+
+#: AKPreference/templates/AKPreference/poll.html:101
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: AKPreference/templates/AKPreference/poll_base.html:13
+msgid "Write to organizers of this event for questions and comments"
+msgstr "Fragen oder Kommentare? Schreib den Orgas dieses Events eine Mail"
+
+#: AKPreference/templates/AKPreference/poll_not_configured.html:7
+#: AKPreference/templates/AKPreference/poll_not_configured.html:11
+msgid "AK Preference Poll"
+msgstr "Abfrage von AK-Präferenzen"
+
+#: AKPreference/templates/AKPreference/poll_not_configured.html:20
+msgid ""
+"System is not yet configured for AK preference polling. Please try again "
+"later."
+msgstr ""
+"Das System ist bisher nicht für die Erfassung von AK-Präferenzen "
+"konfiguriert. Bitte versuche es später wieder."
+
+#: AKPreference/views.py:18
+msgid "AK preferences were registered successfully"
+msgstr "AK-Präferenzen erfolgreich registriert"
+
+#: AKPreference/views.py:113
+msgid ""
+"Something went wrong. Your preferences were not saved. Please try again or "
+"contact the organizers."
+msgstr ""
+"Etwas ging schief. Deine Präferenzen konnten nicht gespeichert werden. "
+"Versuche es bitte erneut oder kontaktiere die Orgas."

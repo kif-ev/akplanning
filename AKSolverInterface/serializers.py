@@ -1,26 +1,8 @@
+from django.apps import apps
 from rest_framework import serializers
 
-from AKModel.models import (
-    AK,
-    AKPreference,
-    AKSlot,
-    Event,
-    EventParticipant,
-    Room,
-)
-
-
-class StringListField(serializers.ListField):
-    """List field containing strings."""
-
-    child = serializers.CharField()
-
-
-class IntListField(serializers.ListField):
-    """List field containing integers."""
-
-    child = serializers.IntegerField()
-
+from AKModel.models import AK, AKSlot, Event, Room
+from AKModel.serializers import IntListField, StringListField
 
 class ExportRoomInfoSerializer(serializers.ModelSerializer):
     """Serializer of Room objects for the 'info' field.
@@ -164,57 +146,6 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
         ]
 
 
-class ExportAKPreferenceSerializer(serializers.ModelSerializer):
-    """Export serializer for AKPreference objects.
-
-    Used to serialize AKPreference objects for the export to a solver.
-    Part of the implementation of the format of the KoMa solver:
-    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
-    """
-
-    ak_id = serializers.IntegerField(source="slot.pk")
-
-    class Meta:
-        model = AKPreference
-        fields = ["ak_id", "required", "preference_score"]
-        read_only_fields = ["ak_id", "required", "preference_score"]
-
-
-class ExportParticipantInfoSerializer(serializers.ModelSerializer):
-    """Serializer of EventParticipant objects for the 'info' field.
-
-    Used in `ExportParticipantSerializer` to serialize EventParticipant objects
-    for the export to a solver. Part of the implementation of the
-    format of the KoMa solver:
-    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
-    """
-    name = serializers.CharField(source="__str__")
-
-    class Meta:
-        model = EventParticipant
-        fields = ["name"]
-        read_only_fields = ["name"]
-
-
-class ExportParticipantSerializer(serializers.ModelSerializer):
-    """Export serializer for EventParticipant objects.
-
-    Used to serialize EventParticipant objects for the export to a solver.
-    Part of the implementation of the format of the KoMa solver:
-    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
-    """
-
-    room_constraints = StringListField(source="get_room_constraints")
-    time_constraints = StringListField(source="get_time_constraints")
-    preferences = ExportAKPreferenceSerializer(source="export_preferences", many=True)
-    info = ExportParticipantInfoSerializer(source="*")
-
-    class Meta:
-        model = EventParticipant
-        fields = ["id", "info", "room_constraints", "time_constraints", "preferences"]
-        read_only_fields = ["id", "info", "room_constraints", "time_constraints", "preferences"]
-
-
 class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
     """Export serializer for EventParticipant objects that includes 'dummy' participants.
 
@@ -240,13 +171,23 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
 
     def to_representation(self, instance: Event):
         event = instance
-        real_participants = ExportParticipantSerializer(event.participants, many=True).data
+
+        # default case
+        real_participants = []
+        next_participant_pk = 1
+
+        # set variable values if AKPreference app is installed
+        if apps.is_installed("AKPreference"):
+            # local import to decouple
+            # pylint: disable=import-outside-toplevel
+            from AKPreference.models import EventParticipant
+            from AKPreference.serializers import ExportParticipantSerializer
+
+            real_participants = ExportParticipantSerializer(event.participants, many=True).data
+            if EventParticipant.objects.exists():
+                next_participant_pk = EventParticipant.objects.latest("pk").pk + 1
 
         dummies = []
-        if EventParticipant.objects.exists():
-            next_participant_pk = EventParticipant.objects.latest("pk").pk + 1
-        else:
-            next_participant_pk = 1
         # add one dummy participant per owner
         # this ensures that the hard constraints from each owner are considered
         for new_pk, owner in enumerate(event.owners, next_participant_pk):

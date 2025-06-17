@@ -10,7 +10,9 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from AKModel.models import Event, AKOwner, Room, AK, AKCategory, EventParticipant
+from AKModel.models import Event, AKOwner, Room, AK, AKCategory
+# TODO: Decouple from AKPreference app
+from AKPreference.models import EventParticipant
 
 zero_time = datetime.time(0, 0)
 
@@ -94,7 +96,7 @@ class Availability(models.Model):
 
     def __str__(self) -> str:
         person = self.person.name if self.person else None
-        participant = self.participant.name if self.participant else None
+        participant = str(self.participant) if self.participant else None
         room = getattr(self.room, 'name', None)
         event = getattr(getattr(self, 'event', None), 'name', None)
         ak = getattr(self.ak, 'name', None)

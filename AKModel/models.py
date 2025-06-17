@@ -157,6 +157,12 @@ class Event(models.Model):
     plan_published_at = models.DateTimeField(verbose_name=_('Plan published at'), blank=True, null=True,
                                              help_text=_('Timestamp at which the plan was published'))
 
+    poll_hidden = models.BooleanField(verbose_name=_('Poll Hidden'),
+                                      help_text=_('Hides preference poll for non-staff users'),
+                                      default=True)
+    poll_published_at = models.DateTimeField(verbose_name=_('Poll published at'), blank=True, null=True,
+                                             help_text=_('Timestamp at which the preference poll was published'))
+
     base_url = models.URLField(verbose_name=_("Base URL"), help_text=_("Prefix for wiki link construction"), blank=True)
     wiki_export_template_name = models.CharField(verbose_name=_("Wiki Export Template Name"), blank=True, max_length=50)
     default_slot = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Default Slot Length'),
@@ -524,7 +530,12 @@ class Event(models.Model):
     @property
     def participants(self):
         """Ordered queryset of all participants associated to this event."""
-        return EventParticipant.objects.filter(event=self).order_by()
+        if apps.is_installed("AKPreference"):
+            # local import to prevent cyclic import
+            # pylint: disable=import-outside-toplevel
+            from AKPreference.models import EventParticipant
+            return EventParticipant.objects.filter(event=self).order_by()
+        return []
 
     @property
     def owners(self):
@@ -1431,123 +1442,3 @@ class DefaultSlot(models.Model):
 
     def __str__(self):
         return f"{self.event}: {self.start_simplified} - {self.end_simplified}"
-
-
-class EventParticipant(models.Model):
-    """ A participant describes a person taking part in an event."""
-
-    class Meta:
-        verbose_name = _('Participant')
-        verbose_name_plural = _('Participants')
-        ordering = ['name']
-
-    name = models.CharField(max_length=64, blank=True, verbose_name=_('Nickname'),
-                            help_text=_('Name to identify a participant by (in case of questions from the organizers)'))
-    institution = models.CharField(max_length=128, blank=True, verbose_name=_('Institution'), help_text=_('Uni etc.'))
-
-    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
-                              help_text=_('Associated event'))
-
-    requirements = models.ManyToManyField(to=AKRequirement, blank=True, verbose_name=_('Requirements'),
-                                          help_text=_("Participant's Requirements"))
-
-    def __str__(self) -> str:
-        string = _("Anonymous {pk}").format(pk=self.pk) if not self.name else self.name
-        if self.institution:
-            string += f" ({self.institution})"
-        return string
-
-    @property
-    def availabilities(self):
-        """
-        Get all availabilities associated to this EventParticipant
-        :return: availabilities
-        :rtype: QuerySet[Availability]
-        """
-        return "Availability".objects.filter(participant=self)
-
-    def get_time_constraints(self) -> list[str]:
-        """Construct list of required time constraint labels."""
-        # local import to prevent cyclic import
-        # pylint: disable=import-outside-toplevel
-        from AKModel.availability.models import Availability
-
-        avails = self.availabilities.all()
-        participant_required_prefs = AKPreference.objects.filter(
-            event=self.event,
-            participant=self,
-            preference=AKPreference.PreferenceLevel.REQUIRED,
-        ).exists()
-
-        if (
-            avails
-            and not Availability.is_event_covered(self.event, avails)
-            and participant_required_prefs.exists()
-        ):
-            # participant has restricted availability and is actually required for AKs
-            return [f"availability-participant-{self.pk}"]
-
-        return []
-
-    def get_room_constraints(self) -> list[str]:
-        """Construct list of required room constraint labels."""
-        return list(self.requirements.values_list("name", flat=True).order_by())
-
-    @property
-    def export_preferences(self):
-        """Preferences of this participant with positive score."""
-        return AKPreference.objects.filter(
-            participant=self, preference__gt=0
-        ).order_by()
-
-
-class AKPreference(models.Model):
-    """Model representing the preference of a participant to an AK."""
-
-    class Meta:
-        verbose_name = _('AK Preference')
-        verbose_name_plural = _('AK Preferences')
-        unique_together = [['event', 'participant', 'slot']]
-
-    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
-                              help_text=_('Associated event'))
-
-    participant = models.ForeignKey(to=EventParticipant, on_delete=models.CASCADE, verbose_name=_('Participant'),
-                              help_text=_('Participant this preference belongs to'))
-
-    slot = models.ForeignKey(to=AKSlot, on_delete=models.CASCADE, verbose_name=_('AK Slot'),
-                           help_text=_('AK Slot this preference belongs to'))
-
-    class PreferenceLevel(models.IntegerChoices):
-        """
-        Possible preference values
-        """
-        IGNORE = 0, _('Ignore')
-        PREFER = 1, _('Prefer')
-        STRONG_PREFER = 2, _("Strong prefer")
-        REQUIRED = 3, _("Required")
-
-    preference = models.PositiveSmallIntegerField(verbose_name=_('Preference'), choices=PreferenceLevel.choices,
-                                             help_text=_('Preference level for the AK'),
-                                             blank=False,
-                                             default=PreferenceLevel.IGNORE)
-
-    def __str__(self) -> str:
-        json_repr = json.dumps(
-            {
-                "ak_id": self.slot.pk,
-                "required": self.required,
-                "preference_score": self.preference_score,
-            }
-        )
-        return f"AKPreference: {json_repr}"
-
-    @property
-    def required(self) -> bool:
-        """Whether this preference is a 'REQUIRED'"""
-        return self.preference == self.PreferenceLevel.REQUIRED
-
-    @property
-    def preference_score(self) -> int:
-        """Score of this preference for the solver"""
-        return self.preference if self.preference != self.PreferenceLevel.REQUIRED else -1

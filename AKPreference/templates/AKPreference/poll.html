@@ -1,0 +1,110 @@
+{% extends 'AKPreference/poll_base.html' %}
+
+{% load i18n %}
+{% load django_bootstrap5 %}
+{% load fontawesome_6 %}
+{% load static %}
+{% load tz %}
+{% load static %}
+
+
+{% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "Preferences" %}{% endblock %}
+
+{% block imports %}
+  {% include "AKModel/load_fullcalendar_availabilities.html" %}
+
+  <link rel="stylesheet" type='text/css' href="{% static 'common/css/poll.css' %}">
+
+  <script>
+    {% get_current_language as LANGUAGE_CODE %}
+
+    document.addEventListener('DOMContentLoaded', function () {
+      createAvailabilityEditors(
+        '{{ event.timezone }}',
+        '{{ LANGUAGE_CODE }}',
+        '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+        '{{ event.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}'
+      );
+    });
+  </script>
+{% endblock %}
+
+{% block breadcrumbs %}
+  {% include "AKPreference/poll_breadcrumbs.html" %}
+  <li class="breadcrumb-item active">{% trans "AK Preferences" %}</li>
+{% endblock %}
+
+{% block content %}
+  {% include "messages.html" %}
+
+  {% block headline %}
+    <h2>{% trans 'AK Preferences' %}</h2>
+  {% endblock %}
+  <form method="POST" class="post-form">{% csrf_token %}
+    {% block form_contents %}
+      {% bootstrap_form participant_form %}
+      <section>
+        <h3>{% trans "Your preferences" %}</h3>
+
+        <p>{% trans "Please enter your preferences." %}</p>
+
+        {{ formset.management_form }}
+
+        <div class="container radio-flex">
+          {% for innerform in formset %}
+            {% bootstrap_form_errors innerform type='non_fields' %}
+
+            {% for field in innerform.hidden_fields %}
+              {{ field }}
+            {% endfor %}
+
+            <div class="container radio-group">
+              <div class="container radio-info">
+                <h4>{{ innerform.preference.label }}
+                  {% if innerform.ak_obj.reso %}
+                    <span class="badge bg-dark rounded-pill"
+                      title="{% trans 'Intends to submit a resolution' %}">{% fa6_icon "scroll" 'fas' %}</span>
+                  {% endif %}
+                </h4>
+                <details>
+                  <summary>{% trans "Description" %}</summary>
+
+                  <p>{{ innerform.ak_obj.description }}</p>
+
+                  {% if innerform.ak_obj.owners_list %}
+                    <p>{% trans "Responsible" %}: {{ innerform.ak_obj.owners_list }}</p>
+                  {% endif %}
+                  {% if innerform.ak_obj.reso %}
+                    <!-- TODO: reso as an icon -->
+                    <p><i>{% trans "Intends to submit a resolution" %}.</i></p>
+                  {% endif %}
+                </details>
+              </div>
+              {% bootstrap_field innerform.preference show_label=False show_help=False field_class="pref-cls" %}
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endblock %}
+    <button type="submit" class="save btn btn-primary float-end">
+      {% fa6_icon "check" 'fas' %} {% trans "Submit" %}
+    </button>
+
+    <button type="reset" class="btn btn-danger">
+      {% fa6_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
+    </button>
+
+    <a href="{% url 'dashboard:dashboard_event' slug=event.slug %}" class="btn btn-secondary">
+      {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
+    </a>
+  </form>
+{% endblock %}
+
+{% block bottom_script %}
+  <script src="{% static 'common/vendor/chosen-js/chosen.jquery.js' %}"></script>
+  <script>
+    $(function () {
+      $('.chosen-select').chosen();
+    });
+  </script>
+{% endblock %}

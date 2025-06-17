@@ -16,13 +16,12 @@ from AKModel.models import (
     AK,
     AKCategory,
     AKOwner,
-    AKPreference,
     AKSlot,
     DefaultSlot,
     Event,
-    EventParticipant,
     Room,
 )
+from AKPreference.models import AKPreference, EventParticipant
 from AKSolverInterface.utils import construct_schema_validator
 
 

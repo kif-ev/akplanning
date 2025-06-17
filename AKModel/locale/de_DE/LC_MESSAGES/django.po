@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-03 20:47+0100\n"
+"POT-Creation-Date: 2025-06-13 23:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,6 +32,18 @@ msgstr "Plan veröffentlichen"
 #: AKModel/admin.py:115 AKModel/admin.py:131 AKModel/views/manage.py:151
 msgid "Unpublish plan"
 msgstr "Plan verbergen"
+
+#: AKModel/admin.py:122
+msgid "Toggle poll visibility"
+msgstr "Sichtbarkeit der Abfrage ändern"
+
+#: AKModel/admin.py:134 AKModel/admin.py:162 AKModel/views/manage.py:166
+msgid "Publish preference poll"
+msgstr "Präferenzen-Abfrage veröffentlichen"
+
+#: AKModel/admin.py:137 AKModel/admin.py:170 AKModel/views/manage.py:179
+msgid "Unpublish preference poll"
+msgstr "Präferenzen-Abfrage verbergen"
 
 #: AKModel/admin.py:170 AKModel/models.py:396 AKModel/models.py:736
 #: AKModel/templates/admin/AKModel/aks_by_user.html:12
@@ -421,6 +433,22 @@ msgstr "Plan veröffentlicht am/um"
 #: AKModel/models.py:59
 msgid "Timestamp at which the plan was published"
 msgstr "Zeitpunkt, zu dem der Plan veröffentlicht wurde"
+
+#: AKModel/models.py:160
+msgid "Poll Hidden"
+msgstr "Präferenzen-Abfrage verborgen"
+
+#: AKModel/models.py:161
+msgid "Hides preference poll for non-staff users"
+msgstr "Verbirgt die Präferenzen-Abfrage für Nutzer*innen ohne erweiterte Rechte"
+
+#: AKModel/models.py:163
+msgid "Poll published at"
+msgstr "Präferenzen-Abfrage veröffentlicht am/um"
+
+#: AKModel/models.py:164
+msgid "Timestamp at which the preference poll was published"
+msgstr "Zeitpunkt, zu dem die Präferenzen-Abfrage veröffentlicht wurde"
 
 #: AKModel/models.py:61
 msgid "Base URL"
@@ -1072,21 +1100,21 @@ msgstr "AK Präferenzen"
 msgid "Participant this preference belongs to"
 msgstr "Teilnehmer*in, zu der die Präferenz gehört"
 
-#: AKModel/models.py:1439
-msgid "AK Slot this preference belongs to"
-msgstr "AK-Slot zu dem die Präferenz gehört"
+#: AKModel/models.py:1532
+msgid "AK this preference belongs to"
+msgstr "AK zu dem die Präferenz gehört"
 
 #: AKModel/models.py:1445
 msgid "Ignore"
 msgstr "Ignorieren"
 
-#: AKModel/models.py:1446
-msgid "Prefer"
-msgstr "Präferenz"
+#: AKModel/models.py:1487
+msgid "Interested"
+msgstr "Interessiert"
 
-#: AKModel/models.py:1447
-msgid "Strong prefer"
-msgstr "Große Präferenz"
+#: AKModel/models.py:1488
+msgid "Great interest"
+msgstr "Großes Interesse"
 
 #: AKModel/models.py:1448
 msgid "Required"
@@ -1420,6 +1448,22 @@ msgstr "Den Plan/die Pläne verbergen von:"
 #: AKModel/views/manage.py:154
 msgid "Plan unpublished"
 msgstr "Plan verborgen"
+
+#: AKModel/views/manage.py:168
+msgid "Publish the poll(s) of:"
+msgstr "Die Präferenzen-Abfrage(n) veröffentlichen von:"
+
+#: AKModel/views/manage.py:169
+msgid "Preference poll published"
+msgstr "Präferenzen-Abfrage veröffentlicht"
+
+#: AKModel/views/manage.py:181
+msgid "Unpublish the preference poll(s) of:"
+msgstr "Die Präferenzen-Abfrage(n) verbergen von:"
+
+#: AKModel/views/manage.py:182
+msgid "Preference poll unpublished"
+msgstr "Präferenzen-Abfrage verborgen"
 
 #: AKModel/views/manage.py:166 AKModel/views/status.py:134
 msgid "Edit Default Slots"

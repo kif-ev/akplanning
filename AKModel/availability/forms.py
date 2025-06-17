@@ -12,7 +12,7 @@ from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.models import Availability
-from AKModel.availability.serializers import AvailabilitySerializer
+from AKModel.availability.serializers import AvailabilityFormSerializer
 from AKModel.models import Event
 
 
@@ -41,22 +41,11 @@ class AvailabilitiesFormMixin(forms.Form):
         :rtype: str
         """
         if instance:
-            availabilities = AvailabilitySerializer(
-                instance.availabilities.all(), many=True
-            ).data
+            availabilities = instance.availabilities.all()
         else:
             availabilities = []
 
-        return json.dumps(
-            {
-                'availabilities': availabilities,
-                'event': {
-                    # 'timezone': event.timezone,
-                    'date_from': str(event.start),
-                    'date_to': str(event.end),
-                },
-            }
-        )
+        return json.dumps(AvailabilityFormSerializer((availabilities, event)).data)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -65,7 +54,8 @@ class AvailabilitiesFormMixin(forms.Form):
         if isinstance(self.event, int):
             self.event = Event.objects.get(pk=self.event)
         initial = kwargs.pop('initial', {})
-        initial['availabilities'] = self._serialize(self.event, kwargs['instance'])
+        if 'availabilities' not in initial:
+            initial['availabilities'] = self._serialize(self.event, kwargs.get('instance'))
         if not isinstance(self, forms.BaseModelForm):
             kwargs.pop('instance')
         kwargs['initial'] = initial

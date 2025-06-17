@@ -158,6 +158,31 @@ class PlanUnpublishView(IntermediateAdminActionView):
         self.entities.update(plan_published_at=None, plan_hidden=True)
 
 
+class PollPublishView(IntermediateAdminActionView):
+    """
+    Admin action view: Publish the preference poll of one or multitple event(s)
+    """
+    title = _('Publish preference poll')
+    model = Event
+    confirmation_message = _('Publish the poll(s) of:')
+    success_message = _('Preference poll published')
+
+    def action(self, form):
+        self.entities.update(poll_published_at=Now(), poll_hidden=False)
+
+
+class PollUnpublishView(IntermediateAdminActionView):
+    """
+    Admin action view: Unpublish the preference poll of one or multitple event(s)
+    """
+    title = _('Unpublish preference poll')
+    model = Event
+    confirmation_message = _('Unpublish the preference poll(s) of:')
+    success_message = _('Preference poll unpublished')
+
+    def action(self, form):
+        self.entities.update(poll_published_at=None, poll_hidden=True)
+
 class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
     """
     Admin view: Allow to edit the default slots of an event
