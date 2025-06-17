@@ -3,7 +3,7 @@ import json
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import DetailView
+from django.views.generic import DetailView, FormView
 
 from AKModel.metaviews.admin import (
     AdminViewMixin,
@@ -11,23 +11,35 @@ from AKModel.metaviews.admin import (
     IntermediateAdminView,
 )
 from AKModel.models import Event
-from AKSolverInterface.forms import JSONScheduleImportForm
+from AKSolverInterface.forms import JSONExportControlForm, JSONScheduleImportForm
 from AKSolverInterface.serializers import ExportEventSerializer
 
 
-class AKJSONExportView(AdminViewMixin, DetailView):
+class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
     """
     View: Export all AK slots of this event in JSON format ordered by tracks
     """
 
     template_name = "admin/AKSolverInterface/ak_json_export.html"
     model = Event
-    context_object_name = "event"
+    form_class = JSONExportControlForm
     title = _("AK JSON Export")
-    slug_url_kwarg = "event_slug"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_template_names(self):
+        if self.request.method == "POST":
+            return ["admin/AKSolverInterface/ak_json_export.html"]
+        else:
+            return ["admin/AKSolverInterface/ak_json_export_control.html"]
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs["event"] = self.event
+        return form_kwargs
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        # TODO: Add warning if AKs exists without a slot
+        # TODO: Add warnings if rooms / slots / ... is empty
         try:
             serialized_event = ExportEventSerializer(context["event"])
             context["json_data_oneline"] = json.dumps(serialized_event.data, ensure_ascii=False)
@@ -39,13 +51,6 @@ class AKJSONExportView(AdminViewMixin, DetailView):
                 messages.ERROR,
                 _("Exporting AKs for the solver failed! Reason: ") + str(ex),
             )
-        return context
-
-    def get(self, request, *args, **kwargs):
-        # as this code is adapted from BaseDetailView::get
-        # pylint: disable=attribute-defined-outside-init
-        self.object = self.get_object()
-        context = self.get_context_data(object=self.object)
 
         # if serialization failed in `get_context_data` we redirect to
         #   the status page and show a message instead
