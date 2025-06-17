@@ -5,8 +5,99 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import best_match
 
+from AKModel.availability.forms import AvailabilitiesFormMixin
+from AKModel.availability.models import Availability
+from AKModel.availability.serializers import AvailabilityFormSerializer
 from AKModel.forms import AdminIntermediateForm
+from AKModel.models import AKCategory, AKTrack, AKType, Event
 from AKSolverInterface.utils import construct_schema_validator
+
+
+class JSONExportControlForm(AvailabilitiesFormMixin, forms.Form):
+    """Form to control what objects are exported to the solver."""
+
+    # TODO: Add checkbox whether wishes should be exported?
+    # TODO: Filter rooms out by property?
+
+    export_scheduled_aks_as_fixed = forms.BooleanField(
+        label=_("Fixate all scheduled slots for the solver"),
+        help_text=_("In the solver export, all assigned times and room to slots are handled as if the slot were fixed."),
+        required=False,
+    )
+    export_categories = forms.ModelMultipleChoiceField(
+        queryset=AKCategory.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        label=_("AK Categories to include in the export"),
+        required=False,
+    )
+    export_tracks = forms.ModelMultipleChoiceField(
+        queryset=AKTrack.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        label=_("AK tracks to include in the export"),
+        required=False,
+    )
+    export_types = forms.ModelMultipleChoiceField(
+        queryset=AKType.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        label=_("AK types to include in the export"),
+        required=False,
+    )
+
+    field_order = [
+        "export_scheduled_aks_as_fixed",
+        "export_categories",
+        "export_tracks",
+        "export_types",
+        "availabilities",
+    ]
+
+    def __init__(self, *args, event: Event, **kwargs):
+        self.event = event
+        initial = kwargs.get("initial", {})
+        initial["event"] = event
+
+        availabilities_serialization = AvailabilityFormSerializer(
+            (
+                [Availability.with_event_length(event=self.event)],
+                self.event,
+            )
+        )
+        initial["availabilities"] = json.dumps(availabilities_serialization.data)
+        kwargs["initial"] = initial
+
+        super().__init__(*args, **kwargs)
+        def _set_queryset(field_name: str):
+            # restrict queryset to all objects of this event
+            self.fields[field_name].queryset = self.fields[field_name].queryset.filter(
+                event=self.event,
+            )
+
+            # default init: all objects are checked
+            self.fields[field_name].initial = self.fields[field_name].queryset
+
+            # if queryset is empty, simply remove the field
+            if not self.fields[field_name].queryset.exists():
+                self.fields.pop(field_name)
+
+        for field_name in {"export_categories", "export_tracks", "export_types"}:
+            _set_queryset(field_name)
+
+        # Adapt label for the availabilities widget
+        self.fields["availabilities"].label = _("Restrict room availability for the export to the following")
+
+    def clean_availabilities(self):
+        """
+        Automatically improve availabilities entered.
+        If the user did not specify availabilities assume the full event duration is possible
+        :return: cleaned availabilities
+        (either user input or one availability for the full length of the event if user input was empty)
+        """
+        availabilities = super().clean_availabilities()
+        if len(availabilities) == 0:
+            availabilities.append(
+                Availability.with_event_length(event=self.event)
+            )
+        return availabilities
 
 
 class JSONScheduleImportForm(AdminIntermediateForm):
