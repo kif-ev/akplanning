@@ -70,6 +70,46 @@
                 }
             });
         </script>
+
+        {% if type_filtering_active %}
+            {# Type filter script #}
+            <script type="module">
+                const { createApp } = Vue
+
+                createApp({
+                    delimiters: ["[[", "]]"],
+                    data() {
+                      return {
+                          types: JSON.parse("{{ types | escapejs }}"),
+                          strict: {{ types_filter_strict|yesno:"true,false" }},
+                          empty: {{ types_filter_empty|yesno:"true,false" }}
+                      }
+                    },
+                    methods: {
+                        onFilterChange(type) {
+                            // Re-generate filter url
+                            const typeString = "types="
+                                + this.types
+                                .map(t => `${t.slug}:${t.state ? 'yes' : 'no'}`)
+                                .join(',')
+                                + `&strict=${this.strict ? 'yes' : 'no'}`
+                                + `&empty=${this.empty ? 'yes' : 'no'}`;
+
+                            // Redirect to the new url including the adjusted filters
+                            const baseUrl = window.location.origin + window.location.pathname;
+                            window.location.href = `${baseUrl}?${typeString}`;
+                          }
+                    }
+                }).mount('#filter');
+
+                // Prevent showing of cached form values for filter inputs when using broswer navigation
+                window.addEventListener('pageshow', function(event) {
+                  if (event.persisted) {
+                    window.location.reload();
+                  }
+                });
+            </script>
+        {% endif %}
     {% endif %}
 {% endblock %}
 
@@ -83,6 +123,8 @@
 
 
 {% block content %}
+    {% include "messages.html" %}
+
     <div class="float-end">
         <ul class="nav nav-pills">
             {% if rooms|length > 0 %}
@@ -114,13 +156,39 @@
             {% if event.active %}
                 <li class="nav-item">
                     <a class="nav-link active"
-                       href="{% url 'plan:plan_wall' event_slug=event.slug %}">{% fa6_icon 'desktop' 'fas' %}&nbsp;&nbsp;{% trans "AK Wall" %}</a>
+                       href="{% url 'plan:plan_wall' event_slug=event.slug %}?{{ query_string }}">{% fa6_icon 'desktop' 'fas' %}&nbsp;&nbsp;{% trans "AK Wall" %}</a>
                 </li>
             {% endif %}
         </ul>
     </div>
 
-    <h1>Plan: {{ event }}</h1>
+    <h1 class="mb-3">{%  trans "Plan:" %} {{ event }}</h1>
+
+    {% if type_filtering_active %}
+        {# Type filter HTML #}
+        <div class="card border-primary mb-3">
+            <div class="card-header">
+                {% trans 'Filter by types' %}
+            </div>
+            <div class="card-body d-flex" id="filter">
+                {% trans "Types:" %}
+                <div id="filterTypes" class="d-flex">
+                    <div class="form-check form-switch ms-3"  v-for="type in types">
+                        <label class="form-check-label" :for="'typeFilterType' + type.slug">[[ type.name ]]</label>
+                        <input class="form-check-input" type="checkbox" :id="'typeFilterType' + type.slug " v-model="type.state" @change="onFilterChange()">
+                    </div>
+                </div>
+                <div class="form-check form-switch ms-5">
+                    <label class="form-check-label" for="typeFilterEmpty">{% trans "AKs without type" %}</label>
+                    <input class="form-check-input" type="checkbox" id="typeFilterEmpty" v-model="empty" @change="onFilterChange()">
+                </div>
+                <div class="form-check form-switch ms-5">
+                    <label class="form-check-label" for="typeFilterStrict">{% trans "No AKs with additional other types" %}</label>
+                    <input class="form-check-input" type="checkbox" id="typeFilterStrict" v-model="strict" @change="onFilterChange()">>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 
     {% timezone event.timezone %}
         <div class="row" style="margin-top:30px;">

@@ -1,12 +1,16 @@
+import json
 from datetime import datetime, timedelta
 
 from django.conf import settings
+from django.contrib import messages
+from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, ListView
+from django.utils.translation import gettext_lazy as _
 
 from AKModel.metaviews.admin import FilterByEventSlugMixin
-from AKModel.models import AKSlot, AKTrack, Room
+from AKModel.models import AKSlot, AKTrack, Room, AKType
 
 
 class PlanIndexView(FilterByEventSlugMixin, ListView):
@@ -19,10 +23,69 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
     template_name = "AKPlan/plan_index.html"
     context_object_name = "akslots"
     ordering = "start"
+    types_filter = None
+    query_string = ""
+
+    def get(self, request, *args, **kwargs):
+        if 'types' in request.GET:
+            try:
+                # Initialize types filter, has to be done here such that it is not reused across requests
+                self.types_filter = {
+                    "yes": [],
+                    "no": [],
+                    "no_set": set(),
+                    "strict": False,
+                    "empty": False,
+                }
+                # If types are given, filter the queryset accordingly
+                types_raw = request.GET['types'].split(',')
+                for t in types_raw:
+                    type_slug, type_condition = t.split(':')
+                    if type_condition in ["yes", "no"]:
+                        t = AKType.objects.get(slug=type_slug, event=self.event)
+                        self.types_filter[type_condition].append(t)
+                        if type_condition == "no":
+                            # Store slugs of excluded types in a set for faster lookup
+                            self.types_filter["no_set"].add(t.slug)
+                    else:
+                        raise ValueError(f"Unknown type condition: {type_condition}")
+                if 'strict' in request.GET:
+                    # If strict is specified and marked as "yes",
+                    # exclude all AKs that have any of the excluded types ("no"),
+                    # even if they have other types that are marked as "yes"
+                    self.types_filter["strict"] = request.GET.get('strict') == 'yes'
+                if 'empty' in request.GET:
+                    # If empty is specified and marked as "yes", include AKs that have no types at all
+                    self.types_filter["empty"] = request.GET.get('empty') == 'yes'
+                # Will be used for generating a link to the wall view with the same filter
+                self.query_string = request.GET.urlencode(safe=",:")
+            except (ValueError, AKType.DoesNotExist):
+                # Display an error message if the types parameter is malformed
+                messages.add_message(request, messages.ERROR, _("Invalid type filter"))
+                self.types_filter = None
+        s = super().get(request, *args, **kwargs)
+        return s
 
     def get_queryset(self):
         # Ignore slots not scheduled yet
-        return super().get_queryset().filter(start__isnull=False).select_related('ak', 'room', 'ak__category')
+        qs = (super().get_queryset().filter(start__isnull=False).
+                select_related('event', 'ak', 'room', 'ak__category', 'ak__event'))
+                # Need to prefetch both event and ak__event
+                # since django is not aware that the two are always the same
+
+        # Apply type filter if necessary
+        if self.types_filter:
+            # Either include all AKs with the given types or without any types at all
+            if self.types_filter["empty"]:
+                qs = qs.filter(Q(ak__types__in=self.types_filter["yes"]) | Q(ak__types__isnull=True)).distinct()
+            # Or only those with the given types
+            else:
+                qs = qs.filter(ak__types__in=self.types_filter["yes"]).distinct()
+            # Afterwards, if strict, exclude all AKs that have any of the excluded types,
+            # even though they were included by the previous filter
+            if self.types_filter["strict"]:
+                qs = qs.exclude(ak__types__in=self.types_filter["no"]).distinct()
+        return qs
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
@@ -38,6 +101,7 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
 
         # Get list of current and next slots
         for akslot in context["akslots"]:
+            self._process_slot(akslot)
             # Construct a list of all rooms used by these slots on the fly
             if akslot.room is not None:
                 rooms.add(akslot.room)
@@ -60,7 +124,37 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
 
         context["tracks"] = self.event.aktrack_set.all()
 
+        # Pass query string to template for generating a matching wall link
+        context["query_string"] = self.query_string
+
+        # Generate a list of all types and their current selection state for graphic filtering
+        types = [{"name": t.name, "slug": t.slug, "state": True} for t in self.event.aktype_set.all()]
+        if len(types) > 0:
+            context["type_filtering_active"] = True
+            if self.types_filter:
+                for t in types:
+                    if t["slug"] in self.types_filter["no_set"]:
+                        t["state"] = False
+            # Pass type list as well as filter state for strict filtering and empty types to the template
+            context["types"] = json.dumps(types)
+            context["types_filter_strict"] = False
+            context["types_filter_empty"] = False
+            if self.types_filter:
+                context["types_filter_empty"] = self.types_filter["empty"]
+                context["types_filter_strict"] = self.types_filter["strict"]#
+        else:
+            context["type_filtering_active"] = False
+
         return context
+
+    def _process_slot(self, akslot):
+        """
+        Function to be called for each slot when looping over the slots
+        (meant to be overridden in inherited views)
+
+        :param akslot: current slot
+        :type akslot: AKSlot
+        """
 
 
 class PlanScreenView(PlanIndexView):
@@ -95,32 +189,31 @@ class PlanScreenView(PlanIndexView):
 
         # Restrict AK slots to relevant ones
         # This will automatically filter all rooms not needed for the selected range in the orginal get_context method
-        akslots = super().get_queryset().filter(start__gt=self.start)
+        return super().get_queryset().filter(start__gt=self.start)
 
+    def get_context_data(self, *, object_list=None, **kwargs):
         # Find the earliest hour AKs start and end (handle 00:00 as 24:00)
         self.earliest_start_hour = 23
         self.latest_end_hour = 1
-        for akslot in akslots.all():
-            start_hour = akslot.start.astimezone(self.event.timezone).hour
-            if start_hour < self.earliest_start_hour:
-                # Use hour - 1 to improve visibility of date change
-                self.earliest_start_hour = max(start_hour - 1, 0)
-            end_hour = akslot.end.astimezone(self.event.timezone).hour
-            # Special case: AK starts before but ends after midnight -- show until midnight
-            if end_hour < start_hour:
-                self.latest_end_hour = 24
-            elif end_hour > self.latest_end_hour:
-                # Always use hour + 1, since AK may end at :xy and not always at :00
-                self.latest_end_hour = min(end_hour + 1, 24)
-        return akslots
-
-    def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context["start"] = self.start
         context["end"] = self.event.end
         context["earliest_start_hour"] = self.earliest_start_hour
         context["latest_end_hour"] = self.latest_end_hour
         return context
+
+    def _process_slot(self, akslot):
+        start_hour = akslot.start.astimezone(self.event.timezone).hour
+        if start_hour < self.earliest_start_hour:
+            # Use hour - 1 to improve visibility of date change
+            self.earliest_start_hour = max(start_hour - 1, 0)
+        end_hour = akslot.end.astimezone(self.event.timezone).hour
+        # Special case: AK starts before but ends after midnight -- show until midnight
+        if end_hour < start_hour:
+            self.latest_end_hour = 24
+        elif end_hour > self.latest_end_hour:
+            # Always use hour + 1, since AK may end at :xy and not always at :00
+            self.latest_end_hour = min(end_hour + 1, 24)
 
 
 class PlanRoomView(FilterByEventSlugMixin, DetailView):

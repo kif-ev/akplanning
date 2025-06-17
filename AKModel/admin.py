@@ -329,7 +329,8 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
     list_filter = ['event',
                    WishFilter,
                    ('category', EventRelatedFieldListFilter),
-                   ('requirements', EventRelatedFieldListFilter)
+                   ('requirements', EventRelatedFieldListFilter),
+                   ('types', EventRelatedFieldListFilter),
                    ]
     list_editable = ['short_name', 'track', 'interest_counter']
     ordering = ['pk']

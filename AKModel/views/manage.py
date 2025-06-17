@@ -15,7 +15,7 @@ from django_tex.response import PDFResponse
 
 from AKModel.forms import SlideExportForm, DefaultSlotEditorForm
 from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
-from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner
+from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner, AKType
 
 
 class UserView(TemplateView):
@@ -36,6 +36,18 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
     title = _('Export AK Slides')
     form_class = SlideExportForm
 
+    def get_form(self, form_class=None):
+        # Filter type choices to those of the current event
+        # or completely hide the field if no types are specified for this event
+        form = super().get_form(form_class)
+        if self.event.aktype_set.count() > 0:
+            form.fields['types'].choices = [
+                (ak_type.id, ak_type.name) for ak_type in self.event.aktype_set.all()
+            ]
+        else:
+            form.fields['types'].widget = form.fields['types'].hidden_widget()
+        return form
+
     def form_valid(self, form):
         # pylint: disable=invalid-name
         template_name = 'admin/AKModel/export/slides.tex'
@@ -52,6 +64,7 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             'reso': _("Reso intention?"),
             'category': _("Category (for Wishes)"),
             'wishes': _("Wishes"),
+            'types': _("Types"),
         }
 
         def build_ak_list_with_next_aks(ak_list):
@@ -61,21 +74,32 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             next_aks_list = zip_longest(*[ak_list[i + 1:] for i in range(NEXT_AK_LIST_LENGTH)], fillvalue=None)
             return list(zip_longest(ak_list, next_aks_list, fillvalue=[]))
 
+        # Create a list of types to filter AKs by (if at least one type was selected)
+        types = None
+        types_filter_string = ""
+        show_types = self.event.aktype_set.count() > 0
+        if len(form.cleaned_data['types']) > 0:
+            types = AKType.objects.filter(id__in=form.cleaned_data['types'])
+            names_string = ', '.join(AKType.objects.get(pk=t).name for t in form.cleaned_data['types'])
+            types_filter_string = f"[{_('Type(s)')}: {names_string}]"
+
         # Get all relevant AKs (wishes separately, and either all AKs or only those who should directly or indirectly
         # be presented when restriction setting was chosen)
         categories_with_aks, ak_wishes = self.event.get_categories_with_aks(wishes_seperately=True, filter_func=lambda
-            ak: not RESULT_PRESENTATION_MODE or (ak.present or (ak.present is None and ak.category.present_by_default)))
+            ak: not RESULT_PRESENTATION_MODE or (ak.present or (ak.present is None and ak.category.present_by_default)),
+                                                                            types=types)
 
         # Create context for LaTeX rendering
         context = {
             'title': self.event.name,
             'categories_with_aks': [(category, build_ak_list_with_next_aks(ak_list)) for category, ak_list in
                                     categories_with_aks],
-            'subtitle': _("AKs"),
+            'subtitle': _("AKs") + " " + types_filter_string,
             "wishes": build_ak_list_with_next_aks(ak_wishes),
             "translations": translations,
             "result_presentation_mode": RESULT_PRESENTATION_MODE,
             "space_for_notes_in_wishes": SPACE_FOR_NOTES_IN_WISHES,
+            "show_types": show_types,
         }
 
         source = render_template_with_context(template_name, context)

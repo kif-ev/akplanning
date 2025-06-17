@@ -198,7 +198,8 @@
     "pk": 1,
     "fields": {
         "name": "Input",
-        "event": 2
+        "event": 2,
+        "slug": "input"
     }
 },
 {

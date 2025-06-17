@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-15 20:03+0200\n"
+"POT-Creation-Date: 2025-06-16 12:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,45 +38,65 @@ msgstr "Veranstaltung"
 #: AKPlan/templates/AKPlan/plan_index.html:59
 #: AKPlan/templates/AKPlan/plan_room.html:13
 #: AKPlan/templates/AKPlan/plan_room.html:59
-#: AKPlan/templates/AKPlan/plan_wall.html:65
+#: AKPlan/templates/AKPlan/plan_wall.html:67
 msgid "Room"
 msgstr "Raum"
 
-#: AKPlan/templates/AKPlan/plan_index.html:80
+#: AKPlan/templates/AKPlan/plan_index.html:120
 #: AKPlan/templates/AKPlan/plan_room.html:11
 #: AKPlan/templates/AKPlan/plan_track.html:9
 msgid "AK Plan"
 msgstr "AK-Plan"
 
-#: AKPlan/templates/AKPlan/plan_index.html:92
+#: AKPlan/templates/AKPlan/plan_index.html:134
 #: AKPlan/templates/AKPlan/plan_room.html:49
 msgid "Rooms"
 msgstr "Räume"
 
-#: AKPlan/templates/AKPlan/plan_index.html:105
+#: AKPlan/templates/AKPlan/plan_index.html:147
 #: AKPlan/templates/AKPlan/plan_track.html:36
 msgid "Tracks"
 msgstr "Tracks"
 
-#: AKPlan/templates/AKPlan/plan_index.html:117
+#: AKPlan/templates/AKPlan/plan_index.html:159
 msgid "AK Wall"
 msgstr "AK-Wall"
 
-#: AKPlan/templates/AKPlan/plan_index.html:130
-#: AKPlan/templates/AKPlan/plan_wall.html:130
+#: AKPlan/templates/AKPlan/plan_index.html:165
+msgid "Plan:"
+msgstr "Plan:"
+
+#: AKPlan/templates/AKPlan/plan_index.html:171
+msgid "Filter by types"
+msgstr "Nach Typen filtern"
+
+#: AKPlan/templates/AKPlan/plan_index.html:174
+msgid "Types:"
+msgstr "Typen:"
+
+#: AKPlan/templates/AKPlan/plan_index.html:182
+msgid "AKs without type"
+msgstr "AKs ohne Typ"
+
+#: AKPlan/templates/AKPlan/plan_index.html:186
+msgid "No AKs with additional other types"
+msgstr "Keine AKs, die noch zusätzlich andere Typen haben"
+
+#: AKPlan/templates/AKPlan/plan_index.html:198
+#: AKPlan/templates/AKPlan/plan_wall.html:132
 msgid "Current AKs"
 msgstr "Aktuelle AKs"
 
-#: AKPlan/templates/AKPlan/plan_index.html:137
-#: AKPlan/templates/AKPlan/plan_wall.html:135
+#: AKPlan/templates/AKPlan/plan_index.html:205
+#: AKPlan/templates/AKPlan/plan_wall.html:137
 msgid "Next AKs"
 msgstr "Nächste AKs"
 
-#: AKPlan/templates/AKPlan/plan_index.html:145
+#: AKPlan/templates/AKPlan/plan_index.html:213
 msgid "This event is not active."
 msgstr "Dieses Event ist nicht aktiv."
 
-#: AKPlan/templates/AKPlan/plan_index.html:158
+#: AKPlan/templates/AKPlan/plan_index.html:226
 #: AKPlan/templates/AKPlan/plan_room.html:77
 #: AKPlan/templates/AKPlan/plan_track.html:58
 msgid "Plan is not visible (yet)."
@@ -99,10 +119,14 @@ msgstr "Eigenschaften"
 msgid "Track"
 msgstr "Track"
 
-#: AKPlan/templates/AKPlan/plan_wall.html:145
+#: AKPlan/templates/AKPlan/plan_wall.html:147
 msgid "Reload page automatically?"
 msgstr "Seite automatisch neu laden?"
 
 #: AKPlan/templates/AKPlan/slots_table.html:14
 msgid "No AKs"
 msgstr "Keine AKs"
+
+#: AKPlan/views.py:64
+msgid "Invalid type filter"
+msgstr "Ungültiger Typ-Filter"

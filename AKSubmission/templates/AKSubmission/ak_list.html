@@ -18,6 +18,19 @@
                 </div>
             </li>
         {% endif %}
+        {% if show_types %}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                   aria-expanded="false">{% trans "Types" %}</a>
+                <div class="dropdown-menu" style="">
+                    {% for type in event.aktype_set.all %}
+                        <a class="dropdown-item"
+                           href="{% url 'submit:ak_list_by_type' event_slug=event.slug type_slug=type.slug %}">
+                            {{ type }}</a>
+                    {% endfor %}
+                </div>
+            </li>
+        {% endif %}
     </ul>
 </div>
 
