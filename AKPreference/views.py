@@ -66,6 +66,7 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
             AK.objects.filter(event=self.event)
             .order_by()
             .all()
+            .prefetch_related('owners')
         )
         initial_lst = [
             {"ak": ak, "event": self.event} for ak in ak_set
