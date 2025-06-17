@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("AKModel", "0071_alter_akpreference_unique_together_and_more"),
+        ("AKModel", "0067_eventparticipant_requirements_and_more"),
     ]
 
     operations = [
