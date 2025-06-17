@@ -17,7 +17,7 @@ djangorestframework==3.16.0
 fontawesomefree==6.6.0  # Makes static files (css, fonts) available locally
 mysqlclient==2.2.7  # for production deployment
 tzdata==2025.2
-jsonschema==4.23.0
+jsonschema==4.24.0
 
 # Documentation
 Sphinx==8.2.3
