@@ -75,9 +75,11 @@
                                                     <p>{% trans "Responsible" %}: {{ innerform.ak_obj.owners_list }}</p>
                                                 {% endif %}
                                                 {% if show_types %}
+                                                    <p>
                                                     {% for aktype in innerform.ak_obj.types.all %}
-                                                        <p><span class="badge bg-light">{{ aktype.name }}</span></p>
+                                                        <span class="badge bg-light">{{ aktype.name }}</span>&nbsp;
                                                     {% endfor %}
+                                                    </p>
                                                 {% endif %}
                                                 {% if innerform.ak_obj.reso %}
                                                     <!-- TODO: reso as an icon -->
