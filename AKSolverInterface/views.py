@@ -70,7 +70,7 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
                         | Q(ak__types__isnull=True)
                     )
 
-                queryset = queryset.all()
+                queryset = queryset.distinct().all()
                 if not queryset.exists():
                     messages.warning(
                         self.request,
