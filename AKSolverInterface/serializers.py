@@ -261,20 +261,11 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
         if apps.is_installed("AKPreference"):
             # local import to decouple
             # pylint: disable=import-outside-toplevel
-            from AKPreference.models import AKPreference, EventParticipant
+            from AKPreference.models import EventParticipant
             from AKPreference.serializers import ExportParticipantSerializer
 
             participants = _apply_filter_cb_to_queryset(self.filter_participants_cb, event.participants)
             real_participants = ExportParticipantSerializer(participants, many=True).data
-            if self.slots_qs is not None:
-                slot_pks = set(self.slots_qs.values_list("id", flat=True))
-                def _filter_to_slots_qs(preference: dict):
-                    return preference["ak_id"] in slot_pks
-
-                for participant in real_participants:
-                    participant["preferences"] = list(
-                        filter(_filter_to_slots_qs, participant["preferences"])
-                    )
 
             if EventParticipant.objects.exists():
                 next_participant_pk = EventParticipant.objects.latest("pk").pk + 1
@@ -297,7 +288,19 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
                 ]
             }
             dummies.append(new_participant_data)
-        return real_participants + dummies
+        all_participants = real_participants + dummies
+
+        if self.slots_qs is not None:
+            slot_pks = set(self.slots_qs.values_list("id", flat=True))
+            def _filter_to_slots_qs(preference: dict):
+                return preference["ak_id"] in slot_pks
+
+            for participant in all_participants:
+                participant["preferences"] = list(
+                    filter(_filter_to_slots_qs, participant["preferences"])
+                )
+        return all_participants
+
 
 
 class ExportEventInfoSerializer(serializers.ModelSerializer):
