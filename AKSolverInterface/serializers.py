@@ -180,6 +180,42 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
         ]
 
 
+class ExportFilteredAKSlotSerializer(serializers.BaseSerializer):
+    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
+
+    def create(self, validated_data):
+        raise ValueError("`ExportFilteredAKSlotSerializer` is read-only.")
+
+    def to_internal_value(self, data):
+        raise ValueError("`ExportFilteredAKSlotSerializer` is read-only.")
+
+    def update(self, instance, validated_data):
+        raise ValueError("`ExportFilteredAKSlotSerializer` is read-only.")
+
+    def to_representation(self, instance):
+        slot_queryset = instance
+        slot_pks = set(slot_queryset.values_list("id", flat=True))
+        def _restrict_to_slots(pk_list: list[int]):
+            return sorted(set(pk_list) & slot_pks)
+
+        serialized_slots = ExportAKSlotSerializer(
+            slot_queryset,
+            export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+            many=True,
+        ).data
+
+        for slot_dict in serialized_slots:
+            slot_dict["properties"]["conflicts"] = _restrict_to_slots(
+                slot_dict["properties"]["conflicts"],
+            )
+            slot_dict["properties"]["dependencies"] = _restrict_to_slots(
+                slot_dict["properties"]["dependencies"],
+            )
+        return serialized_slots
+
+
 class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
     """Export serializer for EventParticipant objects that includes 'dummy' participants.
 
@@ -514,10 +550,9 @@ class ExportEventSerializer(serializers.BaseSerializer):
             _apply_filter_cb_to_queryset(self.filter_rooms_cb, event.rooms),
             many=True,
         )
-        slots = ExportAKSlotSerializer(
+        slots = ExportFilteredAKSlotSerializer(
             _apply_filter_cb_to_queryset(self.filter_slots_cb, event.slots),
             export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
-            many=True
         )
 
         return {
