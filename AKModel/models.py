@@ -695,6 +695,8 @@ class AKRequirement(models.Model):
     """ An AKRequirement describes something needed to hold an AK, e.g. infrastructure.
     """
     name = models.CharField(max_length=128, verbose_name=_('Name'), help_text=_('Name of the Requirement'))
+    relevant_for_participants = models.BooleanField(default=False, verbose_name=_('Relevant for Participants?'),
+                                    help_text=_('Show this requirement when collecting participant preferences'))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))

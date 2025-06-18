@@ -30,7 +30,7 @@ class EventParticipantForm(AvailabilitiesFormMixin, forms.ModelForm):
         self.initial = {**self.initial, **kwargs["initial"]}
 
         self.fields["requirements"].queryset = AKRequirement.objects.filter(
-            event=self.initial.get("event")
+            event=self.initial.get("event"), relevant_for_participants=True
         )
         # Don't ask for requirements if there are no requirements configured for this event
         if self.fields["requirements"].queryset.count() == 0:
