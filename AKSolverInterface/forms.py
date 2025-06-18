@@ -13,11 +13,12 @@ from AKModel.models import AKCategory, AKTrack, AKType, Event
 from AKSolverInterface.utils import construct_schema_validator
 
 
-class JSONExportControlForm(AvailabilitiesFormMixin, forms.Form):
+class JSONExportControlForm(forms.Form):
     """Form to control what objects are exported to the solver."""
 
     # TODO: Add checkbox whether wishes should be exported?
     # TODO: Filter rooms out by property?
+    # TODO: Add room availability filter?
 
     export_scheduled_aks_as_fixed = forms.BooleanField(
         label=_("Fixate all scheduled slots for the solver"),
@@ -48,21 +49,12 @@ class JSONExportControlForm(AvailabilitiesFormMixin, forms.Form):
         "export_categories",
         "export_tracks",
         "export_types",
-        "availabilities",
     ]
 
     def __init__(self, *args, event: Event, **kwargs):
         self.event = event
         initial = kwargs.get("initial", {})
         initial["event"] = event
-
-        availabilities_serialization = AvailabilityFormSerializer(
-            (
-                [Availability.with_event_length(event=self.event)],
-                self.event,
-            )
-        )
-        initial["availabilities"] = json.dumps(availabilities_serialization.data)
         kwargs["initial"] = initial
 
         super().__init__(*args, **kwargs)
@@ -81,23 +73,6 @@ class JSONExportControlForm(AvailabilitiesFormMixin, forms.Form):
 
         for field_name in {"export_categories", "export_tracks", "export_types"}:
             _set_queryset(field_name)
-
-        # Adapt label for the availabilities widget
-        self.fields["availabilities"].label = _("Restrict room availability for the export to the following")
-
-    def clean_availabilities(self):
-        """
-        Automatically improve availabilities entered.
-        If the user did not specify availabilities assume the full event duration is possible
-        :return: cleaned availabilities
-        (either user input or one availability for the full length of the event if user input was empty)
-        """
-        availabilities = super().clean_availabilities()
-        if len(availabilities) == 0:
-            availabilities.append(
-                Availability.with_event_length(event=self.event)
-            )
-        return availabilities
 
 
 class JSONScheduleImportForm(AdminIntermediateForm):
