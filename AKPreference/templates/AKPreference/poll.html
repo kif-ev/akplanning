@@ -74,6 +74,11 @@
                                                 {% if innerform.ak_obj.owners_list %}
                                                     <p>{% trans "Responsible" %}: {{ innerform.ak_obj.owners_list }}</p>
                                                 {% endif %}
+                                                {% if show_types %}
+                                                    {% for aktype in innerform.ak_obj.types.all %}
+                                                        <p><span class="badge bg-light">{{ aktype.name }}</span></p>
+                                                    {% endfor %}
+                                                {% endif %}
                                                 {% if innerform.ak_obj.reso %}
                                                     <!-- TODO: reso as an icon -->
                                                     <p><i>{% trans "Intends to submit a resolution" %}.</i></p>

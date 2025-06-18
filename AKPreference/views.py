@@ -107,6 +107,7 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
                     "availabilities": json.dumps(availabilities_serialization.data),
                 }
         )
+        context['show_types'] = self.event.aktype_set.count() > 0
         return context
 
     def post(self, request, *args, **kwargs):
