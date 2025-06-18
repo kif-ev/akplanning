@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-13 23:58+0000\n"
+"POT-Creation-Date: 2025-06-18 12:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,104 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: AKPreference/models.py:11 AKPreference/models.py:93
+msgid "Participant"
+msgstr "Teilnehmende*r"
+
+#: AKPreference/models.py:12
+msgid "Participants"
+msgstr "Teilnehmende"
+
+#: AKPreference/models.py:15
+msgid "Nickname"
+msgstr "Spitzname"
+
+#: AKPreference/models.py:16
+msgid ""
+"Name to identify a participant by (in case of questions from the organizers)"
+msgstr "Name, zur Identifikation bei Rückfragen von den Organisator*innen"
+
+#: AKPreference/models.py:17
+msgid "Institution"
+msgstr "Institution"
+
+#: AKPreference/models.py:17
+msgid "Uni etc."
+msgstr "Uni etc."
+
+#: AKPreference/models.py:19 AKPreference/models.py:90
+msgid "Event"
+msgstr "Event"
+
+#: AKPreference/models.py:20 AKPreference/models.py:91
+msgid "Associated event"
+msgstr "Zugehöriges Event"
+
+#: AKPreference/models.py:22
+msgid "Requirements"
+msgstr "Anforderungen"
+
+#: AKPreference/models.py:23
+msgid "Participant's Requirements"
+msgstr "Anforderungen des*der Teilnehmer*in"
+
+#: AKPreference/models.py:26
+#, python-brace-format
+msgid "Anonymous {pk}"
+msgstr "Anonym {pk}"
+
+#: AKPreference/models.py:85
+msgid "AK Preference"
+msgstr "AK Präferenz"
+
+#: AKPreference/models.py:86
+msgid "AK Preferences"
+msgstr "AK-Präferenzen"
+
+#: AKPreference/models.py:94
+msgid "Participant this preference belongs to"
+msgstr "Teilnehmer*in, zu dem*der die Präferenz gehört"
+
+#: AKPreference/models.py:96
+msgid "AK"
+msgstr "AK"
+
+#: AKPreference/models.py:97
+msgid "AK this preference belongs to"
+msgstr "AK zu dem die Präferenz gehört"
+
+#: AKPreference/models.py:103
+msgid "Ignore"
+msgstr "Ignorieren"
+
+#: AKPreference/models.py:104
+msgid "Interested"
+msgstr "Interessiert"
+
+#: AKPreference/models.py:105
+msgid "Great interest"
+msgstr "Großes Interesse"
+
+#: AKPreference/models.py:106
+msgid "Required"
+msgstr "Erforderlich"
+
+#: AKPreference/models.py:108
+msgid "Preference"
+msgstr "Präferenz"
+
+#: AKPreference/models.py:109
+msgid "Preference level for the AK"
+msgstr "Präferenz-Level für diesen AK"
+
+#: AKPreference/models.py:113
+msgid "Timestamp"
+msgstr "Zeitpunkt"
+
+#: AKPreference/models.py:113
+msgid "Time of creation"
+msgstr "Erstellungszeitpunkt"
 
 #: AKPreference/templates/AKPreference/poll.html:11
 #: AKPreference/templates/AKPreference/poll_not_configured.html:7
@@ -28,27 +126,25 @@ msgstr "Präferenzen"
 
 #: AKPreference/templates/AKPreference/poll.html:34
 #: AKPreference/templates/AKPreference/poll.html:41
-msgid "AK Preferences"
-msgstr "AK-Präferenzen"
+#: AKPreference/templates/AKPreference/poll_not_configured.html:7
+#: AKPreference/templates/AKPreference/poll_not_configured.html:11
+msgid "AK Preference Poll"
+msgstr "Abfrage von AK-Präferenzen"
 
 #: AKPreference/templates/AKPreference/poll.html:47
-msgid "Your preferences"
-msgstr "Deine Präferenzen"
+msgid "Your AK preferences"
+msgstr "Deine AK Präferenzen"
 
 #: AKPreference/templates/AKPreference/poll.html:49
 msgid "Please enter your preferences."
 msgstr "Trage bitte deine Präferenzen zu den AKs ein."
 
-#: AKPreference/templates/AKPreference/poll.html:68
-#: AKPreference/templates/AKPreference/poll.html:82
+#: AKPreference/templates/AKPreference/poll.html:70
+#: AKPreference/templates/AKPreference/poll.html:79
 msgid "Intends to submit a resolution"
 msgstr "Beabsichtigt eine Resolution einzureichen"
 
-#: AKPreference/templates/AKPreference/poll.html:73
-msgid "Description"
-msgstr "Beschreibung"
-
-#: AKPreference/templates/AKPreference/poll.html:78
+#: AKPreference/templates/AKPreference/poll.html:75
 msgid "Responsible"
 msgstr "Verantwortlich"
 
@@ -68,11 +164,6 @@ msgstr "Abbrechen"
 msgid "Write to organizers of this event for questions and comments"
 msgstr "Fragen oder Kommentare? Schreib den Orgas dieses Events eine Mail"
 
-#: AKPreference/templates/AKPreference/poll_not_configured.html:7
-#: AKPreference/templates/AKPreference/poll_not_configured.html:11
-msgid "AK Preference Poll"
-msgstr "Abfrage von AK-Präferenzen"
-
 #: AKPreference/templates/AKPreference/poll_not_configured.html:20
 msgid ""
 "System is not yet configured for AK preference polling. Please try again "
@@ -81,11 +172,11 @@ msgstr ""
 "Das System ist bisher nicht für die Erfassung von AK-Präferenzen "
 "konfiguriert. Bitte versuche es später wieder."
 
-#: AKPreference/views.py:18
+#: AKPreference/views.py:37
 msgid "AK preferences were registered successfully"
 msgstr "AK-Präferenzen erfolgreich registriert"
 
-#: AKPreference/views.py:113
+#: AKPreference/views.py:138
 msgid ""
 "Something went wrong. Your preferences were not saved. Please try again or "
 "contact the organizers."
