@@ -1,4 +1,5 @@
 import json
+from itertools import groupby
 
 from django import forms
 from django.contrib import messages
@@ -13,7 +14,6 @@ from AKModel.availability.serializers import AvailabilityFormSerializer
 from AKModel.metaviews.admin import EventSlugMixin
 from AKModel.models import AK
 from AKPreference.models import AKPreference
-
 from .forms import EventParticipantForm
 
 
@@ -31,21 +31,21 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
     form_class = forms.Form
     model = AKPreference
     form_class = forms.modelform_factory(
-        model=AKPreference, fields=["preference", "ak", "event"]
+            model=AKPreference, fields=["preference", "ak", "event"]
     )
     template_name = "AKPreference/poll.html"
     success_message = _("AK preferences were registered successfully")
 
     def _create_modelformset(self):
         return forms.modelformset_factory(
-            model=AKPreference,
-            fields=["preference", "ak", "event"],
-            widgets={
-                "ak": forms.HiddenInput,
-                "event": forms.HiddenInput,
-                "preference": forms.RadioSelect,
-            },
-            extra=0,
+                model=AKPreference,
+                fields=["preference", "ak", "event"],
+                widgets={
+                    "ak": forms.HiddenInput,
+                    "event": forms.HiddenInput,
+                    "preference": forms.RadioSelect,
+                },
+                extra=0,
         )
 
     def get(self, request, *args, **kwargs):
@@ -57,7 +57,7 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
 
     def get_success_url(self):
         return reverse_lazy(
-            "dashboard:dashboard_event", kwargs={"slug": self.event.slug}
+                "dashboard:dashboard_event", kwargs={"slug": self.event.slug}
         )
 
     def get_context_data(self, **kwargs):
@@ -73,31 +73,41 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
         ]
 
         context["formset"] = self._create_modelformset()(
-            queryset=AKPreference.objects.none(),
-            initial=initial_lst,
+                queryset=AKPreference.objects.none(),
+                initial=initial_lst,
         )
         context["formset"].extra = len(initial_lst)
 
         for form, init in zip(context["formset"], initial_lst, strict=True):
             form.fields["preference"].label = init["ak"].name
             form.fields["preference"].help_text = (
-                "Description: " + init["ak"].description
+                    "Description: " + init["ak"].description
             )
             form.ak_obj = init["ak"]
 
+        sorted_forms = sorted(
+                context["formset"],
+                key=lambda f: (f.ak_obj.category.name, f.ak_obj.id)
+        )
+        grouped_forms = [
+            (category, list(forms))
+            for category, forms in groupby(sorted_forms, key=lambda f: f.ak_obj.category)
+        ]
+        context["grouped_forms"] = grouped_forms
         availabilities_serialization = AvailabilityFormSerializer(
-            (
-                [Availability.with_event_length(event=self.event)],
-                self.event,
-            )
+                (
+                    [Availability.with_event_length(event=self.event)],
+                    self.event,
+                )
         )
 
         context["participant_form"] = EventParticipantForm(
-            initial={
-                "event": self.event,
-                "availabilities": json.dumps(availabilities_serialization.data),
-            }
+                initial={
+                    "event": self.event,
+                    "availabilities": json.dumps(availabilities_serialization.data),
+                }
         )
+        context['show_types'] = self.event.aktype_set.count() > 0
         return context
 
     def post(self, request, *args, **kwargs):
@@ -105,7 +115,7 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
         model_formset_cls = self._create_modelformset()
         formset = model_formset_cls(request.POST)
         participant_form = EventParticipantForm(
-            data=request.POST, initial={"event": self.event}
+                data=request.POST, initial={"event": self.event}
         )
         if formset.is_valid() and participant_form.is_valid():
             return self.form_valid(form=(formset, participant_form))
@@ -124,11 +134,11 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
                 messages.success(self.request, success_message)
         except:
             messages.error(
-                self.request,
-                _(
-                    "Something went wrong. Your preferences were not saved. "
-                    "Please try again or contact the organizers."
-                ),
+                    self.request,
+                    _(
+                            "Something went wrong. Your preferences were not saved. "
+                            "Please try again or contact the organizers."
+                    ),
             )
             return self.form_invalid(form=form)
         return redirect(self.get_success_url())
