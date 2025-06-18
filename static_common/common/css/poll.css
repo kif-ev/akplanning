@@ -100,13 +100,6 @@ font-size: 14px;
 flex-basis: 100%;
 }
 
-.ak-forms-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5em;
-    margin-bottom: 1em;
-}
-
 .ak-header {
     font-size: 1.25em;
     margin-top: 0.5em;

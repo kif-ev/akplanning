@@ -8,6 +8,10 @@
 {% load static %}
 
 
+{% block meta %}
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock meta %}
+
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "Preferences" %}{% endblock %}
 
 {% block imports %}
@@ -55,13 +59,13 @@
                         <details open>
                             <summary
                                     class="ak-category-header">{{ category.name }}</summary>
-                            <div class="ak-forms-grid">
+                            <div class="row row-cols-1 row-cols-lg-2">
                                 {% for innerform in forms %}
                                     {% bootstrap_form_errors innerform type='non_fields' %}
                                     {% for field in innerform.hidden_fields %}
                                         {{ field }}
                                     {% endfor %}
-                                    <div class="container radio-group">
+                                    <div class="container radio-group col">
                                         <div class="container radio-info">
                                             <details>
                                                 <summary class="ak-header">{{ innerform.preference.label }}
