@@ -1096,10 +1096,10 @@ class AKSlot(models.Model):
         super().save(*args,
                      force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
-    def get_room_constraints(self) -> list[str]:
+    def get_room_constraints(self, export_scheduled_aks_as_fixed: bool = False) -> list[str]:
         """Construct list of required room constraint labels."""
         room_constraints = list(self.ak.requirements.values_list("name", flat=True).order_by())
-        if self.fixed and self.room is not None:
+        if (export_scheduled_aks_as_fixed or self.fixed) and self.room is not None:
             room_constraints.append(f"fixed-room-{self.room.pk}")
 
         if not any(constr.startswith("proxy") for constr in room_constraints):
@@ -1108,7 +1108,7 @@ class AKSlot(models.Model):
         room_constraints.sort()
         return room_constraints
 
-    def get_time_constraints(self) -> list[str]:
+    def get_time_constraints(self, export_scheduled_aks_as_fixed: bool = False) -> list[str]:
         """Construct list of required time constraint labels."""
         # local import to prevent cyclic import
         # pylint: disable=import-outside-toplevel
@@ -1122,7 +1122,7 @@ class AKSlot(models.Model):
 
         # check if ak resp. owner is available for the whole event
         # -> no time constraint needs to be introduced
-        if self.fixed and self.start is not None:
+        if (export_scheduled_aks_as_fixed or self.fixed) and self.start is not None:
             time_constraints = [f"fixed-akslot-{self.id}"]
         elif not Availability.is_event_covered(self.event, self.ak.availabilities.all()):
             time_constraints = [f"availability-ak-{self.ak.pk}"]

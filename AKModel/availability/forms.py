@@ -57,7 +57,7 @@ class AvailabilitiesFormMixin(forms.Form):
         if 'availabilities' not in initial:
             initial['availabilities'] = self._serialize(self.event, kwargs.get('instance'))
         if not isinstance(self, forms.BaseModelForm):
-            kwargs.pop('instance')
+            kwargs.pop('instance', None)
         kwargs['initial'] = initial
 
     def _parse_availabilities_json(self, jsonavailabilities):

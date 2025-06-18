@@ -6,7 +6,72 @@ from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import best_match
 
 from AKModel.forms import AdminIntermediateForm
+from AKModel.models import AKCategory, AKTrack, AKType, Event
 from AKSolverInterface.utils import construct_schema_validator
+
+
+class JSONExportControlForm(forms.Form):
+    """Form to control what objects are exported to the solver."""
+
+    # TODO: Filter rooms out by property?
+    # TODO: Add room availability filter?
+
+    export_scheduled_aks_as_fixed = forms.BooleanField(
+        label=_("Fixate all scheduled slots for the solver"),
+        help_text=_(
+            "In the solver export, all assigned times and room to slots are handled "
+            "as if the slot were fixed."
+        ),
+        required=False,
+    )
+    export_categories = forms.ModelMultipleChoiceField(
+        queryset=AKCategory.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        label=_("AK Categories to include in the export"),
+        required=False,
+    )
+    export_tracks = forms.ModelMultipleChoiceField(
+        queryset=AKTrack.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        label=_("AK tracks to include in the export"),
+        required=False,
+    )
+    export_types = forms.ModelMultipleChoiceField(
+        queryset=AKType.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        label=_("AK types to include in the export"),
+        required=False,
+    )
+
+    field_order = [
+        "export_scheduled_aks_as_fixed",
+        "export_categories",
+        "export_tracks",
+        "export_types",
+    ]
+
+    def __init__(self, *args, event: Event, **kwargs):
+        self.event = event
+        initial = kwargs.get("initial", {})
+        initial["event"] = event
+        kwargs["initial"] = initial
+
+        super().__init__(*args, **kwargs)
+        def _set_queryset(field_name: str):
+            # restrict queryset to all objects of this event
+            self.fields[field_name].queryset = self.fields[field_name].queryset.filter(
+                event=self.event,
+            )
+
+            # default init: all objects are checked
+            self.fields[field_name].initial = self.fields[field_name].queryset
+
+            # if queryset is empty, simply remove the field
+            if not self.fields[field_name].queryset.exists():
+                self.fields.pop(field_name)
+
+        for field_name in ["export_categories", "export_tracks", "export_types"]:
+            _set_queryset(field_name)
 
 
 class JSONScheduleImportForm(AdminIntermediateForm):

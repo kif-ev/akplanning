@@ -22,6 +22,7 @@ from AKModel.models import (
     Room,
 )
 from AKPreference.models import AKPreference, EventParticipant
+from AKSolverInterface.forms import JSONExportControlForm
 from AKSolverInterface.utils import construct_schema_validator
 
 
@@ -71,7 +72,17 @@ class JSONExportTest(TestCase):
         """Set up by retrieving json export and initializing data."""
 
         export_url = reverse("admin:ak_json_export", kwargs={"event_slug": event.slug})
-        response = self.client.get(export_url)
+
+        form = JSONExportControlForm(event=event)
+
+        # TODO: test with values other than default
+        data = {
+            field_name: list(map(str, field.prepare_value(field.initial)))
+            for field_name, field in form.fields.items()
+            if field.initial is not None
+        }
+
+        response = self.client.post(export_url, data=data)
 
         self.assertEqual(response.status_code, 200, "Export not working at all")
 

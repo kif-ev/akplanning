@@ -1,8 +1,20 @@
+from collections.abc import Callable
+
 from django.apps import apps
+from django.db.models.query import QuerySet
 from rest_framework import serializers
 
 from AKModel.models import AK, AKSlot, Event, Room
 from AKModel.serializers import IntListField, StringListField
+
+
+def _apply_filter_cb_to_queryset(
+    cb: Callable[[QuerySet], QuerySet], queryset: QuerySet,
+) -> QuerySet:
+    """Applies filter callback if queryset is a QuerySet object."""
+    # check if queryset is actually a queryset (and not e.g. an empty list)
+    return cb(queryset) if isinstance(queryset, QuerySet) else queryset
+
 
 class ExportRoomInfoSerializer(serializers.ModelSerializer):
     """Serializer of Room objects for the 'info' field.
@@ -121,10 +133,32 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
     """
 
     duration = serializers.IntegerField(source="export_duration")
-    room_constraints = StringListField(source="get_room_constraints")
-    time_constraints = StringListField(source="get_time_constraints")
+    room_constraints = serializers.SerializerMethodField()
+    time_constraints = serializers.SerializerMethodField()
     info = ExportAKSlotInfoSerializer(source="*")
     properties = ExportAKSlotPropertiesSerializer(source="*")
+
+    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
+
+    def get_room_constraints(self, slot: AKSlot):
+        """Get serialized representation for room_constraints.
+
+        Used to pass `export_scheduled_aks_as_fixed` to AKSlot's function.
+        """
+        return slot.get_room_constraints(
+            export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+        )
+
+    def get_time_constraints(self, slot: AKSlot):
+        """Get serialized representation for time_constraints.
+
+        Used to pass `export_scheduled_aks_as_fixed` to AKSlot's function.
+        """
+        return slot.get_time_constraints(
+            export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+        )
 
     class Meta:
         model = AKSlot
@@ -146,6 +180,42 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
         ]
 
 
+class ExportFilteredAKSlotSerializer(serializers.BaseSerializer):
+    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
+
+    def create(self, validated_data):
+        raise ValueError("`ExportFilteredAKSlotSerializer` is read-only.")
+
+    def to_internal_value(self, data):
+        raise ValueError("`ExportFilteredAKSlotSerializer` is read-only.")
+
+    def update(self, instance, validated_data):
+        raise ValueError("`ExportFilteredAKSlotSerializer` is read-only.")
+
+    def to_representation(self, instance):
+        slot_queryset = instance
+        slot_pks = set(slot_queryset.values_list("id", flat=True))
+        def _restrict_to_slots(pk_list: list[int]):
+            return sorted(set(pk_list) & slot_pks)
+
+        serialized_slots = ExportAKSlotSerializer(
+            slot_queryset,
+            export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+            many=True,
+        ).data
+
+        for slot_dict in serialized_slots:
+            slot_dict["properties"]["conflicts"] = _restrict_to_slots(
+                slot_dict["properties"]["conflicts"],
+            )
+            slot_dict["properties"]["dependencies"] = _restrict_to_slots(
+                slot_dict["properties"]["dependencies"],
+            )
+        return serialized_slots
+
+
 class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
     """Export serializer for EventParticipant objects that includes 'dummy' participants.
 
@@ -159,6 +229,17 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
     Part of the implementation of the format of the KoMa solver:
     https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
     """
+
+    def __init__(
+        self,
+        *args,
+        slots_qs: QuerySet = None,
+        filter_participants_cb: Callable[[QuerySet], QuerySet],
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.filter_participants_cb = filter_participants_cb
+        self.slots_qs = slots_qs
 
     def create(self, validated_data):
         raise ValueError("`ExportParticipantAndDummiesSerializer` is read-only.")
@@ -183,7 +264,9 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
             from AKPreference.models import EventParticipant
             from AKPreference.serializers import ExportParticipantSerializer
 
-            real_participants = ExportParticipantSerializer(event.participants, many=True).data
+            participants = _apply_filter_cb_to_queryset(self.filter_participants_cb, event.participants)
+            real_participants = ExportParticipantSerializer(participants, many=True).data
+
             if EventParticipant.objects.exists():
                 next_participant_pk = EventParticipant.objects.latest("pk").pk + 1
 
@@ -205,7 +288,19 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
                 ]
             }
             dummies.append(new_participant_data)
-        return real_participants + dummies
+        all_participants = real_participants + dummies
+
+        if self.slots_qs is not None:
+            slot_pks = set(self.slots_qs.values_list("id", flat=True))
+            def _filter_to_slots_qs(preference: dict):
+                return preference["ak_id"] in slot_pks
+
+            for participant in all_participants:
+                participant["preferences"] = list(
+                    filter(_filter_to_slots_qs, participant["preferences"])
+                )
+        return all_participants
+
 
 
 class ExportEventInfoSerializer(serializers.ModelSerializer):
@@ -234,6 +329,10 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
     https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
     """
 
+    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
+
     def create(self, validated_data):
         raise ValueError("`ExportTimeslotBlockSerializer` is read-only.")
 
@@ -259,7 +358,10 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
             ak_slot: AKSlot, timeslot: Availability
         ) -> bool:
             """Test if an AKSlot is fixed to overlap a timeslot slot."""
-            if not ak_slot.fixed or ak_slot.start is None:
+            if ak_slot.start is None:
+                return False
+
+            if not (ak_slot.fixed or self.export_scheduled_aks_as_fixed):
                 return False
 
             fixed_avail = Availability(
@@ -410,21 +512,75 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
         return timeslots
 
 
-class ExportEventSerializer(serializers.ModelSerializer):
+class ExportEventSerializer(serializers.BaseSerializer):
     """Export serializer for an Event object.
+
+    Allows filtering of the exported AKSlots and Rooms by
+    passing a filter callback function as a kwarg to __init__
 
     Used to serialize an Event for the export to a solver.
     Part of the implementation of the format of the KoMa solver:
     https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
     """
 
-    info = ExportEventInfoSerializer(source="*")
-    rooms = ExportRoomSerializer(many=True)
-    aks = ExportAKSlotSerializer(source="slots", many=True)
-    participants = ExportParticipantAndDummiesSerializer(source="*")
-    timeslots = ExportTimeslotBlockSerializer(source="*")
+    def __init__(
+        self,
+        *args,
+        filter_participants_cb: Callable[[QuerySet], QuerySet] | None = None,
+        filter_slots_cb: Callable[[QuerySet], QuerySet] | None = None,
+        filter_rooms_cb: Callable[[QuerySet], QuerySet] | None = None,
+        export_scheduled_aks_as_fixed: bool = False,
+        **kwargs,
+    ):
+        def _identity(queryset: QuerySet) -> QuerySet:
+            return queryset
 
-    class Meta:
-        model = Event
-        fields = ["participants", "rooms", "timeslots", "info", "aks"]
-        read_only_fields = ["participants", "rooms", "timeslots", "info", "aks"]
+        # use identity function if not specified
+        self.filter_participants_cb = filter_participants_cb or _identity
+        self.filter_rooms_cb = filter_rooms_cb or _identity
+        self.filter_slots_cb = filter_slots_cb or _identity
+        self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
+
+        super().__init__(*args, **kwargs)
+
+
+    def create(self, validated_data):
+        raise ValueError("`ExportEventSerializer` is read-only.")
+
+    def to_internal_value(self, data):
+        raise ValueError("`ExportEventSerializer` is read-only.")
+
+    def update(self, instance, validated_data):
+        raise ValueError("`ExportEventSerializer` is read-only.")
+
+    def to_representation(self, instance: Event):
+        """
+        Object instance -> Dict of primitive datatypes.
+        """
+        event = instance
+
+        info = ExportEventInfoSerializer(event)
+        timeslots = ExportTimeslotBlockSerializer(event)
+        # we support filtering of Rooms and AKSlots
+        rooms = ExportRoomSerializer(
+            _apply_filter_cb_to_queryset(self.filter_rooms_cb, event.rooms),
+            many=True,
+        )
+        slots_qs = _apply_filter_cb_to_queryset(self.filter_slots_cb, event.slots)
+        slots = ExportFilteredAKSlotSerializer(
+            slots_qs,
+            export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+        )
+        participants = ExportParticipantAndDummiesSerializer(
+            event,
+            slots_qs=slots_qs,
+            filter_participants_cb=self.filter_participants_cb,
+        )
+
+        return {
+            "participants": participants.data,
+            "rooms": rooms.data,
+            "timeslots": timeslots.data,
+            "info": info.data,
+            "aks": slots.data,
+        }
