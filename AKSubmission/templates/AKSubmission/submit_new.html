@@ -24,44 +24,6 @@
     });
     </script>
 
-    <script type="module">
-        const { createApp } = Vue;
-
-        createApp({
-          data() {
-            return {
-              showWarning: false,
-              formEl: null,
-            }
-          },
-          methods: {
-            handleSubmit(e) {
-              this.formEl = e.target;
-              const nameInput = this.formEl.querySelector('[name="name"]');
-              const shortNameInput = this.formEl.querySelector('[name="short_name"]');
-              // Intercept submission and show modal if necessary
-              if ((nameInput && nameInput.value.includes('AK')) ||
-                  (shortNameInput && shortNameInput.value.includes('AK'))) {
-                  if (!this.modal) {
-                    this.modal = new bootstrap.Modal(document.getElementById('akWarningModal'));
-                    }
-                    this.modal.show();
-              }
-              // Otherwise, directly submit the form
-              else {
-                this.formEl.submit();
-              }
-            },
-            proceedSubmit() {
-                // Hide warning and proceed with submission if user asked for it
-                this.showWarning = false;
-                if (this.formEl) {
-                    this.formEl.submit();
-                }
-            }
-          }
-        }).mount('#app');
-    </script>
 
     <style>
         #id_present_helptext::after {
