@@ -1,6 +1,8 @@
 import json
 
 from django.contrib import messages
+from django.db.models import Q
+from django.db.models.query import QuerySet
 from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, FormView
@@ -41,7 +43,33 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
         # TODO: Add warning if AKs exists without a slot
         # TODO: Add warnings if rooms / slots / ... is empty
         try:
-            serialized_event = ExportEventSerializer(context["event"])
+            def _filter_slots_cb(queryset: QuerySet) -> QuerySet:
+                if "export_tracks" in form.cleaned_data:
+                    queryset = queryset.filter(
+                        Q(ak__track__in=form.cleaned_data["export_tracks"])
+                        | Q(ak__track__isnull=True)
+                    )
+                if "export_categories" in form.cleaned_data:
+                    queryset = queryset.filter(
+                        Q(ak__category__in=form.cleaned_data["export_categories"])
+                        | Q(ak__category__isnull=True)
+                    )
+                if "export_types" in form.cleaned_data:
+                    queryset = queryset.filter(
+                        Q(ak__types__in=form.cleaned_data["export_types"])
+                        | Q(ak__types__isnull=True)
+                    )
+
+                return queryset
+
+            def _filter_rooms_cb(queryset: QuerySet) -> QuerySet:
+                return queryset
+
+            serialized_event = ExportEventSerializer(
+                context["event"],
+                filter_slots_cb=_filter_slots_cb,
+                filter_rooms_cb=_filter_rooms_cb,
+            )
             context["json_data_oneline"] = json.dumps(serialized_event.data, ensure_ascii=False)
             context["json_data"] = json.dumps(serialized_event.data, indent=2, ensure_ascii=False)
             context["is_valid"] = True
