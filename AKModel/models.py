@@ -211,7 +211,8 @@ class Event(models.Model):
         return event
 
     def get_categories_with_aks(self, wishes_seperately=False,
-                                filter_func=lambda ak: True, hide_empty_categories=False, types=None):
+                                filter_func=lambda ak: True, hide_empty_categories=False,
+                                types=None, types_all_selected_only=False):
         """
         Get AKCategories as well as a list of AKs belonging to the category for this event
 
@@ -223,6 +224,8 @@ class Event(models.Model):
         :type hide_empty_categories: bool
         :param types: Optional list of AK types to filter by, if None, all types are included
         :type types: list[AKType] | None
+        :param types_all_selected_only: If True, only include AKs that have all of the selected types at the same time
+        :type types_all_selected_only: bool
         :return: list of category-AK-list-tuples, optionally the additional list of AK wishes
         :rtype: list[(AKCategory, list[AK])] [, list[AK]]
         """
@@ -246,6 +249,9 @@ class Event(models.Model):
             s = category.ak_set
             if types is not None:
                 s = s.filter(types__in=types).distinct()
+                if types_all_selected_only:
+                    # TODO fix - this only works in very specific cases
+                    s = s.annotate(Count('types')).filter(types__count=len(types))
             return s.select_related('event').prefetch_related('owners', 'akslot_set', 'types').all()
 
         if wishes_seperately:
