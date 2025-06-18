@@ -131,7 +131,8 @@ class AKScheduleJSONImportView(EventSlugMixin, IntermediateAdminView):
     def form_valid(self, form):
         try:
             number_of_slots_changed = self.event.schedule_from_json(
-                form.cleaned_data["data"]
+                form.cleaned_data["data"],
+                check_for_data_inconsistency=False, # TODO: Actually handle filtered export
             )
             messages.add_message(
                 self.request,
