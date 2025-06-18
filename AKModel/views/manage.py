@@ -46,6 +46,7 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             ]
         else:
             form.fields['types'].widget = form.fields['types'].hidden_widget()
+            form.fields['types_all_selected_only'].widget = form.fields['types_all_selected_only'].hidden_widget()
         return form
 
     def form_valid(self, form):
@@ -82,12 +83,14 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             types = AKType.objects.filter(id__in=form.cleaned_data['types'])
             names_string = ', '.join(AKType.objects.get(pk=t).name for t in form.cleaned_data['types'])
             types_filter_string = f"[{_('Type(s)')}: {names_string}]"
+        types_all_selected_only = form.cleaned_data['types_all_selected_only']
 
         # Get all relevant AKs (wishes separately, and either all AKs or only those who should directly or indirectly
         # be presented when restriction setting was chosen)
         categories_with_aks, ak_wishes = self.event.get_categories_with_aks(wishes_seperately=True, filter_func=lambda
             ak: not RESULT_PRESENTATION_MODE or (ak.present or (ak.present is None and ak.category.present_by_default)),
-                                                                            types=types)
+                                                                    types=types,
+                                                                    types_all_selected_only=types_all_selected_only)
 
         # Create context for LaTeX rendering
         context = {

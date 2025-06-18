@@ -181,6 +181,12 @@ class SlideExportForm(AdminIntermediateForm):
         widget=forms.CheckboxSelectMultiple,
         choices=[],
         required=False)
+    types_all_selected_only = forms.BooleanField(
+        initial=False,
+        label=_("Only show AKs with all selected types?"),
+        help_text=_("If checked, only AKs that have all selected types will be shown in the slides. "
+                    "If unchecked, AKs with at least one of the selected types will be shown."),
+        required=False)
     presentation_mode = forms.TypedChoiceField(
         initial=False,
         label=_("Presentation only?"),
