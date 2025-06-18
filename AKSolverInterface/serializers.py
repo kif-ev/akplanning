@@ -143,11 +143,19 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
         self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
 
     def get_room_constraints(self, slot: AKSlot):
+        """Get serialized representation for room_constraints.
+
+        Used to pass `export_scheduled_aks_as_fixed` to AKSlot's function.
+        """
         return slot.get_room_constraints(
             export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
         )
 
     def get_time_constraints(self, slot: AKSlot):
+        """Get serialized representation for time_constraints.
+
+        Used to pass `export_scheduled_aks_as_fixed` to AKSlot's function.
+        """
         return slot.get_time_constraints(
             export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
         )

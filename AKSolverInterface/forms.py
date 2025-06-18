@@ -5,9 +5,6 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import best_match
 
-from AKModel.availability.forms import AvailabilitiesFormMixin
-from AKModel.availability.models import Availability
-from AKModel.availability.serializers import AvailabilityFormSerializer
 from AKModel.forms import AdminIntermediateForm
 from AKModel.models import AKCategory, AKTrack, AKType, Event
 from AKSolverInterface.utils import construct_schema_validator
@@ -16,13 +13,15 @@ from AKSolverInterface.utils import construct_schema_validator
 class JSONExportControlForm(forms.Form):
     """Form to control what objects are exported to the solver."""
 
-    # TODO: Add checkbox whether wishes should be exported?
     # TODO: Filter rooms out by property?
     # TODO: Add room availability filter?
 
     export_scheduled_aks_as_fixed = forms.BooleanField(
         label=_("Fixate all scheduled slots for the solver"),
-        help_text=_("In the solver export, all assigned times and room to slots are handled as if the slot were fixed."),
+        help_text=_(
+            "In the solver export, all assigned times and room to slots are handled "
+            "as if the slot were fixed."
+        ),
         required=False,
     )
     export_categories = forms.ModelMultipleChoiceField(
@@ -71,7 +70,7 @@ class JSONExportControlForm(forms.Form):
             if not self.fields[field_name].queryset.exists():
                 self.fields.pop(field_name)
 
-        for field_name in {"export_categories", "export_tracks", "export_types"}:
+        for field_name in ["export_categories", "export_tracks", "export_types"]:
             _set_queryset(field_name)
 
 

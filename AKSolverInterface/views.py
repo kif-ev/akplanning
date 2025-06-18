@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import DetailView, FormView
+from django.views.generic import FormView
 
 from AKModel.metaviews.admin import (
     AdminViewMixin,
@@ -30,8 +30,7 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
     def get_template_names(self):
         if self.request.method == "POST":
             return ["admin/AKSolverInterface/ak_json_export.html"]
-        else:
-            return ["admin/AKSolverInterface/ak_json_export_control.html"]
+        return ["admin/AKSolverInterface/ak_json_export_control.html"]
 
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
@@ -45,7 +44,10 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
             if aks_without_slot.exists():
                 messages.warning(
                     self.request,
-                    _("The following AKs have no slot assigned to them and are therefore not exported: {aks_list}").format(
+                    _(
+                        "The following AKs have no slot assigned to them "
+                        "and are therefore not exported: {aks_list}"
+                    ).format(
                         aks_list=", ".join(aks_without_slot.values_list("name", flat=True))
                     )
                 )
