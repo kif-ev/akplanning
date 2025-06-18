@@ -54,27 +54,28 @@ cursor: pointer;
 
 .radio-group input:checked + label {
 background-color: #a5dc86;
+    color: white;
 box-shadow: none;
 }
 
 /* Don't care */
 .radio-group input[value="0"]:checked + label {
-background-color: #ffd97d;
+    background-color: #555;
 box-shadow: none;
 }
 /* Gerne */
 .radio-group input[value="1"]:checked + label {
-background-color: #aaf683;
+    background-color: #75caeb;
 box-shadow: none;
 }
 /* Unbedingt */
 .radio-group input[value="2"]:checked + label {
-background-color: #60d394;
+    background-color: #158cba;
 box-shadow: none;
 }
 /* Erforderlich */
 .radio-group input[value="3"]:checked + label {
-background-color: #ee6055;
+    background-color: #28b62c;
 box-shadow: none;
 }
 
