@@ -124,10 +124,24 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
     """
 
     duration = serializers.IntegerField(source="export_duration")
-    room_constraints = StringListField(source="get_room_constraints")
-    time_constraints = StringListField(source="get_time_constraints")
+    room_constraints = serializers.SerializerMethodField()
+    time_constraints = serializers.SerializerMethodField()
     info = ExportAKSlotInfoSerializer(source="*")
     properties = ExportAKSlotPropertiesSerializer(source="*")
+
+    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
+
+    def get_room_constraints(self, slot: AKSlot):
+        return slot.get_room_constraints(
+            export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+        )
+
+    def get_time_constraints(self, slot: AKSlot):
+        return slot.get_time_constraints(
+            export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+        )
 
     class Meta:
         model = AKSlot
@@ -237,6 +251,10 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
     https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
     """
 
+    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
+
     def create(self, validated_data):
         raise ValueError("`ExportTimeslotBlockSerializer` is read-only.")
 
@@ -262,7 +280,10 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
             ak_slot: AKSlot, timeslot: Availability
         ) -> bool:
             """Test if an AKSlot is fixed to overlap a timeslot slot."""
-            if not ak_slot.fixed or ak_slot.start is None:
+            if ak_slot.start is None:
+                return False
+
+            if not (ak_slot.fixed or self.export_scheduled_aks_as_fixed):
                 return False
 
             fixed_avail = Availability(
@@ -429,6 +450,7 @@ class ExportEventSerializer(serializers.BaseSerializer):
         *args,
         filter_slots_cb: Callable[[QuerySet], QuerySet] | None = None,
         filter_rooms_cb: Callable[[QuerySet], QuerySet] | None = None,
+        export_scheduled_aks_as_fixed: bool = False,
         **kwargs,
     ):
         def _identity(queryset: QuerySet) -> QuerySet:
@@ -437,6 +459,7 @@ class ExportEventSerializer(serializers.BaseSerializer):
         # use identity function if not specified
         self.filter_rooms_cb = filter_rooms_cb or _identity
         self.filter_slots_cb = filter_slots_cb or _identity
+        self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
 
         super().__init__(*args, **kwargs)
 
@@ -474,6 +497,7 @@ class ExportEventSerializer(serializers.BaseSerializer):
         )
         slots = ExportAKSlotSerializer(
             _filter_queryset(event.slots, self.filter_slots_cb),
+            export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
             many=True
         )
 

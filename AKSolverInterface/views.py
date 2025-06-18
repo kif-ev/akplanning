@@ -69,6 +69,7 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
                 context["event"],
                 filter_slots_cb=_filter_slots_cb,
                 filter_rooms_cb=_filter_rooms_cb,
+                export_scheduled_aks_as_fixed=form.cleaned_data["export_scheduled_aks_as_fixed"],
             )
             context["json_data_oneline"] = json.dumps(serialized_event.data, ensure_ascii=False)
             context["json_data"] = json.dumps(serialized_event.data, indent=2, ensure_ascii=False)
