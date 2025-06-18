@@ -12,7 +12,7 @@ from AKModel.metaviews.admin import (
     EventSlugMixin,
     IntermediateAdminView,
 )
-from AKModel.models import Event
+from AKModel.models import AK, Event
 from AKSolverInterface.forms import JSONExportControlForm, JSONScheduleImportForm
 from AKSolverInterface.serializers import ExportEventSerializer
 
@@ -40,9 +40,16 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
 
     def form_valid(self, form):
         context = self.get_context_data()
-        # TODO: Add warning if AKs exists without a slot
-        # TODO: Add warnings if rooms / slots / ... is empty
         try:
+            aks_without_slot = AK.objects.filter(event=self.event, akslot__isnull=True).all()
+            if aks_without_slot.exists():
+                messages.warning(
+                    self.request,
+                    _("The following AKs have no slot assigned to them and are therefore not exported: {aks_list}").format(
+                        aks_list=", ".join(aks_without_slot.values_list("name", flat=True))
+                    )
+                )
+
             def _filter_slots_cb(queryset: QuerySet) -> QuerySet:
                 queryset = queryset.prefetch_related("ak")
                 if "export_tracks" in form.cleaned_data:
