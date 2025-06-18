@@ -84,6 +84,18 @@ msgstr "Interessenszähler der AKs zurücksetzen"
 msgid "AK Details"
 msgstr "AK-Details"
 
+#: AKModel/admin.py:454
+msgid "Clear start/rooms"
+msgstr "Zugewiesenen Start/Räume zurücksetzen"
+
+#: AKModel/admin.py:464
+msgid ""
+"Cannot reset scheduling for fixed AKs. Please make sure to filter out fixed "
+"AKs first."
+msgstr ""
+"Planung von fixierten AKs kann nicht zurückgesetzt werden. "
+"Stelle bitte sicher, dass alle fixierten AKs zunächst rausgefiltert sind."
+
 #: AKModel/admin.py:564 AKModel/views/manage.py:124
 msgid "Mark Constraint Violations as manually resolved"
 msgstr "Markiere Constraintverletzungen als manuell behoben"
@@ -1382,7 +1394,19 @@ msgstr ""
 msgid "Constraint Violations set to level 'warning'"
 msgstr "Constraintverletzungen auf Level \"Warning\" gesetzt"
 
-#: AKModel/views/manage.py:165
+#: AKModel/views/manage.py:144
+msgid "Clear schedule"
+msgstr "Planung zurücksetzen"
+
+#: AKModel/views/manage.py:146
+msgid "Clear schedule. The following scheduled AKSlots will be reset"
+msgstr "Die Planung (Start, Räume) der folgenden AKs wird zurückgesetzt"
+
+#: AKModel/views/manage.py:147
+msgid "Schedule cleared"
+msgstr "Planung zurückgesetzt"
+
+#: AKModel/views/manage.py:180
 msgid "Publish the plan(s) of:"
 msgstr "Den Plan/die Pläne veröffentlichen von:"
 

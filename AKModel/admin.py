@@ -20,7 +20,7 @@ from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKRequirement, A
     ConstraintViolation, DefaultSlot, AKType
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
 from AKModel.views.ak import AKResetInterestView, AKResetInterestCounterView
-from AKModel.views.manage import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView
+from AKModel.views.manage import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView, ClearScheduleView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -480,10 +480,11 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
     """
     model = AKSlot
     list_display = ['id', 'ak', 'room', 'start', 'duration', 'event']
-    list_filter = ['event', ('room', EventRelatedFieldListFilter)]
+    list_filter = ['event', "fixed", ('room', EventRelatedFieldListFilter)]
     ordering = ['start']
     readonly_fields = ['ak_details_link', 'updated']
     form = AKSlotAdminForm
+    actions = ["reset_scheduling"]
 
     @display(description=_('AK Details'))
     def ak_details_link(self, akslot):
@@ -498,6 +499,36 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
             link = f"<a href='{ akslot.ak.detail_url }'>{str(akslot.ak)}</a>"
             return mark_safe(str(link))
         return "-"
+
+    def get_urls(self):
+        """
+        Add additional URLs/views
+        """
+        urls = [
+            path('clear-schedule/', ClearScheduleView.as_view(), name="clear-schedule"),
+        ]
+        urls.extend(super().get_urls())
+        return urls
+
+    @action(description=_("Clear start/rooms"))
+    def reset_scheduling(self, request, queryset):
+        """
+        Action: Reset start and room field for the given AKs
+        Will use a typical admin confirmation view flow
+        """
+        if queryset.filter(fixed=True).exists():
+            self.message_user(
+                request,
+                _(
+                        "Cannot reset scheduling for fixed AKs. "
+                        "Please make sure to filter out fixed AKs first."
+                ),
+                messages.ERROR,
+            )
+            return redirect('admin:AKModel_akslot_changelist')
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(
+            f"{reverse_lazy('admin:clear-schedule')}?pks={','.join(str(pk) for pk in selected)}")
 
     ak_details_link.short_description = _('AK Details')
 

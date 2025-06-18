@@ -4,18 +4,17 @@ import os
 import tempfile
 from itertools import zip_longest
 
-
 from django.contrib import messages
 from django.db.models.functions import Now
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import DetailView, ListView, TemplateView
 from django_tex.core import render_template_with_context, run_tex_in_directory
 from django_tex.response import PDFResponse
 
 from AKModel.forms import SlideExportForm, DefaultSlotEditorForm
 from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
-from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner, AKType
+from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner, AKSlot, AKType
 
 
 class UserView(TemplateView):
@@ -158,6 +157,28 @@ class CVSetLevelWarningView(IntermediateAdminActionView):
     def action(self, form):
         self.entities.update(level=ConstraintViolation.ViolationLevel.WARNING)
 
+class ClearScheduleView(IntermediateAdminActionView, ListView):
+    """
+    Admin action view: Clear schedule
+    """
+    title = _('Clear schedule')
+    model = AKSlot
+    confirmation_message = _('Clear schedule. The following scheduled AKSlots will be reset')
+    success_message = _('Schedule cleared')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.entities = AKSlot.objects.none()
+
+    def get_queryset(self, *args, **kwargs):
+        query_set = super().get_queryset(*args, **kwargs)
+        # do not reset fixed AKs
+        query_set = query_set.filter(fixed=False)
+        return query_set
+
+    def action(self, form):
+        """Reset rooms and start for all selected slots."""
+        self.entities.update(room=None, start=None)
 
 class PlanPublishView(IntermediateAdminActionView):
     """
