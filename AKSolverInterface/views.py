@@ -44,6 +44,7 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
         # TODO: Add warnings if rooms / slots / ... is empty
         try:
             def _filter_slots_cb(queryset: QuerySet) -> QuerySet:
+                queryset = queryset.prefetch_related("ak")
                 if "export_tracks" in form.cleaned_data:
                     queryset = queryset.filter(
                         Q(ak__track__in=form.cleaned_data["export_tracks"])
@@ -60,19 +61,40 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
                         | Q(ak__types__isnull=True)
                     )
 
+                queryset = queryset.all()
+                if not queryset.exists():
+                    messages.warning(
+                        self.request,
+                        _("No AKSlots are exported"),
+                    )
+
                 return queryset
 
             def _filter_rooms_cb(queryset: QuerySet) -> QuerySet:
+                queryset = queryset.all()
+                if not queryset.exists():
+                    messages.warning(self.request, _("No Rooms are exported"))
+                return queryset
+
+            def _filter_participants_cb(queryset: QuerySet) -> QuerySet:
+                queryset = queryset.all()
+                if not queryset.exists():
+                    messages.warning(self.request, _("No real participants are exported"))
                 return queryset
 
             serialized_event = ExportEventSerializer(
                 context["event"],
                 filter_slots_cb=_filter_slots_cb,
                 filter_rooms_cb=_filter_rooms_cb,
+                filter_participants_cb=_filter_participants_cb,
                 export_scheduled_aks_as_fixed=form.cleaned_data["export_scheduled_aks_as_fixed"],
             )
-            context["json_data_oneline"] = json.dumps(serialized_event.data, ensure_ascii=False)
-            context["json_data"] = json.dumps(serialized_event.data, indent=2, ensure_ascii=False)
+            serialized_event_data = serialized_event.data
+
+            if not serialized_event_data["timeslots"]["blocks"]:
+                messages.warning(self.request, _("No timeslots are exported"))
+            context["json_data_oneline"] = json.dumps(serialized_event_data, ensure_ascii=False)
+            context["json_data"] = json.dumps(serialized_event_data, indent=2, ensure_ascii=False)
             context["is_valid"] = True
         except ValueError as ex:
             messages.add_message(

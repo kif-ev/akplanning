@@ -7,6 +7,15 @@ from rest_framework import serializers
 from AKModel.models import AK, AKSlot, Event, Room
 from AKModel.serializers import IntListField, StringListField
 
+
+def _apply_filter_cb_to_queryset(
+    cb: Callable[[QuerySet], QuerySet], queryset: QuerySet,
+) -> QuerySet:
+    """Applies filter callback if queryset is a QuerySet object."""
+    # check if queryset is actually a queryset (and not e.g. an empty list)
+    return cb(queryset) if isinstance(queryset, QuerySet) else queryset
+
+
 class ExportRoomInfoSerializer(serializers.ModelSerializer):
     """Serializer of Room objects for the 'info' field.
 
@@ -177,6 +186,10 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
     https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
     """
 
+    def __init__(self, *args, filter_participants_cb: Callable[[QuerySet], QuerySet], **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filter_participants_cb = filter_participants_cb
+
     def create(self, validated_data):
         raise ValueError("`ExportParticipantAndDummiesSerializer` is read-only.")
 
@@ -200,7 +213,8 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
             from AKPreference.models import EventParticipant
             from AKPreference.serializers import ExportParticipantSerializer
 
-            real_participants = ExportParticipantSerializer(event.participants, many=True).data
+            participants = _apply_filter_cb_to_queryset(self.filter_participants_cb, event.participants)
+            real_participants = ExportParticipantSerializer(participants, many=True).data
             if EventParticipant.objects.exists():
                 next_participant_pk = EventParticipant.objects.latest("pk").pk + 1
 
@@ -448,6 +462,7 @@ class ExportEventSerializer(serializers.BaseSerializer):
     def __init__(
         self,
         *args,
+        filter_participants_cb: Callable[[QuerySet], QuerySet] | None = None,
         filter_slots_cb: Callable[[QuerySet], QuerySet] | None = None,
         filter_rooms_cb: Callable[[QuerySet], QuerySet] | None = None,
         export_scheduled_aks_as_fixed: bool = False,
@@ -457,6 +472,7 @@ class ExportEventSerializer(serializers.BaseSerializer):
             return queryset
 
         # use identity function if not specified
+        self.filter_participants_cb = filter_participants_cb or _identity
         self.filter_rooms_cb = filter_rooms_cb or _identity
         self.filter_slots_cb = filter_slots_cb or _identity
         self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
@@ -479,24 +495,19 @@ class ExportEventSerializer(serializers.BaseSerializer):
         """
         event = instance
 
-        def _filter_queryset(
-            queryset: QuerySet, cb: Callable[[QuerySet], QuerySet],
-        ) -> QuerySet:
-            """Applies filter callback if queryset is a QuerySet object."""
-            # check if queryset is actually a queryset (and not e.g. an empty list)
-            return cb(queryset) if isinstance(queryset, QuerySet) else queryset
-
-
         info = ExportEventInfoSerializer(event)
-        participants = ExportParticipantAndDummiesSerializer(event)
+        participants = ExportParticipantAndDummiesSerializer(
+            event,
+            filter_participants_cb=self.filter_participants_cb,
+        )
         timeslots = ExportTimeslotBlockSerializer(event)
         # we support filtering of Rooms and AKSlots
         rooms = ExportRoomSerializer(
-            _filter_queryset(event.rooms, self.filter_rooms_cb),
+            _apply_filter_cb_to_queryset(self.filter_rooms_cb, event.rooms),
             many=True,
         )
         slots = ExportAKSlotSerializer(
-            _filter_queryset(event.slots, self.filter_slots_cb),
+            _apply_filter_cb_to_queryset(self.filter_slots_cb, event.slots),
             export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
             many=True
         )
