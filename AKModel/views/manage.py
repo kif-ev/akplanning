@@ -5,7 +5,6 @@ import tempfile
 from itertools import zip_longest
 
 from django.contrib import messages
-from django.db.models import Q
 from django.db.models.functions import Now
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
@@ -14,8 +13,7 @@ from django_tex.core import render_template_with_context, run_tex_in_directory
 from django_tex.response import PDFResponse
 
 from AKModel.forms import SlideExportForm, DefaultSlotEditorForm
-from AKModel.metaviews.admin import EventSlugMixin, FilterByEventSlugMixin, \
-    IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
+from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
 from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner, AKSlot, AKType
 
 
