@@ -464,7 +464,7 @@ class Event(models.Model):
             if schedule["input"] != export_dict:
                 raise ValueError(_("Data has changed since the export. Reexport and run the solver again."))
 
-        slots_in_an_hour = schedule["input"]["timeslots"]["info"]["duration"]
+        slots_in_an_hour = 1.0 / schedule["input"]["timeslots"]["info"]["duration"]
 
         timeslot_dict = {
             timeslot.idx: timeslot
