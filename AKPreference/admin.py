@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 
 from AKPreference.models import AKPreference, EventParticipant
-from AKModel.admin import PrepopulateWithNextActiveEventMixin
+from AKModel.admin import PrepopulateWithNextActiveEventMixin, EventRelatedFieldListFilter
 from AKModel.models import AK
 
 @admin.register(EventParticipant)
@@ -44,6 +44,6 @@ class AKPreferenceAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
     model = AKPreference
     form = AKPreferenceAdminForm
     list_display = ['preference', 'participant', 'ak', 'event']
-    list_filter = ['event', 'ak', 'participant']
+    list_filter = ['event', ('ak', EventRelatedFieldListFilter), ('participant', EventRelatedFieldListFilter)]
     list_editable = []
     ordering = ['participant', 'preference', 'ak']

@@ -480,7 +480,8 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
     """
     model = AKSlot
     list_display = ['id', 'ak', 'room', 'start', 'duration', 'event']
-    list_filter = ['event', "fixed", ('room', EventRelatedFieldListFilter)]
+    list_filter = ['event', "fixed", ('room', EventRelatedFieldListFilter),
+                   ('ak__category', EventRelatedFieldListFilter)]
     ordering = ['start']
     readonly_fields = ['ak_details_link', 'updated']
     form = AKSlotAdminForm
