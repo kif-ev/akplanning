@@ -4,12 +4,11 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 import AKModel.views.api
-from AKModel.views.manage import ExportSlidesView, PlanPublishView, PlanUnpublishView, \
-     PollPublishView, PollUnpublishView, DefaultSlotEditorView, AKsByUserView
-from AKModel.views.ak import AKRequirementOverview, AKCSVExportView, AKWikiExportView, \
-     AKMessageDeleteView
-from AKModel.views.event_wizard import NewEventWizardStartView, NewEventWizardPrepareImportView, \
-    NewEventWizardImportView, NewEventWizardActivateView, NewEventWizardFinishView, NewEventWizardSettingsView
+from AKModel.views.ak import AKCSVExportView, AKMessageDeleteView, AKRequirementOverview, AKWikiExportView
+from AKModel.views.event_wizard import NewEventWizardActivateView, NewEventWizardFinishView, NewEventWizardImportView, \
+    NewEventWizardPrepareImportView, NewEventWizardSettingsView, NewEventWizardStartView
+from AKModel.views.manage import AKsByUserView, DefaultSlotEditorView, ExportSlidesView, PlanPublishView, \
+    PlanUnpublishView, PollPublishView, PollUnpublishView
 from AKModel.views.room import RoomBatchCreationView
 from AKModel.views.status import EventStatusView
 
@@ -74,7 +73,9 @@ def get_admin_urls_event_wizard(admin_site):
     return [
         path('add/wizard/start/', admin_site.admin_view(NewEventWizardStartView.as_view()),
              name="new_event_wizard_start"),
-        path('add/wizard/settings/', csp_update(FONT_SRC=["maxcdn.bootstrapcdn.com"], SCRIPT_SRC=["cdnjs.cloudflare.com"], STYLE_SRC=["cdnjs.cloudflare.com"])(admin_site.admin_view(NewEventWizardSettingsView.as_view())),
+        path('add/wizard/settings/', csp_update(
+                {"font-src": ["maxcdn.bootstrapcdn.com"], "script-src": ["cdnjs.cloudflare.com"],
+                 "style-src": ["cdnjs.cloudflare.com"]})(admin_site.admin_view(NewEventWizardSettingsView.as_view())),
              name="new_event_wizard_settings"),
         path('add/wizard/created/<slug:event_slug>/', admin_site.admin_view(NewEventWizardPrepareImportView.as_view()),
              name="new_event_wizard_prepare_import"),

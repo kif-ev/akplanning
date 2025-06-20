@@ -13,9 +13,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import decimal
 import os
 
+from csp.constants import SELF
 from django.utils.translation import gettext_lazy as _
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-from split_settings.tools import optional, include
+from split_settings.tools import include, optional
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
     'django_tex',
     'compressor',
     'docs',
+    "csp",
 ]
 
 MIDDLEWARE = [
@@ -235,12 +237,17 @@ SIMPLE_BACKEND_REDIRECT_URL = "/user/"
 LOGIN_REDIRECT_URL = SIMPLE_BACKEND_REDIRECT_URL
 
 # Content Security Policy
-CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "'unsafe-eval'")
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "fonts.googleapis.com")
-CSP_IMG_SRC = ("'self'", "data:")
-CSP_FRAME_SRC = ("'self'", )
-CSP_FONT_SRC = ("'self'", "data:", "fonts.gstatic.com")
+CONTENT_SECURITY_POLICY = {
+    "EXCLUDE_URL_PREFIXES": ["/admin"],
+    "DIRECTIVES": {
+        "default-src": ("'self'",),
+        "script-src": ("'self'", "'unsafe-inline'", "'unsafe-eval'"),
+        "img-src": ("'self'", "data:"),
+        "style-src": ("'self'", "'unsafe-inline'", "fonts.googleapis.com"),
+        "font-src": ("'self'", "data:", "fonts.gstatic.com"),
+        "frame-src": ("'self'",),
+    },
+}
 
 # Emails
 SEND_MAILS = True
