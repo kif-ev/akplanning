@@ -7,7 +7,7 @@ django-debug-toolbar==5.2.0
 django-fontawesome-6==1.0.0.0  # Provides an icon field for models and forms as well as handy shortcuts to render icons
 django-libsass==0.9
 django-registration-redux==2.13
-django-simple-history==3.8.0
+django-simple-history==3.10.1
 django-split-settings==1.3.2
 django-tex==1.1.10
 django-timezone-field==7.1
