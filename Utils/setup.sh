@@ -32,11 +32,11 @@ python manage.py compilemessages -l de_DE
 
 # Create superuser
 # Credentials are entered interactively on CLI (but not for ci use)
-if [ "$1" = "--ci" ]; then
+if [ -z "$1" ] || [ "$1" != "--ci" ]; then
     python manage.py createsuperuser
 fi
 # Generate documentation (but not for CI use)
-if [ "$1" = "--ci" ]; then
+if [ -z "$1" ] || [ "$1" != "--ci" ]; then
     cd docs
     make html
     cd ..
