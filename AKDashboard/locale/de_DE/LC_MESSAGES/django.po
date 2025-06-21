@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-01 17:28+0100\n"
+"POT-Creation-Date: 2025-06-21 18:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,28 +61,28 @@ msgstr "Veranstaltung"
 msgid "Event this button belongs to"
 msgstr "Veranstaltung, zu der dieser Button gehört"
 
-#: AKDashboard/templates/AKDashboard/dashboard.html:18
-#: AKDashboard/templates/AKDashboard/dashboard_event.html:29
+#: AKDashboard/templates/AKDashboard/dashboard.html:19
+#: AKDashboard/templates/AKDashboard/dashboard_event.html:30
 #: AKDashboard/templates/AKDashboard/dashboard_row_old_event.html:53
 msgid "Write to organizers of this event for questions and comments"
 msgstr ""
 "Kontaktiere die Organisator*innen des Events bei Fragen oder Kommentaren"
 
-#: AKDashboard/templates/AKDashboard/dashboard.html:24
+#: AKDashboard/templates/AKDashboard/dashboard.html:25
 msgid "Old events"
 msgstr "Frühere Veranstaltungen"
 
-#: AKDashboard/templates/AKDashboard/dashboard.html:34
+#: AKDashboard/templates/AKDashboard/dashboard.html:35
 msgid "Currently, there are no Events!"
 msgstr "Aktuell gibt es keine Events!"
 
-#: AKDashboard/templates/AKDashboard/dashboard.html:37
+#: AKDashboard/templates/AKDashboard/dashboard.html:38
 msgid "Please contact an administrator if you want to use AKPlanning."
 msgstr ""
 "Bitte kontaktiere eine*n Administrator*in, falls du AKPlanning verwenden "
 "möchtest."
 
-#: AKDashboard/templates/AKDashboard/dashboard_event.html:19
+#: AKDashboard/templates/AKDashboard/dashboard_event.html:20
 msgid "Recent"
 msgstr "Kürzlich"
 
@@ -113,26 +113,26 @@ msgstr "AK-Einreichung"
 msgid "AK History"
 msgstr "AK-Verlauf"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:71
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:72
 msgid "AK Preferences"
 msgstr "AK-Präferenzen"
 
-#: AKDashboard/views.py:69
+#: AKDashboard/views.py:70
 #, python-format
 msgid "New AK: %(ak)s."
 msgstr "Neuer AK: %(ak)s."
 
-#: AKDashboard/views.py:72
+#: AKDashboard/views.py:73
 #, python-format
 msgid "AK \"%(ak)s\" edited."
 msgstr "AK \"%(ak)s\" bearbeitet."
 
-#: AKDashboard/views.py:75
+#: AKDashboard/views.py:76
 #, python-format
 msgid "AK \"%(ak)s\" deleted."
 msgstr "AK \"%(ak)s\" gelöscht."
 
-#: AKDashboard/views.py:90
+#: AKDashboard/views.py:91
 #, python-format
 msgid "AK \"%(ak)s\" (re-)scheduled."
 msgstr "AK \"%(ak)s\" (um-)geplant."

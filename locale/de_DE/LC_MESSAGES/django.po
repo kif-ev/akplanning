@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-16 16:30+0200\n"
+"POT-Creation-Date: 2025-06-21 18:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,59 +18,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: templates/base.html:43
+#: templates/base.html:47
 msgid ""
 "Are you sure you want to change the language now? This will clear the form!"
 msgstr "Wirklich jetzt die Sprache ändern? Das wird das Formular zurücksetzen!"
 
-#: templates/base.html:108
+#: templates/base.html:112
 msgid "Go to backend"
 msgstr "Zum Backend"
 
-#: templates/base.html:109
+#: templates/base.html:113
 msgid "Docs"
 msgstr "Doku"
 
-#: templates/base.html:115
+#: templates/base.html:119
 msgid "Impress"
 msgstr "Impressum"
 
-#: templates/base.html:118
+#: templates/base.html:122
 msgid "This software is open source"
 msgstr "Diese Software ist Open Source"
-
-#~ msgid "URL to the room or server"
-#~ msgstr "URL zum Raum/Server"
-
-#~ msgid "Room"
-#~ msgstr "Raum"
-
-#~ msgid "Virtual Room"
-#~ msgstr "Virtueller Raum"
-
-#~ msgid "Virtual Rooms"
-#~ msgstr "Virtuelle Räume"
-
-#~ msgid "Scheduling for"
-#~ msgstr "Scheduling für"
-
-#~ msgid "Day (Horizontal)"
-#~ msgstr "Tag (horizontal)"
-
-#~ msgid "Day (Vertical)"
-#~ msgstr "Tag (vertikal)"
-
-#~ msgid "Event (Horizontal)"
-#~ msgstr "Event (horizontal)"
-
-#~ msgid "Event (Vertical)"
-#~ msgstr "Event (vertikal)"
-
-#~ msgid "Event Status"
-#~ msgstr "Event-Status"
-
-#~ msgid "Unscheduled AK Slots"
-#~ msgstr "Noch nicht geschedulte AK-Slots"
-
-#~ msgid "Count"
-#~ msgstr "Anzahl"

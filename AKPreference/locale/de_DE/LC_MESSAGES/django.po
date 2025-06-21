@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-18 12:09+0000\n"
+"POT-Creation-Date: 2025-06-21 16:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -140,7 +140,7 @@ msgid "Please enter your preferences."
 msgstr "Trage bitte deine Präferenzen zu den AKs ein."
 
 #: AKPreference/templates/AKPreference/poll.html:70
-#: AKPreference/templates/AKPreference/poll.html:79
+#: AKPreference/templates/AKPreference/poll.html:86
 msgid "Intends to submit a resolution"
 msgstr "Beabsichtigt eine Resolution einzureichen"
 
@@ -148,15 +148,19 @@ msgstr "Beabsichtigt eine Resolution einzureichen"
 msgid "Responsible"
 msgstr "Verantwortlich"
 
-#: AKPreference/templates/AKPreference/poll.html:93
+#: AKPreference/templates/AKPreference/poll.html:100
+msgid "Careful: after saving your preferences, you cannot edit them again!"
+msgstr "Achtung: Nach dem Abschicken kannst du deine Präferenzen nicht noch einmal editieren!"
+
+#: AKPreference/templates/AKPreference/poll.html:103
 msgid "Submit"
 msgstr "Eintragen"
 
-#: AKPreference/templates/AKPreference/poll.html:97
+#: AKPreference/templates/AKPreference/poll.html:107
 msgid "Reset Form"
 msgstr "Formular leeren"
 
-#: AKPreference/templates/AKPreference/poll.html:101
+#: AKPreference/templates/AKPreference/poll.html:111
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -176,7 +180,7 @@ msgstr ""
 msgid "AK preferences were registered successfully"
 msgstr "AK-Präferenzen erfolgreich registriert"
 
-#: AKPreference/views.py:138
+#: AKPreference/views.py:139
 msgid ""
 "Something went wrong. Your preferences were not saved. Please try again or "
 "contact the organizers."
