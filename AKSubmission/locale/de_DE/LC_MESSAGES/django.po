@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-16 12:25+0200\n"
+"POT-Creation-Date: 2025-06-21 18:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,8 +46,8 @@ msgstr ""
 #: AKSubmission/templates/AKSubmission/submission_not_configured.html:11
 #: AKSubmission/templates/AKSubmission/submission_overview.html:7
 #: AKSubmission/templates/AKSubmission/submission_overview.html:11
-#: AKSubmission/templates/AKSubmission/submission_overview.html:36
-#: AKSubmission/templates/AKSubmission/submit_new.html:77
+#: AKSubmission/templates/AKSubmission/submission_overview.html:40
+#: AKSubmission/templates/AKSubmission/submit_new.html:39
 #: AKSubmission/templates/AKSubmission/submit_new_wish.html:13
 msgid "AK Submission"
 msgstr "AK-Eintragung"
@@ -233,7 +233,7 @@ msgstr "Ende"
 #: AKSubmission/templates/AKSubmission/akslot_delete.html:7
 #: AKSubmission/templates/AKSubmission/submission_not_configured.html:7
 #: AKSubmission/templates/AKSubmission/submission_overview.html:7
-#: AKSubmission/templates/AKSubmission/submission_overview.html:40
+#: AKSubmission/templates/AKSubmission/submission_overview.html:44
 #: AKSubmission/templates/AKSubmission/submit_new.html:9
 #: AKSubmission/templates/AKSubmission/submit_new_wish.html:7
 msgid "AKs"
@@ -310,7 +310,7 @@ msgstr "Senden"
 #: AKSubmission/templates/AKSubmission/akmessage_add.html:31
 #: AKSubmission/templates/AKSubmission/akowner_create_update.html:26
 #: AKSubmission/templates/AKSubmission/akslot_add_update.html:29
-#: AKSubmission/templates/AKSubmission/submit_new.html:99
+#: AKSubmission/templates/AKSubmission/submit_new.html:61
 msgid "Reset Form"
 msgstr "Formular leeren"
 
@@ -318,7 +318,7 @@ msgstr "Formular leeren"
 #: AKSubmission/templates/AKSubmission/akowner_create_update.html:30
 #: AKSubmission/templates/AKSubmission/akslot_add_update.html:33
 #: AKSubmission/templates/AKSubmission/akslot_delete.html:45
-#: AKSubmission/templates/AKSubmission/submit_new.html:103
+#: AKSubmission/templates/AKSubmission/submit_new.html:65
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -362,46 +362,46 @@ msgstr ""
 "Das System ist bisher nicht für Eintragen und Anzeige von AKs konfiguriert. "
 "Bitte versuche es später wieder."
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:44
+#: AKSubmission/templates/AKSubmission/submission_overview.html:48
 msgid ""
 "On this page you can see a list of current AKs, change them and add new ones."
 msgstr ""
 "Auf dieser Seite kannst du eine Liste von aktuellen AKs sehen, diese "
 "bearbeiten und neue hinzufügen."
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:52
+#: AKSubmission/templates/AKSubmission/submission_overview.html:56
 #: AKSubmission/templates/AKSubmission/submit_new_wish.html:7
 #: AKSubmission/templates/AKSubmission/submit_new_wish.html:14
 #: AKSubmission/templates/AKSubmission/submit_new_wish.html:18
 msgid "New AK Wish"
 msgstr "Neuer AK-Wunsch"
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:56
+#: AKSubmission/templates/AKSubmission/submission_overview.html:60
 msgid "Who"
 msgstr "Wer"
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:59
+#: AKSubmission/templates/AKSubmission/submission_overview.html:63
 msgid "I do not own AKs yet"
 msgstr "Ich leite bisher keine AKs"
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:67
+#: AKSubmission/templates/AKSubmission/submission_overview.html:71
 #: AKSubmission/templates/AKSubmission/submit_new.html:9
-#: AKSubmission/templates/AKSubmission/submit_new.html:80
-#: AKSubmission/templates/AKSubmission/submit_new.html:87
+#: AKSubmission/templates/AKSubmission/submit_new.html:42
+#: AKSubmission/templates/AKSubmission/submit_new.html:49
 msgid "New AK"
 msgstr "Neuer AK"
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:73
+#: AKSubmission/templates/AKSubmission/submission_overview.html:77
 msgid "Edit Person Info"
 msgstr "Personen-Info bearbeiten"
 
-#: AKSubmission/templates/AKSubmission/submission_overview.html:81
+#: AKSubmission/templates/AKSubmission/submission_overview.html:85
 msgid "This event is not active. You cannot add or change AKs"
 msgstr ""
 "Dieses Event is nicht aktiv. Es können keine AKs hinzugefügt oder bearbeitet "
 "werden"
 
-#: AKSubmission/templates/AKSubmission/submit_new.html:68
+#: AKSubmission/templates/AKSubmission/submit_new.html:30
 msgid ""
 "only relevant for KIF-AKs - determines whether the AK appears in the slides "
 "for the closing plenary session"
@@ -409,15 +409,15 @@ msgstr ""
 "nur relevant für KIF-AKs - entscheidet, ob der AK in den Folien fürs "
 "Abschlussplenum auftaucht"
 
-#: AKSubmission/templates/AKSubmission/submit_new.html:95
+#: AKSubmission/templates/AKSubmission/submit_new.html:57
 msgid "Submit"
 msgstr "Eintragen"
 
-#: AKSubmission/templates/AKSubmission/submit_new.html:112
+#: AKSubmission/templates/AKSubmission/submit_new.html:74
 msgid "Continue with that name?"
 msgstr "Mit dem Namen fortfahren?"
 
-#: AKSubmission/templates/AKSubmission/submit_new.html:116
+#: AKSubmission/templates/AKSubmission/submit_new.html:78
 msgid ""
 "\n"
 "                    Your AK name (or short name) starts with or contains the "
@@ -431,18 +431,21 @@ msgid ""
 "                    "
 msgstr ""
 "\n"
-"                    Der Name (oder Kurzname) des AKs beginnt mit dem Wort \"AK\" oder enthält es.<br><br>\n"
-"                    Das ist nicht empfohlen, weil es den Namen länger macht und zu einem inkonsistenten Stil führen kann.\n"
-"                    Das AK-Tool wird dafür sorgen, dass man immer weiß, dass der Titel zu einem AK gehört, auch ohne diesen Prefix.\n"
+"                    Der Name (oder Kurzname) des AKs beginnt mit dem Wort "
+"\"AK\" oder enthält es.<br><br>\n"
+"                    Das ist nicht empfohlen, weil es den Namen länger macht "
+"und zu einem inkonsistenten Stil führen kann.\n"
+"                    Das AK-Tool wird dafür sorgen, dass man immer weiß, dass "
+"der Titel zu einem AK gehört, auch ohne diesen Prefix.\n"
 "                    <br><br>\n"
 "                    Möchtest du den Namen trotzdem verwenden?\n"
 "                    "
 
-#: AKSubmission/templates/AKSubmission/submit_new.html:125
+#: AKSubmission/templates/AKSubmission/submit_new.html:87
 msgid "Change name"
 msgstr "Namen ändern"
 
-#: AKSubmission/templates/AKSubmission/submit_new.html:126
+#: AKSubmission/templates/AKSubmission/submit_new.html:88
 msgid "Proceed with saving"
 msgstr "Mit dem Speichern fortfahren"
 
@@ -459,14 +462,6 @@ msgstr ""
 #: AKSubmission/views.py:167
 msgid "Currently planned AKs"
 msgstr "Aktuell geplante AKs"
-
-#: AKSubmission/views.py:235
-msgid "AKs with Track"
-msgstr "AKs mit Track"
-
-#: AKSubmission/views.py:267
-msgid "AKs with Type"
-msgstr "AKs mit Typ"
 
 #: AKSubmission/views.py:337
 msgid "Event inactive. Cannot create or update."
@@ -524,16 +519,3 @@ msgstr "Alle Nachrichten löschen"
 #: AKSubmission/views.py:748
 msgid "Message to organizers successfully saved"
 msgstr "Nachricht an die Organisator*innen erfolgreich gespeichert"
-
-#~ msgid ""
-#~ "Due to technical reasons, the link you entered was truncated to a length "
-#~ "of 200 characters"
-#~ msgstr ""
-#~ "Aus technischen Gründen wurde der eingegebeneLink auf eine Länge von 200 "
-#~ "Zeichen gekürzt"
-
-#~ msgid "Interest saved"
-#~ msgstr "Interesse gespeichert"
-
-#~ msgid "Present AK results"
-#~ msgstr "AK-Ergebnisse vorstellen"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Check the AKPlanning setup for potential problems
-# execute as Utils/check.sh
+# execute as ./Utils/check.sh
 
 # activate virtualenv when necessary
 if [ -z ${VIRTUAL_ENV+x} ]; then
@@ -19,7 +19,6 @@ for arg in "$@"; do
     if [[ "$arg" == "--prod" ]]; then
       export DJANGO_SETTINGS_MODULE=AKPlanning.settings_production
       ./manage.py check --deploy
-      ./manage.py makemigrations --dry-run --check
     fi
 done
 

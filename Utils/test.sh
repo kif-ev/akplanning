@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Test the AKPlanning setup
-# execute as Utils/test.sh
+# execute as ./Utils/test.sh
 
 # activate virtualenv when necessary
 if [ -z ${VIRTUAL_ENV+x} ]; then
