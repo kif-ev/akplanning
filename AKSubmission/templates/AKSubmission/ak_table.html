@@ -20,7 +20,7 @@
         <tr>
             <td>
                 <a href="{{ ak.detail_url }}"
-                      class="text-dark text-decoration-none font-weight-bold">
+                   class="text-dark text-decoration-none font-weight-bold">
                     {{ ak.name }}
                 </a>
                 {% if ak.present %}
@@ -62,14 +62,26 @@
                        class="btn btn-success">{% fa6_icon 'pencil-alt' 'fas' %}</a>
                     {% if interest_indication_active %}
                         <span data-ak_id="{{ ak.pk }}" data-bs-toggle="tooltip"
-                           title="{% trans 'Show Interest' %}"
-                           class="btn btn-primary btn-interest" style="cursor: pointer">{% fa6_icon 'thumbs-up' 'fas' %}</span>
+                              title="{% trans 'Show Interest' %}"
+                              class="btn btn-primary btn-interest"
+                              style="cursor: pointer">{% fa6_icon 'thumbs-up' 'fas' %}</span>
                     {% endif %}
                 {% endif %}
             </td>
         </tr>
         <tr>
-            <td colspan="5" class="small">{{ ak.description|linebreaks }}</td>
+        <tr>
+            <td colspan="5" class="small">
+                <div class="d-block d-md-none">
+                    <details>
+                        <summary>{% trans "Details" %}</summary>
+                        {{ ak.description|linebreaks }}
+                    </details>
+                </div>
+                <div class="d-none d-md-block">
+                    {{ ak.description|linebreaks }}
+                </div>
+            </td>
         </tr>
     {% empty %}
         <tr>
