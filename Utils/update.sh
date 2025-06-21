@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Update AKPlanning
-# execute as Utils/update.sh
+# execute as ./Utils/update.sh
 
 # abort on error, print executed commands
 set -ex

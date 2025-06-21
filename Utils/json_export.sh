@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Update AKPlanning
-# execute as Utils/update.sh id_to_export target_name_to_export_to [--prod]
+# Export an event's data from AKPlanning to a JSON file.
+# execute as ./Utils/json_export.sh id_to_export target_name_to_export_to [--prod]
 
 # abort on error, print executed commands
 set -ex
@@ -18,6 +18,6 @@ fi
 mkdir -p ../backups/
 python manage.py dumpdata AKDashboard AKModel AKOnline AKPlan AKScheduling AKSubmission --indent=2 > "backups/akplanning_only.json" --traceback
 
-python ./Utils/json_export.py $1 $2
+python ./Utils/json_export.py "$1" "$2"
 
 rm backups/akplanning_only.json

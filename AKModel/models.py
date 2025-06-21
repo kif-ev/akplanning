@@ -129,7 +129,7 @@ class Event(models.Model):
     name = models.CharField(max_length=64, unique=True, verbose_name=_('Name'),
                             help_text=_('Name or iteration of the event'))
     slug = models.SlugField(max_length=32, unique=True, verbose_name=_('Short Form'),
-                            help_text=_('Short name of letters/numbers/dots/dashes/underscores used in URLs.'))
+                            help_text=_('Short name of letters/numbers/dashes/underscores used in URLs.'))
 
     place = models.CharField(max_length=128, blank=True, verbose_name=_('Place'),
                              help_text=_('City etc. the event takes place in'))
