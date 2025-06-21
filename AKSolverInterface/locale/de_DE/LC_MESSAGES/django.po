@@ -25,7 +25,8 @@ msgstr "Fixiere alle schon terminierten Slots für den Solver."
 msgid ""
 "In the solver export, all assigned times and room to slots are handled as if "
 "the slot were fixed."
-msgstr ""
+msgstr "Im Solver Export werden all zugewiesenen Zeiten und Räume der Slots "
+"gehandhabt als ob sie fixiert wären."
 
 #: AKSolverInterface/forms.py:30
 msgid "AK Categories to include in the export"
