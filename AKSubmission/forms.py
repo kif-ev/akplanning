@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
-from AKModel.models import AK, AKOwner, AKCategory, AKRequirement, AKSlot, AKOrgaMessage, AKType
+from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKRequirement, AKSlot, AKType
 
 
 class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
@@ -36,6 +36,8 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
                   'protocol_link',
                   'owners',
                   'description',
+                  'goal',
+                  'info',
                   'category',
                   'types',
                   'reso',
