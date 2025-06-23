@@ -51,7 +51,9 @@
     <div id="app">
         <form method="POST" class="post-form" id="formAK" @submit.prevent="handleSubmit">{% csrf_token %}
             {% block form_contents %}
-                {% bootstrap_form form %}
+                {#  Generate form, but make sure availabilities are always at the bottom #}
+                {% bootstrap_form form exclude='availabilities' %}
+                {% bootstrap_field form.availabilities form_group_class="" %}
             {% endblock %}
             <button type="submit" class="save btn btn-primary float-end">
                 {% fa6_icon "check" 'fas' %} {% trans "Submit" %}
