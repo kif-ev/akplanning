@@ -176,7 +176,7 @@ STATICFILES_FINDERS = (
 # Settings for Bootstrap
 BOOTSTRAP5 = {
     "javascript_url": {
-        "url": STATIC_URL + "common/vendor/bootstrap/bootstrap-5.0.2.bundle.min.js",
+        "url": STATIC_URL + "common/vendor/bootstrap/bootstrap-5.3.7.bundle.min.js",
     },
 }
 
