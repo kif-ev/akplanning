@@ -12,22 +12,22 @@
     {% include "AKModel/load_fullcalendar_availabilities.html" %}
 
     <script>
-    {% get_current_language as LANGUAGE_CODE %}
+        {% get_current_language as LANGUAGE_CODE %}
 
-    document.addEventListener('DOMContentLoaded', function () {
-        createAvailabilityEditors(
-            '{{ event.timezone }}',
-            '{{ LANGUAGE_CODE }}',
-            '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-            '{{ event.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}'
-        );
-    });
+        document.addEventListener('DOMContentLoaded', function () {
+            createAvailabilityEditors(
+                '{{ event.timezone }}',
+                '{{ LANGUAGE_CODE }}',
+                '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                '{{ event.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}'
+            );
+        });
     </script>
 
 
     <style>
-        #id_present_helptext::after {
-            content: " ({% trans "only relevant for KIF-AKs - determines whether the AK appears in the slides for the closing plenary session" %})";
+        #id_description_helptext::after {
+            content: " ({% trans "This is used for presentation slides among other things, and will be truncated to 200 characters for that purpose." %})";
             color: #6c757d;
         }
     </style>
@@ -51,7 +51,9 @@
     <div id="app">
         <form method="POST" class="post-form" id="formAK" @submit.prevent="handleSubmit">{% csrf_token %}
             {% block form_contents %}
-                {% bootstrap_form form %}
+                {#  Generate form, but make sure availabilities are always at the bottom #}
+                {% bootstrap_form form exclude='availabilities' %}
+                {% bootstrap_field form.availabilities form_group_class="" %}
             {% endblock %}
             <button type="submit" class="save btn btn-primary float-end">
                 {% fa6_icon "check" 'fas' %} {% trans "Submit" %}
@@ -67,27 +69,27 @@
         </form>
 
         {# Modal for confirmation #}
-        <div class="modal fade" id="akWarningModal" tabindex="-1" aria-labelledby="akWarningModalLabel" aria-hidden="true">
+        <div class="modal fade" id="akWarningModal" tabindex="-1" aria-labelledby="akWarningModalLabel"
+             aria-hidden="true">
             <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="akWarningModalLabel">{% trans "Continue with that name?" %}</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="akWarningModalLabel">{% trans "Continue with that name?" %}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                    </div>
+                    <div class="modal-body">
+                        {% blocktrans %}Your AK name (or short name) starts with or contains the word "AK".<br><br>This
+                            is not recommended, as it makes the names longer, and may create an inconsistent style. The
+                            tool will ensure that one always know that a title belongs to an AK even without that
+                            prefix.<br><br>Do you still want to use that name?{% endblocktrans %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary"
+                                data-bs-dismiss="modal">{% trans "Change name" %}</button>
+                        <button type="button" class="btn btn-warning"
+                                @click="proceedSubmit">{% trans "Proceed with saving" %}</button>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    {% blocktrans %}
-                    Your AK name (or short name) starts with or contains the word "AK".<br><br>
-                    This is not recommended, as it makes the names longer, and may create an inconsistent style.
-                    The tool will ensure that one always know that a title belongs to an AK even without that prefix.
-                    <br><br>
-                    Do you still want to use that name?
-                    {% endblocktrans %}
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal">{% trans "Change name" %}</button>
-                  <button type="button" class="btn btn-warning" @click="proceedSubmit">{% trans "Proceed with saving" %}</button>
-                </div>
-              </div>
             </div>
         </div>
     </div>

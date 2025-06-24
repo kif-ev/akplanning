@@ -51,17 +51,18 @@ class OptimizerTimeslot:
         avail = self.avail.merge_with(other.avail)
         constraints = self.constraints.union(other.constraints)
         return OptimizerTimeslot(
-            avail=avail, idx=self.idx, constraints=constraints
+                avail=avail, idx=self.idx, constraints=constraints
         )
 
     def __repr__(self) -> str:
         return f"({self.avail.simplified}, {self.idx}, {self.constraints})"
 
+
 TimeslotBlock = list[OptimizerTimeslot]
 
 
 def merge_blocks(
-    blocks: Iterable[TimeslotBlock]
+        blocks: Iterable[TimeslotBlock]
 ) -> Iterable[TimeslotBlock]:
     """Merge iterable of blocks together.
 
@@ -83,8 +84,8 @@ def merge_blocks(
 
     # sort timeslots according to start
     timeslots = sorted(
-        timeslot_chain,
-        key=lambda slot: slot.avail.start
+            timeslot_chain,
+            key=lambda slot: slot.avail.start
     )
 
     if not timeslots:
@@ -97,16 +98,16 @@ def merge_blocks(
     for slot in timeslots:
         if current_block and slot.avail.overlaps(current_block[-1].avail, strict=True):
             if (
-                slot.avail.start == current_block[-1].avail.start
-                and slot.avail.end == current_block[-1].avail.end
+                    slot.avail.start == current_block[-1].avail.start
+                    and slot.avail.end == current_block[-1].avail.end
             ):
                 # the same timeslot -> merge
                 current_block[-1] = current_block[-1].merge(slot)
             else:
                 # partial overlap of interiors -> not supported
                 raise ValueError(
-                    "Partially overlapping timeslots are not supported!"
-                    f" ({current_block[-1].avail.simplified}, {slot.avail.simplified})"
+                        "Partially overlapping timeslots are not supported!"
+                        f" ({current_block[-1].avail.simplified}, {slot.avail.simplified})"
                 )
         elif not current_block or slot.avail.overlaps(current_block[-1].avail, strict=False):
             # only endpoints in intersection -> same block
@@ -168,11 +169,10 @@ class Event(models.Model):
     default_slot = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Default Slot Length'),
                                        help_text=_('Default length in hours that is assumed for AKs in this event.'))
     export_slot = models.DecimalField(max_digits=4, decimal_places=2, default=1, verbose_name=_('Export Slot Length'),
-                                        help_text=_(
-                                            'Slot duration in hours that is used in the timeslot discretization, '
-                                            'when this event is exported for the solver.'
-                                        ))
-
+                                      help_text=_(
+                                              'Slot duration in hours that is used in the timeslot discretization, '
+                                              'when this event is exported for the solver.'
+                                      ))
 
     contact_email = models.EmailField(verbose_name=_("Contact email address"), blank=True,
                                       help_text=_("An email address that is displayed on every page "
@@ -298,13 +298,13 @@ class Event(models.Model):
                 )
 
     def _generate_slots_from_block(
-        self,
-        start: datetime,
-        end: datetime,
-        slot_duration: timedelta,
-        *,
-        slot_index: int = 0,
-        constraints: set[str] | None = None,
+            self,
+            start: datetime,
+            end: datetime,
+            slot_duration: timedelta,
+            *,
+            slot_index: int = 0,
+            constraints: set[str] | None = None,
     ) -> Generator[TimeslotBlock, None, int]:
         """Discretize a time range into timeslots.
 
@@ -345,22 +345,22 @@ class Event(models.Model):
 
         while current_slot_start + slot_duration <= end:
             slot = Availability(
-                event=self,
-                start=current_slot_start,
-                end=current_slot_start + slot_duration,
+                    event=self,
+                    start=current_slot_start,
+                    end=current_slot_start + slot_duration,
             )
 
             if any((availability.contains(slot) for availability in room_availabilities)):
                 # no gap in a block
                 if (
-                    previous_slot_start is not None
-                    and previous_slot_start + slot_duration < current_slot_start
+                        previous_slot_start is not None
+                        and previous_slot_start + slot_duration < current_slot_start
                 ):
                     yield current_block
                     current_block = []
 
                 current_block.append(
-                    OptimizerTimeslot(avail=slot, idx=slot_index, constraints=constraints)
+                        OptimizerTimeslot(avail=slot, idx=slot_index, constraints=constraints)
                 )
                 previous_slot_start = current_slot_start
 
@@ -384,14 +384,14 @@ class Event(models.Model):
         :ytype: list of OptimizerTimeslot
         """
         all_category_constraints = AKCategory.create_category_optimizer_constraints(
-            AKCategory.objects.filter(event=self).all()
+                AKCategory.objects.filter(event=self).all()
         )
 
         yield from self._generate_slots_from_block(
-            start=self.start,
-            end=self.end,
-            slot_duration=timedelta(hours=1.0 / slots_in_an_hour),
-            constraints=all_category_constraints,
+                start=self.start,
+                end=self.end,
+                slot_duration=timedelta(hours=1.0 / slots_in_an_hour),
+                constraints=all_category_constraints,
         )
 
     def default_time_slots(self, *, slots_in_an_hour: float) -> Iterable[TimeslotBlock]:
@@ -409,15 +409,15 @@ class Event(models.Model):
 
         for block_slot in DefaultSlot.objects.filter(event=self).order_by("start", "end"):
             category_constraints = AKCategory.create_category_optimizer_constraints(
-                block_slot.primary_categories.all()
+                    block_slot.primary_categories.all()
             )
 
             slot_index = yield from self._generate_slots_from_block(
-                start=block_slot.start,
-                end=block_slot.end,
-                slot_duration=slot_duration,
-                slot_index=slot_index,
-                constraints=category_constraints,
+                    start=block_slot.start,
+                    end=block_slot.end,
+                    slot_duration=slot_duration,
+                    slot_index=slot_index,
+                    constraints=category_constraints,
             )
 
     def discretize_timeslots(self, *, slots_in_an_hour: float | None = None) -> Iterable[TimeslotBlock]:
@@ -442,7 +442,7 @@ class Event(models.Model):
 
     @transaction.atomic
     def schedule_from_json(
-        self, schedule: str | dict[str, Any], *, check_for_data_inconsistency: bool = True
+            self, schedule: str | dict[str, Any], *, check_for_data_inconsistency: bool = True
     ) -> int:
         """Load AK schedule from a json string.
 
@@ -458,7 +458,7 @@ class Event(models.Model):
             raise ValueError(_("Cannot parse malformed JSON input."))
 
         if apps.is_installed("AKSolverInterface") and check_for_data_inconsistency:
-            from AKSolverInterface.serializers import ExportEventSerializer   # pylint: disable=import-outside-toplevel
+            from AKSolverInterface.serializers import ExportEventSerializer  # pylint: disable=import-outside-toplevel
             export_dict = ExportEventSerializer(self).data
 
             if schedule["input"] != export_dict:
@@ -479,7 +479,7 @@ class Event(models.Model):
 
             if not scheduled_slot["timeslot_ids"]:
                 raise ValueError(
-                    _("AK {ak_name} is not assigned any timeslot by the solver").format(ak_name=slot.ak.name)
+                        _("AK {ak_name} is not assigned any timeslot by the solver").format(ak_name=slot.ak.name)
                 )
 
             start_timeslot = timeslot_dict[min(scheduled_slot["timeslot_ids"])].avail
@@ -488,39 +488,39 @@ class Event(models.Model):
 
             if solver_duration + 2e-4 < slot.duration:
                 raise ValueError(
-                    _(
-                        "Duration of AK {ak_name} assigned by solver ({solver_duration} hours) "
-                        "is less than the duration required by the slot ({slot_duration} hours)"
-                    ).format(
-                        ak_name=slot.ak.name,
-                        solver_duration=solver_duration,
-                        slot_duration=slot.duration,
-                    )
+                        _(
+                                "Duration of AK {ak_name} assigned by solver ({solver_duration} hours) "
+                                "is less than the duration required by the slot ({slot_duration} hours)"
+                        ).format(
+                                ak_name=slot.ak.name,
+                                solver_duration=solver_duration,
+                                slot_duration=slot.duration,
+                        )
                 )
 
             if slot.fixed:
                 solver_room = Room.objects.get(id=int(scheduled_slot["room_id"]))
                 if slot.room != solver_room:
                     raise ValueError(
-                        _(
-                            "Fixed AK {ak_name} assigned by solver to room {solver_room} "
-                            "is fixed to room {slot_room}"
-                        ).format(
-                            ak_name=slot.ak.name,
-                            solver_room=solver_room.name,
-                            slot_room=slot.room.name,
-                        )
+                            _(
+                                    "Fixed AK {ak_name} assigned by solver to room {solver_room} "
+                                    "is fixed to room {slot_room}"
+                            ).format(
+                                    ak_name=slot.ak.name,
+                                    solver_room=solver_room.name,
+                                    slot_room=slot.room.name,
+                            )
                     )
                 if slot.start != start_timeslot.start:
                     raise ValueError(
-                        _(
-                            "Fixed AK {ak_name} assigned by solver to start at {solver_start} "
-                            "is fixed to start at {slot_start}"
-                        ).format(
-                            ak_name=slot.ak.name,
-                            solver_start=start_timeslot.start,
-                            slot_start=slot.start,
-                        )
+                            _(
+                                    "Fixed AK {ak_name} assigned by solver to start at {solver_start} "
+                                    "is fixed to start at {slot_start}"
+                            ).format(
+                                    ak_name=slot.ak.name,
+                                    solver_start=start_timeslot.start,
+                                    slot_start=slot.start,
+                            )
                     )
             else:
                 slot.room = Room.objects.get(id=int(scheduled_slot["room_id"]))
@@ -702,7 +702,8 @@ class AKRequirement(models.Model):
     """
     name = models.CharField(max_length=128, verbose_name=_('Name'), help_text=_('Name of the Requirement'))
     relevant_for_participants = models.BooleanField(default=False, verbose_name=_('Relevant for Participants?'),
-                                    help_text=_('Show this requirement when collecting participant preferences'))
+                                                    help_text=_(
+                                                            'Show this requirement when collecting participant preferences'))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
@@ -722,7 +723,7 @@ class AKType(models.Model):
     or to which group of people it is addressed. Types are specified per event and are an optional feature.
     """
     name = models.CharField(max_length=128, verbose_name=_('Name'), help_text=_('Name describing the type'))
-    slug = models.SlugField(max_length=30, blank=False, verbose_name=_('Slug'),)
+    slug = models.SlugField(max_length=30, blank=False, verbose_name=_('Slug'), )
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
 
@@ -744,7 +745,12 @@ class AK(models.Model):
     short_name = models.CharField(max_length=64, blank=True, verbose_name=_('Short Name'),
                                   validators=[no_quotation_marks_validator],
                                   help_text=_('Name displayed in the schedule'))
-    description = models.TextField(blank=True, verbose_name=_('Description'), help_text=_('Description of the AK'))
+    description = models.TextField(verbose_name=_('Brief Description'), help_text=_('1-2 sentences of AK description'))
+    goal = models.CharField(max_length=512, verbose_name=_('Design/Goal'), help_text=_(
+            'Design of the AK (e.g. discussion, problem solving, brainstorming, input, output) '
+            'and/or goal (e.g. Reso, solution, collection of ideas, document, exchange) in a few words'))
+    info = models.TextField(blank=True, verbose_name=_('Further Information'),
+                            help_text=_('Anything else about the AK, e.g. links, stories, detailed description'))
 
     owners = models.ManyToManyField(to=AKOwner, blank=True, verbose_name=_('Owners'),
                                     help_text=_('Those organizing the AK'))

@@ -26,15 +26,19 @@ a:hover.btn {
 }
 
 #id_description {
-    height: 100px;
+    height: 2.5lh;
+}
+
+#id_info {
+    height: 7lh;
 }
 
 #id_notes {
-    height: 150px;
+    height: 5lh;
 }
 
 #id_durations {
-    height: 75px;
+    height: 2.5lh;
 }
 
 #id_category {
