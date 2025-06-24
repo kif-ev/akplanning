@@ -11,9 +11,9 @@
 {% block title %}{{ ak.name }} ({{ ak.event.name }}) {% endblock %}
 
 {% block meta %}
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="{{ak.name}} ({{ak.event.name }})" />
-    <meta name="twitter:description" content="{{ ak.description }}" />
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:title" content="{{ ak.name }} ({{ ak.event.name }})"/>
+    <meta name="twitter:description" content="{{ ak.description }}"/>
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -28,52 +28,52 @@
         {% include "AKPlan/plan_akslot.html" %}
 
         <script type="module">
-          const { createApp } = Vue
+            const {createApp} = Vue
 
-          function getCurrentTimestamp() {
+            function getCurrentTimestamp() {
                 return Date.now() / 1000
             }
 
-          createApp({
-            delimiters: ["[[", "]]"],
-            data() {
-              return {
-                  featuredSlot: "{% if featured_slot %}true{% else %}false{% endif %}",
-                  timer: null,
-                  now: getCurrentTimestamp(),
-                  akStart: "{{ featured_slot.start | date:'U' }}",
-                  akEnd: "{{ featured_slot.end | date:'U' }}",
-                  showBoxWithoutJS: false,
-              }
-            },
-            computed: {
-                showFeatured() {
-                    return this.featuredSlot && this.now < this.akEnd
+            createApp({
+                delimiters: ["[[", "]]"],
+                data() {
+                    return {
+                        featuredSlot: "{% if featured_slot %}true{% else %}false{% endif %}",
+                        timer: null,
+                        now: getCurrentTimestamp(),
+                        akStart: "{{ featured_slot.start | date:'U' }}",
+                        akEnd: "{{ featured_slot.end | date:'U' }}",
+                        showBoxWithoutJS: false,
+                    }
                 },
-                isBefore() {
-                    return this.featuredSlot && this.now < this.akStart
+                computed: {
+                    showFeatured() {
+                        return this.featuredSlot && this.now < this.akEnd
+                    },
+                    isBefore() {
+                        return this.featuredSlot && this.now < this.akStart
+                    },
+                    isDuring() {
+                        return this.featuredSlot && this.akStart < this.now && this.now < this.akEnd
+                    },
+                    timeUntilStart() {
+                        return Math.ceil((this.akStart - this.now) / 60)
+                    },
+                    timeUntilEnd() {
+                        return Math.floor((this.akEnd - this.now) / 60)
+                    }
                 },
-                isDuring() {
-                    return this.featuredSlot && this.akStart < this.now && this.now < this.akEnd
+                mounted: function () {
+                    if (this.featuredSlot) {
+                        this.timer = setInterval(() => {
+                            this.now = getCurrentTimestamp()
+                        }, 10000)
+                    }
                 },
-                timeUntilStart() {
-                    return Math.ceil((this.akStart - this.now) / 60)
-                },
-                timeUntilEnd() {
-                    return Math.floor((this.akEnd - this.now) / 60)
+                beforeUnmount() {
+                    clearInterval(this.timer)
                 }
-            },
-            mounted: function () {
-                if(this.featuredSlot) {
-                    this.timer = setInterval(() => {
-                        this.now = getCurrentTimestamp()
-                    }, 10000)
-                }
-            },
-            beforeUnmount() {
-                clearInterval(this.timer)
-            }
-          }).mount('#app')
+            }).mount('#app')
         </script>
 
         <script>
@@ -112,22 +112,21 @@
 
                 function indicate_interest(ak_id, btn) {
                     $.ajax({
-                           url: "{% url "model:AK-list" event_slug=event.slug %}" + ak_id + "/indicate-interest/",
-                            type: 'POST',
-                            data: {
-                            },
-                            success: function (response) {
-                               btn.html('{% fa6_icon 'check' 'fas' %}');
-                               btn.off('click');
-                               $('#interest-counter').html(response.interest_counter);
-                            },
-                            error: function (response) {
-                               if(response.status === 403)
-                                    alert("{% trans 'Interest indication currently not allowed. Sorry.' %}");
-                               else
-                                   alert("{% trans 'Could not save your interest. Sorry.' %}");
-                            }
-                       });
+                        url: "{% url "model:AK-list" event_slug=event.slug %}" + ak_id + "/indicate-interest/",
+                        type: 'POST',
+                        data: {},
+                        success: function (response) {
+                            btn.html('{% fa6_icon 'check' 'fas' %}');
+                            btn.off('click');
+                            $('#interest-counter').html(response.interest_counter);
+                        },
+                        error: function (response) {
+                            if (response.status === 403)
+                                alert("{% trans 'Interest indication currently not allowed. Sorry.' %}");
+                            else
+                                alert("{% trans 'Could not save your interest. Sorry.' %}");
+                        }
+                    });
                 }
 
                 // Update counter
@@ -182,11 +181,17 @@
         {% if featured_slot_type != "NONE" %}
             <div class="card border-success mt-3 mb-3" v-show="showFeatured">
                 <div class="card-body font-weight-bold">
-                    <span v-show="isDuring" style="{% if not featured_slot_type == "CURRENT" %}display:none;{% endif %}">
-                        {% blocktrans with room=featured_slot.room %}This AK currently takes place for another <span v-html="timeUntilEnd">{{ featured_slot_remaining }}</span> minute(s) in {{ room }}.&nbsp;{% endblocktrans %}
+                    <span v-show="isDuring"
+                          style="{% if not featured_slot_type == "CURRENT" %}display:none;{% endif %}">
+                        {% blocktrans with room=featured_slot.room %}This AK currently takes place for another
+                            <span v-html="timeUntilEnd">{{ featured_slot_remaining }}</span> minute(s) in {{ room }}.
+                            &nbsp;{% endblocktrans %}
                     </span>
-                    <span v-show="isBefore" style="{% if not featured_slot_type == "UPCOMING" %}display:none;{% endif %}">
-                        {% blocktrans with room=featured_slot.room %}This AK starts in <span v-html="timeUntilStart">{{ featured_slot_remaining }}</span> minute(s) in {{ room }}.&nbsp;{% endblocktrans %}
+                    <span v-show="isBefore"
+                          style="{% if not featured_slot_type == "UPCOMING" %}display:none;{% endif %}">
+                        {% blocktrans with room=featured_slot.room %}This AK starts in
+                            <span v-html="timeUntilStart">{{ featured_slot_remaining }}</span> minute(s) in {{ room }}.
+                            &nbsp;{% endblocktrans %}
                     </span>
 
                     {% if "AKOnline"|check_app_installed and featured_slot.room.virtual and featured_slot.room.virtual.url != '' %}
@@ -236,7 +241,8 @@
                     {% if ak.present != None %}
                         {{ ak.present | bool_symbol }}
                     {% else %}
-                        {{ ak.category.present_by_default | bool_symbol }} <span class="text-muted">{% trans "(Category Default)" %}</span>
+                        {{ ak.category.present_by_default | bool_symbol }}
+                        <span class="text-muted">{% trans "(Category Default)" %}</span>
                     {% endif %}
                 </td>
             </tr>
@@ -284,7 +290,13 @@
         {% endif %}
     </table>
 
-    <p style="margin-top: 30px;margin-bottom: 30px;">{{ ak.description|linebreaks }}</p>
+    <div class="mt-4 mb-4">
+        <p><strong>{% trans "Brief Description:" %}</strong>{{ ak.description|linebreaks }}</p>
+        <p><strong>{% trans "Design/Goals:" %}</strong>{{ ak.goal|linebreaks }}</p>
+        {% if ak.info %}
+            <p><strong>{% trans "Further Info:" %}</strong>{{ ak.info|linebreaks }}</p>
+        {% endif %}
+    </div>
 
     {% if not ak.wish %}
         <table class="table">
@@ -370,7 +382,7 @@
             <tbody>
             {% for a in availabilities %}
                 <tr>
-                    <td>{{ a.start | timezone:event.timezone | date:"l H:i"  }}</td>
+                    <td>{{ a.start | timezone:event.timezone | date:"l H:i" }}</td>
                     <td>{{ a.end | timezone:event.timezone | date:"l H:i" }}</td>
                 </tr>
             {% endfor %}
