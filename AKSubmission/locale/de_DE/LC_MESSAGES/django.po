@@ -187,15 +187,15 @@ msgstr "Notizen"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:290
 msgid "Brief Description:"
-msgstr "Kurzbeschreibung"
+msgstr "Kurzbeschreibung:"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:291
 msgid "Design/Goal:"
-msgstr "Art/Ziel"
+msgstr "Art/Ziel:"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:293
 msgid "Further Info:"
-msgstr "Weitere Infos"
+msgstr "Weitere Infos:"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:302
 msgid "When?"
