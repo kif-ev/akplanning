@@ -1,64 +1,7 @@
-// Lumen 5.2.2
+// Lumen 5.3.6
 // Bootswatch
 
 $theme: "lumen" !default;
-
-/* source-sans-pro-300 - latin-ext_latin */
-@font-face {
-  font-family: 'Source Sans Pro';
-  font-style: normal;
-  font-weight: 300;
-  src: url('../../fonts/source-sans-pro-v21-latin-ext_latin-300.eot'); /* IE9 Compat Modes */
-  src: local(''),
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-300.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-300.woff2') format('woff2'), /* Super Modern Browsers */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-300.woff') format('woff'), /* Modern Browsers */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-300.ttf') format('truetype'), /* Safari, Android, iOS */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-300.svg#SourceSansPro') format('svg'); /* Legacy iOS */
-}
-
-/* source-sans-pro-regular - latin-ext_latin */
-@font-face {
-  font-family: 'Source Sans Pro';
-  font-style: normal;
-  font-weight: 400;
-  src: url('../../fonts/source-sans-pro-v21-latin-ext_latin-regular.eot'); /* IE9 Compat Modes */
-  src: local(''),
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-regular.woff') format('woff'), /* Modern Browsers */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-regular.svg#SourceSansPro') format('svg'); /* Legacy iOS */
-}
-
-/* source-sans-pro-italic - latin-ext_latin */
-@font-face {
-  font-family: 'Source Sans Pro';
-  font-style: italic;
-  font-weight: 400;
-  src: url('../../fonts/source-sans-pro-v21-latin-ext_latin-italic.eot'); /* IE9 Compat Modes */
-  src: local(''),
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-italic.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-italic.woff2') format('woff2'), /* Super Modern Browsers */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-italic.woff') format('woff'), /* Modern Browsers */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-italic.ttf') format('truetype'), /* Safari, Android, iOS */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-italic.svg#SourceSansPro') format('svg'); /* Legacy iOS */
-}
-
-/* source-sans-pro-700 - latin-ext_latin */
-@font-face {
-  font-family: 'Source Sans Pro';
-  font-style: normal;
-  font-weight: 700;
-  src: url('../../fonts/source-sans-pro-v21-latin-ext_latin-700.eot'); /* IE9 Compat Modes */
-  src: local(''),
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-700.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-700.woff2') format('woff2'), /* Super Modern Browsers */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-700.woff') format('woff'), /* Modern Browsers */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-700.ttf') format('truetype'), /* Safari, Android, iOS */
-       url('../../fonts/source-sans-pro-v21-latin-ext_latin-700.svg#SourceSansPro') format('svg'); /* Legacy iOS */
-}
-
 
 //
 // Color system
@@ -98,12 +41,19 @@ $dark:          $gray-700 !default;
 
 $min-contrast-ratio:   1.75 !default;
 
+// Prefix for :root CSS variables
+
+$variable-prefix: bs- !default; // Deprecated in v5.2.0 for the shorter `$prefix`
+$prefix: $variable-prefix !default;
+
 // Fonts
 
 // stylelint-disable-next-line value-keyword-case
 $font-family-sans-serif:      "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !default;
 
 // Tables
+
+$table-color: initial !default;
 
 $table-bg-scale:              0% !default;
 
@@ -113,19 +63,17 @@ $btn-font-weight:             700 !default;
 
 // Dropdowns
 
-$dropdown-link-color:         rgba(0, 0, 0, .5) !default;
+$dropdown-link-color: var(--#{$prefix}tertiary-color) !default;
 
 // Navs
 
-$nav-tabs-border-color:             $gray-200 !default;
-$nav-tabs-link-hover-border-color:  $nav-tabs-border-color !default;
-$nav-tabs-link-active-color:        $gray-900 !default;
-$nav-tabs-link-active-border-color: $nav-tabs-border-color !default;
+$nav-link-color: var(--#{$prefix}link-color) !default;
 
 // Pagination
 
 $pagination-color:                  $gray-700 !default;
-$pagination-bg:                     $gray-200 !default;
+$pagination-bg: var(--#{$prefix}tertiary-bg) !default;
+$pagination-border-color: var(--#{$prefix}border-color) !default;
 $pagination-hover-color:            $pagination-color !default;
 $pagination-hover-bg:               $pagination-bg !default;
 $pagination-active-border-color:    darken($primary, 5%) !default;
