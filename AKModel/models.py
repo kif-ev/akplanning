@@ -980,6 +980,14 @@ class Room(models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def details(self):
+        """
+        Property: Details
+        Show additional information (properties) about this room as a string
+        """
+        return "; ".join(str(p) for p in self.properties.all())
+
     def get_time_constraints(self) -> list[str]:
         """Construct list of required time constraint labels."""
         # local import to prevent cyclic import

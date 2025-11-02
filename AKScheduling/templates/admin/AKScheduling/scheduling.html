@@ -143,6 +143,10 @@
                 eventWillUnmount: function (info) {
                     $(info.el).tooltip('dispose');
                 },
+                // Show tooltip with details on resource title
+                resourceLabelDidMount : function(info) {
+                    $(info.el).tooltip({title: info.resource.extendedProps.details, trigger: 'hover', placement: 'top'});
+                },
 
                 // React to event changes (moving or change of duration)
                 eventChange: updateEvent,
