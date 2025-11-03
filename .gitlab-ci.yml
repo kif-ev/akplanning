@@ -36,7 +36,7 @@ test:
   extends: .before_script_template
   script:
     - source venv/bin/activate
-    - echo "GRANT ALL on *.* to '${MYSQL_USER}';"| mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -h mysql
+    - echo "GRANT ALL on *.* to '${MYSQL_USER}';"| mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -h mysql --ssl-verify-server-cert=false
     - pip install pytest-cov
     - coverage run --source='.' manage.py test --settings AKPlanning.settings_ci
   after_script:
