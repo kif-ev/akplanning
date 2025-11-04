@@ -226,6 +226,35 @@ def ak_conflicts_changed_handler(sender, instance: AK, action: str, **kwargs):
     update_constraint_violations(new_violations, existing_violations_to_check)
 
 
+def get_cvs_where_ak_is_prerequisite(slot: AKSlot, event: Event) -> Iterable[ConstraintViolation]:
+    """
+    Get all constraint violations where the AK of the given slot is a prerequisite
+
+    :param slot: slot to check
+    :param event: event the slot belongs to
+    :return: list of CVs where the given AK is a prerequisite
+    """
+    violation_type = ConstraintViolation.ViolationType.AK_BEFORE_PREREQUISITE
+    new_violations = []
+    for ak in slot.ak.is_prerequisite_of.all():
+        if ak != slot.ak:
+            for other_slot in ak.akslot_set.filter(start__isnull=False):
+                # ...find slots in the wrong order...
+                if slot.end > other_slot.start:
+                    # ...and create a temporary violation if necessary...
+                    c = ConstraintViolation(
+                        type=violation_type,
+                        level=ConstraintViolation.ViolationLevel.VIOLATION,
+                        event=event,
+                    )
+                    c.aks_tmp.add(slot.ak)
+                    c.aks_tmp.add(other_slot.ak)
+                    c.ak_slots_tmp.add(slot)
+                    c.ak_slots_tmp.add(other_slot)
+                    new_violations.append(c)
+    return new_violations
+
+
 @receiver(m2m_changed, sender=AK.prerequisites.through)
 def ak_prerequisites_changed_handler(sender, instance: AK, action: str, **kwargs):
     """
@@ -258,9 +287,13 @@ def ak_prerequisites_changed_handler(sender, instance: AK, action: str, **kwargs
                             event=event,
                         )
                         c.aks_tmp.add(instance)
+                        c.aks_tmp.add(other_slot.ak)
                         c.ak_slots_tmp.add(slot)
                         c.ak_slots_tmp.add(other_slot)
                         new_violations.append(c)
+
+    for slot in slots_of_this_ak:
+        new_violations.extend(get_cvs_where_ak_is_prerequisite(slot, event))
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -534,13 +567,16 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                             event=event,
                         )
                         c.aks_tmp.add(instance.ak)
+                        c.aks_tmp.add(other_slot.ak)
                         c.ak_slots_tmp.add(instance)
                         c.ak_slots_tmp.add(other_slot)
                         new_violations.append(c)
 
+        new_violations.extend(get_cvs_where_ak_is_prerequisite(instance, event))
+
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
-    existing_violations_to_check = list(instance.ak.constraintviolation_set.filter(type=violation_type))
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
     # print(existing_violations_to_check)
     update_constraint_violations(new_violations, existing_violations_to_check)
 
