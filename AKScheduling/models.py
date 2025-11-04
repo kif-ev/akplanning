@@ -150,7 +150,7 @@ def ak_owners_changed_handler(sender, instance: AK, action: str, **kwargs):
     violation_type = ConstraintViolation.ViolationType.OWNER_TWO_SLOTS
     new_violations = []
 
-    slots_of_this_ak: [AKSlot] = instance.akslot_set.filter(start__isnull=False)
+    slots_of_this_ak: Iterable[AKSlot] = instance.akslot_set.filter(start__isnull=False)
 
     # For all owners (after recent change)...
     for owner in instance.owners.all():
@@ -197,8 +197,8 @@ def ak_conflicts_changed_handler(sender, instance: AK, action: str, **kwargs):
     violation_type = ConstraintViolation.ViolationType.AK_CONFLICT_COLLISION
     new_violations = []
 
-    slots_of_this_ak: [AKSlot] = instance.akslot_set.filter(start__isnull=False)
-    conflicts_of_this_ak: [AK] = instance.conflicts.all()
+    slots_of_this_ak: Iterable[AKSlot] = instance.akslot_set.filter(start__isnull=False)
+    conflicts_of_this_ak: Iterable[AK] = instance.conflicts.all()
 
     # Loop over all existing conflicts
     for ak in conflicts_of_this_ak:
@@ -240,8 +240,8 @@ def ak_prerequisites_changed_handler(sender, instance: AK, action: str, **kwargs
     violation_type = ConstraintViolation.ViolationType.AK_BEFORE_PREREQUISITE
     new_violations = []
 
-    slots_of_this_ak: [AKSlot] = instance.akslot_set.filter(start__isnull=False)
-    prerequisites_of_this_ak: [AK] = instance.prerequisites.all()
+    slots_of_this_ak: Iterable[AKSlot] = instance.akslot_set.filter(start__isnull=False)
+    prerequisites_of_this_ak: Iterable[AK] = instance.prerequisites.all()
 
     # Loop over all prerequisites
     for ak in prerequisites_of_this_ak:
@@ -283,7 +283,7 @@ def ak_requirements_changed_handler(sender, instance: AK, action: str, **kwargs)
     violation_type = ConstraintViolation.ViolationType.REQUIRE_NOT_GIVEN
     new_violations = []
 
-    slots_of_this_ak: [AKSlot] = instance.akslot_set.filter(start__isnull=False)
+    slots_of_this_ak: Iterable[AKSlot] = instance.akslot_set.filter(start__isnull=False)
 
     # For all requirements (after recent change)...
     for slot in slots_of_this_ak:
@@ -428,7 +428,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     new_violations = []
 
     if instance.start:
-        availabilities_of_this_ak: [Availability] = instance.ak.availabilities.all()
+        availabilities_of_this_ak: Iterable[Availability] = instance.ak.availabilities.all()
 
         covered = False
 
@@ -489,7 +489,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     new_violations = []
 
     if instance.start:
-        conflicts_of_this_ak: [AK] = instance.ak.conflicts.all()
+        conflicts_of_this_ak: Iterable[AK] = instance.ak.conflicts.all()
 
         for ak in conflicts_of_this_ak:
             if ak != instance.ak:
@@ -519,7 +519,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     new_violations = []
 
     if instance.start:
-        prerequisites_of_this_ak: [AK] = instance.ak.prerequisites.all()
+        prerequisites_of_this_ak: Iterable[AK] = instance.ak.prerequisites.all()
 
         for ak in prerequisites_of_this_ak:
             if ak != instance.ak:
@@ -644,8 +644,8 @@ def availability_changed_handler(sender, instance: Availability, **kwargs):
         violation_type = ConstraintViolation.ViolationType.SLOT_OUTSIDE_AVAIL
         new_violations = []
 
-        availabilities_of_this_ak: [Availability] = instance.ak.availabilities.all()
-        slots_of_this_ak: [AKSlot] = instance.ak.akslot_set.filter(start__isnull=False)
+        availabilities_of_this_ak: Iterable[Availability] = instance.ak.availabilities.all()
+        slots_of_this_ak: Iterable[AKSlot] = instance.ak.akslot_set.filter(start__isnull=False)
 
         for slot in slots_of_this_ak:
             covered = False
