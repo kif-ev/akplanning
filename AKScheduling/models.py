@@ -54,10 +54,9 @@ def update_cv_reso_deadline_for_slot(slot):
     # Update only if reso_deadline exists
     # if event was changed and reso_deadline is removed, CVs will be deleted by event changed handler
     # Update only has to be done for already scheduled slots with reso intention
+    new_violations = []
+    violation_type = ConstraintViolation.ViolationType.AK_AFTER_RESODEADLINE
     if slot.ak.reso and slot.event.reso_deadline and slot.start:
-        violation_type = ConstraintViolation.ViolationType.AK_AFTER_RESODEADLINE
-        new_violations = []
-
         # Violation?
         if slot.end > event.reso_deadline:
             c = ConstraintViolation(
@@ -68,7 +67,7 @@ def update_cv_reso_deadline_for_slot(slot):
             c.aks_tmp.add(slot.ak)
             c.ak_slots_tmp.add(slot)
             new_violations.append(c)
-        update_constraint_violations(new_violations, list(slot.constraintviolation_set.filter(type=violation_type)))
+    update_constraint_violations(new_violations, list(slot.constraintviolation_set.filter(type=violation_type)))
 
 
 def check_capacity_for_slot(slot: AKSlot):
@@ -121,7 +120,9 @@ def ak_changed_handler(sender, instance: AK, **kwargs):
 
     Changes might affect: Reso intention, Category, Interest
     """
-    # TODO Reso intention changes
+    # React to potentially added/removed reso intention
+    for slot in instance.akslot_set.all():
+        update_cv_reso_deadline_for_slot(slot)
 
     # Check room capacities
     violation_type = ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED
