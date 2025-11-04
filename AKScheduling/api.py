@@ -71,7 +71,7 @@ class EventsView(LoginRequiredMixin, EventSlugMixin, ListView):
                 "backgroundColor": slot.ak.category.color,
                 "borderColor":
                     "#2c3e50" if slot.fixed
-                    else '#e74c3c' if slot.constraintviolation_set.count() > 0
+                    else '#e74c3c' if slot.constraintviolation_set.filter(manually_resolved=False).count() > 0
                     else slot.ak.category.color,
                 "constraint": 'roomAvailable',
                 "editable": not slot.fixed,
