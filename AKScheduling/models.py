@@ -3,6 +3,7 @@
 # cause issues when loading fixtures or model dumps, it is not wise to replace that attribute with "_".
 # Therefore, the check that finds unused arguments is disabled for this whole file:
 # pylint: disable=unused-argument
+from typing import Iterable
 
 from django.db.models.signals import post_save, m2m_changed, pre_delete
 from django.dispatch import receiver
@@ -598,8 +599,35 @@ def room_requirements_changed_handler(sender, instance: Room, action: str, **kwa
     if not action.startswith("post"):
         return
 
-    # event = instance.event
-    # TODO React to changes
+    event = instance.event
+
+    violation_type = ConstraintViolation.ViolationType.REQUIRE_NOT_GIVEN
+    new_violations = []
+
+    slots_in_this_room: Iterable[AKSlot] = instance.akslot_set.filter(start__isnull=False)
+
+    # For all slots in this room...
+    for slot in slots_in_this_room:
+        slot_requirements = slot.ak.requirements.all()
+        # ... check if they require a property that the room does not fulfill...
+        for requirement in slot_requirements:
+            if not requirement in instance.properties.all():
+                # ...and create a temporary violation if necessary.
+                c = ConstraintViolation(
+                    type=violation_type,
+                    level=ConstraintViolation.ViolationLevel.VIOLATION,
+                    event=event,
+                    requirement=requirement,
+                    room=instance,
+                )
+                c.aks_tmp.add(slot.ak)
+                c.ak_slots_tmp.add(slot)
+                new_violations.append(c)
+
+    # Once this list is constructed use it for updating
+    # (removing of obsolete CVs and adding of new ones)
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+    update_constraint_violations(new_violations, existing_violations_to_check)
 
 
 @receiver(post_save, sender=Availability)
