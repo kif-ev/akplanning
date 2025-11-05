@@ -736,6 +736,18 @@ class AKType(models.Model):
     def __str__(self):
         return self.name
 
+class AKManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(trashed_at__isnull=True)
+
+class AKManagerAll(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset()
+
+class AKManagerTrashed(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(trashed_at__isnull=False)
+
 
 class AK(models.Model):
     """ An AK is a slot-based activity to be scheduled during an event.
@@ -795,6 +807,9 @@ class AK(models.Model):
     include_in_export = models.BooleanField(default=True, verbose_name=_('Export?'),
                                             help_text=_("Include AK in wiki export?"))
 
+    trashed_at = models.DateTimeField(verbose_name=_('Trashed at'), null=True,
+                                  help_text=_("If filled, AK was trashed at:"))
+
     history = HistoricalRecords(excluded_fields=['interest', 'interest_counter', 'include_in_export'])
 
     class Meta:
@@ -803,10 +818,17 @@ class AK(models.Model):
         unique_together = [['event', 'name'], ['event', 'short_name']]
         ordering = ['pk']
 
+    objects = AKManager()
+    objects_all = AKManagerAll()
+    trash = AKManagerTrashed()
+
     def __str__(self):
+        name = self.name
         if self.short_name:
-            return self.short_name
-        return self.name
+            name = self.short_name
+        if self.trashed:
+            name = f"🗑 {name} [{_('Trashed')}]"
+        return name
 
     @property
     def details(self):
@@ -934,6 +956,35 @@ class AK(models.Model):
             return reverse_lazy('submit:ak_detail', kwargs={'event_slug': self.event.slug, 'pk': self.id})
         return self.edit_url
 
+    @property
+    def trashed(self):
+        """
+        Is the AK trashed?
+        :return: true if trashed, false if not
+        :rtype: bool
+        """
+        return self.trashed_at is not None
+
+    def move_to_trash(self):
+        """
+        Move this AK to trash by setting trashed_at to current time
+        """
+        # Unsechdule all slots of this AK
+        # This has to be done first, since after trashing the AK, the slots will be hidden
+        for slot in self.akslot_set.all():
+            slot.unschedule()
+
+        # Mark this AK as trashed
+        self.trashed_at = timezone.now().astimezone(self.event.timezone)
+        self.save()
+
+    def restore_from_trash(self):
+        """
+        Untrash this AK by setting trashed_at to None
+        """
+        self.trashed_at = None
+        self.save()
+
     def save(self, *args, force_insert=False, force_update=False, using=None, update_fields=None):
         # Auto-Generate Link if not set yet
         if self.link == "":
@@ -1017,6 +1068,11 @@ class Room(models.Model):
         return fulfilled_room_constraints
 
 
+class AKSlotManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(ak__trashed_at__isnull=True)
+
+
 class AKSlot(models.Model):
     """ An AK Mapping matches an AK to a room during a certain time.
     """
@@ -1040,6 +1096,8 @@ class AKSlot(models.Model):
         verbose_name = _('AK Slot')
         verbose_name_plural = _('AK Slots')
         ordering = ['start', 'room']
+
+    objects = AKSlotManager()
 
     def __str__(self):
         if self.room:
@@ -1185,6 +1243,14 @@ class AKSlot(models.Model):
         """Ordered queryset of the PKs of all AKSlots that this slot depends on."""
         dependency_slots = AKSlot.objects.filter(ak__in=self.ak.prerequisites.all())
         return list(dependency_slots.values_list("pk", flat=True).order_by())
+
+    def unschedule(self):
+        """
+        Unschedule this AKSlot by removing room and start time.
+        """
+        self.room = None
+        self.start = None
+        self.save()
 
 
 class AKOrgaMessage(models.Model):
