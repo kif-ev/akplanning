@@ -12,6 +12,7 @@ from django.db import models, transaction
 from django.db.models import Count
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.formats import date_format
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
@@ -1132,8 +1133,8 @@ class AKSlot(models.Model):
         start = self.start.astimezone(self.event.timezone)
         end = self.end.astimezone(self.event.timezone)
 
-        return (f"{start.strftime('%a %H:%M')} - "
-                f"{end.strftime('%H:%M') if start.day == end.day else end.strftime('%a %H:%M')}")
+        return (f"{date_format(start, format='D G:i', use_l10n=True)} - "
+                f"{date_format(end, format='G:i', use_l10n=True) if start.day == end.day else date_format(end, format='D G:i', use_l10n=True)}")
 
     @property
     def end(self):
