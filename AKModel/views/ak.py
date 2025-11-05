@@ -105,6 +105,46 @@ class AKResetInterestView(IntermediateAdminActionView):
         self.entities.update(interest=-1)
 
 
+class AKMoveToTrashView(IntermediateAdminActionView):
+    """
+    View: Confirmation page to reset all manually specified interest values
+
+    Confirmation functionality provided by :class:`AKModel.metaviews.admin.IntermediateAdminView`
+    """
+    title = _("Move AKs to trash")
+    model = AK
+    confirmation_message = _("Move the following AKs to trash?")
+    success_message = _("Moved AKs to trash.")
+
+    def action(self, form):
+        for entity in self.entities:
+            entity.move_to_trash()
+
+
+class AKRestoreFromTrashView(IntermediateAdminActionView):
+    """
+    View: Confirmation page to reset all manually specified interest values
+
+    Confirmation functionality provided by :class:`AKModel.metaviews.admin.IntermediateAdminView`
+    """
+    title = _("Restore AKs from trash")
+    model = AK
+    confirmation_message = _("Restore the following AKs from trash?")
+    success_message = _("Restored AKs from trash.")
+
+    def get_queryset(self, pks=None):
+        """
+        Get the queryset of objects to perform the action on
+        """
+        if pks is None:
+            pks = self.request.GET['pks']
+        return self.model.trash.filter(pk__in=pks.split(","))
+
+    def action(self, form):
+        for entity in self.entities:
+            entity.restore_from_trash()
+
+
 class AKResetInterestCounterView(IntermediateAdminActionView):
     """
     View: Confirmation page to reset all interest counters (online interest indication)
