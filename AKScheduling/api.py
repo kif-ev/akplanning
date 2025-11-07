@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import ListView
 from rest_framework import viewsets, mixins, serializers, permissions
+from rest_framework.exceptions import MethodNotAllowed
 
 from AKModel.availability.models import Availability
 from AKModel.models import Room, AKSlot, ConstraintViolation, DefaultSlot
@@ -188,6 +189,9 @@ class EventsViewSet(EventSlugMixin, mixins.UpdateModelMixin, viewsets.GenericVie
 
     def get_queryset(self):
         return AKSlot.objects.filter(event=self.event)
+
+    def list(self, request, *args, **kwargs):
+        raise MethodNotAllowed('GET')
 
 
 class ConstraintViolationSerializer(serializers.ModelSerializer):
