@@ -1,9 +1,18 @@
 from rest_framework import mixins, viewsets, permissions
+from rest_framework.routers import APIRootView
 
 from AKModel.metaviews.admin import EventSlugMixin
 from AKModel.models import AKOwner, AKCategory, AKTrack, AK, Room, AKSlot
 from AKModel.serializers import AKOwnerSerializer, AKCategorySerializer, AKTrackSerializer, AKSerializer, \
     RoomSerializer, AKSlotSerializer
+
+
+class APIRootViewWithEventSlugCheck(EventSlugMixin, APIRootView):
+    """
+    API Root View with Event Slug Check
+    The mixin will ensure that the API overview is only shown if a valid event slug is provided in the URL
+    """
+    pass
 
 
 class AKOwnerViewSet(EventSlugMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):

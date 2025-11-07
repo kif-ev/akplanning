@@ -14,6 +14,8 @@ from AKModel.views.status import EventStatusView
 
 # Register basic API views/endpoints
 api_router = DefaultRouter()
+# Ensure api root is only shown when event slug is valid
+api_router.APIRootView = AKModel.views.api.APIRootViewWithEventSlugCheck
 api_router.register('akowner', AKModel.views.api.AKOwnerViewSet, basename='AKOwner')
 api_router.register('akcategory', AKModel.views.api.AKCategoryViewSet, basename='AKCategory')
 api_router.register('aktrack', AKModel.views.api.AKTrackViewSet, basename='AKTrack')
