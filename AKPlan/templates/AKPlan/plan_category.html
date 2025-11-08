@@ -1,0 +1,21 @@
+{% extends "AKPlan/plan_index.html" %}
+
+{% load tz %}
+{% load i18n %}
+{% load fontawesome_6 %}
+
+{% block breadcrumbs %}
+    {% include "AKPlan/plan_breadcrumbs.html" %}
+    <li class="breadcrumb-item">
+        <a href="{% url 'plan:plan_overview' event_slug=event.slug %}">{% trans "AK Plan" %}</a>
+    </li>
+    <li class="breadcrumb-item">{% trans "Category" %}: {{ category }}</li>
+{% endblock %}
+
+    {% block header %}
+        <h1 class="mb-3">{%  trans "Plan:" %} {{ event }}
+            <a href="{% url 'plan:plan_overview' event_slug=event.slug %}" class="btn btn-outline btn-outline-secondary">
+                {% trans "Category" %}: {{ category }} {% fa6_icon "xmark" %}
+            </a>
+        </h1>
+    {% endblock %}

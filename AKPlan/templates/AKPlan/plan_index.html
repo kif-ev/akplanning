@@ -132,6 +132,20 @@
 
     <div class="float-end">
         <ul class="nav nav-pills">
+            {% if categories|length > 0 %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                       aria-haspopup="true"
+                       aria-expanded="false">{% trans "Categories" %}</a>
+                    <div class="dropdown-menu" style="">
+                        {% for c in categories %}
+                            <a class="dropdown-item"
+                               href="{% url "plan:plan_category" event_slug=event.slug category=c.pk %}">{{ c }}</a>
+                        {% endfor %}
+                    </div>
+                </li>
+            {% endif %}
+
             {% if rooms|length > 0 %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
@@ -167,7 +181,9 @@
         </ul>
     </div>
 
-    <h1 class="mb-3">{%  trans "Plan:" %} {{ event }}</h1>
+    {% block header %}
+        <h1 class="mb-3">{%  trans "Plan:" %} {{ event }}</h1>
+    {% endblock %}
 
     {% if type_filtering_active %}
         {# Type filter HTML #}
