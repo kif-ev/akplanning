@@ -12,6 +12,7 @@ urlpatterns = [
                 path('', views.PlanIndexView.as_view(), name='plan_overview'),
                 path('wall/', csp_replace({"frame-ancestors": ("*",)})(views.PlanScreenView.as_view()),
                      name='plan_wall'),
+                path('category/<int:category>/', views.PlanCategoryView.as_view(), name='plan_category'),
                 path('room/<int:pk>/', views.PlanRoomView.as_view(), name='plan_room'),
                 path('track/<int:pk>/', views.PlanTrackView.as_view(), name='plan_track'),
             ])
