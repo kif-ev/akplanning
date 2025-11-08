@@ -4,6 +4,7 @@
 {% load i18n %}
 {% load static %}
 {% load tz %}
+{% load tags_AKModel %}
 {% load tags_AKPlan %}
 
 
@@ -130,90 +131,93 @@
 {% block content %}
     {% include "messages.html" %}
 
-    <div class="float-end">
-        <ul class="nav nav-pills">
-            {% if categories|length > 0 %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                       aria-haspopup="true"
-                       aria-expanded="false">{% trans "Categories" %}</a>
-                    <div class="dropdown-menu" style="">
-                        {% for c in categories %}
-                            <a class="dropdown-item"
-                               href="{% url "plan:plan_category" event_slug=event.slug category=c.pk %}">{{ c }}</a>
-                        {% endfor %}
-                    </div>
-                </li>
-            {% endif %}
-
-            {% if rooms|length > 0 %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                       aria-haspopup="true"
-                       aria-expanded="false">{% trans "Rooms" %}</a>
-                    <div class="dropdown-menu" style="">
-                        {% for r in event.room_set.all %}
-                            <a class="dropdown-item"
-                               href="{% url "plan:plan_room" event_slug=event.slug pk=r.pk %}">{{ r }}</a>
-                        {% endfor %}
-                    </div>
-                </li>
-            {% endif %}
-            {% if tracks|length > 0 %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                       aria-haspopup="true"
-                       aria-expanded="false">{% trans "Tracks" %}</a>
-                    <div class="dropdown-menu">
-                        {% for t in tracks %}
-                            <a class="dropdown-item"
-                               href="{% url "plan:plan_track" event_slug=event.slug pk=t.pk %}">{{ t }}</a>
-                        {% endfor %}
-                    </div>
-                </li>
-            {% endif %}
-            {% if event.active %}
-                <li class="nav-item">
-                    <a class="nav-link active"
-                       href="{% url 'plan:plan_wall' event_slug=event.slug %}?{{ query_string }}">{% fa6_icon 'desktop' 'fas' %}&nbsp;&nbsp;{% trans "AK Wall" %}</a>
-                </li>
-            {% endif %}
-        </ul>
-    </div>
-
-    {% block header %}
-        <h1 class="mb-3">{%  trans "Plan:" %} {{ event }}</h1>
-    {% endblock %}
-
-    {% if type_filtering_active %}
-        {# Type filter HTML #}
-        <div class="card border-primary mb-3">
-            <div class="card-header">
-                {% trans 'Filter by types' %}
-            </div>
-            <div class="card-body d-flex" id="filter">
-                {% trans "Types:" %}
-                <div id="filterTypes" class="d-flex">
-                    <div class="form-check form-switch ms-3"  v-for="type in types">
-                        <label class="form-check-label" :for="'typeFilterType' + type.slug">[[ type.name ]]</label>
-                        <input class="form-check-input" type="checkbox" :id="'typeFilterType' + type.slug " v-model="type.state" @change="onFilterChange()">
-                    </div>
-                </div>
-                <div class="form-check form-switch ms-5">
-                    <label class="form-check-label" for="typeFilterEmpty">{% trans "AKs without type" %}</label>
-                    <input class="form-check-input" type="checkbox" id="typeFilterEmpty" v-model="empty" @change="onFilterChange()">
-                </div>
-                <div class="form-check form-switch ms-5">
-                    <label class="form-check-label" for="typeFilterStrict">{% trans "No AKs with additional other types" %}</label>
-                    <input class="form-check-input" type="checkbox" id="typeFilterStrict" v-model="strict" @change="onFilterChange()">>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-
     {% timezone event.timezone %}
-        <div class="row" style="margin-top:30px;">
-            {% if not event.plan_hidden or user.is_staff %}
+        {% if not event.plan_hidden or user.is_staff %}
+             <div class="float-end">
+                <ul class="nav nav-pills">
+                    {% if categories|length > 0 %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                               aria-haspopup="true"
+                               aria-expanded="false">{% trans "Categories" %}</a>
+                            <div class="dropdown-menu" style="">
+                                {% for c in categories %}
+                                    <a class="dropdown-item"
+                                       href="{% url "plan:plan_category" event_slug=event.slug category=c.pk %}">{{ c }}</a>
+                                {% endfor %}
+                            </div>
+                        </li>
+                    {% endif %}
+
+                    {% if rooms|length > 0 %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                               aria-haspopup="true"
+                               aria-expanded="false">{% trans "Rooms" %}</a>
+                            <div class="dropdown-menu" style="">
+                                {% for r in event.room_set.all %}
+                                    <a class="dropdown-item"
+                                       href="{% url "plan:plan_room" event_slug=event.slug pk=r.pk %}">{{ r }}</a>
+                                {% endfor %}
+                            </div>
+                        </li>
+                    {% endif %}
+                    {% if tracks|length > 0 %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                               aria-haspopup="true"
+                               aria-expanded="false">{% trans "Tracks" %}</a>
+                            <div class="dropdown-menu">
+                                {% for t in tracks %}
+                                    <a class="dropdown-item"
+                                       href="{% url "plan:plan_track" event_slug=event.slug pk=t.pk %}">{{ t }}</a>
+                                {% endfor %}
+                            </div>
+                        </li>
+                    {% endif %}
+                    {% if event.active %}
+                        <li class="nav-item">
+                            <a class="nav-link active"
+                               href="{% url 'plan:plan_wall' event_slug=event.slug %}?{{ query_string }}">{% fa6_icon 'desktop' 'fas' %}&nbsp;&nbsp;{% trans "AK Wall" %}</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% block header %}
+                <h1 class="mb-3">
+                    {% if event.plan_hidden %}
+                        <small class="text-info font-" title="Preview">{% fa6_icon "lock" %}</small>
+                    {% endif %}
+                    {%  trans "Plan:" %} {{ event }}
+                </h1>
+            {% endblock %}
+            {% if type_filtering_active %}
+                {# Type filter HTML #}
+                <div class="card border-primary mb-3">
+                    <div class="card-header">
+                        {% trans 'Filter by types' %}
+                    </div>
+                    <div class="card-body d-flex" id="filter">
+                        {% trans "Types:" %}
+                        <div id="filterTypes" class="d-flex">
+                            <div class="form-check form-switch ms-3"  v-for="type in types">
+                                <label class="form-check-label" :for="'typeFilterType' + type.slug">[[ type.name ]]</label>
+                                <input class="form-check-input" type="checkbox" :id="'typeFilterType' + type.slug " v-model="type.state" @change="onFilterChange()">
+                            </div>
+                        </div>
+                        <div class="form-check form-switch ms-5">
+                            <label class="form-check-label" for="typeFilterEmpty">{% trans "AKs without type" %}</label>
+                            <input class="form-check-input" type="checkbox" id="typeFilterEmpty" v-model="empty" @change="onFilterChange()">
+                        </div>
+                        <div class="form-check form-switch ms-5">
+                            <label class="form-check-label" for="typeFilterStrict">{% trans "No AKs with additional other types" %}</label>
+                            <input class="form-check-input" type="checkbox" id="typeFilterStrict" v-model="strict" @change="onFilterChange()">>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="row" style="margin-top:30px;">
                 {% if event.active %}
                     <div class="col-md-6">
                         <h2><a name="currentAKs">{% trans "Current AKs" %}:</a></h2>
@@ -241,13 +245,19 @@
                         <div id="planCalendar"></div>
                     </div>
                 </div>
-            {% else %}
-                <div class="col-md-12">
-                    <div class="alert alert-warning">
-                        <p class="mb-0">{% trans "Plan is not visible (yet)." %}</p>
-                    </div>
-                </div>
-            {% endif %}
-        </div>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <p class="mb-0">{% trans "Plan is not visible (yet)." %}.
+                {% if 'AKSubmission'|check_app_installed and event.active %}
+                    <br><br>
+                    <a href="{% url 'submit:submission_overview' event_slug=event.slug %}"
+                    class="btn btn-outline btn-outline-dark">
+                        {% trans "AK Submission" %} &nbsp; {% fa6_icon 'pencil-alt' 'fas' %}
+                    </a>
+                {% endif %}
+                </p>
+            </div>
+        {% endif %}
     {% endtimezone %}
 {% endblock %}
