@@ -1,3 +1,4 @@
+import json
 import traceback
 from typing import List
 
@@ -358,4 +359,79 @@ class ModelViewTests(BasicViewTests, TestCase):
             export_count,
             AK.objects.filter(event_id=2, include_in_export=True).count(),
             "Wiki export contained the wrong number of AKs",
+        )
+
+    def test_list_api_views(self):
+        """
+        Test list API views, checking whether they load correctly
+        and include the correct items and fields
+        """
+        api_views = [
+            ("model:AK-list", AK, '__all__'),
+            ("model:AKOwner-list", AKOwner, '__all__'),
+            ("model:AKCategory-list", AKCategory, '__all__'),
+            ("model:AKTrack-list", AKTrack, '__all__'),
+            ("model:Room-list", Room, '__all__'),
+            ("model:AKSlot-list", AKSlot, '__all__'),
+        ]
+        event = Event.objects.get(slug="kif42")
+
+        self.client.force_login(self.staff_user)
+        for view_name_with_prefix, model, expected_fields in api_views:
+            url = reverse(view_name_with_prefix, kwargs={"event_slug": "kif42"})
+            if expected_fields == '__all__':
+                expected_fields = [f.name for f in model._meta.get_fields() if not f.auto_created]
+            try:
+                response = self.client.get(url)
+                self.assertEqual(
+                    response.status_code,
+                    200,
+                    msg=f"API view {view_name_with_prefix} ({url}) is not loading correctly",
+                )
+            except Exception:  # pylint: disable=broad-exception-caught
+                self.fail(
+                    f"An error occurred loading api view {view_name_with_prefix} ({url}):"
+                    f"\n\n{traceback.format_exc()}"
+                )
+            parsed_response = json.loads(response.content.decode("utf-8"))
+            included_items = set(item["id"] for item in parsed_response)
+            expected_items = set(obj.pk for obj in model.objects.filter(event=event))
+            self.assertEqual(
+                included_items,
+                expected_items,
+                msg=f"API view {view_name_with_prefix} ({url}) is not including the correct items. "
+                    f"Missing: {expected_items - included_items}, Extra: {included_items - expected_items}",
+            )
+            missing_fields = [field for field in expected_fields if field not in parsed_response[0].keys()]
+            self.assertEqual(
+                missing_fields,
+                [],
+                msg=f"API view {view_name_with_prefix} ({url}) is missing fields in the output: {missing_fields}",
+            )
+
+
+    def test_api_root_view(self):
+        """
+        Ensure API endpoint is reachable (without login)
+        """
+        self.client.logout()
+        url = reverse("model:api-root", kwargs={"event_slug": "kif42"})
+        response = self.client.get(url)
+        self.assertEqual(
+            response.status_code,
+            200,
+            msg="API root view not reachable",
+        )
+
+
+    def test_api_root_view_invalid_event_slug(self):
+        """
+        Ensure API is not delivered for invalid event slugs
+        """
+        url = reverse("model:api-root", kwargs={"event_slug": "invalidslug"})
+        response = self.client.get(url)
+        self.assertEqual(
+            response.status_code,
+            404,
+            msg="API root view did not return 404 for invalid event slug",
         )
