@@ -513,7 +513,7 @@
         "capacity": -1,
         "event": 2,
         "properties": [
-            3
+            3, 4
         ]
     }
 },
