@@ -13,6 +13,7 @@ from django.db.models import Count
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.formats import date_format
+from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
@@ -979,7 +980,7 @@ class AK(models.Model):
             return reverse_lazy('submit:ak_edit', kwargs={'event_slug': self.event.slug, 'pk': self.id})
         return reverse_lazy('admin:AKModel_ak_change', kwargs={'object_id': self.id})
 
-    @property
+    @cached_property
     def detail_url(self):
         """
         Get detail URL for this AK

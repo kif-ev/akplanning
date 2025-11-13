@@ -106,7 +106,7 @@ class SpecialAttentionAKsAdminView(AdminViewMixin, DetailView):
         context["title"] = f"{_('AKs requiring special attention for')} {context['event']}"
 
         # Load all "special" AKs from the database using annotations to reduce the amount of necessary queries
-        aks = (AK.objects.filter(event=context["event"]).annotate(Count('owners', distinct=True))
+        aks = (AK.objects.select_related('event').filter(event=context["event"]).annotate(Count('owners', distinct=True))
                .annotate(Count('akslot', distinct=True)).annotate(Count('availabilities', distinct=True)))
         aks_with_comment = []
         ak_wishes_with_slots = []
@@ -132,6 +132,7 @@ class SpecialAttentionAKsAdminView(AdminViewMixin, DetailView):
         context["ak_wishes_with_slots"] = ak_wishes_with_slots
         context["aks_without_slots"] = aks_without_slots
         context["aks_without_availabilities"] = aks_without_availabilities
+        context["aks_unfulfillable_requirements"] = context["event"].aks_with_unfulfillable_requirements()
 
         return context
 

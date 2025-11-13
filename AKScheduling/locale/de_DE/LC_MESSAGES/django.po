@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-18 12:09+0000\n"
+"POT-Creation-Date: 2025-11-13 21:57+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -101,12 +101,13 @@ msgstr "Seit"
 #: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:111
 #: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:256
 #: AKScheduling/templates/admin/AKScheduling/scheduling.html:333
-#: AKScheduling/templates/admin/AKScheduling/special_attention.html:58
+#: AKScheduling/templates/admin/AKScheduling/special_attention.html:76
 #: AKScheduling/templates/admin/AKScheduling/unscheduled.html:34
 msgid "Event Status"
 msgstr "Event-Status"
 
 #: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:113
+#: AKScheduling/views.py:50
 msgid "Scheduling"
 msgstr "Scheduling"
 
@@ -220,6 +221,10 @@ msgstr ""
 msgid "AKs without slots"
 msgstr "AKs ohne Slots"
 
+#: AKScheduling/templates/admin/AKScheduling/special_attention.html:57
+msgid "AKs that have requirements not met by any room"
+msgstr "AKs mit Anforderungen, die von keinem Raum erfüllt werden"
+
 #: AKScheduling/templates/admin/AKScheduling/status/cvs.html:6
 msgid ""
 "\n"
@@ -239,6 +244,7 @@ msgstr[1] ""
 "        "
 
 #: AKScheduling/templates/admin/AKScheduling/unscheduled.html:7
+#: AKScheduling/views.py:25
 msgid "Unscheduled AK Slots"
 msgstr "Noch nicht geschedulte AK-Slots"
 
@@ -246,19 +252,31 @@ msgstr "Noch nicht geschedulte AK-Slots"
 msgid "Count"
 msgstr "Anzahl"
 
-#: AKScheduling/views.py:152
+#: AKScheduling/views.py:91
+msgid "Constraint violations for"
+msgstr "Constraintverletzungen für"
+
+#: AKScheduling/views.py:106
+msgid "AKs requiring special attention for"
+msgstr "AKs die besondere Aufmerksamkeit erfordern für"
+
+#: AKScheduling/views.py:153
 msgid "Interest updated"
 msgstr "Interesse aktualisiert"
 
-#: AKScheduling/views.py:210
+#: AKScheduling/views.py:167
+msgid "Enter interest"
+msgstr "Interesse eingeben"
+
+#: AKScheduling/views.py:211
 msgid "Wishes"
 msgstr "Wünsche"
 
-#: AKScheduling/views.py:228
+#: AKScheduling/views.py:229
 msgid "Cleanup: Delete unscheduled slots for wishes"
 msgstr "Aufräumen: Noch nicht geplante Slots für Wünsche löschen"
 
-#: AKScheduling/views.py:235
+#: AKScheduling/views.py:236
 #, python-brace-format
 msgid ""
 "The following {count} unscheduled slots of wishes will be deleted:\n"
@@ -270,15 +288,15 @@ msgstr ""
 "\n"
 " {slots}"
 
-#: AKScheduling/views.py:242
+#: AKScheduling/views.py:243
 msgid "Unscheduled slots for wishes successfully deleted"
 msgstr "Noch nicht geplante Slots für Wünsche erfolgreich gelöscht"
 
-#: AKScheduling/views.py:256
+#: AKScheduling/views.py:257
 msgid "Create default availabilities for AKs"
 msgstr "Standardverfügbarkeiten für AKs anlegen"
 
-#: AKScheduling/views.py:263
+#: AKScheduling/views.py:264
 #, python-brace-format
 msgid ""
 "The following {count} AKs don't have any availability information. Create "
@@ -291,28 +309,19 @@ msgstr ""
 "\n"
 " {aks}"
 
-#: AKScheduling/views.py:283
+#: AKScheduling/views.py:284
 #, python-brace-format
 msgid "Could not create default availabilities for AK: {ak}"
 msgstr "Konnte keine Verfügbarkeit anlegen für AK: {ak}"
 
-#: AKScheduling/views.py:288
+#: AKScheduling/views.py:289
 #, python-brace-format
 msgid "Created default availabilities for {count} AKs"
 msgstr "Standardverfügbarkeiten für {count} AKs angelegt"
 
-#: AKScheduling/views.py:299
+#: AKScheduling/views.py:300
 msgid "Constraint Violations"
 msgstr "Constraintverletzungen"
-
-#~ msgid "Constraint violations for"
-#~ msgstr "Constraintverletzungen für"
-
-#~ msgid "AKs requiring special attention for"
-#~ msgstr "AKs die besondere Aufmerksamkeit erfordern für"
-
-#~ msgid "Enter interest"
-#~ msgstr "Interesse eingeben"
 
 #~ msgid "Bitte AK auswählen"
 #~ msgstr "Please sel"
