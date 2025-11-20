@@ -11,6 +11,10 @@
     {% if not event.plan_hidden or user.is_staff %}
         {% get_current_language as LANGUAGE_CODE %}
 
+        {{ akslots_encoded | json_script:"data-events" }}
+        {{ rooms_encoded | json_script:"data-rooms" }}
+        {{ buildings_encoded | json_script:"data-buildings" }}
+
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 var planEl = document.getElementById('planCalendar');
@@ -57,8 +61,9 @@
                     eventColor: '#127ba3',
                     resourceAreaWidth: '15%',
                     resourceAreaHeaderContent: '{% trans "Room" %}',
-                    resources: {% include "AKPlan/encode_rooms.html" %},
-                    events: {% with akslots as slots %}{% include "AKPlan/encode_events.html" %}{% endwith %},
+                    resources: JSON.parse(document.getElementById('data-rooms').textContent).concat(
+                        JSON.parse(document.getElementById('data-buildings').textContent)),
+                    events: JSON.parse(document.getElementById('data-events').textContent),
                     schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
                 });
 

@@ -6,11 +6,13 @@ from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import DetailView, ListView
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.metaviews.admin import FilterByEventSlugMixin
 from AKModel.models import AKSlot, AKTrack, Room, AKType
+from AKPlan.templatetags.tags_AKPlan import highlight_change_colors
 
 
 class PlanIndexView(FilterByEventSlugMixin, ListView):
@@ -87,6 +89,63 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
                 qs = qs.exclude(ak__types__in=self.types_filter["no"]).distinct()
         return qs
 
+    def _encode_events(self, akslots):
+        """
+        Encode events in a format understandable for fullcalendar
+        :param akslots: Slots to encode
+        :type akslots: Iterable[AKSlot]
+        :return: List of dicts in the correct format
+        :rtype: List[Dict[str, str]]
+        """
+        encoded_events = [
+                {
+                    'title': slot.ak.short_name,
+                    'description': slot.ak.name,
+                    'start': timezone.localtime(slot.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                    'end': timezone.localtime(slot.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                    'resourceId': slot.room.title,
+                    'backgroundColor': highlight_change_colors(slot),
+                    'borderColor': slot.ak.category.color,
+                    'url': str(slot.ak.detail_url),
+                }
+                for slot in akslots
+                if slot.start and slot.room is not None
+            ]
+        return encoded_events
+
+    def _encode_rooms(self, rooms):
+        """
+        Encode rooms (resources) in a format understandable for fullcalendar
+        :param rooms: Rooms to encode
+        :type rooms: Iterable[Room]
+        :return: List of dicts in the correct format
+        :rtype: List[Dict[str, str]]
+        """
+        return [
+            {
+                'id': room.title,
+                'title': room.title,
+                'parentId': room.location,
+            }
+            for room in rooms
+        ]
+
+    def _encode_buildings(self, buildings):
+        """
+        Encode buildings (resources) in a format understandable for fullcalendar
+        :param buildings: Buildings to encode
+        :type buildings: Iterable[str]
+        :return: List of dicts in the correct format
+        :rtype: List[Dict[str, str]]
+        """
+        return [
+            {
+                'id': building,
+                'title': building,
+            }
+            for building in buildings
+        ]
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
 
@@ -144,6 +203,10 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
                 context["types_filter_strict"] = self.types_filter["strict"]#
         else:
             context["type_filtering_active"] = False
+
+        context["akslots_encoded"] = self._encode_events(context["akslots"])
+        context["rooms_encoded"] = self._encode_rooms(context["rooms"])
+        context["buildings_encoded"] = self._encode_buildings(context["buildings"])
 
         return context
 

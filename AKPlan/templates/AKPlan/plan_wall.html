@@ -31,6 +31,9 @@
 
     {% get_current_language as LANGUAGE_CODE %}
 
+    {{ akslots_encoded | json_script:"data-events" }}
+    {{ rooms_encoded | json_script:"data-rooms" }}
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var planEl = document.getElementById('planCalendar');
@@ -65,15 +68,8 @@
                 height: '90%',
                 resourceAreaWidth: '15%',
                 resourceAreaHeaderContent: '{% trans "Room" %}',
-                resources: [
-                    {% for room in rooms %}
-                        {
-                            'id': '{{ room.title }}',
-                            'title': '{{ room.title }}'
-                        },
-                    {% endfor %}
-                ],
-                events: {% with akslots as slots %}{% include "AKPlan/encode_events.html" %}{% endwith %},
+                resources: JSON.parse(document.getElementById('data-rooms').textContent),
+                events: JSON.parse(document.getElementById('data-events').textContent),
                 schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
             });
 
