@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 
 from django.contrib import admin, messages
+from django.contrib.admin.models import CHANGE, LogEntry
+from django.db.models import Model
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -178,6 +180,9 @@ class IntermediateAdminActionView(IntermediateAdminView, ABC):
     # pylint: disable=no-member
     form_class = AdminIntermediateActionForm
     entities = None
+    success_message : str
+    confirmation_message : str
+    model : Model
 
     def get_queryset(self, pks=None):
         """
@@ -210,6 +215,12 @@ class IntermediateAdminActionView(IntermediateAdminView, ABC):
     def form_valid(self, form):
         self.entities = self.get_queryset(pks=form.cleaned_data['pks'])
         self.action(form)
+        LogEntry.objects.log_actions(
+            user_id=self.request.user.id,
+            queryset=self.entities,
+            action_flag=CHANGE,
+            change_message=self.success_message
+        )
         messages.add_message(self.request, messages.SUCCESS, self.success_message)
         return super().form_valid(form)
 

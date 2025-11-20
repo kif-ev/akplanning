@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'debug_toolbar',
     'django_bootstrap5',
+    'django_admin_logs',
     'fontawesomefree',
     'fontawesome_6',
     'timezone_field',
