@@ -181,6 +181,7 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
         if settings.PLAN_SHOW_HIERARCHY:
             context["buildings"] = sorted(buildings)
 
+        context["categories"] = self.event.akcategory_set.all()
         context["tracks"] = self.event.aktrack_set.all()
 
         # Pass query string to template for generating a matching wall link
@@ -277,6 +278,22 @@ class PlanScreenView(PlanIndexView):
         elif end_hour > self.latest_end_hour:
             # Always use hour + 1, since AK may end at :xy and not always at :00
             self.latest_end_hour = min(end_hour + 1, 24)
+
+
+class PlanCategoryView(PlanIndexView):
+    """
+    Plan view restricted to a category
+    """
+    template_name = "AKPlan/plan_category.html"
+
+    def get_queryset(self):
+        # Restrict AK slots to given category
+        return super().get_queryset().filter(ak__category__pk=self.kwargs['category'])
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context["category"] = self.event.akcategory_set.get(pk=self.kwargs['category'])
+        return context
 
 
 class PlanRoomView(FilterByEventSlugMixin, DetailView):
