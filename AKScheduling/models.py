@@ -3,6 +3,7 @@
 # cause issues when loading fixtures or model dumps, it is not wise to replace that attribute with "_".
 # Therefore, the check that finds unused arguments is disabled for this whole file:
 # pylint: disable=unused-argument
+from typing import Iterable
 
 from django.db.models.signals import post_save, m2m_changed, pre_delete
 from django.dispatch import receiver
@@ -53,10 +54,9 @@ def update_cv_reso_deadline_for_slot(slot):
     # Update only if reso_deadline exists
     # if event was changed and reso_deadline is removed, CVs will be deleted by event changed handler
     # Update only has to be done for already scheduled slots with reso intention
+    new_violations = []
+    violation_type = ConstraintViolation.ViolationType.AK_AFTER_RESODEADLINE
     if slot.ak.reso and slot.event.reso_deadline and slot.start:
-        violation_type = ConstraintViolation.ViolationType.AK_AFTER_RESODEADLINE
-        new_violations = []
-
         # Violation?
         if slot.end > event.reso_deadline:
             c = ConstraintViolation(
@@ -67,7 +67,7 @@ def update_cv_reso_deadline_for_slot(slot):
             c.aks_tmp.add(slot.ak)
             c.ak_slots_tmp.add(slot)
             new_violations.append(c)
-        update_constraint_violations(new_violations, list(slot.constraintviolation_set.filter(type=violation_type)))
+    update_constraint_violations(new_violations, list(slot.constraintviolation_set.filter(type=violation_type)))
 
 
 def check_capacity_for_slot(slot: AKSlot):
@@ -120,7 +120,9 @@ def ak_changed_handler(sender, instance: AK, **kwargs):
 
     Changes might affect: Reso intention, Category, Interest
     """
-    # TODO Reso intention changes
+    # React to potentially added/removed reso intention
+    for slot in instance.akslot_set.all():
+        update_cv_reso_deadline_for_slot(slot)
 
     # Check room capacities
     violation_type = ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED
@@ -149,7 +151,7 @@ def ak_owners_changed_handler(sender, instance: AK, action: str, **kwargs):
     violation_type = ConstraintViolation.ViolationType.OWNER_TWO_SLOTS
     new_violations = []
 
-    slots_of_this_ak: [AKSlot] = instance.akslot_set.filter(start__isnull=False)
+    slots_of_this_ak: Iterable[AKSlot] = instance.akslot_set.filter(start__isnull=False)
 
     # For all owners (after recent change)...
     for owner in instance.owners.all():
@@ -196,8 +198,8 @@ def ak_conflicts_changed_handler(sender, instance: AK, action: str, **kwargs):
     violation_type = ConstraintViolation.ViolationType.AK_CONFLICT_COLLISION
     new_violations = []
 
-    slots_of_this_ak: [AKSlot] = instance.akslot_set.filter(start__isnull=False)
-    conflicts_of_this_ak: [AK] = instance.conflicts.all()
+    slots_of_this_ak: Iterable[AKSlot] = instance.akslot_set.filter(start__isnull=False)
+    conflicts_of_this_ak: Iterable[AK] = instance.conflicts.all()
 
     # Loop over all existing conflicts
     for ak in conflicts_of_this_ak:
@@ -224,6 +226,35 @@ def ak_conflicts_changed_handler(sender, instance: AK, action: str, **kwargs):
     update_constraint_violations(new_violations, existing_violations_to_check)
 
 
+def get_cvs_where_ak_is_prerequisite(slot: AKSlot, event: Event) -> Iterable[ConstraintViolation]:
+    """
+    Get all constraint violations where the AK of the given slot is a prerequisite
+
+    :param slot: slot to check
+    :param event: event the slot belongs to
+    :return: list of CVs where the given AK is a prerequisite
+    """
+    violation_type = ConstraintViolation.ViolationType.AK_BEFORE_PREREQUISITE
+    new_violations = []
+    for ak in slot.ak.is_prerequisite_of.all():
+        if ak != slot.ak:
+            for other_slot in ak.akslot_set.filter(start__isnull=False):
+                # ...find slots in the wrong order...
+                if slot.end > other_slot.start:
+                    # ...and create a temporary violation if necessary...
+                    c = ConstraintViolation(
+                        type=violation_type,
+                        level=ConstraintViolation.ViolationLevel.VIOLATION,
+                        event=event,
+                    )
+                    c.aks_tmp.add(slot.ak)
+                    c.aks_tmp.add(other_slot.ak)
+                    c.ak_slots_tmp.add(slot)
+                    c.ak_slots_tmp.add(other_slot)
+                    new_violations.append(c)
+    return new_violations
+
+
 @receiver(m2m_changed, sender=AK.prerequisites.through)
 def ak_prerequisites_changed_handler(sender, instance: AK, action: str, **kwargs):
     """
@@ -239,8 +270,8 @@ def ak_prerequisites_changed_handler(sender, instance: AK, action: str, **kwargs
     violation_type = ConstraintViolation.ViolationType.AK_BEFORE_PREREQUISITE
     new_violations = []
 
-    slots_of_this_ak: [AKSlot] = instance.akslot_set.filter(start__isnull=False)
-    prerequisites_of_this_ak: [AK] = instance.prerequisites.all()
+    slots_of_this_ak: Iterable[AKSlot] = instance.akslot_set.filter(start__isnull=False)
+    prerequisites_of_this_ak: Iterable[AK] = instance.prerequisites.all()
 
     # Loop over all prerequisites
     for ak in prerequisites_of_this_ak:
@@ -256,9 +287,13 @@ def ak_prerequisites_changed_handler(sender, instance: AK, action: str, **kwargs
                             event=event,
                         )
                         c.aks_tmp.add(instance)
+                        c.aks_tmp.add(other_slot.ak)
                         c.ak_slots_tmp.add(slot)
                         c.ak_slots_tmp.add(other_slot)
                         new_violations.append(c)
+
+    for slot in slots_of_this_ak:
+        new_violations.extend(get_cvs_where_ak_is_prerequisite(slot, event))
 
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
@@ -282,7 +317,7 @@ def ak_requirements_changed_handler(sender, instance: AK, action: str, **kwargs)
     violation_type = ConstraintViolation.ViolationType.REQUIRE_NOT_GIVEN
     new_violations = []
 
-    slots_of_this_ak: [AKSlot] = instance.akslot_set.filter(start__isnull=False)
+    slots_of_this_ak: Iterable[AKSlot] = instance.akslot_set.filter(start__isnull=False)
 
     # For all requirements (after recent change)...
     for slot in slots_of_this_ak:
@@ -427,7 +462,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     new_violations = []
 
     if instance.start:
-        availabilities_of_this_ak: [Availability] = instance.ak.availabilities.all()
+        availabilities_of_this_ak: Iterable[Availability] = instance.ak.availabilities.all()
 
         covered = False
 
@@ -488,7 +523,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     new_violations = []
 
     if instance.start:
-        conflicts_of_this_ak: [AK] = instance.ak.conflicts.all()
+        conflicts_of_this_ak: Iterable[AK] = instance.ak.conflicts.all()
 
         for ak in conflicts_of_this_ak:
             if ak != instance.ak:
@@ -518,7 +553,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     new_violations = []
 
     if instance.start:
-        prerequisites_of_this_ak: [AK] = instance.ak.prerequisites.all()
+        prerequisites_of_this_ak: Iterable[AK] = instance.ak.prerequisites.all()
 
         for ak in prerequisites_of_this_ak:
             if ak != instance.ak:
@@ -532,13 +567,16 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                             event=event,
                         )
                         c.aks_tmp.add(instance.ak)
+                        c.aks_tmp.add(other_slot.ak)
                         c.ak_slots_tmp.add(instance)
                         c.ak_slots_tmp.add(other_slot)
                         new_violations.append(c)
 
+        new_violations.extend(get_cvs_where_ak_is_prerequisite(instance, event))
+
     # ... and compare to/update list of existing violations of this type
     # belonging to the AK that was recently changed (important!)
-    existing_violations_to_check = list(instance.ak.constraintviolation_set.filter(type=violation_type))
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
     # print(existing_violations_to_check)
     update_constraint_violations(new_violations, existing_violations_to_check)
 
@@ -598,8 +636,35 @@ def room_requirements_changed_handler(sender, instance: Room, action: str, **kwa
     if not action.startswith("post"):
         return
 
-    # event = instance.event
-    # TODO React to changes
+    event = instance.event
+
+    violation_type = ConstraintViolation.ViolationType.REQUIRE_NOT_GIVEN
+    new_violations = []
+
+    slots_in_this_room: Iterable[AKSlot] = instance.akslot_set.filter(start__isnull=False)
+
+    # For all slots in this room...
+    for slot in slots_in_this_room:
+        slot_requirements = slot.ak.requirements.all()
+        # ... check if they require a property that the room does not fulfill...
+        for requirement in slot_requirements:
+            if not requirement in instance.properties.all():
+                # ...and create a temporary violation if necessary.
+                c = ConstraintViolation(
+                    type=violation_type,
+                    level=ConstraintViolation.ViolationLevel.VIOLATION,
+                    event=event,
+                    requirement=requirement,
+                    room=instance,
+                )
+                c.aks_tmp.add(slot.ak)
+                c.ak_slots_tmp.add(slot)
+                new_violations.append(c)
+
+    # Once this list is constructed use it for updating
+    # (removing of obsolete CVs and adding of new ones)
+    existing_violations_to_check = list(instance.constraintviolation_set.filter(type=violation_type))
+    update_constraint_violations(new_violations, existing_violations_to_check)
 
 
 @receiver(post_save, sender=Availability)
@@ -616,8 +681,8 @@ def availability_changed_handler(sender, instance: Availability, **kwargs):
         violation_type = ConstraintViolation.ViolationType.SLOT_OUTSIDE_AVAIL
         new_violations = []
 
-        availabilities_of_this_ak: [Availability] = instance.ak.availabilities.all()
-        slots_of_this_ak: [AKSlot] = instance.ak.akslot_set.filter(start__isnull=False)
+        availabilities_of_this_ak: Iterable[Availability] = instance.ak.availabilities.all()
+        slots_of_this_ak: Iterable[AKSlot] = instance.ak.akslot_set.filter(start__isnull=False)
 
         for slot in slots_of_this_ak:
             covered = False

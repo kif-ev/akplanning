@@ -775,9 +775,11 @@ class AK(models.Model):
                                           help_text=_("AK's Requirements"))
 
     conflicts = models.ManyToManyField(to='AK', blank=True, related_name='conflict', verbose_name=_('Conflicting AKs'),
-                                       help_text=_('AKs that conflict and thus must not take place at the same time'))
+                                       help_text=_('AKs that conflict and thus must not take place at the same time'),
+                                       )
     prerequisites = models.ManyToManyField(to='AK', blank=True, verbose_name=_('Prerequisite AKs'),
-                                           help_text=_('AKs that should precede this AK in the schedule'))
+                                           help_text=_('AKs that should precede this AK in the schedule'),
+                                           related_name='is_prerequisite_of')
 
     notes = models.TextField(blank=True, verbose_name=_('Organizational Notes'), help_text=_(
             'Notes to organizers. These are public. For private notes, please use the button for private messages '
