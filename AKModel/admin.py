@@ -2,8 +2,10 @@ from django import forms
 from django.apps import apps
 from django.contrib import admin, messages
 from django.contrib.admin import SimpleListFilter, RelatedFieldListFilter, action, display
+from django.contrib.admin.utils import unquote
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User # pylint: disable=E5142
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count, F
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -19,7 +21,7 @@ from AKModel.forms import RoomFormWithAvailabilities
 from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
     ConstraintViolation, DefaultSlot, AKType
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
-from AKModel.views.ak import AKResetInterestView, AKResetInterestCounterView
+from AKModel.views.ak import AKResetInterestView, AKResetInterestCounterView, AKMoveToTrashView, AKRestoreFromTrashView
 from AKModel.views.manage import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView, ClearScheduleView
 
 
@@ -295,6 +297,28 @@ class WishFilter(SimpleListFilter):
         return queryset
 
 
+class TrashedFilter(SimpleListFilter):
+    """
+    Re-usable filter for wishes
+    """
+    title = _("Is trashed?")  # a label for our filter
+    parameter_name = 'trashed'  # you can put anything here
+
+    def lookups(self, request, model_admin):
+        # This is where you create filter options; we have two:
+        return [
+            ('NOT_TRASHED', _("Not trashed")),
+            ('TRASHED', _("Trashed")),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'TRASHED':
+            return queryset.filter(trashed_at__isnull=False)
+        if self.value() == 'NOT_TRASHED':
+            return queryset.filter(trashed_at__isnull=True)
+        return queryset
+
+
 class AKAdminForm(forms.ModelForm):
     """
     Modified admin form for AKs, to be used in :class:`AKAdmin`
@@ -325,17 +349,30 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
     Uses a modified form (see :class:`AKAdminForm`)
     """
     model = AK
-    list_display = ['name', 'short_name', 'category', 'track', 'is_wish', 'interest', 'interest_counter', 'event']
+    list_display = ['display_trashed', 'name', 'short_name', 'category', 'track', 'is_wish', 'interest', 'interest_counter', 'event',]
     list_filter = ['event',
                    WishFilter,
+                   TrashedFilter,
                    ('category', EventRelatedFieldListFilter),
                    ('requirements', EventRelatedFieldListFilter),
                    ('types', EventRelatedFieldListFilter),
                    ]
     list_editable = ['short_name', 'track', 'interest_counter']
     ordering = ['pk']
-    actions = ['wiki_export', 'reset_interest', 'reset_interest_counter']
+    actions = ['wiki_export', 'reset_interest', 'reset_interest_counter', 'move_to_trash', 'restore_from_trash']
+    readonly_fields = ['trashed_at']
+    list_display_links = ['name']
     form = AKAdminForm
+    delete_confirmation_template = "admin/AKModel/ak_delete_confirmation.html"
+
+    def get_queryset(self, request):
+        # Redefine get_queryset to use all objects, including trashed ones
+        # Method is adapted from the super method
+        qs = AK.objects_all.all()
+        ordering = self.get_ordering(request)
+        if ordering:
+            qs = qs.order_by(*ordering)
+        return qs
 
     @display(boolean=True)
     def is_wish(self, obj):
@@ -343,6 +380,28 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
         Property: Is this AK a wish?
         """
         return obj.wish
+
+    @display(description="🗑?", ordering='trashed_at')
+    def display_trashed(self, obj):
+        """
+        Property: Is this AK trashed?
+        """
+        if not obj.trashed:
+            return ""
+        return "🗑"
+
+    def delete_view(self, request, object_id, extra_context=None):
+        # Override deletion view to handle moving to trash instead of deletion
+        if request.POST and "_to_trash" in request.POST:
+            to_field = request.POST.get("_to_field", request.GET.get("_to_field"))
+            obj = self.get_object(request, unquote(object_id), to_field)
+            if not self.has_delete_permission(request, obj):
+                raise PermissionDenied
+            obj.move_to_trash()
+            self.message_user(request, _("AK moved to trash."), messages.SUCCESS)
+            return HttpResponseRedirect(reverse_lazy('admin:AKModel_ak_changelist'))
+        # Otherwise, use normal deletion procedure
+        return super().delete_view(request, object_id, extra_context)
 
     @action(description=_("Export to wiki syntax"))
     def wiki_export(self, request, queryset):
@@ -372,6 +431,8 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
         urls = [
             path('reset-interest/', AKResetInterestView.as_view(), name="ak-reset-interest"),
             path('reset-interest-counter/', AKResetInterestCounterView.as_view(), name="ak-reset-interest-counter"),
+            path('move-to-trash/', AKMoveToTrashView.as_view(), name="ak-move-to-trash"),
+            path('restore-from-trash/', AKRestoreFromTrashView.as_view(), name="ak-restore-from-trash"),
         ]
         urls.extend(super().get_urls())
         return urls
@@ -395,6 +456,26 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
             f"{reverse_lazy('admin:ak-reset-interest-counter')}?pks={','.join(str(pk) for pk in selected)}")
+
+    @action(description=_("Move AKs to trash"))
+    def move_to_trash(self, request, queryset):
+        """
+        Action: Move AKs to trash
+        Will use a typical admin confirmation view flow
+        """
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(
+            f"{reverse_lazy('admin:ak-move-to-trash')}?pks={','.join(str(pk) for pk in selected)}")
+
+    @action(description=_("Restore AKs from trash"))
+    def restore_from_trash(self, request, queryset):
+        """
+        Action: Restore AKs from trash
+        Will use a typical admin confirmation view flow
+        """
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(
+            f"{reverse_lazy('admin:ak-restore-from-trash')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 @admin.register(Room)
