@@ -17,7 +17,7 @@ class ResourceSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Room
-        fields = ['id', 'title']
+        fields = ['id', 'title', 'details']
 
     title = serializers.SerializerMethodField('transform_title')
 
