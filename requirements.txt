@@ -2,7 +2,7 @@ Django==5.2.3
 django-admin-logs==1.4.0
 django-betterforms==2.0.0
 django-bootstrap-datepicker-plus==5.0.5
-django-bootstrap5==25.1
+django-bootstrap5==25.3
 django-compressor==4.5.1
 django-debug-toolbar==5.2.0
 django-fontawesome-6==1.0.0.0  # Provides an icon field for models and forms as well as handy shortcuts to render icons
