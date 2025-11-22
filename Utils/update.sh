@@ -27,6 +27,8 @@ pip install --upgrade -r requirements.txt
 ./manage.py collectstatic --noinput
 ./manage.py compilemessages -l de_DE
 
+# remove leftovers from previous models that no longer exist
+./manage.py remove_stale_contenttypes
 
 # Update documentation
 cd docs
