@@ -31,7 +31,7 @@ pip install --upgrade -r requirements.txt
 ./manage.py compilemessages -l de_DE
 
 # remove leftovers from previous models that no longer exist
-./manage.py remove_stale_contenttypes
+./manage.py remove_stale_contenttypes --include-stale-apps
 
 # Update documentation
 cd docs
