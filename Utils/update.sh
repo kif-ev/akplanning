@@ -17,7 +17,7 @@ fi
 
 # before potentially breaking anything, create a data backup
 mkdir -p backups/
-python manage.py dumpdata --indent=2 > "backups/$(date +"%Y%m%d%H%M")_datadump.json" --traceback
+python manage.py dumpdata --indent 2 --natural-foreign --natural-primary -e contenttypes -e auth.Permission > "backups/$(date +"%Y%m%d%H%M")_datadump.json" --traceback
 
 git pull
 pip install --upgrade setuptools pip wheel
