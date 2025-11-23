@@ -143,6 +143,11 @@
     {% include "messages.html" %}
 
     <div class="text-end">
+        {% if user.is_staff %}
+            <a href="{% url 'admin:AKModel_ak_change' object_id=ak.pk %}" data-bs-toggle="tooltip"
+               title="{% trans 'Open in backend' %}"
+               class="btn btn-outline-danger">{% fa6_icon 'screwdriver-wrench' 'fas' %}</a>
+        {% endif %}
         {% if ak.interest_counter >= 0 %}
             {% if ak.event.active and interest_indication_active %}
                 {% trans 'Interest' %}: <b class='mx-1 text-muted' id="interest-counter">{{ ak.interest_counter }}</b>
