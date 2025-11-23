@@ -15,7 +15,7 @@ if [ "$3" = "--prod" ]; then
     export DJANGO_SETTINGS_MODULE=AKPlanning.settings_production
 fi
 
-mkdir -p ../backups/
+mkdir -p ./backups/
 python manage.py dumpdata --natural-foreign --natural-primary AKDashboard AKModel AKOnline AKPlan AKScheduling AKSubmission --indent=2 > "backups/akplanning_only.json" --traceback
 
 python ./Utils/json_export.py "$1" "$2"
