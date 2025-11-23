@@ -256,6 +256,16 @@ class RoomBatchCreationForm(AdminIntermediateForm):
         return rooms_raw_dict
 
 
+class ShiftByOffsetForm(AdminIntermediateActionForm):
+    """
+    Form to specify an offset (in hours) that the given entities will be shifted by
+    """
+    offset_hours = forms.FloatField(
+        label=_("Offset (hours)"),
+        help_text=_("Specify the offset in hours by which the selected entities should be shifted.")
+    )
+
+
 class RoomForm(forms.ModelForm):
     """
     Room (creation) form (basic), will be extended for handling of availabilities

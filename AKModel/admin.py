@@ -22,7 +22,8 @@ from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKRequirement, A
     ConstraintViolation, DefaultSlot, AKType
 from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
 from AKModel.views.ak import AKResetInterestView, AKResetInterestCounterView, AKMoveToTrashView, AKRestoreFromTrashView
-from AKModel.views.manage import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView, ClearScheduleView
+from AKModel.views.manage import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView, ClearScheduleView, \
+    SlotsApplyOffsetView, AvailabilitiesApplyOffsetView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -566,7 +567,7 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
     ordering = ['start']
     readonly_fields = ['ak_details_link', 'updated']
     form = AKSlotAdminForm
-    actions = ["reset_scheduling"]
+    actions = ["reset_scheduling", "shift_slots"]
 
     @display(description=_('AK Details'))
     def ak_details_link(self, akslot):
@@ -588,6 +589,7 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
         """
         urls = [
             path('clear-schedule/', ClearScheduleView.as_view(), name="clear-schedule"),
+            path('shift-slots/', SlotsApplyOffsetView.as_view(), name="shift-slots"),
         ]
         urls.extend(super().get_urls())
         return urls
@@ -612,6 +614,15 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
         return HttpResponseRedirect(
             f"{reverse_lazy('admin:clear-schedule')}?pks={','.join(str(pk) for pk in selected)}")
 
+    @action(description=_("Shift slots by offset"))
+    def shift_slots(self, request, queryset):
+        """
+        Action: Shift slots by offset
+        """
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(
+            f"{reverse_lazy('admin:shift-slots')}?pks={','.join(str(pk) for pk in selected)}")
+
     ak_details_link.short_description = _('AK Details')
 
 
@@ -622,6 +633,27 @@ class AvailabilityAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
     """
     list_display = ['__str__', 'event']
     list_filter = ['event']
+    actions = ['shift_availabilities']
+
+    def get_urls(self):
+        """
+        Add additional URLs/views
+        """
+        urls = [
+            path('shift-availabilities/', AvailabilitiesApplyOffsetView.as_view(), name="shift-availabilities"),
+        ]
+        urls.extend(super().get_urls())
+        return urls
+
+
+    @action(description=_("Shift availabilities by offset"))
+    def shift_availabilities(self, request, queryset):
+        """
+        Action: Shift slots by offset
+        """
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(
+            f"{reverse_lazy('admin:shift-availabilities')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 @admin.register(AKOrgaMessage)
