@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-21 18:56+0000\n"
+"POT-Creation-Date: 2025-11-23 22:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,51 +25,60 @@ msgstr "Fixiere alle schon terminierten Slots für den Solver."
 msgid ""
 "In the solver export, all assigned times and room to slots are handled as if "
 "the slot were fixed."
-msgstr "Im Solver Export werden all zugewiesenen Zeiten und Räume der Slots "
+msgstr ""
+"Im Solver Export werden all zugewiesenen Zeiten und Räume der Slots "
 "gehandhabt als ob sie fixiert wären."
 
-#: AKSolverInterface/forms.py:30
+#: AKSolverInterface/forms.py:29
+msgid "Export participants' preferences"
+msgstr "Präferenzen der Teilnehmenden exportieren"
+
+#: AKSolverInterface/forms.py:31
+msgid "Include the preferences of participants in the export."
+msgstr "Präferenzen der Teilnehmenden in den Export einschließen."
+
+#: AKSolverInterface/forms.py:38
 msgid "AK Categories to include in the export"
 msgstr "AK Kategorien, die im Export enthalten sein sollen"
 
-#: AKSolverInterface/forms.py:36
+#: AKSolverInterface/forms.py:44
 msgid "AK tracks to include in the export"
 msgstr "AK Tracks, die im Export enthalten sein sollen"
 
-#: AKSolverInterface/forms.py:42
+#: AKSolverInterface/forms.py:50
 msgid "AK types to include in the export"
 msgstr "AK Typen, die im Export enthalten sein sollen"
 
-#: AKSolverInterface/forms.py:83
+#: AKSolverInterface/forms.py:93
 msgid "JSON data"
 msgstr "JSON-Daten"
 
-#: AKSolverInterface/forms.py:84
+#: AKSolverInterface/forms.py:94
 msgid "JSON data from the scheduling solver"
 msgstr "JSON-Daten, die der scheduling-solver produziert hat"
 
-#: AKSolverInterface/forms.py:89
+#: AKSolverInterface/forms.py:99
 msgid "File with JSON data"
 msgstr "Datei mit JSON-Daten"
 
-#: AKSolverInterface/forms.py:90
+#: AKSolverInterface/forms.py:100
 msgid "File with JSON data from the scheduling solver"
 msgstr "Datei mit JSON-Daten, die der scheduling-solver produziert hat"
 
-#: AKSolverInterface/forms.py:110
+#: AKSolverInterface/forms.py:120
 msgid "Cannot decode as JSON"
 msgstr "Dekodierung als JSON fehlgeschlagen"
 
-#: AKSolverInterface/forms.py:115
+#: AKSolverInterface/forms.py:125
 #, python-format
 msgid "Invalid JSON format: %(msg)s at %(error_path)s"
 msgstr "Ungültige JSON-Eingabe: %(msg)s bei %(error_path)s"
 
-#: AKSolverInterface/forms.py:136
+#: AKSolverInterface/forms.py:146
 msgid "Please enter data as a file OR via text, not both."
 msgstr "Gib die Daten bitte als Datei oder als Text ein, nicht beides."
 
-#: AKSolverInterface/forms.py:142
+#: AKSolverInterface/forms.py:152
 msgid "No data entered. Please enter data as a file or via text."
 msgstr ""
 "Keine Daten eingegeben. Gib die Daten bitte als Datei oder als Text ein."
@@ -118,23 +127,23 @@ msgstr "Keine Räume werden exportiert"
 msgid "No real participants are exported"
 msgstr "Keine echten Teilnehmenden werden exportiert"
 
-#: AKSolverInterface/views.py:104
+#: AKSolverInterface/views.py:105
 msgid "No timeslots are exported"
 msgstr "Keine Zeitslots werden exportiert"
 
-#: AKSolverInterface/views.py:112
+#: AKSolverInterface/views.py:113
 msgid "Exporting AKs for the solver failed! Reason: "
 msgstr "Daten für den Solver exportieren fehlgeschlagen! Grund: "
 
-#: AKSolverInterface/views.py:129
+#: AKSolverInterface/views.py:130
 msgid "AK Schedule JSON Import"
 msgstr "AK-Plan JSON-Import"
 
-#: AKSolverInterface/views.py:140
+#: AKSolverInterface/views.py:141
 #, python-brace-format
 msgid "Successfully imported {n} slot(s)"
 msgstr "Erfolgreich {n} Slot(s) importiert"
 
-#: AKSolverInterface/views.py:148
+#: AKSolverInterface/views.py:149
 msgid "Importing an AK schedule failed! Reason: "
 msgstr "AK-Plan importieren fehlgeschlagen! Grund: "

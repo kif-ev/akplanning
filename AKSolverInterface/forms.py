@@ -17,34 +17,43 @@ class JSONExportControlForm(forms.Form):
     # TODO: Add room availability filter?
 
     export_scheduled_aks_as_fixed = forms.BooleanField(
-        label=_("Fixate all scheduled slots for the solver"),
-        help_text=_(
-            "In the solver export, all assigned times and room to slots are handled "
-            "as if the slot were fixed."
-        ),
-        required=False,
+            label=_("Fixate all scheduled slots for the solver"),
+            help_text=_(
+                    "In the solver export, all assigned times and room to slots are handled "
+                    "as if the slot were fixed."
+            ),
+            required=False,
+    )
+    export_preferences = forms.BooleanField(
+            initial=True,
+            label=_("Export participants' preferences"),
+            help_text=_(
+                    "Include the preferences of participants in the export."
+            ),
+            required=False,
     )
     export_categories = forms.ModelMultipleChoiceField(
-        queryset=AKCategory.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        label=_("AK Categories to include in the export"),
-        required=False,
+            queryset=AKCategory.objects.all(),
+            widget=forms.CheckboxSelectMultiple,
+            label=_("AK Categories to include in the export"),
+            required=False,
     )
     export_tracks = forms.ModelMultipleChoiceField(
-        queryset=AKTrack.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        label=_("AK tracks to include in the export"),
-        required=False,
+            queryset=AKTrack.objects.all(),
+            widget=forms.CheckboxSelectMultiple,
+            label=_("AK tracks to include in the export"),
+            required=False,
     )
     export_types = forms.ModelMultipleChoiceField(
-        queryset=AKType.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        label=_("AK types to include in the export"),
-        required=False,
+            queryset=AKType.objects.all(),
+            widget=forms.CheckboxSelectMultiple,
+            label=_("AK types to include in the export"),
+            required=False,
     )
 
     field_order = [
         "export_scheduled_aks_as_fixed",
+        "export_preferences",
         "export_categories",
         "export_tracks",
         "export_types",
@@ -57,10 +66,11 @@ class JSONExportControlForm(forms.Form):
         kwargs["initial"] = initial
 
         super().__init__(*args, **kwargs)
+
         def _set_queryset(field_name: str):
             # restrict queryset to all objects of this event
             self.fields[field_name].queryset = self.fields[field_name].queryset.filter(
-                event=self.event,
+                    event=self.event,
             )
 
             # default init: all objects are checked
@@ -78,22 +88,22 @@ class JSONScheduleImportForm(AdminIntermediateForm):
     """Form to import an AK schedule from a json file."""
 
     json_data = forms.CharField(
-        required=False,
-        widget=forms.Textarea,
-        label=_("JSON data"),
-        help_text=_("JSON data from the scheduling solver"),
+            required=False,
+            widget=forms.Textarea,
+            label=_("JSON data"),
+            help_text=_("JSON data from the scheduling solver"),
     )
 
     json_file = forms.FileField(
-        required=False,
-        label=_("File with JSON data"),
-        help_text=_("File with JSON data from the scheduling solver"),
+            required=False,
+            label=_("File with JSON data"),
+            help_text=_("File with JSON data from the scheduling solver"),
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.json_schema_validator = construct_schema_validator(
-            schema="solver-output.schema.json"
+                schema="solver-output.schema.json"
         )
 
     def _check_json_data(self, data: str):
@@ -112,9 +122,9 @@ class JSONScheduleImportForm(AdminIntermediateForm):
         error = best_match(self.json_schema_validator.iter_errors(schedule))
         if error:
             raise ValidationError(
-                _("Invalid JSON format: %(msg)s at %(error_path)s"),
-                "invalid",
-                params={"msg": error.message, "error_path": error.json_path},
+                    _("Invalid JSON format: %(msg)s at %(error_path)s"),
+                    "invalid",
+                    params={"msg": error.message, "error_path": error.json_path},
             ) from error
 
         return schedule
@@ -133,14 +143,14 @@ class JSONScheduleImportForm(AdminIntermediateForm):
         cleaned_data = super().clean()
         if cleaned_data.get("json_file") and cleaned_data.get("json_data"):
             err = ValidationError(
-                _("Please enter data as a file OR via text, not both."), "invalid"
+                    _("Please enter data as a file OR via text, not both."), "invalid"
             )
             self.add_error("json_data", err)
             self.add_error("json_file", err)
         elif not (cleaned_data.get("json_file") or cleaned_data.get("json_data")):
             err = ValidationError(
-                _("No data entered. Please enter data as a file or via text."),
-                "invalid",
+                    _("No data entered. Please enter data as a file or via text."),
+                    "invalid",
             )
             self.add_error("json_data", err)
             self.add_error("json_file", err)

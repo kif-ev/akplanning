@@ -43,38 +43,38 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
             aks_without_slot = AK.objects.filter(event=self.event, akslot__isnull=True).all()
             if aks_without_slot.exists():
                 messages.warning(
-                    self.request,
-                    _(
-                        "The following AKs have no slot assigned to them "
-                        "and are therefore not exported: {aks_list}"
-                    ).format(
-                        aks_list=", ".join(aks_without_slot.values_list("name", flat=True))
-                    )
+                        self.request,
+                        _(
+                                "The following AKs have no slot assigned to them "
+                                "and are therefore not exported: {aks_list}"
+                        ).format(
+                                aks_list=", ".join(aks_without_slot.values_list("name", flat=True))
+                        )
                 )
 
             def _filter_slots_cb(queryset: QuerySet) -> QuerySet:
                 queryset = queryset.prefetch_related("ak")
                 if "export_tracks" in form.cleaned_data:
                     queryset = queryset.filter(
-                        Q(ak__track__in=form.cleaned_data["export_tracks"])
-                        | Q(ak__track__isnull=True)
+                            Q(ak__track__in=form.cleaned_data["export_tracks"])
+                            | Q(ak__track__isnull=True)
                     )
                 if "export_categories" in form.cleaned_data:
                     queryset = queryset.filter(
-                        Q(ak__category__in=form.cleaned_data["export_categories"])
-                        | Q(ak__category__isnull=True)
+                            Q(ak__category__in=form.cleaned_data["export_categories"])
+                            | Q(ak__category__isnull=True)
                     )
                 if "export_types" in form.cleaned_data:
                     queryset = queryset.filter(
-                        Q(ak__types__in=form.cleaned_data["export_types"])
-                        | Q(ak__types__isnull=True)
+                            Q(ak__types__in=form.cleaned_data["export_types"])
+                            | Q(ak__types__isnull=True)
                     )
 
                 queryset = queryset.distinct().all()
                 if not queryset.exists():
                     messages.warning(
-                        self.request,
-                        _("No AKSlots are exported"),
+                            self.request,
+                            _("No AKSlots are exported"),
                     )
 
                 return queryset
@@ -92,11 +92,12 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
                 return queryset
 
             serialized_event = ExportEventSerializer(
-                context["event"],
-                filter_slots_cb=_filter_slots_cb,
-                filter_rooms_cb=_filter_rooms_cb,
-                filter_participants_cb=_filter_participants_cb,
-                export_scheduled_aks_as_fixed=form.cleaned_data["export_scheduled_aks_as_fixed"],
+                    context["event"],
+                    filter_slots_cb=_filter_slots_cb,
+                    filter_rooms_cb=_filter_rooms_cb,
+                    filter_participants_cb=_filter_participants_cb,
+                    export_scheduled_aks_as_fixed=form.cleaned_data["export_scheduled_aks_as_fixed"],
+                    export_preferences=form.cleaned_data["export_preferences"],
             )
             serialized_event_data = serialized_event.data
 
@@ -107,9 +108,9 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
             context["is_valid"] = True
         except ValueError as ex:
             messages.add_message(
-                self.request,
-                messages.ERROR,
-                _("Exporting AKs for the solver failed! Reason: ") + str(ex),
+                    self.request,
+                    messages.ERROR,
+                    _("Exporting AKs for the solver failed! Reason: ") + str(ex),
             )
 
         # if serialization failed in `get_context_data` we redirect to
@@ -131,21 +132,21 @@ class AKScheduleJSONImportView(EventSlugMixin, IntermediateAdminView):
     def form_valid(self, form):
         try:
             number_of_slots_changed = self.event.schedule_from_json(
-                form.cleaned_data["data"],
-                check_for_data_inconsistency=False, # TODO: Actually handle filtered export
+                    form.cleaned_data["data"],
+                    check_for_data_inconsistency=False,  # TODO: Actually handle filtered export
             )
             messages.add_message(
-                self.request,
-                messages.SUCCESS,
-                _("Successfully imported {n} slot(s)").format(
-                    n=number_of_slots_changed
-                ),
+                    self.request,
+                    messages.SUCCESS,
+                    _("Successfully imported {n} slot(s)").format(
+                            n=number_of_slots_changed
+                    ),
             )
         except ValueError as ex:
             messages.add_message(
-                self.request,
-                messages.ERROR,
-                _("Importing an AK schedule failed! Reason: ") + str(ex),
+                    self.request,
+                    messages.ERROR,
+                    _("Importing an AK schedule failed! Reason: ") + str(ex),
             )
 
         return redirect("admin:event_status", self.event.slug)
