@@ -12,7 +12,8 @@ from django.views.generic import DetailView, ListView, TemplateView
 from django_tex.core import render_template_with_context, run_tex_in_directory
 from django_tex.response import PDFResponse
 
-from AKModel.forms import SlideExportForm, DefaultSlotEditorForm
+from AKModel.availability.models import Availability
+from AKModel.forms import SlideExportForm, DefaultSlotEditorForm, ShiftByOffsetForm
 from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
 from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner, AKSlot, AKType
 
@@ -179,6 +180,47 @@ class ClearScheduleView(IntermediateAdminActionView, ListView):
     def action(self, form):
         """Reset rooms and start for all selected slots."""
         self.entities.update(room=None, start=None)
+
+
+class AvailabilitiesApplyOffsetView(IntermediateAdminActionView, ListView):
+    """
+    Admin action view: Shift Availabilities
+    """
+    title = _('Shift availabilities')
+    model = Availability
+    confirmation_message = _('Shift the following availabilities by the specified offset')
+    success_message = _('Availabilities shifted')
+    form_class = ShiftByOffsetForm
+
+    def action(self, form):
+        """Shift availabilities by given offset."""
+        offset = datetime.timedelta(hours=float(form.cleaned_data['offset_hours']))
+        for availability in self.entities:
+            availability.start = availability.start + offset
+            availability.end = availability.end + offset
+            availability.save()
+
+
+class SlotsApplyOffsetView(IntermediateAdminActionView, ListView):
+    """
+    Admin action view: Shift slots
+    """
+    title = _('Shift slots')
+    model = AKSlot
+    confirmation_message = _('Shift the following AKSlots by the specified offset')
+    success_message = _('Slots shifted')
+    form_class = ShiftByOffsetForm
+
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(start__isnull=False)
+
+    def action(self, form):
+        """Shift slots by given offset."""
+        offset = datetime.timedelta(hours=float(form.cleaned_data['offset_hours']))
+        for slot in self.entities:
+            slot.start = slot.start + offset
+            slot.save()
+
 
 class PlanPublishView(IntermediateAdminActionView):
     """
