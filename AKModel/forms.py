@@ -6,11 +6,12 @@ import csv
 import io
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
-from AKModel.models import Event, AKCategory, AKRequirement, Room, AKType
+from AKModel.models import AKCategory, AKRequirement, AKType, Event, Room
 
 
 class DateTimeInput(forms.DateInput):
@@ -32,6 +33,7 @@ class NewEventWizardStartForm(forms.ModelForm):
     The form will be used for this partial input, the input of the remaining required fields
     will then be handled by :class:`NewEventWizardSettingsForm` (see below).
     """
+
     class Meta:
         model = Event
         fields = ['name', 'slug', 'timezone', 'plan_hidden', 'poll_hidden']
@@ -51,6 +53,7 @@ class NewEventWizardSettingsForm(forms.ModelForm):
     Will handle the input of the remaining required as well as some optional fields.
     See also :class:`NewEventWizardStartForm`.
     """
+
     class Meta:
         model = Event
         fields = "__all__"
@@ -76,9 +79,9 @@ class NewEventWizardPrepareImportForm(forms.Form):
     Is used to restrict the list of elements to choose from in the next step (see :class:`NewEventWizardImportForm`).
     """
     import_event = forms.ModelChoiceField(
-        queryset=Event.objects.all(),
-        label=_("Copy ak requirements and ak categories of existing event"),
-        help_text=_("You can choose what to copy in the next step")
+            queryset=Event.objects.all(),
+            label=_("Copy ak requirements and ak categories of existing event"),
+            help_text=_("You can choose what to copy in the next step")
     )
 
 
@@ -90,24 +93,24 @@ class NewEventWizardImportForm(forms.Form):
     (see :class:`NewEventWizardPrepareImportForm`).
     """
     import_categories = forms.ModelMultipleChoiceField(
-        queryset=AKCategory.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        label=_("Copy ak categories"),
-        required=False,
+            queryset=AKCategory.objects.all(),
+            widget=forms.CheckboxSelectMultiple,
+            label=_("Copy ak categories"),
+            required=False,
     )
 
     import_requirements = forms.ModelMultipleChoiceField(
-        queryset=AKRequirement.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        label=_("Copy ak requirements"),
-        required=False,
+            queryset=AKRequirement.objects.all(),
+            widget=forms.CheckboxSelectMultiple,
+            label=_("Copy ak requirements"),
+            required=False,
     )
 
     import_types = forms.ModelMultipleChoiceField(
-        queryset=AKType.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        label=_("Copy types"),
-        required=False,
+            queryset=AKType.objects.all(),
+            widget=forms.CheckboxSelectMultiple,
+            label=_("Copy types"),
+            required=False,
     )
 
     # pylint: disable=too-many-arguments
@@ -117,11 +120,11 @@ class NewEventWizardImportForm(forms.Form):
         super().__init__(data, files, auto_id, prefix, initial, error_class, label_suffix, empty_permitted, field_order,
                          use_required_attribute, renderer)
         self.fields["import_categories"].queryset = self.fields["import_categories"].queryset.filter(
-            event=self.initial["import_event"])
+                event=self.initial["import_event"])
         self.fields["import_requirements"].queryset = self.fields["import_requirements"].queryset.filter(
-            event=self.initial["import_event"])
+                event=self.initial["import_event"])
         self.fields["import_types"].queryset = self.fields["import_types"].queryset.filter(
-            event=self.initial["import_event"])
+                event=self.initial["import_event"])
 
         # pylint: disable=import-outside-toplevel
         # Local imports used to prevent cyclic imports and to only import when AKDashboard is available
@@ -130,10 +133,10 @@ class NewEventWizardImportForm(forms.Form):
             # If AKDashboard is active, allow to copy dashboard buttons, too
             from AKDashboard.models import DashboardButton
             self.fields["import_buttons"] = forms.ModelMultipleChoiceField(
-                queryset=DashboardButton.objects.filter(event=self.initial["import_event"]),
-                widget=forms.CheckboxSelectMultiple,
-                label=_("Copy dashboard buttons"),
-                required=False,
+                    queryset=DashboardButton.objects.filter(event=self.initial["import_event"]),
+                    widget=forms.CheckboxSelectMultiple,
+                    label=_("Copy dashboard buttons"),
+                    required=False,
             )
 
 
@@ -141,6 +144,7 @@ class NewEventWizardActivateForm(forms.ModelForm):
     """
     Wizard form to activate the newly created event
     """
+
     class Meta:
         fields = ["active"]
         model = Event
@@ -170,30 +174,30 @@ class SlideExportForm(AdminIntermediateForm):
     be a symbol and empty space to take notes on for wishes
     """
     num_next = forms.IntegerField(
-        min_value=0,
-        max_value=6,
-        initial=3,
-        label=_("# next AKs"),
-        help_text=_("How many next AKs should be shown on a slide?"))
+            min_value=0,
+            max_value=6,
+            initial=3,
+            label=_("# next AKs"),
+            help_text=_("How many next AKs should be shown on a slide?"))
     types = forms.MultipleChoiceField(
-        label=_("AK Types"),
-        help_text=_("Which AK types should be included in the slides?"),
-        widget=forms.CheckboxSelectMultiple,
-        choices=[],
-        required=False)
+            label=_("AK Types"),
+            help_text=_("Which AK types should be included in the slides?"),
+            widget=forms.CheckboxSelectMultiple,
+            choices=[],
+            required=False)
     types_all_selected_only = forms.BooleanField(
-        initial=False,
-        label=_("Only show AKs with all selected types?"),
-        help_text=_("If checked, only AKs that have all selected types will be shown in the slides. "
-                    "If unchecked, AKs with at least one of the selected types will be shown."),
-        required=False)
+            initial=False,
+            label=_("Only show AKs with all selected types?"),
+            help_text=_("If checked, only AKs that have all selected types will be shown in the slides. "
+                        "If unchecked, AKs with at least one of the selected types will be shown."),
+            required=False)
     presentation_mode = forms.TypedChoiceField(
-        initial=False,
-        label=_("Presentation only?"),
-        widget=forms.RadioSelect,
-        choices=((True, _('Yes')), (False, _('No'))),
-        coerce=lambda x: x == "True",
-        help_text=_("Restrict AKs to those that asked for chance to be presented?"))
+            initial=False,
+            label=_("Presentation only?"),
+            widget=forms.RadioSelect,
+            choices=((True, _('Yes')), (False, _('No'))),
+            coerce=lambda x: x == "True",
+            help_text=_("Restrict AKs to those that asked for chance to be presented?"))
 
 
 class DefaultSlotEditorForm(AdminIntermediateForm):
@@ -201,13 +205,13 @@ class DefaultSlotEditorForm(AdminIntermediateForm):
     Form for default slot editor
     """
     availabilities = forms.CharField(
-        label=_('Default Slots'),
-        help_text=_(
-            'Click and drag to add default slots, double-click to delete. '
-            'Or use the start and end inputs to add entries to the calendar view.'
-        ),
-        widget=forms.TextInput(attrs={'class': 'availabilities-editor-data'}),
-        required=True,
+            label=_('Default Slots'),
+            help_text=_(
+                    'Click and drag to add default slots, double-click to delete. '
+                    'Or use the start and end inputs to add entries to the calendar view.'
+            ),
+            widget=forms.TextInput(attrs={'class': 'availabilities-editor-data'}),
+            required=True,
     )
 
 
@@ -218,34 +222,65 @@ class RoomBatchCreationForm(AdminIntermediateForm):
     Allows to input a list of room details and choose whether default availabilities should be generated for these
     rooms. Will check that the input follows a CSV format with at least a name column present.
     """
-    rooms = forms.CharField(
-        label=_('New rooms'),
-        help_text=_('Enter room details in CSV format. Required colum is "name", optional colums are "location", '
-                    '"capacity", and "url" for online/hybrid rooms. Delimiter: Semicolon'),
-        widget=forms.Textarea,
-        required=True,
-    )
     create_default_availabilities = forms.BooleanField(
-        label=_('Default availabilities?'),
-        help_text=_('Create default availabilities for all rooms?'),
-        required=False
+            label=_('Default availabilities?'),
+            help_text=_('Create default availabilities for all rooms?'),
+            required=False
+    )
+    csv_data = forms.CharField(
+            label=_('New rooms'),
+            help_text=_('Enter room details in CSV format. Required column is "name", optional columns are "location", '
+                        '"capacity", "url" for online/hybrid rooms. Optionally one column per requirement, column name '
+                        'should be requirement name, if requirement should be set, value should be "x". '
+                        'Delimiter: Semicolon'),
+            widget=forms.Textarea,
+            required=False,
+    )
+    csv_file = forms.FileField(
+            required=False,
+            label=_("File with csv data"),
+            help_text=_("File with csv data for room creation"),
     )
 
-    def clean_rooms(self):
+    def clean(self):
         """
-        Validate and transform the input for the rooms textfield
+        Validate and transform the input for the imported
         Treat the input as CSV and turn it into a dict containing the relevant information.
 
         :return: a dict containing the raw room information
         :rtype: dict[str, str]
         """
-        rooms_raw_text = self.cleaned_data["rooms"]
-        rooms_raw_dict = csv.DictReader(io.StringIO(rooms_raw_text), delimiter=";")
+        cleaned_data = super().clean()
+        if cleaned_data.get("csv_file") and cleaned_data.get("csv_data"):
+            err = ValidationError(
+                    _("Please enter data as a file OR via text, not both."), "invalid"
+            )
+            self.add_error("csv_data", err)
+            self.add_error("csv_file", err)
 
-        if "name" not in rooms_raw_dict.fieldnames:
-            raise forms.ValidationError(_("CSV must contain a name column"))
+        elif not (cleaned_data.get("csv_file") or cleaned_data.get("csv_data")):
+            err = ValidationError(
+                    _("No data entered. Please enter data as a file or via text."),
+                    "invalid",
+            )
+            self.add_error("csv_data", err)
+            self.add_error("csv_file", err)
 
-        return rooms_raw_dict
+        else:
+            if self.cleaned_data.get("csv_file"):
+                with self.cleaned_data["csv_file"].open() as csv_file:
+                    raw = csv_file.read().decode('utf-8')
+                rooms_raw_dict = csv.DictReader(io.StringIO(raw), delimiter=";")
+            else:
+                rooms_raw_text = self.cleaned_data["csv_data"]
+                rooms_raw_dict = csv.DictReader(io.StringIO(rooms_raw_text), delimiter=";")
+
+            if "name" not in rooms_raw_dict.fieldnames:
+                raise forms.ValidationError(_("CSV must contain a name column"))
+
+            cleaned_data['rooms'] = rooms_raw_dict
+
+        return cleaned_data
 
 
 class ShiftByOffsetForm(AdminIntermediateActionForm):
@@ -253,8 +288,8 @@ class ShiftByOffsetForm(AdminIntermediateActionForm):
     Form to specify an offset (in hours) that the given entities will be shifted by
     """
     offset_hours = forms.FloatField(
-        label=_("Offset (hours)"),
-        help_text=_("Specify the offset in hours by which the selected entities should be shifted.")
+            label=_("Offset (hours)"),
+            help_text=_("Specify the offset in hours by which the selected entities should be shifted.")
     )
 
 
@@ -263,6 +298,7 @@ class RoomForm(forms.ModelForm):
     Room (creation) form (basic), will be extended for handling of availabilities
     (see :class:`RoomFormWithAvailabilities`) and also for creating hybrid rooms in AKOnline (if active)
     """
+
     class Meta:
         model = Room
         fields = ['name',
@@ -276,6 +312,7 @@ class RoomFormWithAvailabilities(AvailabilitiesFormMixin, RoomForm):
     """
     Room (update) form including handling of availabilities, extends :class:`RoomForm`
     """
+
     class Meta:
         model = Room
         fields = ['name',
