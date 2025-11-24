@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-23 21:54+0100\n"
+"POT-Creation-Date: 2025-11-24 12:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,19 +22,20 @@ msgstr ""
 msgid "\"%(duration)s\" is not a valid duration"
 msgstr "\"%(duration)s\" ist keine gültige Dauer"
 
-#: AKSubmission/forms.py:166
+#: AKSubmission/forms.py:167
 msgid "Duration(s)"
 msgstr "Dauer(n)"
 
-#: AKSubmission/forms.py:168
+#: AKSubmission/forms.py:169
 msgid ""
-"Enter at least one planned duration (in hours). If your AK should have "
-"multiple slots, use multiple lines"
+"For every time your AK should take place, enter one line with one "
+"duration.Duration is given in hours as a decimal number and without a unit "
+"symbol."
 msgstr ""
-"Mindestens eine geplante Dauer (in Stunden) angeben. Wenn der AK mehrere "
-"Slots haben soll, mehrere Zeilen verwenden"
+"Für jedes Mal, das dein AK stattfinden soll, gib eine Zeile mit einer Dauer an."
+"Die Dauer sollte in Stunden, als Dezimalzahl und ohne Einhait eingegeben werden."
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:23
+#: AKSubmission/templates/AKSubmission/ak_detail.html:22
 #: AKSubmission/templates/AKSubmission/ak_edit.html:13
 #: AKSubmission/templates/AKSubmission/ak_history.html:16
 #: AKSubmission/templates/AKSubmission/ak_overview.html:22
@@ -52,65 +53,65 @@ msgstr ""
 msgid "AK Submission"
 msgstr "AK-Eintragung"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:126
+#: AKSubmission/templates/AKSubmission/ak_detail.html:125
 #: AKSubmission/templates/AKSubmission/ak_interest_script.html:50
 msgid "Interest indication currently not allowed. Sorry."
 msgstr "Interessenangabe aktuell nicht erlaubt. Sorry."
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:128
+#: AKSubmission/templates/AKSubmission/ak_detail.html:127
 #: AKSubmission/templates/AKSubmission/ak_interest_script.html:52
 msgid "Could not save your interest. Sorry."
 msgstr "Interesse konnte nicht gespeichert werden. Sorry."
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:149
+#: AKSubmission/templates/AKSubmission/ak_detail.html:148
 msgid "Open in backend"
 msgstr "Im Backend öffnen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:154
+#: AKSubmission/templates/AKSubmission/ak_detail.html:153
 msgid "Interest"
 msgstr "Interesse"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:156
+#: AKSubmission/templates/AKSubmission/ak_detail.html:155
 #: AKSubmission/templates/AKSubmission/ak_table.html:65
 msgid "Show Interest"
 msgstr "Interesse bekunden"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:162
+#: AKSubmission/templates/AKSubmission/ak_detail.html:161
 #: AKSubmission/templates/AKSubmission/ak_table.html:56
 msgid "Open external link"
 msgstr "Externen Link öffnen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:167
+#: AKSubmission/templates/AKSubmission/ak_detail.html:166
 msgid "Open protocol link"
 msgstr "Protokolllink öffnen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:172
+#: AKSubmission/templates/AKSubmission/ak_detail.html:171
 #: AKSubmission/templates/AKSubmission/ak_history.html:19
 #: AKSubmission/templates/AKSubmission/ak_history.html:31
 msgid "History"
 msgstr "Versionsgeschichte"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:175
+#: AKSubmission/templates/AKSubmission/ak_detail.html:174
 #: AKSubmission/templates/AKSubmission/akmessage_add.html:8
 #: AKSubmission/templates/AKSubmission/akmessage_add.html:16
 #: AKSubmission/templates/AKSubmission/akmessage_add.html:22
 msgid "Add confidential message to organizers"
 msgstr "Sende eine private Nachricht an das Organisationsteam"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:178
-#: AKSubmission/templates/AKSubmission/ak_detail.html:344
+#: AKSubmission/templates/AKSubmission/ak_detail.html:177
+#: AKSubmission/templates/AKSubmission/ak_detail.html:343
 #: AKSubmission/templates/AKSubmission/ak_edit.html:16
 #: AKSubmission/templates/AKSubmission/ak_table.html:61
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:183
+#: AKSubmission/templates/AKSubmission/ak_detail.html:182
 #: AKSubmission/templates/AKSubmission/ak_history.html:31
 #: AKSubmission/templates/AKSubmission/ak_table.html:37
 msgid "AK Wish"
 msgstr "AK-Wunsch"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:192
+#: AKSubmission/templates/AKSubmission/ak_detail.html:191
 #, fuzzy, python-format
 #| msgid ""
 #| "This AK currently takes place for another <span v-"
@@ -128,7 +129,7 @@ msgstr ""
 "%(room)s statt.&nbsp;\n"
 "                    "
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:198
+#: AKSubmission/templates/AKSubmission/ak_detail.html:197
 #, fuzzy, python-format
 #| msgid ""
 #| "This AK starts in <span v-"
@@ -146,107 +147,107 @@ msgstr ""
 "%(room)s.&nbsp;\n"
 "                    "
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:205
-#: AKSubmission/templates/AKSubmission/ak_detail.html:352
+#: AKSubmission/templates/AKSubmission/ak_detail.html:204
+#: AKSubmission/templates/AKSubmission/ak_detail.html:351
 msgid "Go to virtual room"
 msgstr "Zum virtuellen Raum"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:216
+#: AKSubmission/templates/AKSubmission/ak_detail.html:215
 #: AKSubmission/templates/AKSubmission/ak_table.html:10
 msgid "Who?"
 msgstr "Wer?"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:222
+#: AKSubmission/templates/AKSubmission/ak_detail.html:221
 #: AKSubmission/templates/AKSubmission/ak_history.html:36
 #: AKSubmission/templates/AKSubmission/ak_table.html:11
 msgid "Category"
 msgstr "Kategorie"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:229
+#: AKSubmission/templates/AKSubmission/ak_detail.html:228
 #: AKSubmission/templates/AKSubmission/ak_list.html:24
 #: AKSubmission/templates/AKSubmission/ak_table.html:13
 msgid "Types"
 msgstr "Typen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:239
+#: AKSubmission/templates/AKSubmission/ak_detail.html:238
 #: AKSubmission/templates/AKSubmission/ak_history.html:37
 msgid "Track"
 msgstr "Track"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:245
+#: AKSubmission/templates/AKSubmission/ak_detail.html:244
 msgid "Present this AK"
 msgstr "Diesen AK vorstellen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:251
+#: AKSubmission/templates/AKSubmission/ak_detail.html:250
 msgid "(Category Default)"
 msgstr "(Kategorievoreinstellung)"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:257
+#: AKSubmission/templates/AKSubmission/ak_detail.html:256
 msgid "Reso intention?"
 msgstr "Resoabsicht?"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:264
+#: AKSubmission/templates/AKSubmission/ak_detail.html:263
 msgid "Requirements"
 msgstr "Anforderungen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:277
+#: AKSubmission/templates/AKSubmission/ak_detail.html:276
 msgid "Conflicting AKs"
 msgstr "AK-Konflikte"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:285
+#: AKSubmission/templates/AKSubmission/ak_detail.html:284
 msgid "Prerequisite AKs"
 msgstr "Vorausgesetzte AKs"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:293
+#: AKSubmission/templates/AKSubmission/ak_detail.html:292
 msgid "Notes"
 msgstr "Notizen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:300
+#: AKSubmission/templates/AKSubmission/ak_detail.html:299
 msgid "Brief Description:"
 msgstr "Kurzbeschreibung:"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:301
+#: AKSubmission/templates/AKSubmission/ak_detail.html:300
 msgid "Design/Goal:"
 msgstr "Art/Ziel:"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:303
+#: AKSubmission/templates/AKSubmission/ak_detail.html:302
 msgid "Further Info:"
 msgstr "Weitere Infos:"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:312
+#: AKSubmission/templates/AKSubmission/ak_detail.html:311
 msgid "When?"
 msgstr "Wann?"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:314
+#: AKSubmission/templates/AKSubmission/ak_detail.html:313
 #: AKSubmission/templates/AKSubmission/akslot_delete.html:35
 msgid "Duration"
 msgstr "Dauer"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:316
+#: AKSubmission/templates/AKSubmission/ak_detail.html:315
 msgid "Room"
 msgstr "Raum"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:347
+#: AKSubmission/templates/AKSubmission/ak_detail.html:346
 msgid "Delete"
 msgstr "Löschen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:358
+#: AKSubmission/templates/AKSubmission/ak_detail.html:357
 msgid "Schedule"
 msgstr "Schedule"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:370
+#: AKSubmission/templates/AKSubmission/ak_detail.html:369
 msgid "Add another slot"
 msgstr "Einen neuen AK-Slot hinzufügen"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:380
+#: AKSubmission/templates/AKSubmission/ak_detail.html:379
 msgid "Possible Times"
 msgstr "Mögliche Zeiten"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:384
+#: AKSubmission/templates/AKSubmission/ak_detail.html:383
 msgid "Start"
 msgstr "Start"
 
-#: AKSubmission/templates/AKSubmission/ak_detail.html:385
+#: AKSubmission/templates/AKSubmission/ak_detail.html:384
 msgid "End"
 msgstr "Ende"
 
@@ -556,3 +557,10 @@ msgstr "Alle Nachrichten löschen"
 #: AKSubmission/views.py:748
 msgid "Message to organizers successfully saved"
 msgstr "Nachricht an die Organisator*innen erfolgreich gespeichert"
+
+#~ msgid ""
+#~ "Enter at least one planned duration (in hours). If your AK should have "
+#~ "multiple slots, use multiple lines"
+#~ msgstr ""
+#~ "Mindestens eine geplante Dauer (in Stunden) angeben. Wenn der AK mehrere "
+#~ "Slots haben soll, mehrere Zeilen verwenden"

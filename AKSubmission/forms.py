@@ -74,9 +74,9 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
         if self.fields['requirements'].queryset.count() == 0:
             self.fields.pop('requirements')
         self.fields['prerequisites'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(
-            pk=self.instance.pk)
+                pk=self.instance.pk)
         self.fields['conflicts'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(
-            pk=self.instance.pk)
+                pk=self.instance.pk)
         if "owners" in self.fields:
             self.fields['owners'].queryset = AKOwner.objects.filter(event=self.initial.get('event'))
 
@@ -100,9 +100,9 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
             duration = float(duration)
         except ValueError as exc:
             raise ValidationError(
-                _('"%(duration)s" is not a valid duration'),
-                code='invalid',
-                params={'duration': duration},
+                    _('"%(duration)s" is not a valid duration'),
+                    code='invalid',
+                    params={'duration': duration},
             ) from exc
 
         return duration
@@ -151,23 +151,24 @@ class AKSubmissionForm(AKForm):
     Is a special variant of :class:`AKForm` that does not allow to manually edit wiki and protocol links and enforces
     the generation of at least one slot.
     """
+
     class Meta(AKForm.Meta):
         # Exclude fields again that were previously included in the parent class
-        exclude = ['link', 'protocol_link'] #pylint: disable=modelform-uses-exclude
+        exclude = ['link', 'protocol_link']  # pylint: disable=modelform-uses-exclude
         widgets = AKForm.Meta.widgets | {
-            'types': forms.CheckboxSelectMultiple(attrs={'checked' : 'checked'}),
+            'types': forms.CheckboxSelectMultiple(attrs={'checked': 'checked'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Add field for durations (cleaning will be handled by parent class)
         self.fields["durations"] = forms.CharField(
-            widget=forms.Textarea,
-            label=_("Duration(s)"),
-            help_text=_(
-                "Enter at least one planned duration (in hours). "
-                "If your AK should have multiple slots, use multiple lines"),
-            initial=self.initial.get('event').default_slot
+                widget=forms.Textarea,
+                label=_("Duration(s)"),
+                help_text=_(
+                        "For every time your AK should take place, enter one line with one duration."
+                        "Duration is given in hours as a decimal number and without a unit symbol."),
+                initial=self.initial.get('event').default_slot
         )
 
     def clean_availabilities(self):
@@ -190,9 +191,10 @@ class AKWishForm(AKForm):
     Is a special variant of :class:`AKForm` that does not allow to specify owner(s) or
     manually edit wiki and protocol links
     """
+
     class Meta(AKForm.Meta):
         # Exclude fields again that were previously included in the parent class
-        exclude = ['owners', 'link', 'protocol_link'] #pylint: disable=modelform-uses-exclude
+        exclude = ['owners', 'link', 'protocol_link']  # pylint: disable=modelform-uses-exclude
         widgets = AKForm.Meta.widgets | {
             'types': forms.CheckboxSelectMultiple(attrs={'checked': 'checked'}),
         }
@@ -216,6 +218,7 @@ class AKDurationForm(forms.ModelForm):
     """
     Form to add an additional slot to a given AK
     """
+
     class Meta:
         model = AKSlot
         fields = ['duration', 'ak', 'event']
@@ -229,6 +232,7 @@ class AKOrgaMessageForm(forms.ModelForm):
     """
     Form to create a confidential message to the organizers  belonging to a given AK
     """
+
     class Meta:
         model = AKOrgaMessage
         fields = ['ak', 'text', 'event']
