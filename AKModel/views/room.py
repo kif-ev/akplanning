@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView
 
 from AKModel.availability.models import Availability
-from AKModel.forms import RoomForm, RoomBatchCreationForm
+from AKModel.forms import RoomBatchCreationForm, RoomForm
 from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, IntermediateAdminView
 from AKModel.models import Room
 
@@ -47,6 +47,7 @@ class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
     and users can specify that default availabilities (from event start to end) should be created for the rooms
     automatically
     """
+    template_name = "admin/AKModel/import_rooms.html"
     form_class = RoomBatchCreationForm
     title = _("Import Rooms from CSV")
 
@@ -66,6 +67,8 @@ class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
             # pylint: disable=import-outside-toplevel
             from AKOnline.models import VirtualRoom
 
+        req_list = self.event.akrequirement_set.all().order_by('name')
+
         # Loop over all inputs
         for raw_room in rooms_raw_dict:
             # Gather the relevant information (most fields can be empty)
@@ -77,9 +80,9 @@ class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
                 # Try to create a room (catches cases where the room name contains keywords or symbols that the
                 # database cannot handle (.e.g., special UTF-8 characters)
                 r = Room.objects.create(name=name,
-                                    location=location,
-                                    capacity=capacity,
-                                    event=self.event)
+                                        location=location,
+                                        capacity=capacity,
+                                        event=self.event)
 
                 # and if necessary an associated virtual room, too
                 if virtual_rooms_support and raw_room["url"] != "":
@@ -90,6 +93,10 @@ class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
                 if create_default_availabilities:
                     a = Availability.with_event_length(event=self.event, room=r)
                     a.save()
+
+                for req in req_list:
+                    if raw_room[req.name].lower().strip() == 'x':
+                        r.properties.add(req)
                 created_count += 1
             except django.db.Error as e:
                 messages.add_message(self.request, messages.WARNING,

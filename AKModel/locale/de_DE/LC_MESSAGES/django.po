@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-24 23:45+0100\n"
+"POT-Creation-Date: 2025-11-24 23:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -244,52 +244,52 @@ msgstr "Teilnehmer*in, deren Verfügbarkeit hier abgebildet wird"
 msgid "Availabilities"
 msgstr "Verfügbarkeiten"
 
-#: AKModel/forms.py:80
+#: AKModel/forms.py:83
 msgid "Copy ak requirements and ak categories of existing event"
 msgstr "AK-Anforderungen und AK-Kategorien eines existierenden Events kopieren"
 
-#: AKModel/forms.py:81
+#: AKModel/forms.py:84
 msgid "You can choose what to copy in the next step"
 msgstr ""
 "Im nächsten Schritt kann ausgewählt werden, was genau kopiert werden soll"
 
-#: AKModel/forms.py:95
+#: AKModel/forms.py:98
 msgid "Copy ak categories"
 msgstr "AK-Kategorien kopieren"
 
-#: AKModel/forms.py:102
+#: AKModel/forms.py:105
 msgid "Copy ak requirements"
 msgstr "AK-Anforderungen kopieren"
 
-#: AKModel/forms.py:109
+#: AKModel/forms.py:112
 msgid "Copy types"
 msgstr "Typen kopieren"
 
-#: AKModel/forms.py:135
+#: AKModel/forms.py:138
 msgid "Copy dashboard buttons"
 msgstr "Dashboard-Buttons kopieren"
 
-#: AKModel/forms.py:176
+#: AKModel/forms.py:180
 msgid "# next AKs"
 msgstr "# nächste AKs"
 
-#: AKModel/forms.py:177
+#: AKModel/forms.py:181
 msgid "How many next AKs should be shown on a slide?"
 msgstr "Wie viele nächste AKs sollen auf einer Folie angezeigt werden?"
 
-#: AKModel/forms.py:179 AKModel/models.py:778
+#: AKModel/forms.py:183 AKModel/models.py:778
 msgid "AK Types"
 msgstr "AK-Typen"
 
-#: AKModel/forms.py:180
+#: AKModel/forms.py:184
 msgid "Which AK types should be included in the slides?"
 msgstr "Welche AK-Typen sollen in den Folien enthalten sein?"
 
-#: AKModel/forms.py:186
+#: AKModel/forms.py:190
 msgid "Only show AKs with all selected types?"
 msgstr "Nur AKs mit dem ausgewählten Typ anzeigen?"
 
-#: AKModel/forms.py:187
+#: AKModel/forms.py:191
 msgid ""
 "If checked, only AKs that have all selected types will be shown in the "
 "slides. If unchecked, AKs with at least one of the selected types will be "
@@ -299,27 +299,27 @@ msgstr ""
 "die Folien aufgenommen. Wenn nicht ausgewählt werden AKs, die mindestens "
 "einen der spezifizierten Typen erfüllen, in die Folien aufgenommen."
 
-#: AKModel/forms.py:192
+#: AKModel/forms.py:196
 msgid "Presentation only?"
 msgstr "Nur Vorstellung?"
 
-#: AKModel/forms.py:194
+#: AKModel/forms.py:198
 msgid "Yes"
 msgstr "Ja"
 
-#: AKModel/forms.py:194
+#: AKModel/forms.py:198
 msgid "No"
 msgstr "Nein"
 
-#: AKModel/forms.py:196
+#: AKModel/forms.py:200
 msgid "Restrict AKs to those that asked for chance to be presented?"
 msgstr "AKs auf solche, die um eine Vorstellung gebeten haben, einschränken?"
 
-#: AKModel/forms.py:204 AKModel/models.py:1555
+#: AKModel/forms.py:208 AKModel/models.py:1555
 msgid "Default Slots"
 msgstr "Standardslots"
 
-#: AKModel/forms.py:206
+#: AKModel/forms.py:210
 msgid ""
 "Click and drag to add default slots, double-click to delete. Or use the "
 "start and end inputs to add entries to the calendar view."
@@ -328,37 +328,56 @@ msgstr ""
 "Einträge zu löschen. Oder Start- und End-Eingabe verwenden, um der "
 "Kalenderansicht neue Einträge hinzuzufügen."
 
-#: AKModel/forms.py:222
-msgid "New rooms"
-msgstr "Neue Räume"
-
-#: AKModel/forms.py:223
-msgid ""
-"Enter room details in CSV format. Required colum is \"name\", optional "
-"colums are \"location\", \"capacity\", and \"url\" for online/hybrid rooms. "
-"Delimiter: Semicolon"
-msgstr ""
-"Raumdetails im CSV-Format eingeben. Benötigte Spalte ist \"name\", optionale "
-"Spalten sind \"location\", \"capacity\", und \"url\" for Online-/"
-"HybridräumeTrennzeichen: Semikolon"
-
-#: AKModel/forms.py:229
+#: AKModel/forms.py:226
 msgid "Default availabilities?"
 msgstr "Standardverfügbarkeiten?"
 
-#: AKModel/forms.py:230
+#: AKModel/forms.py:227
 msgid "Create default availabilities for all rooms?"
 msgstr "Standardverfügbarkeiten für alle Räume anlegen?"
 
-#: AKModel/forms.py:246
+#: AKModel/forms.py:231
+msgid "New rooms"
+msgstr "Neue Räume"
+
+#: AKModel/forms.py:232
+msgid ""
+"Enter room details in CSV format. Required column is \"name\", optional "
+"columns are \"location\", \"capacity\", \"url\" for online/hybrid rooms. "
+"Optionally one column per requirement, column name should be requirement "
+"name, if requirement should be set, value should be \"x\". Delimiter: "
+"Semicolon"
+msgstr ""
+"Raumdetails im CSV-Format eingeben. Benötigte Spalte ist \"name\", optionale "
+"Spalten sind \"location\", \"capacity\", und \"url\" for Online-/"
+"Hybridräume. Optional eine Spalte pro Anforderung, Name der Spalte muss Name der Anforderung sein, "
+"falls die Anforderung erfüllt wird muss der Wert 'x' sein. Trennzeichen: Semikolon"
+
+#: AKModel/forms.py:241
+msgid "File with csv data"
+msgstr "Datei mit csv Daten"
+
+#: AKModel/forms.py:242
+msgid "File with csv data for room creation"
+msgstr "Datei mit csv Daten für den Raumimport"
+
+#: AKModel/forms.py:256
+msgid "Please enter data as a file OR via text, not both."
+msgstr "Bitte gib die Daten als Text ODER Datei an, nicht beides."
+
+#: AKModel/forms.py:263
+msgid "No data entered. Please enter data as a file or via text."
+msgstr "Keine Daten bereitgestellt. Bitte gib die Daten als Datei oder Text ein."
+
+#: AKModel/forms.py:279
 msgid "CSV must contain a name column"
 msgstr "CSV muss eine name-Spalte enthalten"
 
-#: AKModel/forms.py:256
+#: AKModel/forms.py:291
 msgid "Offset (hours)"
 msgstr "Offset (in Stunden)"
 
-#: AKModel/forms.py:257
+#: AKModel/forms.py:292
 msgid ""
 "Specify the offset in hours by which the selected entities should be shifted."
 msgstr ""
@@ -1200,6 +1219,7 @@ msgid "Logout"
 msgstr "Ausloggen"
 
 #: AKModel/templates/admin/AKModel/action_intermediate.html:23
+#: AKModel/templates/admin/AKModel/import_rooms.html:18
 msgid "Confirm"
 msgstr "Bestätigen"
 
@@ -1208,6 +1228,7 @@ msgstr "Bestätigen"
 #: AKModel/templates/admin/AKModel/event_wizard/import.html:27
 #: AKModel/templates/admin/AKModel/event_wizard/settings.html:32
 #: AKModel/templates/admin/AKModel/event_wizard/start.html:28
+#: AKModel/templates/admin/AKModel/import_rooms.html:22
 #: AKModel/templates/admin/AKModel/room_create.html:30
 msgid "Cancel"
 msgstr "Abbrechen"
@@ -1610,21 +1631,21 @@ msgstr ""
 msgid "Created Room '%(room)s'"
 msgstr "Raum '%(room)s' angelegt"
 
-#: AKModel/views/room.py:51 AKModel/views/status.py:86
+#: AKModel/views/room.py:52 AKModel/views/status.py:86
 msgid "Import Rooms from CSV"
 msgstr "Räume aus CSV importieren"
 
-#: AKModel/views/room.py:96
+#: AKModel/views/room.py:103
 #, python-brace-format
 msgid "Could not import room {name}: {e}"
 msgstr "Konnte Raum {name} nicht importieren: {e}"
 
-#: AKModel/views/room.py:101
+#: AKModel/views/room.py:108
 #, python-brace-format
 msgid "Imported {count} room(s)"
 msgstr "{count} Raum/Räume importiert"
 
-#: AKModel/views/room.py:103
+#: AKModel/views/room.py:110
 msgid "No rooms imported"
 msgstr "Keine Räume importiert"
 
@@ -1679,20 +1700,3 @@ msgstr "Zu Anforderungen gehörige AKs anzeigen"
 #: AKModel/views/status.py:204
 msgid "Event Status"
 msgstr "Eventstatus"
-
-#~ msgid "Space for notes in wishes?"
-#~ msgstr "Platz für Notizen bei den Wünschen?"
-
-#~ msgid ""
-#~ "Create symbols indicating space to note down owners and timeslots for "
-#~ "wishes, e.g., to be filled out on a touch screen while presenting?"
-#~ msgstr ""
-#~ "Symbole anlegen, die Raum zum Notieren von Leitungen und Zeitslots "
-#~ "fürWünsche markieren, z.B. um während der Präsentation auf einem "
-#~ "Touchscreen ausgefüllt zu werden?"
-
-#~ msgid "Category (for Wishes)"
-#~ msgstr "Kategorie (für Wünsche)"
-
-#~ msgid "Description of the AK"
-#~ msgstr "Beschreibung des AKs"
