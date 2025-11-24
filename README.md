@@ -46,3 +46,7 @@ Afterward, you may check your setup by executing ``Utils/check.sh`` or ``Utils/c
 * to export all database items belonging to a certain event use
   ````./Utils/json_export.sh <event_id> <export_prefix>  [--prod]````. The results will be saved in
   ````backups/<export_prefix>.json````
+* to import database items from a json file use
+  ````python manage.py loaddata <import_file>````
+  Remember to activate your virtual environment and load settings if necessary first (
+  ````export DJANGO_SETTINGS_MODULE=AKPlanning.settings_production````).
