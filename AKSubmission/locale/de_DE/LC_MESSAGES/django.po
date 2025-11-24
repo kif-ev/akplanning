@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-24 12:25+0000\n"
+"POT-Creation-Date: 2025-11-24 14:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,12 +28,12 @@ msgstr "Dauer(n)"
 
 #: AKSubmission/forms.py:169
 msgid ""
-"For every time your AK should take place, enter one line with one "
-"duration.Duration is given in hours as a decimal number and without a unit "
-"symbol."
+"Give the duration for your AK in hours, as a decimal number and without a "
+"unit symbol.For every time your AK should take place, enter one line with "
+"one duration."
 msgstr ""
-"Für jedes Mal, das dein AK stattfinden soll, gib eine Zeile mit einer Dauer an."
-"Die Dauer sollte in Stunden, als Dezimalzahl und ohne Einhait eingegeben werden."
+"Gib die Dauer deines AKs in Stunden an, als Dezimalzahl und ohne Einheit."
+"Wenn dein AK mehrfach stattfinden soll, gib pro Zeile eine Dauer."
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:22
 #: AKSubmission/templates/AKSubmission/ak_edit.html:13
@@ -557,6 +557,15 @@ msgstr "Alle Nachrichten löschen"
 #: AKSubmission/views.py:748
 msgid "Message to organizers successfully saved"
 msgstr "Nachricht an die Organisator*innen erfolgreich gespeichert"
+
+#~ msgid ""
+#~ "For every time your AK should take place, enter one line with one "
+#~ "duration. Duration is given in hours as a decimal number and without a "
+#~ "unit symbol."
+#~ msgstr ""
+#~ "Für jedes Mal, das dein AK stattfinden soll, gib eine Zeile mit einer "
+#~ "Dauer an. Die Dauer sollte in Stunden, als Dezimalzahl und ohne Einheit "
+#~ "eingegeben werden."
 
 #~ msgid ""
 #~ "Enter at least one planned duration (in hours). If your AK should have "
