@@ -33,7 +33,7 @@ msgid ""
 "one duration."
 msgstr ""
 "Gib die Dauer deines AKs in Stunden an, als Dezimalzahl und ohne Einheit. "
-"Wenn dein AK mehrfach stattfinden soll, gib pro Zeile eine Dauer."
+"Wenn dein AK mehrfach stattfinden soll, gib pro Zeile eine Dauer ein."
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:22
 #: AKSubmission/templates/AKSubmission/ak_edit.html:13
@@ -448,13 +448,7 @@ msgid "Continue with that name?"
 msgstr "Mit dem Namen fortfahren?"
 
 #: AKSubmission/templates/AKSubmission/submit_new.html:81
-#, fuzzy
-#| msgid ""
-#| "Your AK name (or short name) starts with or contains the word \"AK\"."
-#| "<br><br>This is not recommended, as it makes the names longer, and may "
-#| "create an inconsistent style. The tool will ensure that one always know "
-#| "that a title belongs to an AK even without that prefix.<br><br>Do you "
-#| "still want to use that name?"
+
 msgid ""
 "Your AK name (or short name) starts with or contains the word \"AK\"."
 "<br><br>This\n"
@@ -557,19 +551,3 @@ msgstr "Alle Nachrichten löschen"
 #: AKSubmission/views.py:748
 msgid "Message to organizers successfully saved"
 msgstr "Nachricht an die Organisator*innen erfolgreich gespeichert"
-
-#~ msgid ""
-#~ "For every time your AK should take place, enter one line with one "
-#~ "duration. Duration is given in hours as a decimal number and without a "
-#~ "unit symbol."
-#~ msgstr ""
-#~ "Für jedes Mal, das dein AK stattfinden soll, gib eine Zeile mit einer "
-#~ "Dauer an. Die Dauer sollte in Stunden, als Dezimalzahl und ohne Einheit "
-#~ "eingegeben werden."
-
-#~ msgid ""
-#~ "Enter at least one planned duration (in hours). If your AK should have "
-#~ "multiple slots, use multiple lines"
-#~ msgstr ""
-#~ "Mindestens eine geplante Dauer (in Stunden) angeben. Wenn der AK mehrere "
-#~ "Slots haben soll, mehrere Zeilen verwenden"
