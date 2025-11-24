@@ -194,14 +194,6 @@ class SlideExportForm(AdminIntermediateForm):
         choices=((True, _('Yes')), (False, _('No'))),
         coerce=lambda x: x == "True",
         help_text=_("Restrict AKs to those that asked for chance to be presented?"))
-    wish_notes = forms.TypedChoiceField(
-        initial=False,
-        label=_("Space for notes in wishes?"),
-        widget=forms.RadioSelect,
-        choices=((True, _('Yes')), (False, _('No'))),
-        coerce=lambda x: x == "True",
-        help_text=_("Create symbols indicating space to note down owners and timeslots for wishes, e.g., to be filled "
-                    "out on a touch screen while presenting?"))
 
 
 class DefaultSlotEditorForm(AdminIntermediateForm):
