@@ -9,7 +9,7 @@ from AKModel.serializers import IntListField, StringListField
 
 
 def _apply_filter_cb_to_queryset(
-    cb: Callable[[QuerySet], QuerySet], queryset: QuerySet,
+        cb: Callable[[QuerySet], QuerySet], queryset: QuerySet,
 ) -> QuerySet:
     """Applies filter callback if queryset is a QuerySet object."""
     # check if queryset is actually a queryset (and not e.g. an empty list)
@@ -41,7 +41,7 @@ class ExportRoomSerializer(serializers.ModelSerializer):
 
     time_constraints = StringListField(source="get_time_constraints", read_only=True)
     fulfilled_room_constraints = StringListField(
-        source="get_fulfilled_room_constraints", read_only=True
+            source="get_fulfilled_room_constraints", read_only=True
     )
     info = ExportRoomInfoSerializer(source="*")
 
@@ -148,7 +148,7 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
         Used to pass `export_scheduled_aks_as_fixed` to AKSlot's function.
         """
         return slot.get_room_constraints(
-            export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+                export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
         )
 
     def get_time_constraints(self, slot: AKSlot):
@@ -157,7 +157,7 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
         Used to pass `export_scheduled_aks_as_fixed` to AKSlot's function.
         """
         return slot.get_time_constraints(
-            export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+                export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
         )
 
     class Meta:
@@ -197,21 +197,22 @@ class ExportFilteredAKSlotSerializer(serializers.BaseSerializer):
     def to_representation(self, instance):
         slot_queryset = instance
         slot_pks = set(slot_queryset.values_list("id", flat=True))
+
         def _restrict_to_slots(pk_list: list[int]):
             return sorted(set(pk_list) & slot_pks)
 
         serialized_slots = ExportAKSlotSerializer(
-            slot_queryset,
-            export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
-            many=True,
+                slot_queryset,
+                export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+                many=True,
         ).data
 
         for slot_dict in serialized_slots:
             slot_dict["properties"]["conflicts"] = _restrict_to_slots(
-                slot_dict["properties"]["conflicts"],
+                    slot_dict["properties"]["conflicts"],
             )
             slot_dict["properties"]["dependencies"] = _restrict_to_slots(
-                slot_dict["properties"]["dependencies"],
+                    slot_dict["properties"]["dependencies"],
             )
         return serialized_slots
 
@@ -231,15 +232,17 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
     """
 
     def __init__(
-        self,
-        *args,
-        slots_qs: QuerySet = None,
-        filter_participants_cb: Callable[[QuerySet], QuerySet],
-        **kwargs,
+            self,
+            *args,
+            slots_qs: QuerySet = None,
+            filter_participants_cb: Callable[[QuerySet], QuerySet],
+            export_preferences: bool = True,
+            **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.filter_participants_cb = filter_participants_cb
         self.slots_qs = slots_qs
+        self.export_preferences = export_preferences
 
     def create(self, validated_data):
         raise ValueError("`ExportParticipantAndDummiesSerializer` is read-only.")
@@ -258,7 +261,7 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
         next_participant_pk = 1
 
         # set variable values if AKPreference app is installed
-        if apps.is_installed("AKPreference"):
+        if apps.is_installed("AKPreference") and self.export_preferences:
             # local import to decouple
             # pylint: disable=import-outside-toplevel
             from AKPreference.models import EventParticipant
@@ -292,15 +295,15 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
 
         if self.slots_qs is not None:
             slot_pks = set(self.slots_qs.values_list("id", flat=True))
+
             def _filter_to_slots_qs(preference: dict):
                 return preference["ak_id"] in slot_pks
 
             for participant in all_participants:
                 participant["preferences"] = list(
-                    filter(_filter_to_slots_qs, participant["preferences"])
+                        filter(_filter_to_slots_qs, participant["preferences"])
                 )
         return all_participants
-
 
 
 class ExportEventInfoSerializer(serializers.ModelSerializer):
@@ -355,7 +358,7 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
             return not Availability.is_event_covered(event, availabilities)
 
         def _check_akslot_fixed_in_timeslot(
-            ak_slot: AKSlot, timeslot: Availability
+                ak_slot: AKSlot, timeslot: Availability
         ) -> bool:
             """Test if an AKSlot is fixed to overlap a timeslot slot."""
             if ak_slot.start is None:
@@ -365,23 +368,23 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
                 return False
 
             fixed_avail = Availability(
-                event=event, start=ak_slot.start, end=ak_slot.end
+                    event=event, start=ak_slot.start, end=ak_slot.end
             )
             return fixed_avail.overlaps(timeslot, strict=True)
 
         def _check_add_constraint(
-            slot: Availability, availabilities: list[Availability]
+                slot: Availability, availabilities: list[Availability]
         ) -> bool:
             """Test if object is not available for whole event and may happen during slot."""
             return _check_event_not_covered(availabilities) and slot.is_covered(
-                availabilities
+                    availabilities
             )
 
         def _generate_time_constraints(
-            avail_label: str,
-            avail_dict: dict,
-            timeslot_avail: Availability,
-            prefix: str = "availability",
+                avail_label: str,
+                avail_dict: dict,
+                timeslot_avail: Availability,
+                prefix: str = "availability",
         ) -> list[str]:
             return [
                 f"{prefix}-{avail_label}-{pk}"
@@ -424,14 +427,14 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
             if block_start.date() == block_end.date():
                 # same day
                 time_str = (
-                    block_start.strftime("%H:%M") + " - " + block_end.strftime("%H:%M")
+                        block_start.strftime("%H:%M") + " - " + block_end.strftime("%H:%M")
                 )
             else:
                 # different days
                 time_str = (
-                    block_start.strftime("%a %H:%M")
-                    + " - "
-                    + block_end.strftime("%a %H:%M")
+                        block_start.strftime("%a %H:%M")
+                        + " - "
+                        + block_end.strftime("%a %H:%M")
                 )
             block_names.append([start_day, time_str])
 
@@ -444,46 +447,46 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
                 # if reso_deadline is set and timeslot ends before it,
                 #   add fulfilled time constraint 'resolution'
                 if (
-                    event.reso_deadline is None
-                    or timeslot.avail.end < event.reso_deadline
+                        event.reso_deadline is None
+                        or timeslot.avail.end < event.reso_deadline
                 ):
                     time_constraints.append("resolution")
 
                 # add fulfilled time constraints for all AKs that cannot happen during full event
                 time_constraints.extend(
-                    _generate_time_constraints("ak", ak_availabilities, timeslot.avail)
+                        _generate_time_constraints("ak", ak_availabilities, timeslot.avail)
                 )
 
                 # add fulfilled time constraints for all persons that are not available for full event
                 time_constraints.extend(
-                    _generate_time_constraints(
-                        "person", person_availabilities, timeslot.avail
-                    )
+                        _generate_time_constraints(
+                                "person", person_availabilities, timeslot.avail
+                        )
                 )
 
                 # add fulfilled time constraints for all rooms that are not available for full event
                 time_constraints.extend(
-                    _generate_time_constraints(
-                        "room", room_availabilities, timeslot.avail
-                    )
+                        _generate_time_constraints(
+                                "room", room_availabilities, timeslot.avail
+                        )
                 )
 
                 # add fulfilled time constraints for all participants that are not available for full event
                 time_constraints.extend(
-                    _generate_time_constraints(
-                        "participant", participant_availabilities, timeslot.avail
-                    )
+                        _generate_time_constraints(
+                                "participant", participant_availabilities, timeslot.avail
+                        )
                 )
 
                 # add fulfilled time constraints for all AKSlots fixed to happen during timeslot
                 time_constraints.extend(
-                    [
-                        f"fixed-akslot-{slot.id}"
-                        for slot in AKSlot.objects.filter(
-                            event=event, fixed=True
+                        [
+                            f"fixed-akslot-{slot.id}"
+                            for slot in AKSlot.objects.filter(
+                                event=event, fixed=True
                         ).exclude(start__isnull=True)
-                        if _check_akslot_fixed_in_timeslot(slot, timeslot.avail)
-                    ]
+                            if _check_akslot_fixed_in_timeslot(slot, timeslot.avail)
+                        ]
                 )
 
                 time_constraints.extend(timeslot.constraints)
@@ -491,18 +494,18 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
                 time_constraints.sort()
 
                 current_block.append(
-                    {
-                        "id": timeslot.idx,
-                        "info": {
-                            "start": timeslot.avail.start.astimezone(
-                                event.timezone
-                            ).strftime("%Y-%m-%d %H:%M"),
-                            "end": timeslot.avail.end.astimezone(
-                                event.timezone
-                            ).strftime("%Y-%m-%d %H:%M"),
-                        },
-                        "fulfilled_time_constraints": time_constraints,
-                    }
+                        {
+                            "id": timeslot.idx,
+                            "info": {
+                                "start": timeslot.avail.start.astimezone(
+                                        event.timezone
+                                ).strftime("%Y-%m-%d %H:%M"),
+                                "end": timeslot.avail.end.astimezone(
+                                        event.timezone
+                                ).strftime("%Y-%m-%d %H:%M"),
+                            },
+                            "fulfilled_time_constraints": time_constraints,
+                        }
                 )
 
             timeslots["blocks"].append(current_block)
@@ -524,13 +527,14 @@ class ExportEventSerializer(serializers.BaseSerializer):
     """
 
     def __init__(
-        self,
-        *args,
-        filter_participants_cb: Callable[[QuerySet], QuerySet] | None = None,
-        filter_slots_cb: Callable[[QuerySet], QuerySet] | None = None,
-        filter_rooms_cb: Callable[[QuerySet], QuerySet] | None = None,
-        export_scheduled_aks_as_fixed: bool = False,
-        **kwargs,
+            self,
+            *args,
+            filter_participants_cb: Callable[[QuerySet], QuerySet] | None = None,
+            filter_slots_cb: Callable[[QuerySet], QuerySet] | None = None,
+            filter_rooms_cb: Callable[[QuerySet], QuerySet] | None = None,
+            export_scheduled_aks_as_fixed: bool = False,
+            export_preferences: bool = True,
+            **kwargs,
     ):
         def _identity(queryset: QuerySet) -> QuerySet:
             return queryset
@@ -540,9 +544,9 @@ class ExportEventSerializer(serializers.BaseSerializer):
         self.filter_rooms_cb = filter_rooms_cb or _identity
         self.filter_slots_cb = filter_slots_cb or _identity
         self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
+        self.export_preferences = export_preferences
 
         super().__init__(*args, **kwargs)
-
 
     def create(self, validated_data):
         raise ValueError("`ExportEventSerializer` is read-only.")
@@ -563,18 +567,19 @@ class ExportEventSerializer(serializers.BaseSerializer):
         timeslots = ExportTimeslotBlockSerializer(event)
         # we support filtering of Rooms and AKSlots
         rooms = ExportRoomSerializer(
-            _apply_filter_cb_to_queryset(self.filter_rooms_cb, event.rooms),
-            many=True,
+                _apply_filter_cb_to_queryset(self.filter_rooms_cb, event.rooms),
+                many=True,
         )
         slots_qs = _apply_filter_cb_to_queryset(self.filter_slots_cb, event.slots)
         slots = ExportFilteredAKSlotSerializer(
-            slots_qs,
-            export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+                slots_qs,
+                export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
         )
         participants = ExportParticipantAndDummiesSerializer(
-            event,
-            slots_qs=slots_qs,
-            filter_participants_cb=self.filter_participants_cb,
+                event,
+                slots_qs=slots_qs,
+                filter_participants_cb=self.filter_participants_cb,
+                export_preferences=self.export_preferences,
         )
 
         return {
