@@ -214,7 +214,8 @@ class Event(models.Model):
 
     def get_categories_with_aks(self, wishes_seperately=False,
                                 filter_func=lambda ak: True, hide_empty_categories=False,
-                                types=None, types_all_selected_only=False):
+                                types=None, types_all_selected_only=False,
+                                sort_func=None):
         """
         Get AKCategories as well as a list of AKs belonging to the category for this event
 
@@ -228,6 +229,8 @@ class Event(models.Model):
         :type types: list[AKType] | None
         :param types_all_selected_only: If True, only include AKs that have all of the selected types at the same time
         :type types_all_selected_only: bool
+        :param sort_func: Optional function to determine a deviating key to sort AKs within each category (can be None)
+        :type sort_func: (AK) -> any | None
         :return: list of category-AK-list-tuples, optionally the additional list of AK wishes
         :rtype: list[(AKCategory, list[AK])] [, list[AK]]
         """
@@ -265,8 +268,12 @@ class Event(models.Model):
                             ak_wishes.append(ak)
                         else:
                             ak_list.append(ak)
+                if sort_func:
+                    ak_list.sort(key=sort_func)
                 if not hide_empty_categories or len(ak_list) > 0:
                     categories_with_aks.append((category, ak_list))
+                if sort_func:
+                    ak_wishes.sort(key=sort_func)
             return categories_with_aks, ak_wishes
 
         for category in categories:
@@ -274,6 +281,8 @@ class Event(models.Model):
             for ak in _get_category_aks(category, types):
                 if filter_func(ak):
                     ak_list.append(ak)
+            if sort_func:
+                ak_list.sort(key=sort_func)
             if not hide_empty_categories or len(ak_list) > 0:
                 categories_with_aks.append((category, ak_list))
         return categories_with_aks

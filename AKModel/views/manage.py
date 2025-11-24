@@ -56,16 +56,15 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
         # Settings
         NEXT_AK_LIST_LENGTH = form.cleaned_data['num_next']
         RESULT_PRESENTATION_MODE = form.cleaned_data["presentation_mode"]
-        SPACE_FOR_NOTES_IN_WISHES = form.cleaned_data["wish_notes"]
 
         translations = {
             'symbols': _("Symbols"),
             'who': _("Who?"),
             'duration': _("Duration(s)"),
             'reso': _("Reso intention?"),
-            'category': _("Category (for Wishes)"),
-            'wishes': _("Wishes"),
+            'wish': _("Wish"),
             'types': _("Types"),
+            'goal': _("Design/Goal"),
         }
 
         def build_ak_list_with_next_aks(ak_list):
@@ -87,10 +86,11 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
 
         # Get all relevant AKs (wishes separately, and either all AKs or only those who should directly or indirectly
         # be presented when restriction setting was chosen)
-        categories_with_aks, ak_wishes = self.event.get_categories_with_aks(wishes_seperately=True, filter_func=lambda
+        categories_with_aks = self.event.get_categories_with_aks(filter_func=lambda
             ak: not RESULT_PRESENTATION_MODE or (ak.present or (ak.present is None and ak.category.present_by_default)),
                                                                     types=types,
-                                                                    types_all_selected_only=types_all_selected_only)
+                                                                    types_all_selected_only=types_all_selected_only,
+                                                                    sort_func=lambda ak: ak.wish)
 
         # Create context for LaTeX rendering
         context = {
@@ -98,10 +98,8 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             'categories_with_aks': [(category, build_ak_list_with_next_aks(ak_list)) for category, ak_list in
                                     categories_with_aks],
             'subtitle': _("AKs") + " " + types_filter_string,
-            "wishes": build_ak_list_with_next_aks(ak_wishes),
             "translations": translations,
             "result_presentation_mode": RESULT_PRESENTATION_MODE,
-            "space_for_notes_in_wishes": SPACE_FOR_NOTES_IN_WISHES,
             "show_types": show_types,
         }
 
