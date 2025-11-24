@@ -7,6 +7,7 @@ from itertools import chain
 
 from bs4 import BeautifulSoup
 from django.contrib.auth import get_user_model
+from django.forms import ModelMultipleChoiceField
 from django.test import TestCase
 from django.urls import reverse
 from jsonschema.exceptions import best_match
@@ -39,16 +40,16 @@ class JSONExportTest(TestCase):
     def setUpTestData(cls):
         """Shared set up by initializing admin user."""
         cls.admin_user = get_user_model().objects.create(
-            username="Test Admin User",
-            email="testadmin@example.com",
-            password="adminpw",
-            is_staff=True,
-            is_superuser=True,
-            is_active=True,
+                username="Test Admin User",
+                email="testadmin@example.com",
+                password="adminpw",
+                is_staff=True,
+                is_superuser=True,
+                is_active=True,
         )
 
         cls.json_export_validator = construct_schema_validator(
-            "solver-input-export.schema.json"
+                "solver-input-export.schema.json"
         )
 
     def setUp(self):
@@ -79,7 +80,7 @@ class JSONExportTest(TestCase):
         data = {
             field_name: list(map(str, field.prepare_value(field.initial)))
             for field_name, field in form.fields.items()
-            if field.initial is not None
+            if isinstance(field, ModelMultipleChoiceField)
         }
 
         response = self.client.post(export_url, data=data)
@@ -107,7 +108,7 @@ class JSONExportTest(TestCase):
         )
         self.rooms = Room.objects.filter(event__slug=event.slug).all()
         self.participants = EventParticipant.objects.filter(
-            event__slug=event.slug
+                event__slug=event.slug
         ).all()
         self.owners = AKOwner.objects.filter(event__slug=event.slug).all()
 
@@ -124,9 +125,9 @@ class JSONExportTest(TestCase):
             with self.subTest(event=event):
                 self.set_up_event(event=event)
                 self.assertEqual(
-                    {slot.pk for slot in self.ak_slots},
-                    self.export_objects["aks"].keys(),
-                    "Exported AKs does not match the AKSlots of the event",
+                        {slot.pk for slot in self.ak_slots},
+                        self.export_objects["aks"].keys(),
+                        "Exported AKs does not match the AKSlots of the event",
                 )
 
     def _check_uniqueness(self, lst, name: str, key: str | None = "id"):
@@ -138,12 +139,12 @@ class JSONExportTest(TestCase):
         self.assertTrue(isinstance(attr, cls), f"{item} {name} not a {cls}")
 
     def _check_lst(
-        self, lst: list[str], name: str, item: str, contained_type=str
+            self, lst: list[str], name: str, item: str, contained_type=str
     ) -> None:
         self.assertTrue(isinstance(lst, list), f"{item} {name} not a list")
         self.assertTrue(
-            all(isinstance(c, contained_type) for c in lst),
-            f"{item} has non-{contained_type} {name}",
+                all(isinstance(c, contained_type) for c in lst),
+                f"{item} has non-{contained_type} {name}",
         )
         if contained_type in {str, int}:
             self._check_uniqueness(lst, name, key=None)
@@ -155,7 +156,7 @@ class JSONExportTest(TestCase):
                 self.set_up_event(event=event)
 
                 error = best_match(
-                    self.json_export_validator.iter_errors(self.export_dict)
+                        self.json_export_validator.iter_errors(self.export_dict)
                 )
                 msg = "" if not error else f"{error.message} at {error.json_path}"
                 self.assertFalse(error, msg)
@@ -171,8 +172,8 @@ class JSONExportTest(TestCase):
                 self._check_uniqueness(self.export_dict["participants"], "Participants")
 
                 self._check_uniqueness(
-                    chain.from_iterable(self.export_dict["timeslots"]["blocks"]),
-                    "Timeslots",
+                        chain.from_iterable(self.export_dict["timeslots"]["blocks"]),
+                        "Timeslots",
                 )
 
     def test_timeslot_ids_consecutive(self):
@@ -183,13 +184,13 @@ class JSONExportTest(TestCase):
 
                 prev_id = None
                 for timeslot in chain.from_iterable(
-                    self.export_dict["timeslots"]["blocks"]
+                        self.export_dict["timeslots"]["blocks"]
                 ):
                     if prev_id is not None:
                         self.assertLess(
-                            prev_id,
-                            timeslot["id"],
-                            "timeslot ids must be increasing",
+                                prev_id,
+                                timeslot["id"],
+                                "timeslot ids must be increasing",
                         )
                     prev_id = timeslot["id"]
 
@@ -204,13 +205,13 @@ class JSONExportTest(TestCase):
                     if hasattr(self.event, attr) and getattr(self.event, attr):
                         info_keys[attr] = attr
                 self.assertEqual(
-                    self.export_dict["info"].keys(),
-                    info_keys.keys(),
-                    "info keys not as expected",
+                        self.export_dict["info"].keys(),
+                        info_keys.keys(),
+                        "info keys not as expected",
                 )
                 for attr, attr_field in info_keys.items():
                     self.assertEqual(
-                        getattr(self.event, attr_field), self.export_dict["info"][attr]
+                            getattr(self.event, attr_field), self.export_dict["info"][attr]
                     )
 
     def test_ak_durations(self):
@@ -223,21 +224,21 @@ class JSONExportTest(TestCase):
                     ak = self.export_objects["aks"][slot.pk]
 
                     self.assertLessEqual(
-                        float(slot.duration) * self.slots_in_an_hour - 1e-4,
-                        ak["duration"],
-                        "Slot duration is too short",
+                            float(slot.duration) * self.slots_in_an_hour - 1e-4,
+                            ak["duration"],
+                            "Slot duration is too short",
                     )
 
                     self.assertEqual(
-                        math.ceil(float(slot.duration) * self.slots_in_an_hour - 1e-4),
-                        ak["duration"],
-                        "Slot duration is wrong",
+                            math.ceil(float(slot.duration) * self.slots_in_an_hour - 1e-4),
+                            ak["duration"],
+                            "Slot duration is wrong",
                     )
 
                     self.assertEqual(
-                        float(slot.duration),
-                        ak["info"]["duration_in_hours"],
-                        "Slot duration_in_hours is wrong",
+                            float(slot.duration),
+                            ak["info"]["duration_in_hours"],
+                            "Slot duration_in_hours is wrong",
                     )
 
     def test_ak_conflicts(self):
@@ -249,9 +250,9 @@ class JSONExportTest(TestCase):
                 for slot in self.ak_slots:
                     ak = self.export_objects["aks"][slot.pk]
                     conflict_slots = set(
-                        self.ak_slots.filter(
-                            ak__in=slot.ak.conflicts.all()
-                        ).values_list("pk", flat=True)
+                            self.ak_slots.filter(
+                                    ak__in=slot.ak.conflicts.all()
+                            ).values_list("pk", flat=True)
                     )
 
                     other_ak_slots = (
@@ -262,9 +263,9 @@ class JSONExportTest(TestCase):
                     conflict_slots.update(other_ak_slots)
 
                     self.assertEqual(
-                        conflict_slots,
-                        set(ak["properties"]["conflicts"]),
-                        f"Conflicts for slot {slot.pk} not as expected",
+                            conflict_slots,
+                            set(ak["properties"]["conflicts"]),
+                            f"Conflicts for slot {slot.pk} not as expected",
                     )
 
     def test_ak_depenedencies(self):
@@ -276,13 +277,13 @@ class JSONExportTest(TestCase):
                 for slot in self.ak_slots:
                     ak = self.export_objects["aks"][slot.pk]
                     dependency_slots = self.ak_slots.filter(
-                        ak__in=slot.ak.prerequisites.all()
+                            ak__in=slot.ak.prerequisites.all()
                     ).values_list("pk", flat=True)
 
                     self.assertEqual(
-                        set(dependency_slots),
-                        set(ak["properties"]["dependencies"]),
-                        f"Dependencies for slot {slot.pk} not as expected",
+                            set(dependency_slots),
+                            set(ak["properties"]["dependencies"]),
+                            f"Dependencies for slot {slot.pk} not as expected",
                     )
 
     def test_ak_reso(self):
@@ -295,7 +296,7 @@ class JSONExportTest(TestCase):
                     ak = self.export_objects["aks"][slot.pk]
                     self.assertEqual(slot.ak.reso, ak["info"]["reso"])
                     self.assertEqual(
-                        slot.ak.reso, "resolution" in ak["time_constraints"]
+                            slot.ak.reso, "resolution" in ak["time_constraints"]
                     )
 
     def test_ak_info(self):
@@ -308,13 +309,13 @@ class JSONExportTest(TestCase):
                     ak = self.export_objects["aks"][slot.pk]
                     self.assertEqual(ak["info"]["name"], slot.ak.name)
                     self.assertEqual(
-                        ak["info"]["head"], ", ".join(map(str, slot.ak.owners.all()))
+                            ak["info"]["head"], ", ".join(map(str, slot.ak.owners.all()))
                     )
                     self.assertEqual(ak["info"]["description"], slot.ak.description)
                     self.assertEqual(ak["info"]["django_ak_id"], slot.ak.pk)
                     self.assertEqual(
-                        ak["info"]["types"],
-                        list(slot.ak.types.values_list("name", flat=True).order_by()),
+                            ak["info"]["types"],
+                            list(slot.ak.types.values_list("name", flat=True).order_by()),
                     )
 
     def test_ak_room_constraints(self):
@@ -326,7 +327,7 @@ class JSONExportTest(TestCase):
                 for slot in self.ak_slots:
                     ak = self.export_objects["aks"][slot.pk]
                     requirements = list(
-                        slot.ak.requirements.values_list("name", flat=True)
+                            slot.ak.requirements.values_list("name", flat=True)
                     )
 
                     # proxy rooms
@@ -338,9 +339,9 @@ class JSONExportTest(TestCase):
                         requirements.append(f"fixed-room-{slot.room.pk}")
 
                     self.assertEqual(
-                        set(ak["room_constraints"]),
-                        set(requirements),
-                        f"Room constraints for slot {slot.pk} not as expected",
+                            set(ak["room_constraints"]),
+                            set(requirements),
+                            f"Room constraints for slot {slot.pk} not as expected",
                     )
 
     def test_ak_time_constraints(self):
@@ -355,7 +356,7 @@ class JSONExportTest(TestCase):
                     # add time constraints for AK category
                     if slot.ak.category:
                         category_constraints = AKCategory.create_category_optimizer_constraints(
-                            [slot.ak.category]
+                                [slot.ak.category]
                         )
                         time_constraints |= category_constraints
 
@@ -363,7 +364,7 @@ class JSONExportTest(TestCase):
                         # fixed slot
                         time_constraints.add(f"fixed-akslot-{slot.pk}")
                     elif not Availability.is_event_covered(
-                        slot.event, slot.ak.availabilities.all()
+                            slot.event, slot.ak.availabilities.all()
                     ):
                         # restricted AK availability
                         time_constraints.add(f"availability-ak-{slot.ak.pk}")
@@ -375,15 +376,15 @@ class JSONExportTest(TestCase):
                             continue
 
                         if not Availability.is_event_covered(
-                            slot.event, owner.availabilities.all()
+                                slot.event, owner.availabilities.all()
                         ):
                             time_constraints.add(f"availability-person-{owner.pk}")
 
                     ak = self.export_objects["aks"][slot.pk]
                     self.assertEqual(
-                        set(ak["time_constraints"]),
-                        time_constraints,
-                        f"Time constraints for slot {slot.pk} not as expected",
+                            set(ak["time_constraints"]),
+                            time_constraints,
+                            f"Time constraints for slot {slot.pk} not as expected",
                     )
 
     def test_all_rooms_exported(self):
@@ -393,9 +394,9 @@ class JSONExportTest(TestCase):
                 self.set_up_event(event=event)
 
                 self.assertEqual(
-                    {room.pk for room in self.rooms},
-                    self.export_objects["rooms"].keys(),
-                    "Exported Rooms do not match the Rooms of the event",
+                        {room.pk for room in self.rooms},
+                        self.export_objects["rooms"].keys(),
+                        "Exported Rooms do not match the Rooms of the event",
                 )
 
     def test_room_capacity(self):
@@ -429,13 +430,13 @@ class JSONExportTest(TestCase):
 
                     # test if time availability of room is restricted
                     if not Availability.is_event_covered(
-                        event, room.availabilities.all()
+                            event, room.availabilities.all()
                     ):
                         time_constraints.add(f"availability-room-{room.pk}")
 
                     export_room = self.export_objects["rooms"][room.pk]
                     self.assertEqual(
-                        time_constraints, set(export_room["time_constraints"])
+                            time_constraints, set(export_room["time_constraints"])
                     )
 
     def test_room_fulfilledroomconstraints(self):
@@ -447,13 +448,13 @@ class JSONExportTest(TestCase):
                 for room in self.rooms:
                     # room properties
                     fulfilled_room_constraints = set(
-                        room.properties.values_list("name", flat=True)
+                            room.properties.values_list("name", flat=True)
                     )
 
                     # proxy rooms
                     if not any(
-                        constr.startswith("proxy")
-                        for constr in fulfilled_room_constraints
+                            constr.startswith("proxy")
+                            for constr in fulfilled_room_constraints
                     ):
                         fulfilled_room_constraints.add("no-proxy")
 
@@ -461,16 +462,16 @@ class JSONExportTest(TestCase):
 
                     export_room = self.export_objects["rooms"][room.pk]
                     self.assertEqual(
-                        fulfilled_room_constraints,
-                        set(export_room["fulfilled_room_constraints"]),
+                            fulfilled_room_constraints,
+                            set(export_room["fulfilled_room_constraints"]),
                     )
 
     def _get_timeslot_start_end(self, timeslot):
         start = datetime.strptime(timeslot["info"]["start"], "%Y-%m-%d %H:%M").replace(
-            tzinfo=self.event.timezone
+                tzinfo=self.event.timezone
         )
         end = datetime.strptime(timeslot["info"]["end"], "%Y-%m-%d %H:%M").replace(
-            tzinfo=self.event.timezone
+                tzinfo=self.event.timezone
         )
         return start, end
 
@@ -479,10 +480,10 @@ class JSONExportTest(TestCase):
         for timeslot in chain.from_iterable(self.export_dict["timeslots"]["blocks"]):
             for constr in timeslot["fulfilled_time_constraints"]:
                 if constr.startswith("availability-cat-"):
-                    cat_name = constr[len("availability-cat-") :]
+                    cat_name = constr[len("availability-cat-"):]
                     start, end = self._get_timeslot_start_end(timeslot)
                     export_slot_cat_avails[cat_name].append(
-                        Availability(event=self.event, start=start, end=end)
+                            Availability(event=self.event, start=start, end=end)
                     )
         return {
             cat_name: Availability.union(avail_lst)
@@ -495,9 +496,9 @@ class JSONExportTest(TestCase):
             default_slots_avails = defaultdict(list)
             for def_slot in DefaultSlot.objects.filter(event=self.event).all():
                 avail = Availability(
-                    event=self.event,
-                    start=def_slot.start.astimezone(self.event.timezone),
-                    end=def_slot.end.astimezone(self.event.timezone),
+                        event=self.event,
+                        start=def_slot.start.astimezone(self.event.timezone),
+                        end=def_slot.end.astimezone(self.event.timezone),
                 )
                 for cat in def_slot.primary_categories.all():
                     default_slots_avails[cat.name].append(avail)
@@ -525,7 +526,7 @@ class JSONExportTest(TestCase):
         event_avail = Availability(event=self.event, start=start, end=end)
 
         category_names = AKCategory.objects.filter(event=self.event).values_list(
-            "name", flat=True
+                "name", flat=True
         )
         return {cat_name: [event_avail] for cat_name in category_names}
 
@@ -537,14 +538,14 @@ class JSONExportTest(TestCase):
 
                 prev_end = None
                 for timeslot in chain.from_iterable(
-                    self.export_dict["timeslots"]["blocks"]
+                        self.export_dict["timeslots"]["blocks"]
                 ):
                     start, end = self._get_timeslot_start_end(timeslot)
                     self.assertLess(start, end)
 
                     delta = end - start
                     self.assertAlmostEqual(
-                        delta.total_seconds() / (3600), 1 / self.slots_in_an_hour
+                            delta.total_seconds() / (3600), 1 / self.slots_in_an_hour
                     )
 
                     if prev_end is not None:
@@ -557,7 +558,7 @@ class JSONExportTest(TestCase):
             with self.subTest(event=event):
                 self.set_up_event(event=event)
                 category_names = AKCategory.objects.filter(event=event).values_list(
-                    "name", flat=True
+                        "name", flat=True
                 )
 
                 export_cat_avails = self._get_cat_availability_in_export()
@@ -567,30 +568,30 @@ class JSONExportTest(TestCase):
                     for avail in cat_avails[cat_name]:
                         # check that all category availabilities are covered
                         self.assertTrue(
-                            avail.is_covered(export_cat_avails[cat_name]),
-                            f"AKCategory {cat_name}: avail ({avail.start} - {avail.end}) "
-                            f"not covered by {[f'({a.start} - {a.end})' for a in export_cat_avails[cat_name]]}",
+                                avail.is_covered(export_cat_avails[cat_name]),
+                                f"AKCategory {cat_name}: avail ({avail.start} - {avail.end}) "
+                                f"not covered by {[f'({a.start} - {a.end})' for a in export_cat_avails[cat_name]]}",
                         )
 
     def _is_restricted_and_contained_slot(
-        self, slot: Availability, availabilities: list[Availability]
+            self, slot: Availability, availabilities: list[Availability]
     ) -> bool:
         """Test if object is not available for whole event and may happen during slot."""
         return slot.is_covered(availabilities) and not Availability.is_event_covered(
-            self.event, availabilities
+                self.event, availabilities
         )
 
     def _is_ak_fixed_in_slot(
-        self,
-        ak_slot: AKSlot,
-        timeslot_avail: Availability,
+            self,
+            ak_slot: AKSlot,
+            timeslot_avail: Availability,
     ) -> bool:
         if not ak_slot.fixed or ak_slot.start is None:
             return False
         ak_slot_avail = Availability(
-            event=self.event,
-            start=ak_slot.start.astimezone(self.event.timezone),
-            end=ak_slot.end.astimezone(self.event.timezone),
+                event=self.event,
+                start=ak_slot.start.astimezone(self.event.timezone),
+                end=ak_slot.end.astimezone(self.event.timezone),
         )
         return timeslot_avail.overlaps(ak_slot_avail, strict=True)
 
@@ -603,12 +604,12 @@ class JSONExportTest(TestCase):
                 cat_avails = self._get_cat_availability()
                 num_blocks = len(self.export_dict["timeslots"]["blocks"])
                 for block_idx, block in enumerate(
-                    self.export_dict["timeslots"]["blocks"]
+                        self.export_dict["timeslots"]["blocks"]
                 ):
                     for timeslot in block:
                         start, end = self._get_timeslot_start_end(timeslot)
                         timeslot_avail = Availability(
-                            event=self.event, start=start, end=end
+                                event=self.event, start=start, end=end
                         )
 
                         fulfilled_time_constraints = set()
@@ -617,20 +618,20 @@ class JSONExportTest(TestCase):
                         if self.event.reso_deadline is not None:
                             # timeslot ends before deadline
                             if end < self.event.reso_deadline.astimezone(
-                                self.event.timezone
+                                    self.event.timezone
                             ):
                                 fulfilled_time_constraints.add("resolution")
 
                         # add category constraints
                         fulfilled_time_constraints |= (
                             AKCategory.create_category_optimizer_constraints(
-                                [
-                                    cat
-                                    for cat in AKCategory.objects.filter(
-                                        event=self.event
+                                    [
+                                        cat
+                                        for cat in AKCategory.objects.filter(
+                                            event=self.event
                                     ).all()
-                                    if timeslot_avail.is_covered(cat_avails[cat.name])
-                                ]
+                                        if timeslot_avail.is_covered(cat_avails[cat.name])
+                                    ]
                             )
                         )
 
@@ -639,8 +640,8 @@ class JSONExportTest(TestCase):
                             f"availability-person-{owner.id}"
                             for owner in self.owners
                             if self._is_restricted_and_contained_slot(
-                                timeslot_avail,
-                                Availability.union(owner.availabilities.all()),
+                                    timeslot_avail,
+                                    Availability.union(owner.availabilities.all()),
                             )
                         }
 
@@ -649,8 +650,8 @@ class JSONExportTest(TestCase):
                             f"availability-room-{room.id}"
                             for room in self.rooms
                             if self._is_restricted_and_contained_slot(
-                                timeslot_avail,
-                                Availability.union(room.availabilities.all()),
+                                    timeslot_avail,
+                                    Availability.union(room.availabilities.all()),
                             )
                         }
 
@@ -659,8 +660,8 @@ class JSONExportTest(TestCase):
                             f"availability-participant-{participant.id}"
                             for participant in self.participants
                             if self._is_restricted_and_contained_slot(
-                                timeslot_avail,
-                                Availability.union(participant.availabilities.all()),
+                                    timeslot_avail,
+                                    Availability.union(participant.availabilities.all()),
                             )
                         }
 
@@ -669,8 +670,8 @@ class JSONExportTest(TestCase):
                             f"availability-ak-{ak.id}"
                             for ak in AK.objects.filter(event=event)
                             if self._is_restricted_and_contained_slot(
-                                timeslot_avail,
-                                Availability.union(ak.availabilities.all()),
+                                    timeslot_avail,
+                                    Availability.union(ak.availabilities.all()),
                             )
                         }
                         fulfilled_time_constraints |= {
@@ -686,8 +687,8 @@ class JSONExportTest(TestCase):
                         }
 
                         self.assertEqual(
-                            fulfilled_time_constraints,
-                            set(timeslot["fulfilled_time_constraints"]),
+                                fulfilled_time_constraints,
+                                set(timeslot["fulfilled_time_constraints"]),
                         )
 
     def test_timeslots_info(self):
@@ -697,8 +698,8 @@ class JSONExportTest(TestCase):
                 self.set_up_event(event=event)
 
                 self.assertAlmostEqual(
-                    self.export_dict["timeslots"]["info"]["duration"],
-                    float(self.event.export_slot),
+                        self.export_dict["timeslots"]["info"]["duration"],
+                        float(self.event.export_slot),
                 )
 
                 block_names = []
@@ -713,20 +714,20 @@ class JSONExportTest(TestCase):
                     if block_start.date() == block_end.date():
                         # same day
                         time_str = (
-                            block_start.strftime("%H:%M")
-                            + " - "
-                            + block_end.strftime("%H:%M")
+                                block_start.strftime("%H:%M")
+                                + " - "
+                                + block_end.strftime("%H:%M")
                         )
                     else:
                         # different days
                         time_str = (
-                            block_start.strftime("%a %H:%M")
-                            + " - "
-                            + block_end.strftime("%a %H:%M")
+                                block_start.strftime("%a %H:%M")
+                                + " - "
+                                + block_end.strftime("%a %H:%M")
                         )
                     block_names.append([start_day, time_str])
                 self.assertEqual(
-                    block_names, self.export_dict["timeslots"]["info"]["blocknames"]
+                        block_names, self.export_dict["timeslots"]["info"]["blocknames"]
                 )
 
     def _owner_has_ak(self, owner: AKOwner) -> bool:
@@ -745,9 +746,9 @@ class JSONExportTest(TestCase):
                         participant_ids.add(idx)
 
                 self.assertEqual(
-                    participant_ids,
-                    self.export_objects["participants"].keys(),
-                    "Exported Participants does not match the Participants of the event",
+                        participant_ids,
+                        self.export_objects["participants"].keys(),
+                        "Exported Participants does not match the Participants of the event",
                 )
 
     def test_participant_info(self):
@@ -761,7 +762,7 @@ class JSONExportTest(TestCase):
                         participant.pk
                     ]
                     self.assertEqual(
-                        str(participant), export_participant["info"]["name"]
+                            str(participant), export_participant["info"]["name"]
                     )
 
                 for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
@@ -769,7 +770,7 @@ class JSONExportTest(TestCase):
                         continue
                     export_participant = self.export_objects["participants"][idx]
                     self.assertEqual(
-                        str(owner) + " [AKOwner]", export_participant["info"]["name"]
+                            str(owner) + " [AKOwner]", export_participant["info"]["name"]
                     )
 
     def test_participant_timeconstraints(self):
@@ -785,21 +786,21 @@ class JSONExportTest(TestCase):
                     time_constraints = set()
                     participant_avails = participant.availabilities.all()
                     if participant_avails and not Availability.is_event_covered(
-                        self.event, participant_avails
+                            self.event, participant_avails
                     ):
                         # participant has restricted availability
                         if AKPreference.objects.filter(
-                            event=self.event,
-                            participant=participant,
-                            preference=AKPreference.PreferenceLevel.REQUIRED,
+                                event=self.event,
+                                participant=participant,
+                                preference=AKPreference.PreferenceLevel.REQUIRED,
                         ):
                             # partipant is actually required for AKs
                             time_constraints.add(
-                                f"availability-participant-{participant.pk}"
+                                    f"availability-participant-{participant.pk}"
                             )
 
                     self.assertEqual(
-                        set(export_participant["time_constraints"]), time_constraints
+                            set(export_participant["time_constraints"]), time_constraints
                     )
 
                 # dummy participants have no time constraints
@@ -822,7 +823,7 @@ class JSONExportTest(TestCase):
                         constr.name for constr in participant.requirements.all()
                     ]
                     self.assertCountEqual(
-                        export_participant["room_constraints"], room_constraints
+                            export_participant["room_constraints"], room_constraints
                     )
 
                 for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
@@ -855,11 +856,11 @@ class JSONExportTest(TestCase):
                     preferences = [
                         _preference_json(pref)
                         for pref in AKPreference.objects.filter(
-                            participant=participant, preference__gt=0
+                                participant=participant, preference__gt=0
                         ).select_related("slot")
                     ]
                     self.assertCountEqual(
-                        export_participant["preferences"], preferences
+                            export_participant["preferences"], preferences
                     )
 
                 for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
@@ -876,5 +877,5 @@ class JSONExportTest(TestCase):
                     ]
                     export_participant = self.export_objects["participants"][idx]
                     self.assertCountEqual(
-                        export_participant["preferences"], preferences
+                            export_participant["preferences"], preferences
                     )
