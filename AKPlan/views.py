@@ -260,6 +260,11 @@ class PlanScreenView(PlanIndexView):
         self.earliest_start_hour = 23
         self.latest_end_hour = 1
         context = super().get_context_data(object_list=object_list, **kwargs)
+
+        # Show rooms as flat list without hierarchy (location only as part of the room title)
+        for r in context["rooms_encoded"]:
+            del r['parentId']
+
         context["start"] = self.start
         context["end"] = self.event.end
         context["earliest_start_hour"] = self.earliest_start_hour
