@@ -626,6 +626,23 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
     ak_details_link.short_description = _('AK Details')
 
 
+class AvailabilityAdminForm(forms.ModelForm):
+    """
+    Modified admin form for Availability, to be used in :class:`AvailabilityAdmin`
+    """
+    def __init__(self, *args, **kwargs):
+        from AKPreference.models import EventParticipant
+
+        super().__init__(*args, **kwargs)
+        # Filter possible values for foreign keys when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["person"].queryset = AKOwner.objects.filter(event=self.instance.event)
+            self.fields["room"].queryset = Room.objects.filter(event=self.instance.event)
+            self.fields["ak"].queryset = AK.objects.filter(event=self.instance.event)
+            self.fields["ak_category"].queryset = AKCategory.objects.filter(event=self.instance.event)
+            self.fields["participant"].queryset = EventParticipant.objects.filter(event=self.instance.event)
+
+
 @admin.register(Availability)
 class AvailabilityAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
     """
@@ -634,6 +651,7 @@ class AvailabilityAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
     list_display = ['__str__', 'event']
     list_filter = ['event']
     actions = ['shift_availabilities']
+    form = AvailabilityAdminForm
 
     def get_urls(self):
         """

@@ -3,7 +3,19 @@ from django.contrib import admin
 
 from AKPreference.models import AKPreference, EventParticipant
 from AKModel.admin import PrepopulateWithNextActiveEventMixin, EventRelatedFieldListFilter
-from AKModel.models import AK
+from AKModel.models import AK, AKRequirement
+
+
+class EventParticipantAdminForm(forms.ModelForm):
+    """
+    Adapted admin form for EventParticipant for usage in :class:`EventParticipantAdmin`)
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter possible values for foreign keys & m2m when event is specified
+        if hasattr(self.instance, "event") and self.instance.event is not None:
+            self.fields["requirements"].queryset = AKRequirement.objects.filter(event=self.instance.event)
+
 
 @admin.register(EventParticipant)
 class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
@@ -15,6 +27,7 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
     list_filter = ['event', 'institution']
     list_editable = []
     ordering = ['name']
+    form = EventParticipantAdminForm
 
 
 class AKPreferenceAdminForm(forms.ModelForm):
