@@ -1,24 +1,45 @@
 {% extends "admin/base_site.html" %}
 
 {% load tz %}
+{% load i18n %}
+{% load fontawesome_6 %}
+
+{% block extrahead %}
+    {{ block.super }}
+
+    <script>
+        $(document).ready(function() {
+            // JSON highlighting.
+            prettyPrint();
+        });
+
+        function to_clipboard() {
+            const exportTextarea = document.getElementById("textarea_export_json");
+            exportTextarea.select();
+            navigator.clipboard.writeText(exportTextarea.value);
+        }
+    </script>
+{% endblock %}
 
 {% block content %}
 
 <div class="mb-3">
-  <label for="export_single_line" class="form-label">Exported JSON:</label>
-  <input readonly type="text" name="export_single_line" class="form-control form-control-sm" value="{{ json_data_oneline }}"  style="font-family:var(--font-family-monospace);">
+  <label for="export_single_line" class="form-label">{% translate 'Exported JSON:' %}</label>
+  <input readonly type="text" name="export_single_line" class="form-control form-control-sm"
+         value="{{ json_data_oneline }}" style="font-family:var(--font-family-monospace);">
 </div>
 
 <div class="mb-3">
-  <label class="form-label">Exported JSON (indented for better readability):</label>
-  <pre class="prettyprint border rounded p-2">{{ json_data }}</pre>
+    <div class="clearfix mb-1">
+        <div class="float-end">
+            <button class="btn btn-info" onclick="to_clipboard()">
+                {% fa6_icon "copy" %} {% translate 'Copy' %}
+            </button>
+        </div>
+        <label class="form-label">{% translate 'Exported JSON (indented for better readability):' %}</label>
+    </div>
+    <textarea class="d-none" id="textarea_export_json">{{ json_data }}</textarea>
+    <pre class="prettyprint border rounded p-2">{{ json_data }}</pre>
 </div>
 
-<script>
-  $(document).ready(function() {
-    // JSON highlighting.
-    prettyPrint();
-    }
-  )
-</script>
 {% endblock %}
