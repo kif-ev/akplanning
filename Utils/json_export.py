@@ -28,6 +28,9 @@ if __name__ == "__main__":
 
     # Loop over all dumped entries
     for entry in exported_entries:
+        # Remove info about users that changed AKs in backend to avoid problems on import
+        if entry['model'] == "AKModel.historicalak":
+            entry['fields']['history_user'] = None
         # Handle all entries with event reference
         if "event" in entry['fields']:
             event = int(entry['fields']['event'])

@@ -16,7 +16,7 @@ if [ "$3" = "--prod" ]; then
 fi
 
 mkdir -p ./backups/
-python manage.py dumpdata --natural-foreign --natural-primary AKDashboard AKModel AKOnline AKPlan AKScheduling AKSubmission --indent=2 > "backups/akplanning_only.json" --traceback
+python manage.py dumpdata --natural-foreign --natural-primary AKDashboard AKModel AKOnline AKPlan AKScheduling AKSubmission AKPreference --indent=2 > "backups/akplanning_only.json" --traceback
 
 python ./Utils/json_export.py "$1" "$2"
 
