@@ -40,6 +40,27 @@ def aks_with_unfulfillable_requirements(event: Event):
             aks_not_possible.append(ak)
     return aks_not_possible
 
+def aks_too_big(event: Event):
+    """
+    Get all AKs that are too big to fit into any room of the event.
+
+    :param event: Event to check
+    :return: List of all AKs that are too big to fit into any room.
+    :rtype: List[AK]
+    """
+    # Get the maximum capacity of all rooms of the event
+    biggest_room = event.rooms.order_by('-capacity').first()
+    if biggest_room is None:
+        return []
+    max_room_capacity = biggest_room.capacity
+
+    # Loop over all AKs and check whether they fit into at least one room
+    aks_too_big = []
+    for ak in event.ak_set.all():
+        if ak.interest > max_room_capacity:
+            aks_too_big.append(ak)
+    return aks_too_big
+
 
 def aks_not_in_default_schedules(event: Event):
     """
