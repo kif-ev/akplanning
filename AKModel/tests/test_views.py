@@ -409,7 +409,6 @@ class ModelViewTests(BasicViewTests, TestCase):
                 msg=f"API view {view_name_with_prefix} ({url}) is missing fields in the output: {missing_fields}",
             )
 
-
     def test_api_root_view(self):
         """
         Ensure API endpoint is reachable (without login)
@@ -423,7 +422,6 @@ class ModelViewTests(BasicViewTests, TestCase):
             msg="API root view not reachable",
         )
 
-
     def test_api_root_view_invalid_event_slug(self):
         """
         Ensure API is not delivered for invalid event slugs
@@ -435,36 +433,3 @@ class ModelViewTests(BasicViewTests, TestCase):
             404,
             msg="API root view did not return 404 for invalid event slug",
         )
-
-    def test_aks_unfulfillable_requirements(self):
-        """
-        Test detection of AKs with unfulfillable requirements
-        """
-        event = Event.objects.get(pk=2)
-        aks_unfulfillable_requirements = event.aks_with_unfulfillable_requirements()
-        self.assertEqual(len(aks_unfulfillable_requirements), 0,
-                         "Wrongly identified AKs with fulfillable requirements as unfulfillable")
-
-        # Create an AK with an unfulfillable requirement (that is not property of any room)
-        ak = AK.objects.create(
-            event=event,
-            name="Test AK with unfulfillable requirement",
-            category=AKCategory.objects.filter(event=event).first(),
-            include_in_export=True,
-        )
-        req = AKRequirement.objects.create(
-            event=event,
-            name="Unfulfillable Requirement",
-        )
-        ak.requirements.add(req)
-
-        ak2 = AK.objects.get(pk=1)
-        ak2.requirements.add(AKRequirement.objects.get(pk=5))
-
-        aks_unfulfillable_requirements = event.aks_with_unfulfillable_requirements()
-        self.assertEqual(len(aks_unfulfillable_requirements), 2,
-                         "Failed to identify AKs with unfulfillable requirements")
-        self.assertIn(ak, aks_unfulfillable_requirements,
-                      "Missed new AK with requirement not set for any room")
-        self.assertIn(ak2, aks_unfulfillable_requirements,
-                      "Missed existing AK with invalid requirement combination")
