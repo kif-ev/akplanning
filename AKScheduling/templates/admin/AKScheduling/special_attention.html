@@ -72,6 +72,32 @@
         {% endfor %}
     </ul>
 
+    <h4 class="mt-4 mb-4">{% trans "AKs that cannot be put in any default slot" %}</h4>
+    <ul>
+        {% for ak in aks_no_default_slot %}
+            <li>
+                <a href="{{ ak.detail_url }}">{{ ak }} ({{ ak.durations_list }})</a>
+                <a href="{{ ak.edit_url }}">{% fa6_icon "pen-to-square" %}</a>
+                <a class="link-warning" href="{% url "admin:AKModel_ak_change" object_id=ak.pk %}">{% fa6_icon "pen-to-square" %}</a>
+            </li>
+        {% empty %}
+            <li>-</li>
+        {% endfor %}
+    </ul>
+
+    <h4 class="mt-4 mb-4">{% trans "AKs that cannot be put a default slot of their category" %}</h4>
+    <ul>
+        {% for ak in aks_no_default_slot_for_category %}
+            <li>
+                <a href="{{ ak.detail_url }}">{{ ak }} ({{ ak.category }})</a>
+                <a href="{{ ak.edit_url }}">{% fa6_icon "pen-to-square" %}</a>
+                <a class="link-warning" href="{% url "admin:AKModel_ak_change" object_id=ak.pk %}">{% fa6_icon "pen-to-square" %}</a>
+            </li>
+        {% empty %}
+            <li>-</li>
+        {% endfor %}
+    </ul>
+
     <div class="mt-5">
         <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %}</a>
     </div>
