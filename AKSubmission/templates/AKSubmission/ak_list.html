@@ -40,7 +40,7 @@
     {% include "AKSubmission/ak_table.html" %}
 </noscript>
 
-<ul class="nav nav-tabs" style="margin-bottom:15px">
+<ul class="nav nav-tabs w-100 mb-3">
     {% for category, _ in categories_with_aks %}
         <li class="nav-item">
             <a class="nav-link {% if category.name == active_category %}active{% endif %}" data-bs-toggle="tab"

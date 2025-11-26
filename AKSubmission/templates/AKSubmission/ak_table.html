@@ -8,7 +8,7 @@
     <tr>
         <th>{% trans "Name" %}</th>
         <th>{% trans "Who?" %}</th>
-        <th>{% trans 'Category' %}</th>
+        <th class="d-none d-md-table-cell">{% trans 'Category' %}</th>
         {% if show_types %}
             <th>{% trans 'Types' %}</th>
         {% endif %}
@@ -39,7 +39,7 @@
                     {% include "AKSubmission/owners_list.html" with owners=ak.owners %}
                 {% endif %}
             </td>
-            <td>{% category_linked_badge ak.category event.slug %}</td>
+            <td class="d-none d-md-table-cell">{% category_linked_badge ak.category event.slug %}</td>
             {% if show_types %}
                 <td>
                     {% for aktype in ak.types.all %}
@@ -70,13 +70,11 @@
             </td>
         </tr>
         <tr>
-            <td colspan="5" class="small">
-                <div class="d-block d-md-none">
-                    <details>
+            <td colspan="5" class="p-2 p-md-1">
+                    <details class="d-block d-md-none">
                         <summary>{% trans "Details" %}</summary>
                         {{ ak.description|linebreaks }}
                     </details>
-                </div>
                 <div class="d-none d-md-block">
                     {{ ak.description|linebreaks }}
                 </div>
