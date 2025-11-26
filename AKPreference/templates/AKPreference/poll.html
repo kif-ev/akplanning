@@ -50,18 +50,18 @@
 
                 {{ formset.management_form }}
 
-                <div class="container radio-flex">
+                <div class="container radio-flex px-0">
                     {% for category, forms in grouped_forms %}
                         <details open>
                             <summary
-                                    class="ak-category-header">{{ category.name }}</summary>
-                            <div class="row row-cols-1 row-cols-lg-2">
+                                    class="ak-category-header mt-0">{{ category.name }}</summary>
+                            <div class="accordion">
                                 {% for innerform in forms %}
                                     {% bootstrap_form_errors innerform type='non_fields' %}
                                     {% for field in innerform.hidden_fields %}
                                         {{ field }}
                                     {% endfor %}
-                                    <div class="container radio-group col">
+                                    <div class="container radio-group col mb-0">
                                         <div class="container radio-info">
                                             <details>
                                                 <summary class="ak-header">{{ innerform.preference.label }}

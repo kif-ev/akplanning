@@ -62,3 +62,34 @@ a:hover.btn {
     font-size: 5vw;
     text-align: center;
 }
+
+.position-responsive {
+    position: static;
+}
+
+/* For Mobile/smaller screen-sizes */
+@media (max-width: 767.98px) {
+    /* btn behaves like btn-lg */
+    .btn {
+        padding: var(--bs-btn-padding-y-lg, 0.7rem) var(--bs-btn-padding-x-lg, 1rem);
+        font-size: var(--bs-btn-font-size-lg, 1.125rem);
+        line-height: var(--bs-btn-line-height-lg, 1.2);
+        border-radius: var(--bs-btn-border-radius-lg, 0.5rem);
+    }
+
+}
+
+@media (max-width: 576px) {
+    .btn-lang {
+        padding: 0.3rem 0.5rem;
+    }
+    .position-responsive {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+
+    .breadcrumb-mobile {
+        width: calc(100% - 3.5rem)
+    }
+}

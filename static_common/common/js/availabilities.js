@@ -17,12 +17,16 @@ function createAvailabilityEditors(timezone, language, startDate, endDate, slotR
         data_field.hide();
 
         // Add inputs to add slots without the need to click and drag
-        let manualSlotAdderSource = "<form id='formManualAdd'><table class='table table-responsive mb-0'><tr>" +
-            "<td style='vertical-align: middle;'><input type='datetime-local' id='inputStart' value='" + startDate + "' min='" + startDate + "' max='" + endDate + "'></td>" +
-            "<td style='vertical-align: middle;'><i class=\"fas fa-long-arrow-alt-right\"></i></td>" +
-            "<td style='vertical-align: middle;'><input type='datetime-local' id='inputEnd' value='" + endDate + "' min='" + startDate + "' max='" + endDate + "'></td>" +
-            "<td><button class='btn btn-primary' type='submit'><i class=\"fas fa-plus\"></i></button></td></tr></table></form>";
-        let manualSlotAdder = $(manualSlotAdderSource);
+        let manualSlotAdderSource = 
+            "<form id='formManualAdd'>"+
+            "<div class='d-flex align-items-center justify-content-start gap-2 flex-wrap py-1 mb-0'>" +
+                "<input type='datetime-local' id='inputStart' value='" + startDate + "' min='" + startDate + "' max='" + endDate + "'>" +
+                "<i class='fas fa-long-arrow-alt-right'></i>" +
+                "<input type='datetime-local' id='inputEnd' value='" + endDate + "' min='" + startDate + "' max='" + endDate + "'>" +
+                "<button class='btn btn-primary' type='submit'><i class='fas fa-plus'></i></button>" +
+            "</div>" +
+            "</form>";
+            let manualSlotAdder = $(manualSlotAdderSource);
         editor.after(manualSlotAdder);
 
         $('#formManualAdd').submit(function(event) {
