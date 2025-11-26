@@ -9,7 +9,7 @@ from AKModel.metaviews import status_manager
 from AKModel.metaviews.status import TemplateStatusWidget
 from AKModel.models import AKSlot, AKTrack, Event, AK, AKCategory
 from AKModel.metaviews.admin import EventSlugMixin, FilterByEventSlugMixin, AdminViewMixin, IntermediateAdminView
-from AKScheduling.checks import aks_with_unfulfillable_requirements
+from AKScheduling.checks import aks_with_unfulfillable_requirements, aks_not_in_default_schedules
 from AKScheduling.forms import AKInterestForm, AKAddSlotForm
 
 
@@ -134,6 +134,7 @@ class SpecialAttentionAKsAdminView(AdminViewMixin, DetailView):
         context["aks_without_slots"] = aks_without_slots
         context["aks_without_availabilities"] = aks_without_availabilities
         context["aks_unfulfillable_requirements"] = aks_with_unfulfillable_requirements(context["event"])
+        context["aks_no_default_slot"], context["aks_no_default_slot_for_category"] = aks_not_in_default_schedules(context["event"])
 
         return context
 
