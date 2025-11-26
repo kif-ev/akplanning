@@ -62,13 +62,13 @@
 <body>
 {% block language-switcher %}
     <!-- language switcher -->
-    <div class="container d-flex flex-row-reverse" style="margin-top:20px">
+    <div class="position-responsive p-2 d-flex flex-row-reverse">
         <form action="{% url 'set_language' %}"
               method="post"
               class="form-inline"
               name="language-form"
               id="language-switcher"
-              style="flex-direction: column;">
+              >
             {% csrf_token %}
 
             <input name="next" type="hidden" value="{{ request.path }}"/>
@@ -77,11 +77,10 @@
             {% get_available_languages as LANGUAGES %}
             {% get_language_info_list for LANGUAGES as languages %}
 
-            <div class="align-content-end">
+            <div class="align-content-end d-flex flex-column flex-sm-row gap-1">
                 {% for language in languages %}
-                    &nbsp;&nbsp;
                     <button type="submit"
-                            class="btn {% if language.code == LANGUAGE_CODE %}btn-info{% else %}btn-outline-info{% endif %}"
+                            class="btn btn-lang {% if language.code == LANGUAGE_CODE %}btn-info{% else %}btn-outline-info{% endif %}"
                             name="language"
                             value="{{ language.code }}"
                             style="align-self: end;">
@@ -93,12 +92,12 @@
     </div>
 {% endblock %}
 
-<div class="container mt-3 mb-4">
-    <ol class="breadcrumb p-3">
+<nav class="container p-1" aria-label="breadcrumb">
+    <ol class="breadcrumb breadcrumb-mobile p-3">
         {% block breadcrumbs %}
         {% endblock %}
     </ol>
-</div>
+</nav>
 
 <div class="container">
     {% block content %}
