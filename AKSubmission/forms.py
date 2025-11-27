@@ -165,9 +165,8 @@ class AKSubmissionForm(AKForm):
         self.fields["durations"] = forms.CharField(
                 widget=forms.Textarea,
                 label=_("Duration(s)"),
-                help_text=_(
-                        "Give the duration for your AK in hours, as a decimal number and without a unit symbol. "
-                        "For every time your AK should take place, enter one line with one duration."),
+                help_text=_("Give the duration for your AK in hours, as a decimal number and without a unit symbol. "
+                            "For every time your AK should take place, enter one line with one duration."),
                 initial=self.initial.get('event').default_slot
         )
 

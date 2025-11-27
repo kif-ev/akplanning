@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-24 14:20+0000\n"
+"POT-Creation-Date: 2025-11-27 14:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,10 +26,10 @@ msgstr "\"%(duration)s\" ist keine gültige Dauer"
 msgid "Duration(s)"
 msgstr "Dauer(n)"
 
-#: AKSubmission/forms.py:169
+#: AKSubmission/forms.py:168
 msgid ""
 "Give the duration for your AK in hours, as a decimal number and without a "
-"unit symbol.For every time your AK should take place, enter one line with "
+"unit symbol. For every time your AK should take place, enter one line with "
 "one duration."
 msgstr ""
 "Gib die Dauer deines AKs in Stunden an, als Dezimalzahl und ohne Einheit. "
@@ -130,11 +130,7 @@ msgstr ""
 "                    "
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:197
-#, fuzzy, python-format
-#| msgid ""
-#| "This AK starts in <span v-"
-#| "html=\"timeUntilStart\">%(featured_slot_remaining)s</span> minute(s) in "
-#| "%(room)s.&nbsp;"
+#, python-format
 msgid ""
 "This AK starts in\n"
 "                            <span v-"
@@ -325,11 +321,11 @@ msgid "Add AK"
 msgstr "AK hinzufügen"
 
 #: AKSubmission/templates/AKSubmission/ak_table.html:52
-#: AKSubmission/templates/AKSubmission/ak_table.html:76
+#: AKSubmission/templates/AKSubmission/ak_table.html:75
 msgid "Details"
 msgstr "Details"
 
-#: AKSubmission/templates/AKSubmission/ak_table.html:87
+#: AKSubmission/templates/AKSubmission/ak_table.html:85
 msgid "There are no AKs in this category yet"
 msgstr "Es gibt noch keine AKs in dieser Kategorie"
 
@@ -448,7 +444,6 @@ msgid "Continue with that name?"
 msgstr "Mit dem Namen fortfahren?"
 
 #: AKSubmission/templates/AKSubmission/submit_new.html:81
-
 msgid ""
 "Your AK name (or short name) starts with or contains the word \"AK\"."
 "<br><br>This\n"
@@ -551,3 +546,6 @@ msgstr "Alle Nachrichten löschen"
 #: AKSubmission/views.py:748
 msgid "Message to organizers successfully saved"
 msgstr "Nachricht an die Organisator*innen erfolgreich gespeichert"
+
+#~ msgid "test_english"
+#~ msgstr "test_deutsch"

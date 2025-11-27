@@ -126,8 +126,6 @@ msgstr ""
 "exportiert: {aks_list}"
 
 #: AKSolverInterface/views.py:77
-#, fuzzy
-#| msgid "No AK Slots are exported"
 msgid "No AKSlots are exported"
 msgstr "Keine AK Slots werden exportiert"
 
