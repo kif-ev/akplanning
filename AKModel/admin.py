@@ -1,15 +1,15 @@
 from django import forms
 from django.apps import apps
 from django.contrib import admin, messages
-from django.contrib.admin import SimpleListFilter, RelatedFieldListFilter, action, display
+from django.contrib.admin import action, display, RelatedFieldListFilter, SimpleListFilter
 from django.contrib.admin.utils import unquote
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import User # pylint: disable=E5142
+from django.contrib.auth.models import User  # pylint: disable=E5142
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, F
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy, path
+from django.shortcuts import redirect, render
+from django.urls import path, reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -18,12 +18,12 @@ from simple_history.admin import SimpleHistoryAdmin
 
 from AKModel.availability.models import Availability
 from AKModel.forms import RoomFormWithAvailabilities
-from AKModel.models import Event, AKOwner, AKCategory, AKTrack, AKRequirement, AK, AKSlot, Room, AKOrgaMessage, \
-    ConstraintViolation, DefaultSlot, AKType
-from AKModel.urls import get_admin_urls_event_wizard, get_admin_urls_event
-from AKModel.views.ak import AKResetInterestView, AKResetInterestCounterView, AKMoveToTrashView, AKRestoreFromTrashView
-from AKModel.views.manage import CVMarkResolvedView, CVSetLevelViolationView, CVSetLevelWarningView, ClearScheduleView, \
-    SlotsApplyOffsetView, AvailabilitiesApplyOffsetView
+from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKRequirement, AKSlot, AKTrack, AKType, \
+    ConstraintViolation, DefaultSlot, Event, Room
+from AKModel.urls import get_admin_urls_event, get_admin_urls_event_wizard
+from AKModel.views.ak import AKMoveToTrashView, AKResetInterestCounterView, AKResetInterestView, AKRestoreFromTrashView
+from AKModel.views.manage import AvailabilitiesApplyOffsetView, ClearScheduleView, CVMarkResolvedView, \
+    CVSetLevelViolationView, CVSetLevelWarningView, SlotsApplyOffsetView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -32,6 +32,7 @@ class EventRelatedFieldListFilter(RelatedFieldListFilter):
     as specified in the event__id__exact GET parameter.
     The choices are only restricted if this parameter is present, otherwise all choices are used/returned
     """
+
     def field_choices(self, field, request, model_admin):
         ordering = self.field_admin_ordering(field, request, model_admin)
         limit_choices = {}
@@ -89,7 +90,8 @@ class EventAdmin(admin.ModelAdmin):
             urls.extend(get_admin_urls_scheduling(self.admin_site))
 
         if apps.is_installed("AKSolverInterface"):
-            from AKSolverInterface.urls import get_admin_urls_solver_interface  # pylint: disable=import-outside-toplevel
+            from AKSolverInterface.urls import \
+                get_admin_urls_solver_interface  # pylint: disable=import-outside-toplevel
             urls.extend(get_admin_urls_solver_interface(self.admin_site))
 
         # Make sure built-in URLs are available as well
@@ -164,7 +166,7 @@ class EventAdmin(admin.ModelAdmin):
         """
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
-            f"{reverse_lazy('admin:plan-unpublish')}?pks={','.join(str(pk) for pk in selected)}")
+                f"{reverse_lazy('admin:plan-unpublish')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_('Publish preference poll'))
     def publish_poll(self, request, queryset):
@@ -181,13 +183,14 @@ class EventAdmin(admin.ModelAdmin):
         """
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
-            f"{reverse_lazy('admin:poll-unpublish')}?pks={','.join(str(pk) for pk in selected)}")
+                f"{reverse_lazy('admin:poll-unpublish')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 class PrepopulateWithNextActiveEventMixin:
     """
     Mixin for automated pre-population of the event field
     """
+
     # pylint: disable=too-few-public-methods
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -324,6 +327,7 @@ class AKAdminForm(forms.ModelForm):
     """
     Modified admin form for AKs, to be used in :class:`AKAdmin`
     """
+
     class Meta:
         widgets = {
             'requirements': forms.CheckboxSelectMultiple,
@@ -350,7 +354,8 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
     Uses a modified form (see :class:`AKAdminForm`)
     """
     model = AK
-    list_display = ['display_trashed', 'name', 'short_name', 'category', 'track', 'is_wish', 'interest', 'interest_counter', 'event',]
+    list_display = ['display_trashed', 'name', 'short_name', 'category', 'track', 'is_wish', 'interest',
+                    'interest_counter', 'event', ]
     list_filter = ['event',
                    WishFilter,
                    TrashedFilter,
@@ -408,8 +413,8 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
     def wiki_export(self, request, queryset):
         """
         Action: Export to wiki syntax
-        This will use the wiki export view (therefore, all AKs have to have the same event to correclty handle the
-        categories and to prevent accidentially merging AKs from different events in the wiki)
+        This will use the wiki export view (therefore, all AKs have to have the same event to correctly handle the
+        categories and to prevent accidentally merging AKs from different events in the wiki)
         but restrict the AKs to the ones explicitly selected here.
         """
         # Only export when all AKs belong to the same event
@@ -446,7 +451,7 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
         """
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
-            f"{reverse_lazy('admin:ak-reset-interest')}?pks={','.join(str(pk) for pk in selected)}")
+                f"{reverse_lazy('admin:ak-reset-interest')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_("Reset AKs' interest counters"))
     def reset_interest_counter(self, request, queryset):
@@ -456,7 +461,7 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
         """
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
-            f"{reverse_lazy('admin:ak-reset-interest-counter')}?pks={','.join(str(pk) for pk in selected)}")
+                f"{reverse_lazy('admin:ak-reset-interest-counter')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_("Move AKs to trash"))
     def move_to_trash(self, request, queryset):
@@ -466,7 +471,7 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
         """
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
-            f"{reverse_lazy('admin:ak-move-to-trash')}?pks={','.join(str(pk) for pk in selected)}")
+                f"{reverse_lazy('admin:ak-move-to-trash')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_("Restore AKs from trash"))
     def restore_from_trash(self, request, queryset):
@@ -476,7 +481,7 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
         """
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
-            f"{reverse_lazy('admin:ak-restore-from-trash')}?pks={','.join(str(pk) for pk in selected)}")
+                f"{reverse_lazy('admin:ak-restore-from-trash')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 @admin.register(Room)
@@ -527,6 +532,7 @@ class EventTimezoneFormMixin:
     """
     Mixin to enforce the usage of the timezone of the associated event in forms
     """
+
     # pylint: disable=too-few-public-methods
 
     def get_form(self, request, obj=None, change=False, **kwargs):
@@ -545,6 +551,7 @@ class AKSlotAdminForm(forms.ModelForm):
     """
     Modified admin form for AKSlots, to be used in :class:`AKSlotAdmin`
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Filter possible values for foreign keys when event is specified
@@ -579,7 +586,7 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
         :rtype: str
         """
         if apps.is_installed("AKSubmission") and akslot.ak is not None:
-            link = f"<a href='{ akslot.ak.detail_url }'>{str(akslot.ak)}</a>"
+            link = f"<a href='{akslot.ak.detail_url}'>{str(akslot.ak)}</a>"
             return mark_safe(str(link))
         return "-"
 
@@ -602,17 +609,17 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
         """
         if queryset.filter(fixed=True).exists():
             self.message_user(
-                request,
-                _(
-                        "Cannot reset scheduling for fixed AKs. "
-                        "Please make sure to filter out fixed AKs first."
-                ),
-                messages.ERROR,
+                    request,
+                    _(
+                            "Cannot reset scheduling for fixed AKs. "
+                            "Please make sure to filter out fixed AKs first."
+                    ),
+                    messages.ERROR,
             )
             return redirect('admin:AKModel_akslot_changelist')
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
-            f"{reverse_lazy('admin:clear-schedule')}?pks={','.join(str(pk) for pk in selected)}")
+                f"{reverse_lazy('admin:clear-schedule')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_("Shift slots by offset"))
     def shift_slots(self, request, queryset):
@@ -621,7 +628,7 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
         """
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
-            f"{reverse_lazy('admin:shift-slots')}?pks={','.join(str(pk) for pk in selected)}")
+                f"{reverse_lazy('admin:shift-slots')}?pks={','.join(str(pk) for pk in selected)}")
 
     ak_details_link.short_description = _('AK Details')
 
@@ -630,6 +637,7 @@ class AvailabilityAdminForm(forms.ModelForm):
     """
     Modified admin form for Availability, to be used in :class:`AvailabilityAdmin`
     """
+
     def __init__(self, *args, **kwargs):
         from AKPreference.models import EventParticipant
 
@@ -663,7 +671,6 @@ class AvailabilityAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
         urls.extend(super().get_urls())
         return urls
 
-
     @action(description=_("Shift availabilities by offset"))
     def shift_availabilities(self, request, queryset):
         """
@@ -671,7 +678,7 @@ class AvailabilityAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
         """
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
-            f"{reverse_lazy('admin:shift-availabilities')}?pks={','.join(str(pk) for pk in selected)}")
+                f"{reverse_lazy('admin:shift-availabilities')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 @admin.register(AKOrgaMessage)
@@ -688,6 +695,7 @@ class ConstraintViolationAdminForm(forms.ModelForm):
     """
     Adapted admin form for constraint violations for usage in :class:`ConstraintViolationAdmin`)
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Filter possible values for foreign keys & m2m when event is specified
@@ -731,7 +739,7 @@ class ConstraintViolationAdmin(admin.ModelAdmin):
         """
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
-            f"{reverse_lazy('admin:cv-mark-resolved')}?pks={','.join(str(pk) for pk in selected)}")
+                f"{reverse_lazy('admin:cv-mark-resolved')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_('Set Constraint Violations to level "violation"'))
     def set_violation(self, request, queryset):
@@ -740,7 +748,7 @@ class ConstraintViolationAdmin(admin.ModelAdmin):
         """
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
-            f"{reverse_lazy('admin:cv-set-violation')}?pks={','.join(str(pk) for pk in selected)}")
+                f"{reverse_lazy('admin:cv-set-violation')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_('Set Constraint Violations to level "warning"'))
     def set_warning(self, request, queryset):
@@ -749,13 +757,14 @@ class ConstraintViolationAdmin(admin.ModelAdmin):
         """
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
-            f"{reverse_lazy('admin:cv-set-warning')}?pks={','.join(str(pk) for pk in selected)}")
+                f"{reverse_lazy('admin:cv-set-warning')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 class DefaultSlotAdminForm(forms.ModelForm):
     """
     Adapted admin form for DefaultSlot for usage in :class:`DefaultSlotAdmin`
     """
+
     class Meta:
         widgets = {
             'primary_categories': forms.CheckboxSelectMultiple

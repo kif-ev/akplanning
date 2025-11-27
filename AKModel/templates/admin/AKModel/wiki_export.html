@@ -4,21 +4,19 @@
 
 {% block content %}
 
-{% for category_name, ak_list in categories_with_aks %}
-<h3>{{ category_name }}</h3>
-<textarea style="width: 100%;height:30vh;" class="mb-3">{% for ak in ak_list %}
-{% verbatim %}{{{% endverbatim %}
-{{ ak.event.wiki_export_template_name }}
-| name={{ ak.name }}
-| beschreibung= {{ ak.description }}
-| wieviele={{ ak.interest_counter }}
-| wer={{ ak.owners|wiki_owners_export:ak.event }}
-| wann=
-| dauer={{ ak.durations_list }}
-| reso={{ ak.reso }}
-| vorstellung={{ ak.present }}
-{% verbatim %}}}{% endverbatim %}
-{% endfor %}</textarea>
-{% endfor %}
+    {% for category_name, ak_list in categories_with_aks %}
+        <h3>{{ category_name }}</h3>
+        <textarea style="width: 100%;height:30vh;" class="mb-3">{% for ak in ak_list %}
+            {% verbatim %}{{{% endverbatim %}
+            {{ ak.event.wiki_export_template_name }}
+            | name={{ ak.name }}
+            | leitung={{ ak.owners|wiki_owners_export:ak.event }}
+            | ziel={{ ak.goal }}
+            | dauer={{ ak.durations_list }}
+            | beschreibung= {{ ak.description }}
+            | details= {{ ak.info }}
+            {% verbatim %}}}{% endverbatim %}
+        {% endfor %}</textarea>
+    {% endfor %}
 
 {% endblock %}
