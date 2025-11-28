@@ -22,13 +22,13 @@ class AvailabilitiesFormMixin(forms.Form):
     Will handle the rendering and population of an availabilities field
     """
     availabilities = forms.CharField(
-        label=_('Availability'),
-        help_text=_(
-            'Click and drag to mark the availability during the event, double-click to delete. '
-            'Or use the start and end inputs to add entries to the calendar view.'  # Adapted help text
-        ),
-        widget=forms.TextInput(attrs={'class': 'availabilities-editor-data'}),
-        required=False,
+            label=_('Availability'),
+            help_text=_(
+                    'Click and drag to mark the availability during the event, double-click to delete. '
+                    'Or use the start and end inputs to add entries to the calendar view.'  # Adapted help text
+            ),
+            widget=forms.TextInput(attrs={'class': 'availabilities-editor-data'}),
+            required=False,
     )
 
     def _serialize(self, event, instance):
@@ -74,12 +74,12 @@ class AvailabilitiesFormMixin(forms.Form):
             raise forms.ValidationError("Submitted availabilities are not valid json.") from exc
         if not isinstance(rawdata, dict):
             raise forms.ValidationError(
-                "Submitted json does not comply with expected format, should be object."
+                    "Submitted json does not comply with expected format, should be object."
             )
         availabilities = rawdata.get('availabilities')
         if not isinstance(availabilities, list):
             raise forms.ValidationError(
-                "Submitted json does not comply with expected format, missing or malformed availabilities field"
+                    "Submitted json does not comply with expected format, missing or malformed availabilities field"
             )
         return availabilities
 
@@ -124,7 +124,7 @@ class AvailabilitiesFormMixin(forms.Form):
         # Adapt: Better error handling
         except (TypeError, ValueError) as exc:
             raise forms.ValidationError(
-                _("The submitted availability contains an invalid date.")
+                    _("The submitted availability contains an invalid date.")
             ) from exc
 
         timeframe_start = self.event.start  # adapt to our event model
@@ -160,6 +160,7 @@ class AvailabilitiesFormMixin(forms.Form):
             availabilities.append(Availability(event_id=self.event.id, **rawavail))
         if not availabilities and required:
             raise forms.ValidationError(_('Please fill in your availabilities!'))
+        availabilities = Availability.union(availabilities)
         return availabilities
 
     def _set_foreignkeys(self, instance, availabilities):
