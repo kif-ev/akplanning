@@ -19,7 +19,7 @@ fi
 # only do this if the --recover flag is not present
 if [ "$1" != "--recover" ] && [ "$2" != "--recover" ]; then
     mkdir -p backups/
-    python manage.py dumpdata --indent 2 --natural-foreign --natural-primary -e contenttypes -e auth.Permission > "backups/$(date +"%Y%m%d%H%M")_datadump.json" --traceback
+    python manage.py dumpdata --all --indent 2 --natural-foreign --natural-primary -e contenttypes -e auth.Permission > "backups/$(date +"%Y%m%d%H%M")_datadump.json" --traceback
 fi
 
 git pull
