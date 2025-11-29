@@ -16,7 +16,7 @@ class EventOverviewWidget(TemplateStatusWidget):
     title = _("Overview")
     template_name = "admin/AKModel/status/event_overview.html"
 
-    def render_status(self, context: {}) -> str:
+    def render_status(self, context: dict[any]) -> str:
         return "success" if not context["event"].plan_hidden else "primary"
 
 
@@ -38,12 +38,12 @@ class EventCategoriesWidget(TemplateStatusWidget):
          }
     ]
 
-    def render_title(self, context: {}) -> str:
+    def render_title(self, context: dict[any]) -> str:
         # Store category count as instance variable for re-use in body
         self.category_count = context['event'].akcategory_set.count()  # pylint: disable=attribute-defined-outside-init
         return f"{super().render_title(context)} ({self.category_count})"
 
-    def render_status(self, context: {}) -> str:
+    def render_status(self, context: dict[any]) -> str:
         return "danger" if self.category_count == 0 else "primary"
 
 
@@ -65,15 +65,15 @@ class EventRoomsWidget(TemplateStatusWidget):
          }
     ]
 
-    def render_title(self, context: {}) -> str:
+    def render_title(self, context: dict[any]) -> str:
         # Store room count as instance variable for re-use in body
         self.room_count = context['event'].room_set.count()  # pylint: disable=attribute-defined-outside-init
         return f"{super().render_title(context)} ({self.room_count})"
 
-    def render_status(self, context: {}) -> str:
+    def render_status(self, context: dict[any]) -> str:
         return "danger" if self.room_count == 0 else "primary"
 
-    def render_actions(self, context: {}) -> list[dict]:
+    def render_actions(self, context: dict[any]) -> list[dict]:
         actions = super().render_actions(context)
         # Action has to be added here since it depends on the event for URL building
         import_room_url = reverse_lazy("admin:room-import", kwargs={"event_slug": context["event"].slug})
@@ -107,7 +107,7 @@ class EventAKsWidget(TemplateStatusWidget):
         context["unscheduled_slots_count"] = context["event"].akslot_set.filter(start=None).count
         return context
 
-    def render_actions(self, context: {}) -> list[dict]:
+    def render_actions(self, context: dict[any]) -> list[dict]:
         actions = [
             {
                 "text": _("Scheduling"),
@@ -178,13 +178,13 @@ class EventRequirementsWidget(TemplateStatusWidget):
     title = _("Requirements")
     template_name = "admin/AKModel/status/event_requirements.html"
 
-    def render_title(self, context: {}) -> str:
+    def render_title(self, context: dict[any]) -> str:
         # Store requirements count as instance variable for re-use in body
         # pylint: disable=attribute-defined-outside-init
         self.requirements_count = context['event'].akrequirement_set.count()
         return f"{super().render_title(context)} ({self.requirements_count})"
 
-    def render_actions(self, context: {}) -> list[dict]:
+    def render_actions(self, context: dict[any]) -> list[dict]:
         return [
             {
                 "text": _("Show AKs for requirements"),

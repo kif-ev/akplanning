@@ -11,7 +11,9 @@ from django.views.generic import FormView
 
 from AKModel.availability.models import Availability
 from AKModel.availability.serializers import AvailabilityFormSerializer
+from AKModel.metaviews import status_manager
 from AKModel.metaviews.admin import EventSlugMixin
+from AKModel.metaviews.status import TemplateStatusWidget
 from AKModel.models import AK
 from AKPreference.models import AKPreference
 from .forms import EventParticipantForm
@@ -142,3 +144,19 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
             )
             return self.form_invalid(form=form)
         return redirect(self.get_success_url())
+
+
+@status_manager.register(name="scheduling_constraint_violations")
+class PreferenceOverviewWidget(TemplateStatusWidget):
+    """
+    Status page widget: Preferences
+    """
+    required_context_type = "event"
+    title = _("Preference Poll Summary")
+    template_name = "admin/AKPreference/status/preference_overview.html"
+
+    def get_context_data(self, context) -> dict:
+        context = super().get_context_data(context)
+        context["participants_count"] = context["event"].eventparticipant_set.count()
+        context["preference_count"] = context["event"].akpreference_set.count()
+        return context

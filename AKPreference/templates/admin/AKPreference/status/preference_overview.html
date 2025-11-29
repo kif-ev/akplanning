@@ -1,0 +1,24 @@
+{% load i18n %}
+
+<div class="row text-center">
+    <div class="col-md-6">
+        <a href="{% url 'admin:AKPreference_akpreference_changelist' %}?event__id__exact={{ event.pk }}">
+            <h1>{{ participants_count }}</h1>
+            {% blocktrans count constraint_violations_count=constraint_violations_count %}
+                <h3>Participant</h3>
+                {% plural %}
+                <h3>Participants</h3>
+            {% endblocktrans %}
+        </a>
+    </div>
+    <div class="col-md-6">
+        <a href="{% url 'admin:AKPreference_eventparticipant_changelist' %}?event__id__exact={{ event.pk }}">
+            <h1>{{ preference_count }}</h1>
+            {% blocktrans count constraint_violations_count=constraint_violations_count %}
+                <h3>Poll Entry</h3>
+                {% plural %}
+                <h3>Poll Entries</h3>
+            {% endblocktrans %}
+        </a>
+    </div>
+</div>
