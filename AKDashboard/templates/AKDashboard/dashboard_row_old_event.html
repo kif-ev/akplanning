@@ -11,7 +11,7 @@
         {{ event | event_month_year }}
     </span>
 </h3>
-<div class="mt-2">
+<div class="container row row-cols-auto gap-1">
     {% if 'AKSubmission'|check_app_installed %}
         <a class="btn btn-primary"
            href="{% url 'submit:ak_list' event_slug=event.slug %}">

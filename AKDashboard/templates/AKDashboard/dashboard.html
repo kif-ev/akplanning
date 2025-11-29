@@ -24,7 +24,7 @@
         {% if old_event_count > 0 %}
             <h2 class="mb-3">{% trans "Old events" %}</h2>
             {% for event in old_events %}
-                <div class="dashboard-row-small">
+                <div class="mb-3">
                     {% include "AKDashboard/dashboard_row_old_event.html" %}
                 </div>
             {% endfor %}
