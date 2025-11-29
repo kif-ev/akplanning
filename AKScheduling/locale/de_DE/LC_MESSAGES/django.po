@@ -236,7 +236,7 @@ msgstr ""
 
 #: AKScheduling/templates/admin/AKScheduling/special_attention.html:101
 msgid "AKs that are too big"
-msgstr "AKs die zu groß sind"
+msgstr "AKs, die zu groß sind"
 
 #: AKScheduling/templates/admin/AKScheduling/special_attention.html:115
 msgid "No rooms configured"
