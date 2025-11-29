@@ -121,3 +121,10 @@ class ModelViewTests(BasicViewTests, TestCase):
                       "Missed new AK with requirement not set for any room")
         self.assertIn(ak2, aks_unfulfillable_requirements,
                       "Missed existing AK with invalid requirement combination")
+
+        aks_unfulfillable_requirements_filtered = aks_with_unfulfillable_requirements(
+            event,
+            qs=event.ak_set.exclude(category__in=[AKCategory.objects.filter(event=event).first()])
+        )
+        self.assertNotIn(ak, aks_unfulfillable_requirements_filtered,
+                         "Filtering did not work correctly")
