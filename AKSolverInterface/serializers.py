@@ -138,9 +138,10 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
     info = ExportAKSlotInfoSerializer(source="*")
     properties = ExportAKSlotPropertiesSerializer(source="*")
 
-    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False, **kwargs):
+    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False, aks_to_ignore_category_for, **kwargs):
         super().__init__(*args, **kwargs)
         self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
+        self.aks_to_ignore_category_for = aks_to_ignore_category_for
 
     def get_room_constraints(self, slot: AKSlot):
         """Get serialized representation for room_constraints.
@@ -158,6 +159,7 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
         """
         return slot.get_time_constraints(
                 export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+                aks_to_ignore_category_for=self.aks_to_ignore_category_for
         )
 
     class Meta:
@@ -181,9 +183,11 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
 
 
 class ExportFilteredAKSlotSerializer(serializers.BaseSerializer):
-    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False, **kwargs):
+    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False,
+                 aks_to_ignore_category_for, **kwargs):
         super().__init__(*args, **kwargs)
         self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
+        self.aks_to_ignore_category_for = aks_to_ignore_category_for
 
     def create(self, validated_data):
         raise ValueError("`ExportFilteredAKSlotSerializer` is read-only.")
@@ -205,6 +209,7 @@ class ExportFilteredAKSlotSerializer(serializers.BaseSerializer):
                 slot_queryset,
                 export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
                 many=True,
+                aks_to_ignore_category_for=self.aks_to_ignore_category_for,
         ).data
 
         for slot_dict in serialized_slots:
@@ -534,6 +539,7 @@ class ExportEventSerializer(serializers.BaseSerializer):
             filter_rooms_cb: Callable[[QuerySet], QuerySet] | None = None,
             export_scheduled_aks_as_fixed: bool = False,
             export_preferences: bool = True,
+            aks_to_ignore_category_for: set[AK] | None = None,
             **kwargs,
     ):
         def _identity(queryset: QuerySet) -> QuerySet:
@@ -545,6 +551,7 @@ class ExportEventSerializer(serializers.BaseSerializer):
         self.filter_slots_cb = filter_slots_cb or _identity
         self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
         self.export_preferences = export_preferences
+        self.aks_to_ignore_category_for = aks_to_ignore_category_for
 
         super().__init__(*args, **kwargs)
 
@@ -574,6 +581,7 @@ class ExportEventSerializer(serializers.BaseSerializer):
         slots = ExportFilteredAKSlotSerializer(
                 slots_qs,
                 export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+                aks_to_ignore_category_for=self.aks_to_ignore_category_for,
         )
         participants = ExportParticipantAndDummiesSerializer(
                 event,

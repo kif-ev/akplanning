@@ -98,6 +98,23 @@
         {% endfor %}
     </ul>
 
+    <h4 class="mt-4 mb-4">{% trans "AKs that are too big" %}</h4>
+    {% if rooms_count > 0 %}
+    <ul>
+        {% for ak in aks_too_big %}
+            <li>
+                <a href="{{ ak.detail_url }}">{{ ak }} ({{ ak.interest }})</a>
+                <a href="{{ ak.edit_url }}">{% fa6_icon "pen-to-square" %}</a>
+                <a class="link-warning" href="{% url "admin:AKModel_ak_change" object_id=ak.pk %}">{% fa6_icon "pen-to-square" %}</a>
+            </li>
+        {% empty %}
+            <li>-</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>{% translate "No rooms configured" %}</p>
+    {% endif %}
+
     <div class="mt-5">
         <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %}</a>
     </div>

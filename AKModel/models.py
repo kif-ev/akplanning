@@ -1193,11 +1193,15 @@ class AKSlot(models.Model):
         room_constraints.sort()
         return room_constraints
 
-    def get_time_constraints(self, export_scheduled_aks_as_fixed: bool = False) -> list[str]:
+    def get_time_constraints(self, export_scheduled_aks_as_fixed: bool = False,
+                             aks_to_ignore_category_for: set[AK] = None) -> list[str]:
         """Construct list of required time constraint labels."""
         # local import to prevent cyclic import
         # pylint: disable=import-outside-toplevel
         from AKModel.availability.models import Availability
+
+        if aks_to_ignore_category_for is None:
+            aks_to_ignore_category_for = set()
 
         def _owner_time_constraints(owner: AKOwner):
             owner_avails = owner.availabilities.all()
@@ -1219,7 +1223,8 @@ class AKSlot(models.Model):
         for owner in self.ak.owners.all():
             time_constraints.extend(_owner_time_constraints(owner))
 
-        if self.ak.category:
+        # Export category constraint (if not explicitly ignored)
+        if self.ak.category and self.ak not in aks_to_ignore_category_for:
             category_constraints = AKCategory.create_category_optimizer_constraints([self.ak.category])
             time_constraints.extend(category_constraints)
 
