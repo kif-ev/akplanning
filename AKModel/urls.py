@@ -4,7 +4,8 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 import AKModel.views.api
-from AKModel.views.ak import AKCSVExportView, AKMessageDeleteView, AKRequirementOverview, AKWikiExportView
+from AKModel.views.ak import AKCSVExportView, AKMessageDeleteView, AKRequirementOverview, AKWikiExportView, \
+    SlotCSVExportView
 from AKModel.views.event_wizard import NewEventWizardActivateView, NewEventWizardFinishView, NewEventWizardImportView, \
     NewEventWizardPrepareImportView, NewEventWizardSettingsView, NewEventWizardStartView
 from AKModel.views.manage import AKsByUserView, DefaultSlotEditorView, ExportSlidesView, PlanPublishView, \
@@ -105,6 +106,8 @@ def get_admin_urls_event(admin_site):
              name="aks_by_owner"),
         path('<slug:event_slug>/ak-csv-export/', admin_site.admin_view(AKCSVExportView.as_view()),
              name="ak_csv_export"),
+        path('<slug:event_slug>/slot-csv-export/', admin_site.admin_view(SlotCSVExportView.as_view()),
+             name="slot_csv_export"),
         path('<slug:slug>/ak-wiki-export/', admin_site.admin_view(AKWikiExportView.as_view()),
              name="ak_wiki_export"),
         path('<slug:event_slug>/delete-orga-messages/', admin_site.admin_view(AKMessageDeleteView.as_view()),

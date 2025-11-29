@@ -143,6 +143,10 @@ class EventAKsWidget(TemplateStatusWidget):
                     "url": reverse_lazy("admin:ak_csv_export", kwargs={"event_slug": context["event"].slug}),
                 },
                 {
+                    "text": _("Export Slots as CSV"),
+                    "url": reverse_lazy("admin:slot_csv_export", kwargs={"event_slug": context["event"].slug}),
+                },
+                {
                     "text": _("Export AKs for Wiki"),
                     "url": reverse_lazy("admin:ak_wiki_export", kwargs={"slug": context["event"].slug}),
                 },

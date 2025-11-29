@@ -27,6 +27,7 @@ class AKRequirementOverview(AdminViewMixin, FilterByEventSlugMixin, ListView):
 class AKCSVExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
     """
     View: Export all AK slots of this event in CSV format ordered by tracks
+    Can, e.g., be used to produce printouts for manual paper scheduling
     """
     template_name = "admin/AKModel/ak_csv_export.html"
     model = AKSlot
@@ -35,6 +36,19 @@ class AKCSVExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
 
     def get_queryset(self):
         return super().get_queryset().order_by("ak__track")
+
+
+class SlotCSVExportView(AdminViewMixin, FilterByEventSlugMixin, ListView):
+    """
+    View: Export all AK slots of this event in CSV format ordered by their start time
+    """
+    template_name = "admin/AKModel/slots_csv_export.html"
+    model = AKSlot
+    context_object_name = "slots"
+    title = _("Slot CSV Export")
+
+    def get_queryset(self):
+        return super().get_queryset().filter(start__isnull=False).order_by("start", "duration")
 
 
 class AKWikiExportView(AdminViewMixin, DetailView):
