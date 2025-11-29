@@ -1,0 +1,12 @@
+{% extends "admin/base_site.html" %}
+
+{% load tz %}
+
+{% block content %}
+
+<pre>
+date;name;start;end;category;who;link;
+{% for slot in slots %}{{ slot.start | timezone:event.timezone | date:"l" }};{{ slot.ak.name }};{{ slot.start | timezone:event.timezone | date:"H:i"  }};{{ slot.end | timezone:event.timezone | date:"H:i"  }};{{ slot.ak.category }};{{ slot.ak.owners.all|join:", " }};{{ slot.ak.link }};
+{% endfor %}
+</pre>
+{% endblock %}
