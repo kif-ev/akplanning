@@ -50,6 +50,12 @@ class JSONExportControlForm(forms.Form):
             label=_("AK types to include in the export"),
             required=False,
     )
+    ignore_slot_category_mismatches = forms.MultipleChoiceField(
+            choices=[],
+            widget=forms.CheckboxSelectMultiple,
+            label=_("The following AKs cannot be placed in the default timeslots of their category. Remove constraint?"),
+            required=False,
+    )
 
     field_order = [
         "export_scheduled_aks_as_fixed",
@@ -82,6 +88,10 @@ class JSONExportControlForm(forms.Form):
 
         for field_name in ["export_categories", "export_tracks", "export_types"]:
             _set_queryset(field_name)
+
+        self.fields["ignore_slot_category_mismatches"].choices = [
+            (ak.pk, f"{ak.name} ({ak.category})") for ak in self.event.ak_set.select_related('category').all()
+        ]
 
 
 class JSONScheduleImportForm(AdminIntermediateForm):

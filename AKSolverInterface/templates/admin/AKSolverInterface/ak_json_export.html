@@ -3,6 +3,7 @@
 {% load tz %}
 {% load i18n %}
 {% load fontawesome_6 %}
+{% load django_bootstrap5 %}
 
 {% block extrahead %}
     {{ block.super }}
@@ -22,24 +23,45 @@
 {% endblock %}
 
 {% block content %}
+    {% load tags_AKModel %}
 
-<div class="mb-3">
-  <label for="export_single_line" class="form-label">{% translate 'Exported JSON:' %}</label>
-  <input readonly type="text" name="export_single_line" class="form-control form-control-sm"
-         value="{{ json_data_oneline }}" style="font-family:var(--font-family-monospace);">
-</div>
-
-<div class="mb-3">
-    <div class="clearfix mb-1">
-        <div class="float-end">
-            <button class="btn btn-info" onclick="to_clipboard()">
-                {% fa6_icon "copy" %} {% translate 'Copy' %}
-            </button>
+    <form method="POST" class="post-form">{% csrf_token %}
+        {% bootstrap_form form exclude="ignore_slot_category_mismatches" %}
+        <div class="{% if not show_ignore_slot_category_mismatches_field %}d-none{% endif %}">
+            {% bootstrap_field form.ignore_slot_category_mismatches %}
         </div>
-        <label class="form-label">{% translate 'Exported JSON (indented for better readability):' %}</label>
-    </div>
-    <textarea class="d-none" id="textarea_export_json">{{ json_data }}</textarea>
-    <pre class="prettyprint border rounded p-2">{{ json_data }}</pre>
-</div>
+        <button type="submit" class="save btn btn-primary float-end">
+          {% fa6_icon "check" 'fas' %} {% trans "Generate/Update Export" %}
+        </button>
+
+        <button type="reset" class="btn btn-danger">
+          {% fa6_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
+        </button>
+
+        <a href="{{ ak.detail_url }}" class="btn btn-secondary">
+          {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
+        </a>
+    </form>
+
+    {% if json_data_oneline %}
+        <div class="mt-3 mb-3">
+          <label for="export_single_line" class="form-label">{% translate 'Exported JSON:' %}</label>
+          <input readonly type="text" name="export_single_line" class="form-control form-control-sm"
+                 value="{{ json_data_oneline }}" style="font-family:var(--font-family-monospace);">
+        </div>
+
+        <div class="mb-3">
+            <div class="clearfix mb-1">
+                <div class="float-end">
+                    <button class="btn btn-info" onclick="to_clipboard()">
+                        {% fa6_icon "copy" %} {% translate 'Copy' %}
+                    </button>
+                </div>
+                <label class="form-label">{% translate 'Exported JSON (indented for better readability):' %}</label>
+            </div>
+            <textarea class="d-none" id="textarea_export_json">{{ json_data }}</textarea>
+            <pre class="prettyprint border rounded p-2">{{ json_data }}</pre>
+        </div>
+    {% endif %}
 
 {% endblock %}
