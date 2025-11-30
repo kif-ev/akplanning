@@ -21,7 +21,7 @@ tzdata==2025.2
 jsonschema==4.25.1
 
 # Documentation
-Sphinx==8.2.3
+Sphinx==9.0.0
 sphinx-rtd-theme==3.0.2
 sphinxcontrib-apidoc==0.6.0
 sphinxcontrib-django==2.5.0
