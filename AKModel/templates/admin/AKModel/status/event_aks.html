@@ -7,10 +7,20 @@
     <table>
         <tbody>
             <tr>
-                <td>{% trans "AKs" %}</td><td>{{ ak_count }}</td>
+                <td>{% trans "AKs" %}</td>
+                <td>
+                    <a href="{% url 'admin:AKModel_ak_changelist' %}?event__id__exact={{ event.pk }}">
+                        {{ ak_count }}
+                    </a>
+                </td>
             </tr>
             <tr>
-                <td>{% trans "Slots" %}</td><td>{{ event.akslot_set.count }}</td>
+                <td>{% trans "Slots" %}</td>
+                <td>
+                    <a href="{% url 'admin:AKModel_akslot_changelist' %}?event__id__exact={{ event.pk }}">
+                        {{ event.akslot_set.count }}
+                    </a>
+                </td>
             </tr>
             <tr>
               <td>{% trans "Unscheduled Slots" %}</td><td>

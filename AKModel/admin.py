@@ -21,7 +21,8 @@ from AKModel.forms import RoomFormWithAvailabilities
 from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKRequirement, AKSlot, AKTrack, AKType, \
     ConstraintViolation, DefaultSlot, Event, Room
 from AKModel.urls import get_admin_urls_event, get_admin_urls_event_wizard
-from AKModel.views.ak import AKMoveToTrashView, AKResetInterestCounterView, AKResetInterestView, AKRestoreFromTrashView
+from AKModel.views.ak import AKMoveToTrashView, AKResetInterestCounterView, AKResetInterestView, AKRestoreFromTrashView, \
+    AKAssignTrackView
 from AKModel.views.manage import AvailabilitiesApplyOffsetView, ClearScheduleView, CVMarkResolvedView, \
     CVSetLevelViolationView, CVSetLevelWarningView, SlotsApplyOffsetView
 
@@ -362,10 +363,11 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
                    ('category', EventRelatedFieldListFilter),
                    ('requirements', EventRelatedFieldListFilter),
                    ('types', EventRelatedFieldListFilter),
+                   ('track', EventRelatedFieldListFilter),
                    ]
     list_editable = ['short_name', 'track', 'interest_counter']
     ordering = ['pk']
-    actions = ['wiki_export', 'reset_interest', 'reset_interest_counter', 'move_to_trash', 'restore_from_trash']
+    actions = ['wiki_export', 'reset_interest', 'reset_interest_counter', 'assign_track', 'move_to_trash', 'restore_from_trash']
     readonly_fields = ['trashed_at']
     list_display_links = ['name']
     form = AKAdminForm
@@ -437,6 +439,7 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
         urls = [
             path('reset-interest/', AKResetInterestView.as_view(), name="ak-reset-interest"),
             path('reset-interest-counter/', AKResetInterestCounterView.as_view(), name="ak-reset-interest-counter"),
+            path('assign-track/', AKAssignTrackView.as_view(), name="ak-assign-track"),
             path('move-to-trash/', AKMoveToTrashView.as_view(), name="ak-move-to-trash"),
             path('restore-from-trash/', AKRestoreFromTrashView.as_view(), name="ak-restore-from-trash"),
         ]
@@ -462,6 +465,16 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
                 f"{reverse_lazy('admin:ak-reset-interest-counter')}?pks={','.join(str(pk) for pk in selected)}")
+
+    @action(description=_("Assign track"))
+    def assign_track(self, request, queryset):
+        """
+        Action: Assign track
+        Will use a typical admin confirmation view flow
+        """
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(
+                f"{reverse_lazy('admin:ak-assign-track')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_("Move AKs to trash"))
     def move_to_trash(self, request, queryset):

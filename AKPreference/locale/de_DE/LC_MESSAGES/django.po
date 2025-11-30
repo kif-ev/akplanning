@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-21 16:10+0000\n"
+"POT-Creation-Date: 2025-11-30 01:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -150,7 +150,9 @@ msgstr "Verantwortlich"
 
 #: AKPreference/templates/AKPreference/poll.html:100
 msgid "Careful: after saving your preferences, you cannot edit them again!"
-msgstr "Achtung: Nach dem Abschicken kannst du deine Präferenzen nicht noch einmal editieren!"
+msgstr ""
+"Achtung: Nach dem Abschicken kannst du deine Präferenzen nicht noch einmal "
+"editieren!"
 
 #: AKPreference/templates/AKPreference/poll.html:103
 msgid "Submit"
@@ -176,14 +178,54 @@ msgstr ""
 "Das System ist bisher nicht für die Erfassung von AK-Präferenzen "
 "konfiguriert. Bitte versuche es später wieder."
 
-#: AKPreference/views.py:37
+#: AKPreference/templates/admin/AKPreference/status/preference_overview.html:7
+msgid ""
+"\n"
+"                <h3>Participant</h3>\n"
+"                "
+msgid_plural ""
+"\n"
+"                <h3>Participants</h3>\n"
+"            "
+msgstr[0] ""
+"\n"
+"                <h3>Teilnehmende*r</h3>\n"
+"                "
+msgstr[1] ""
+"\n"
+"                <h3>Teilnehmende</h3>\n"
+"            "
+
+#: AKPreference/templates/admin/AKPreference/status/preference_overview.html:17
+msgid ""
+"\n"
+"                <h3>Poll Entry</h3>\n"
+"                "
+msgid_plural ""
+"\n"
+"                <h3>Poll Entries</h3>\n"
+"            "
+msgstr[0] ""
+"\n"
+"                <h3>Präferenzeintrag</h3>\n"
+"                "
+msgstr[1] ""
+"\n"
+"                <h3>Präferenzeinträge</h3>\n"
+"            "
+
+#: AKPreference/views.py:39
 msgid "AK preferences were registered successfully"
 msgstr "AK-Präferenzen erfolgreich registriert"
 
-#: AKPreference/views.py:139
+#: AKPreference/views.py:141
 msgid ""
 "Something went wrong. Your preferences were not saved. Please try again or "
 "contact the organizers."
 msgstr ""
 "Etwas ging schief. Deine Präferenzen konnten nicht gespeichert werden. "
 "Versuche es bitte erneut oder kontaktiere die Orgas."
+
+#: AKPreference/views.py:155
+msgid "Preference Poll Summary"
+msgstr "Zusammenfassung AK-Präferenzen"
