@@ -3,9 +3,10 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView
 
+from AKModel.forms import TrackAssignmentForm
 from AKModel.metaviews.admin import AdminViewMixin, FilterByEventSlugMixin, EventSlugMixin, IntermediateAdminView, \
     IntermediateAdminActionView
-from AKModel.models import AKRequirement, AKSlot, Event, AKOrgaMessage, AK
+from AKModel.models import AKRequirement, AKSlot, Event, AKOrgaMessage, AK, AKTrack
 
 
 class AKRequirementOverview(AdminViewMixin, FilterByEventSlugMixin, ListView):
@@ -119,9 +120,36 @@ class AKResetInterestView(IntermediateAdminActionView):
         self.entities.update(interest=-1)
 
 
+class AKAssignTrackView(IntermediateAdminActionView):
+    """
+    View: Immediate page to assign tracks in bulk
+
+    General functionality flow provided by :class:`AKModel.metaviews.admin.IntermediateAdminView`
+    """
+    title = _("Assign AKs to track")
+    model = AK
+    confirmation_message = _("Assign the following AKs to the given track?")
+    success_message = _("Assigned to track.")
+    form_class = TrackAssignmentForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['event'] = AK.objects.get(pk=kwargs["initial"]["pks"].split(",")[0]).event
+        return kwargs
+
+    def action(self, form):
+        event = self.entities[0].event
+        if 'track' in form.cleaned_data and form.cleaned_data['track'] is not None:
+            track = form.cleaned_data['track']
+        else:
+            new_track_name = form.cleaned_data['new_track']
+            track = AKTrack.objects.create(event=event, name=new_track_name)
+        self.entities.update(track=track)
+
+
 class AKMoveToTrashView(IntermediateAdminActionView):
     """
-    View: Confirmation page to reset all manually specified interest values
+    View: Confirmation page to move AKs to trash
 
     Confirmation functionality provided by :class:`AKModel.metaviews.admin.IntermediateAdminView`
     """
@@ -137,7 +165,7 @@ class AKMoveToTrashView(IntermediateAdminActionView):
 
 class AKRestoreFromTrashView(IntermediateAdminActionView):
     """
-    View: Confirmation page to reset all manually specified interest values
+    View: Confirmation page to restore AKs from trash
 
     Confirmation functionality provided by :class:`AKModel.metaviews.admin.IntermediateAdminView`
     """
