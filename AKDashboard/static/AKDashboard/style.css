@@ -1,32 +1,55 @@
-.dashboard-row {
-    margin-bottom: 5em;
-}
-
-.dashboard-row > .row {
-    margin-left: 0;
-    padding-bottom: 1em;
-}
-
-.dashboard-box .fa {
-    font-size: 26pt;
-}
-
-.dashboard-box span.text {
-    display: block;
-    padding-top: 10px;
+span.text {
     font-size: 12pt;
 }
 
 .dashboard-box {
-    padding: 2em;
-    margin-right: 1em;
-    min-width: 15em;
-    margin-bottom: 1em;
+    display: flex;
+    place-content: center;
+    /* flex-grow: 1; */
+    aspect-ratio: 4.5/3;
+    align-content: center;
+    width: 14em;
+    min-width: 14em;
+    max-width: 23%;
 }
 
-.dashboard-button {
-    display: inline;
-    padding: 0;
+@media (max-width: 960px) {
+    .dashboard-box {
+        flex-grow: 1;
+        width: auto;
+    }    
+}
+
+@media (max-width: 768px) {
+    .dashboard-box {
+        min-width: 9.5em;
+        max-width: 30%;
+    }    
+    span.text {
+        font-size: 11pt;
+    }
+}
+
+/* visually 'nice' breakpoint for 3 columns */
+@media (max-width: 523px) {
+    .dashboard-box { 
+        aspect-ratio: auto;
+        padding-top: 0.5rem;
+        min-width: 9em;
+        width: 10em;
+        max-width: 48%;
+    }    
+    span.text {
+        font-size: 10pt;
+    }
+
+}
+
+/* visually 'nice' breakpoint for 2 columns */
+@media (max-width: 359px) {
+    .dashboard-box {
+        max-width: 100%;
+    }    
 }
 
 #recent-changes-list {
