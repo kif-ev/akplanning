@@ -15,8 +15,8 @@
     {% if 'AKSubmission'|check_app_installed %}
         <a class="btn btn-primary"
            href="{% url 'submit:ak_list' event_slug=event.slug %}">
-            <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button">
-                <span class="fa fa-list-ul"></span>
+            <div class="d-flex gap-2 align-items-center">
+                <span class="fs-5 fa fa-list-ul"></span>
                 <span class='text'>{% trans 'AK List' %}</span>
             </div>
         </a>
@@ -25,8 +25,8 @@
         {% if not event.plan_hidden or user.is_staff %}
             <a class="btn btn-primary"
                href="{% url 'plan:plan_overview' event_slug=event.slug %}">
-                <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button">
-                    <span class="fa fa-calendar-alt"></span>
+                <div class="d-flex gap-2 align-items-center">
+                    <span class="fs-5 fa fa-calendar-alt"></span>
                     <span class='text'>{% trans 'Schedule' %}</span>
                 </div>
             </a>
@@ -34,21 +34,21 @@
     {% endif %}
     <a class="btn btn-primary"
        href="{% url 'dashboard:dashboard_event' slug=event.slug %}#history">
-        <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button">
-            <span class="fa fa-history"></span>
+        <div class="d-flex gap-2 align-items-center">
+            <span class="fs-5 fa fa-history"></span>
             <span class='text'>{% trans 'AK History' %}</span>
         </div>
     </a>
     {% for button in event.dashboardbutton_set.all %}
         <a class="btn btn-{{ button.get_color_display }}"
            href="{{ button.url }}">
-            <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button">
-                {% if button.icon %}<span class="fa">{{ button.icon.as_html }}</span>{% endif %}
+            <div class="d-flex gap-2 align-items-center">
+                {% if button.icon %}<span class="fs-5 fa">{{ button.icon.as_html }}</span>{% endif %}
                 <span class='text'>{{ button.text }}</span>
             </div>
         </a>
     {% endfor %}
-    <a class="btn btn-info"
+    <a class="btn btn-info align-content-center"
        href=mailto:{{ event.contact_email }}"
        title="{% trans 'Write to organizers of this event for questions and comments' %}">
         {% fa6_icon "envelope" "fas" %}

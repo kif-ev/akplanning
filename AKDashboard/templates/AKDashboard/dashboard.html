@@ -12,7 +12,7 @@
     {% include "messages.html" %}
     {% if total_event_count > 0 %}
         {% for event in active_and_current_events %}
-            <div class="dashboard-row">
+            <div class="mb-5">
                 {% include "AKDashboard/dashboard_row.html" %}
                 {% if event.contact_email %}
                     <p>
