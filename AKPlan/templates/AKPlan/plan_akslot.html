@@ -13,7 +13,7 @@
 
         var calendar = new FullCalendar.Calendar(calendarEl, {
             // Adapt to timezone of the connected event
-            timeZone: '{{ ak.event.timezone }}',
+            timeZone: '{{ event.timezone }}',
             initialView: 'timeGrid',
             // Adapt to user selected locale
             locale: '{{ LANGUAGE_CODE }}',
@@ -27,8 +27,8 @@
             },
             // Only show calendar view for the dates of the connected event
             visibleRange: {
-                start: '{{ ak.event.start | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',
-                end: '{{ ak.event.end | timezone:ak.event.timezone  | date:"Y-m-d H:i:s"}}',
+                start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
             },
             scrollTime: '08:00:00',
             allDaySlot: false,
@@ -38,14 +38,19 @@
             eventColor: '#127ba3',
             // Create entries for all scheduled slots
             events: [
-                {% if not ak.event.plan_hidden or user.is_staff %}
-                    {% for slot in ak.akslot_set.all %}
+                {% if not event.plan_hidden or user.is_staff %}
+                    {% for slot in akslots.all %}
                         {% if slot.start %}
                             {
-                                'title': '{{ slot.room }}',
-                                'start': '{{ slot.start | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',
-                                'end': '{{ slot.end | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',
-                                'url' : '{% if slot.room %}{% url "plan:plan_room" event_slug=ak.event.slug pk=slot.room.pk %}{% else %}#{% endif %}'
+                                'title':
+                                    {% if title_in_cal == "room" %}
+                                        '{{ slot.room }}'
+                                        {% else %}
+                                        '{{ slot.ak.name }}'
+                                    {% endif %},
+                                'start': '{{ slot.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                                'end': '{{ slot.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                                'url' : '{% if slot.room %}{% url "plan:plan_room" event_slug=event.slug pk=slot.room.pk %}{% else %}#{% endif %}'
                             },
                         {% endif %}
                     {% endfor %}
@@ -53,8 +58,8 @@
                 {% for a in availabilities %}
                     {
                         title: '{{ Verfuegbarkeit }}',
-                        start: '{{ a.start | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',
-                        end: '{{ a.end | timezone:ak.event.timezone | date:"Y-m-d H:i:s" }}',
+                        start: '{{ a.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                        end: '{{ a.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
                         backgroundColor: '#28B62C',
                         display: 'background'
                     },
