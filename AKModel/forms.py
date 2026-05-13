@@ -179,6 +179,12 @@ class SlideExportForm(AdminIntermediateForm):
             initial=3,
             label=_("# next AKs"),
             help_text=_("How many next AKs should be shown on a slide?"))
+    categories = forms.MultipleChoiceField(
+            label=_("AK Categories"),
+            help_text=_("Which categories should be included in the slides?"),
+            widget=forms.CheckboxSelectMultiple,
+            choices=[],
+            required=False)
     types = forms.MultipleChoiceField(
             label=_("AK Types"),
             help_text=_("Which AK types should be included in the slides?"),

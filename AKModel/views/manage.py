@@ -15,7 +15,7 @@ from django_tex.response import PDFResponse
 from AKModel.availability.models import Availability
 from AKModel.forms import SlideExportForm, DefaultSlotEditorForm, ShiftByOffsetForm
 from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
-from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner, AKSlot, AKType
+from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner, AKSlot, AKType, AKCategory
 
 
 class UserView(TemplateView):
@@ -40,10 +40,15 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
         # Filter type choices to those of the current event
         # or completely hide the field if no types are specified for this event
         form = super().get_form(form_class)
+        form.fields['categories'].choices = [
+            (ak_category.id, ak_category.name) for ak_category in self.event.akcategory_set.all()
+        ]
+        form.initial['categories'] = [c for (c, _) in form.fields['categories'].choices]
         if self.event.aktype_set.count() > 0:
             form.fields['types'].choices = [
                 (ak_type.id, ak_type.name) for ak_type in self.event.aktype_set.all()
             ]
+            form.initial['types'] = [c for (c, _) in form.fields['types'].choices]
         else:
             form.fields['types'].widget = form.fields['types'].hidden_widget()
             form.fields['types_all_selected_only'].widget = form.fields['types_all_selected_only'].hidden_widget()
@@ -83,14 +88,17 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             names_string = ', '.join(AKType.objects.get(pk=t).name for t in form.cleaned_data['types'])
             types_filter_string = f"[{_('Type(s)')}: {names_string}]"
         types_all_selected_only = form.cleaned_data['types_all_selected_only']
-
+        categories = None
+        if len(form.cleaned_data['categories']) > 0:
+            categories = AKCategory.objects.filter(id__in=form.cleaned_data['categories'])
         # Get all relevant AKs (wishes separately, and either all AKs or only those who should directly or indirectly
         # be presented when restriction setting was chosen)
         categories_with_aks = self.event.get_categories_with_aks(filter_func=lambda
             ak: not RESULT_PRESENTATION_MODE or (ak.present or (ak.present is None and ak.category.present_by_default)),
                                                                     types=types,
                                                                     types_all_selected_only=types_all_selected_only,
-                                                                    sort_func=lambda ak: ak.wish)
+                                                                    sort_func=lambda ak: ak.wish,
+                                                                    categories=categories)
 
         # Create context for LaTeX rendering
         context = {
