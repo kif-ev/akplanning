@@ -368,7 +368,7 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
     list_editable = ['short_name', 'track', 'interest_counter']
     ordering = ['pk']
     actions = ['wiki_export', 'reset_interest', 'reset_interest_counter', 'assign_track', 'move_to_trash', 'restore_from_trash']
-    readonly_fields = ['trashed_at']
+    readonly_fields = ['ak_details_link', 'trashed_at']
     list_display_links = ['name']
     form = AKAdminForm
     delete_confirmation_template = "admin/AKModel/ak_delete_confirmation.html"
@@ -397,6 +397,20 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
         if not obj.trashed:
             return ""
         return "🗑"
+
+    @display(description=_('AK Details'))
+    def ak_details_link(self, ak):
+        """
+        Define a read-only field to link the details of the currently edited AK
+
+        :param ak: the AK to link
+        :return: AK detail page link (HTML)
+        :rtype: str
+        """
+        if apps.is_installed("AKSubmission"):
+            link = f"<a href='{ak.detail_url}'>{str(ak)}</a>"
+            return mark_safe(str(link))
+        return "-"
 
     def delete_view(self, request, object_id, extra_context=None):
         # Override deletion view to handle moving to trash instead of deletion
@@ -594,8 +608,8 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
         """
         Define a read-only field to link the details of the associated AK
 
-        :param obj: the AK to link
-        :return: AK detail page page link (HTML)
+        :param akslot: the AK to link
+        :return: AK detail page link (HTML)
         :rtype: str
         """
         if apps.is_installed("AKSubmission") and akslot.ak is not None:
