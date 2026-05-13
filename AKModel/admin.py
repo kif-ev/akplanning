@@ -24,7 +24,7 @@ from AKModel.urls import get_admin_urls_event, get_admin_urls_event_wizard
 from AKModel.views.ak import AKMoveToTrashView, AKResetInterestCounterView, AKResetInterestView, AKRestoreFromTrashView, \
     AKAssignTrackView
 from AKModel.views.manage import AvailabilitiesApplyOffsetView, ClearScheduleView, CVMarkResolvedView, \
-    CVSetLevelViolationView, CVSetLevelWarningView, SlotsApplyOffsetView
+    CVSetLevelViolationView, CVSetLevelWarningView, SlotsApplyOffsetView, DefaultSlotCategoryBulkAssignmentView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -813,6 +813,26 @@ class DefaultSlotAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
     list_display = ['start_simplified', 'end_simplified', 'event']
     list_filter = ['event']
     form = DefaultSlotAdminForm
+    actions = ['set_primary_categories']
+
+    def get_urls(self):
+        """
+        Add additional URLs/views to change status and severity of CVs
+        """
+        urls = [
+            path('set-categories/', DefaultSlotCategoryBulkAssignmentView.as_view(), name="slot-set-categories"),
+        ]
+        urls.extend(super().get_urls())
+        return urls
+
+    @action(description=_("Set primary categories"))
+    def set_primary_categories(self, request, queryset):
+        """
+        Action: Set primary categories for the given default slots
+        """
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(
+                f"{reverse_lazy('admin:slot-set-categories')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 # Define a new User admin

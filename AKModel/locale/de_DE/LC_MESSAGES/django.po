@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-30 01:53+0100\n"
+"POT-Creation-Date: 2026-05-13 19:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -145,18 +145,22 @@ msgid "Set Constraint Violations to level \"warning\""
 msgstr "Constraintverletzungen auf Level \"Warning\" setzen"
 
 #: AKModel/admin.py:814
+msgid "Set primary categories"
+msgstr "Primäre Kategorien zuweisen"
+
+#: AKModel/admin.py:834
 msgid "Activate selected users"
 msgstr "Ausgewählte Benutzer*innen aktivieren"
 
-#: AKModel/admin.py:823
+#: AKModel/admin.py:843
 msgid "The selected users have been activated."
 msgstr "Benutzer*innen aktiviert"
 
-#: AKModel/admin.py:825
+#: AKModel/admin.py:845
 msgid "Deactivate selected users"
 msgstr "Ausgewählte Benutzer*innen deaktivieren"
 
-#: AKModel/admin.py:834
+#: AKModel/admin.py:854
 msgid "The selected users have been deactivated."
 msgstr "Benutzer*innen deaktiviert"
 
@@ -434,6 +438,22 @@ msgid "A track with this name already exists. Please choose a different name."
 msgstr ""
 "Ein Track mit diesem Namen existiert bereits. Bitte einen anderen Namen "
 "wählen."
+
+#: AKModel/forms.py:412 AKModel/models.py:1534
+msgid "Primary categories"
+msgstr "Primäre Kategorien"
+
+#: AKModel/forms.py:413
+msgid "Categories that should be assigned to these slots primarily"
+msgstr "Kategorieren, die diesen Slots primär zugewiesen werden sollen"
+
+#: AKModel/forms.py:431
+msgid ""
+"Selected default slots belong to different events. Please select only "
+"default slots from the same event."
+msgstr ""
+"Die ausgewählten Standardslots gehören zu unterschiedlichen Events. Bitte nur Standardslots vom "
+"selben Event auswählen."
 
 #: AKModel/metaviews/admin.py:158 AKModel/models.py:141
 msgid "Start"
@@ -1241,10 +1261,6 @@ msgstr "Ende des Slots"
 msgid "Time and date the slot ends"
 msgstr "Zeit und Datum zu der der Slot endet"
 
-#: AKModel/models.py:1534
-msgid "Primary categories"
-msgstr "Primäre Kategorien"
-
 #: AKModel/models.py:1536
 msgid "Categories that should be assigned to this slot primarily"
 msgstr "Kategorieren, die diesem Slot primär zugewiesen werden sollen"
@@ -1693,6 +1709,21 @@ msgstr ""
 msgid "Updated {u} slot(s). created {c} new slot(s) and deleted {d} slot(s)"
 msgstr ""
 "{u} Slot(s) aktualisiert, {c} Slot(s) hinzugefügt und {d} Slot(s) gelöscht"
+
+#: AKModel/views/manage.py:359
+msgid "Assign primary categories to default slots"
+msgstr "Primäre Kategorien für Standardslots festlegen"
+
+#: AKModel/views/manage.py:361
+msgid ""
+"Assign primary categories in bulk for the following slots, this will reset "
+"all existing categories. Selected slots:"
+msgstr ""
+"Primäre Kategorien für die folgenden Standardslots zuweisen, das wird alle existierenden Kategorien zurücksetzen. Ausgewählte Slots:"
+
+#: AKModel/views/manage.py:363
+msgid "Categories assigned"
+msgstr "Kategorien festgelegt"
 
 #: AKModel/views/room.py:37
 #, python-format
