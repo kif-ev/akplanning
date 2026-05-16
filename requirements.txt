@@ -30,4 +30,4 @@ django-docs==0.3.3
 
 # Testing
 unittest-xml-reporting==3.2.0
-beautifulsoup4==4.14.2
+beautifulsoup4==4.14.3
