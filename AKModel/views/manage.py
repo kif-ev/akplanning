@@ -13,7 +13,7 @@ from django_tex.core import render_template_with_context, run_tex_in_directory
 from django_tex.response import PDFResponse
 
 from AKModel.availability.models import Availability
-from AKModel.forms import SlideExportForm, DefaultSlotEditorForm, ShiftByOffsetForm
+from AKModel.forms import SlideExportForm, DefaultSlotEditorForm, ShiftByOffsetForm, DefaultSlotCategoriesForm
 from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
 from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner, AKSlot, AKType, AKCategory
 
@@ -359,6 +359,29 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
             )
         return super().form_valid(form)
 
+
+class DefaultSlotCategoryBulkAssignmentView(IntermediateAdminActionView):
+    """
+    Admin action view: Publish the preference poll of one or multitple event(s)
+    """
+    title = _('Assign primary categories to default slots')
+    model = DefaultSlot
+    confirmation_message = _('Assign primary categories in bulk for the following slots, '
+                             'this will reset all existing categories. Selected slots:')
+    success_message = _('Categories assigned')
+    form_class = DefaultSlotCategoriesForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['event'] = DefaultSlot.objects.get(pk=kwargs["initial"]["pks"].split(",")[0]).event
+        return kwargs
+
+    def action(self, form):
+        """Assign categories."""
+        categories = form.cleaned_data['primary_categories']
+        for slot in self.entities:
+            slot.primary_categories.clear()
+            slot.primary_categories.set(categories)
 
 class AKsByUserView(AdminViewMixin, EventSlugMixin, DetailView):
     """

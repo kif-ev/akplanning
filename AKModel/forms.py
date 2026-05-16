@@ -11,7 +11,7 @@ from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
-from AKModel.models import AKCategory, AKRequirement, AKType, Event, Room, AK, AKTrack
+from AKModel.models import AKCategory, AKRequirement, AKType, Event, Room, AK, AKTrack, DefaultSlot
 
 
 class DateTimeInput(forms.DateInput):
@@ -407,3 +407,38 @@ class RoomFormWithAvailabilities(AvailabilitiesFormMixin, RoomForm):
         # Filter possible values for m2m when event is specified
         if hasattr(self.instance, "event") and self.instance.event is not None:
             self.fields["properties"].queryset = AKRequirement.objects.filter(event=self.instance.event)
+
+
+class DefaultSlotCategoriesForm(AdminIntermediateActionForm):
+    """
+    Form to assign categories to default slots in bulk
+    """
+    primary_categories = forms.ModelMultipleChoiceField(
+            queryset=None,
+            label=_("Primary categories"),
+            help_text=_("Categories that should be assigned to these slots primarily"),
+            required=False,
+            widget=forms.CheckboxSelectMultiple,
+    )
+
+    def __init__(self, *args, **kwargs):
+        event = kwargs.pop('event')
+        super().__init__(*args, **kwargs)
+        self.fields['primary_categories'].queryset = AKCategory.objects.filter(event=event).all()
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Check whether the default slots with the given PKs are from different events
+        slots = (DefaultSlot.objects.filter(pk__in=self.cleaned_data['pks'].split(',')))
+        events = set(slot.event for slot in slots)
+        if len(events) > 1:
+            err = ValidationError(
+                _("Selected default slots belong to different events. Please select only default slots from the same event."),
+                "invalid",
+            )
+            self.add_error(None, err)
+            return cleaned_data
+        event = slots[0].event
+
+        return cleaned_data
