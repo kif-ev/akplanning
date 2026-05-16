@@ -16,7 +16,7 @@ django_csp==4.0
 djangorestframework==3.16.1
 
 fontawesomefree==6.6.0  # Makes static files (css, fonts) available locally
-mysqlclient==2.2.7  # for production deployment
+mysqlclient==2.2.8  # for production deployment
 tzdata==2025.3
 jsonschema==4.26.0
 
