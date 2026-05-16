@@ -1,11 +1,22 @@
 {% extends "admin/base_site.html" %}
 {% load tags_AKModel %}
-
+{% load static %}
 {% load i18n %}
 {% load tz %}
 {% load fontawesome_6 %}
+{% load django_bootstrap5 %}
 
 {% block title %}{% trans "AKs by Owner" %}: {{owner}}{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {% bootstrap_javascript %}
+    <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
+    {% if 'AKPlan'|check_app_installed %}
+        {% include "AKPlan/plan_akslot.html" %}
+    {% endif %}
+{% endblock %}
+
 
 {% block content %}
     {% timezone event.timezone %}
@@ -13,7 +24,7 @@
 
         <div class="row mt-4">
             <table class="table table-striped">
-                {% for ak in owner.ak_set.all %}
+                {% for ak in aks %}
                     <tr>
                         <td>{{ ak }}</td>
                         {% if "AKSubmission"|check_app_installed %}
@@ -34,5 +45,9 @@
                 {% endfor %}
             </table>
         </div>
+
+        {% if 'AKPlan'|check_app_installed %}
+            <div id='akSlotCalendar' style="margin-top: 50px;margin-bottom: 50px;"></div>
+        {% endif %}
     {% endtimezone %}
 {% endblock %}

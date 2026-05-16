@@ -305,6 +305,10 @@ class AKDetailView(EventSlugMixin, DetailView):
                     context["featured_slot_remaining"] = floor(remaining.days * 24 * 60 + remaining.seconds / 60)
                     break
 
+        context['event'] = self.event
+        context['akslots'] = context["ak"].akslot_set.all().select_related('ak', 'room')
+        context['title_in_cal'] = "room"
+
         # Display interest indication button?
         context['interest_indication_active'] = ak_interest_indication_active(self.event, current_timestamp)
 
