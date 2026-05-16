@@ -1,5 +1,5 @@
 Django==5.2.14
-django-admin-logs==1.4.0
+django-admin-logs==1.5.0
 django-betterforms==3.0.0
 django-bootstrap-datepicker-plus==5.0.6
 django-bootstrap5==25.3
