@@ -30,6 +30,7 @@ class EventParticipant(models.Model):
         string = _("Anonymous {pk}").format(pk=self.pk) if not self.name else self.name
         if self.institution:
             string += f" ({self.institution})"
+        string += f" [{self.uuid}]"
         return string
 
     @property

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-17 10:51+0200\n"
+"POT-Creation-Date: 2026-05-17 11:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,9 +17,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKPreference/admin.py:47
+#: AKPreference/admin.py:52
 msgid "Count of saved preferences"
 msgstr "Anzahl gespeicherter Präferenzen"
+
+#: AKPreference/admin.py:65 AKPreference/views.py:202
+msgid "Anonymize participants"
+msgstr "Teilnehmende anonymisieren"
 
 #: AKPreference/models.py:12 AKPreference/models.py:97
 msgid "Participant"
@@ -243,3 +247,14 @@ msgstr ""
 #: AKPreference/views.py:186
 msgid "Preference Poll Summary"
 msgstr "Zusammenfassung AK-Präferenzen"
+
+#: AKPreference/views.py:204
+msgid ""
+"The following participants will be anonymized by removing their name and "
+"institution. This cannot be undone!"
+msgstr "Die folgenden Teilnehmen werden anonymisiert, indem ihr Name und ihre "
+"Instituion entfertn werden. Das kann nicht rückgängig gemacht werden!"
+
+#: AKPreference/views.py:206
+msgid "Participants successfully anonymized."
+msgstr "Teilnehmende erfolgreich anonymisiert"

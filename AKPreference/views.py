@@ -12,10 +12,10 @@ from django.views.generic import FormView
 from AKModel.availability.models import Availability
 from AKModel.availability.serializers import AvailabilityFormSerializer
 from AKModel.metaviews import status_manager
-from AKModel.metaviews.admin import EventSlugMixin
+from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminActionView
 from AKModel.metaviews.status import TemplateStatusWidget
 from AKModel.models import AK
-from AKPreference.models import AKPreference
+from AKPreference.models import AKPreference, EventParticipant
 from .forms import EventParticipantForm
 
 
@@ -160,3 +160,19 @@ class PreferenceOverviewWidget(TemplateStatusWidget):
         context["participants_count"] = context["event"].eventparticipant_set.count()
         context["preference_count"] = context["event"].akpreference_set.count()
         return context
+
+
+class AnonymizeParticipantsView(IntermediateAdminActionView):
+    """
+    View: Confirmation page to anonymize all given participants by removing their name and institution
+
+    Confirmation functionality provided by :class:`AKModel.metaviews.admin.IntermediateAdminView`
+    """
+    title = _("Anonymize participants")
+    model = EventParticipant
+    confirmation_message = _("The following participants will be anonymized by removing their name and institution. "
+                             "This cannot be undone!")
+    success_message = _("Participants successfully anonymized.")
+
+    def action(self, form):
+        self.entities.update(name='', institution='')

@@ -1,11 +1,15 @@
 from django import forms
 from django.contrib import admin
+from django.contrib.admin import action
 from django.db.models import Count
+from django.http import HttpResponseRedirect
 from django.utils.translation import gettext_lazy as _
+from django.urls import path, reverse_lazy
 
 from AKPreference.models import AKPreference, EventParticipant
 from AKModel.admin import PrepopulateWithNextActiveEventMixin, EventRelatedFieldListFilter
 from AKModel.models import AK, AKRequirement
+from AKPreference.views import AnonymizeParticipantsView
 
 
 class EventParticipantAdminForm(forms.ModelForm):
@@ -35,6 +39,7 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
     list_editable = []
     readonly_fields = ['uuid']
     ordering = ['name']
+    actions = ['anonymize']
     form = EventParticipantAdminForm
 
     def get_queryset(self, request):
@@ -45,6 +50,27 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
         return obj.preference_count
     preference_count.admin_order_field = 'preference_count'
     preference_count.short_description = _('Count of saved preferences')
+
+    def get_urls(self):
+        """
+        Add additional URLs/views
+        Currently used to reset the interest field and interest counter field
+        """
+        urls = [
+            path('anonymize-participants/', AnonymizeParticipantsView.as_view(), name="preference-anonymize-participants"),
+        ]
+        urls.extend(super().get_urls())
+        return urls
+
+    @action(description=_("Anonymize participants"))
+    def anonymize(self, request, queryset):
+        """
+        Action: Anonymize selected participants
+        Will use a typical admin confirmation view flow
+        """
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(
+                f"{reverse_lazy('admin:preference-anonymize-participants')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 class AKPreferenceAdminForm(forms.ModelForm):
