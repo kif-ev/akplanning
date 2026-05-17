@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-30 01:35+0100\n"
+"POT-Creation-Date: 2026-05-17 10:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,101 +17,109 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKPreference/models.py:11 AKPreference/models.py:93
+#: AKPreference/models.py:12 AKPreference/models.py:97
 msgid "Participant"
 msgstr "Teilnehmende*r"
 
-#: AKPreference/models.py:12
+#: AKPreference/models.py:13
 msgid "Participants"
 msgstr "Teilnehmende"
 
-#: AKPreference/models.py:15
+#: AKPreference/models.py:16
 msgid "Nickname"
 msgstr "Spitzname"
 
-#: AKPreference/models.py:16
+#: AKPreference/models.py:17
 msgid ""
 "Name to identify a participant by (in case of questions from the organizers)"
 msgstr "Name, zur Identifikation bei Rückfragen von den Organisator*innen"
 
-#: AKPreference/models.py:17
+#: AKPreference/models.py:18
 msgid "Institution"
 msgstr "Institution"
 
-#: AKPreference/models.py:17
+#: AKPreference/models.py:18
 msgid "Uni etc."
 msgstr "Uni etc."
 
-#: AKPreference/models.py:19 AKPreference/models.py:90
+#: AKPreference/models.py:20 AKPreference/models.py:94
 msgid "Event"
 msgstr "Event"
 
-#: AKPreference/models.py:20 AKPreference/models.py:91
+#: AKPreference/models.py:21 AKPreference/models.py:95
 msgid "Associated event"
 msgstr "Zugehöriges Event"
 
-#: AKPreference/models.py:22
+#: AKPreference/models.py:23
 msgid "Requirements"
 msgstr "Anforderungen"
 
-#: AKPreference/models.py:23
+#: AKPreference/models.py:24
 msgid "Participant's Requirements"
 msgstr "Anforderungen des*der Teilnehmer*in"
 
 #: AKPreference/models.py:26
+msgid "UUID"
+msgstr "UUID"
+
+#: AKPreference/models.py:27
+msgid "Unique and non-guessable identifier for this participant"
+msgstr "Eindeutige und nicht durch Ausprobieren aufzufindendes Identifikationsmerkmal des*der Teilnehmer*in"
+
+#: AKPreference/models.py:30
 #, python-brace-format
 msgid "Anonymous {pk}"
 msgstr "Anonym {pk}"
 
-#: AKPreference/models.py:85
+#: AKPreference/models.py:89
 msgid "AK Preference"
 msgstr "AK Präferenz"
 
-#: AKPreference/models.py:86
+#: AKPreference/models.py:90
 msgid "AK Preferences"
 msgstr "AK-Präferenzen"
 
-#: AKPreference/models.py:94
+#: AKPreference/models.py:98
 msgid "Participant this preference belongs to"
 msgstr "Teilnehmer*in, zu dem*der die Präferenz gehört"
 
-#: AKPreference/models.py:96
+#: AKPreference/models.py:100
 msgid "AK"
 msgstr "AK"
 
-#: AKPreference/models.py:97
+#: AKPreference/models.py:101
 msgid "AK this preference belongs to"
 msgstr "AK zu dem die Präferenz gehört"
 
-#: AKPreference/models.py:103
+#: AKPreference/models.py:107
 msgid "Ignore"
 msgstr "Ignorieren"
 
-#: AKPreference/models.py:104
+#: AKPreference/models.py:108
 msgid "Interested"
 msgstr "Interessiert"
 
-#: AKPreference/models.py:105
+#: AKPreference/models.py:109
 msgid "Great interest"
 msgstr "Großes Interesse"
 
-#: AKPreference/models.py:106
+#: AKPreference/models.py:110
 msgid "Required"
 msgstr "Erforderlich"
 
-#: AKPreference/models.py:108
+#: AKPreference/models.py:112
 msgid "Preference"
 msgstr "Präferenz"
 
-#: AKPreference/models.py:109
+#: AKPreference/models.py:113
 msgid "Preference level for the AK"
 msgstr "Präferenz-Level für diesen AK"
 
-#: AKPreference/models.py:113
+#: AKPreference/models.py:117
 msgid "Timestamp"
 msgstr "Zeitpunkt"
 
-#: AKPreference/models.py:113
+#: AKPreference/models.py:117
 msgid "Time of creation"
 msgstr "Erstellungszeitpunkt"
 
@@ -214,11 +222,11 @@ msgstr[1] ""
 "                <h3>Präferenzeinträge</h3>\n"
 "            "
 
-#: AKPreference/views.py:39
+#: AKPreference/views.py:81
 msgid "AK preferences were registered successfully"
 msgstr "AK-Präferenzen erfolgreich registriert"
 
-#: AKPreference/views.py:141
+#: AKPreference/views.py:172
 msgid ""
 "Something went wrong. Your preferences were not saved. Please try again or "
 "contact the organizers."
@@ -226,6 +234,6 @@ msgstr ""
 "Etwas ging schief. Deine Präferenzen konnten nicht gespeichert werden. "
 "Versuche es bitte erneut oder kontaktiere die Orgas."
 
-#: AKPreference/views.py:155
+#: AKPreference/views.py:186
 msgid "Preference Poll Summary"
 msgstr "Zusammenfassung AK-Präferenzen"

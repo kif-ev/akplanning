@@ -10,6 +10,11 @@ class EventParticipantAdminForm(forms.ModelForm):
     """
     Adapted admin form for EventParticipant for usage in :class:`EventParticipantAdmin`)
     """
+    class Meta:
+        widgets = {
+            "requirements": forms.CheckboxSelectMultiple,
+        }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Filter possible values for foreign keys & m2m when event is specified
@@ -23,9 +28,10 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
     Admin interface for EventParticipant
     """
     model = EventParticipant
-    list_display = ['name', 'institution', 'event']
+    list_display = ['name', 'institution', 'event', 'uuid']
     list_filter = ['event', 'institution']
     list_editable = []
+    readonly_fields = ['uuid']
     ordering = ['name']
     form = EventParticipantAdminForm
 
