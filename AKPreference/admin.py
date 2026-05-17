@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib import admin
+from django.db.models import Count
+from django.utils.translation import gettext_lazy as _
 
 from AKPreference.models import AKPreference, EventParticipant
 from AKModel.admin import PrepopulateWithNextActiveEventMixin, EventRelatedFieldListFilter
@@ -28,12 +30,21 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
     Admin interface for EventParticipant
     """
     model = EventParticipant
-    list_display = ['name', 'institution', 'event', 'uuid']
+    list_display = ['name', 'institution', 'event', 'uuid', 'preference_count']
     list_filter = ['event', 'institution']
     list_editable = []
     readonly_fields = ['uuid']
     ordering = ['name']
     form = EventParticipantAdminForm
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(preference_count=Count('akpreference'))
+
+    def preference_count(self, obj):
+        return obj.preference_count
+    preference_count.admin_order_field = 'preference_count'
+    preference_count.short_description = _('Count of saved preferences')
 
 
 class AKPreferenceAdminForm(forms.ModelForm):

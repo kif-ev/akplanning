@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-17 10:22+0200\n"
+"POT-Creation-Date: 2026-05-17 10:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,10 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: AKPreference/admin.py:47
+msgid "Count of saved preferences"
+msgstr "Anzahl gespeicherter Präferenzen"
 
 #: AKPreference/models.py:12 AKPreference/models.py:97
 msgid "Participant"
@@ -64,7 +68,9 @@ msgstr "UUID"
 
 #: AKPreference/models.py:27
 msgid "Unique and non-guessable identifier for this participant"
-msgstr "Eindeutige und nicht durch Ausprobieren aufzufindendes Identifikationsmerkmal des*der Teilnehmer*in"
+msgstr ""
+"Eindeutige und nicht durch Ausprobieren aufzufindendes "
+"Identifikationsmerkmal des*der Teilnehmer*in"
 
 #: AKPreference/models.py:30
 #, python-brace-format
