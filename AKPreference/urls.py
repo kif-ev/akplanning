@@ -12,6 +12,8 @@ urlpatterns = [
                 path("old/", views.PreferencePollCreateView.as_view(), name="poll"),
                 path("start/", views.PreferencePollStartView.as_view(), name="poll-start"),
                 path("overview/", views.PreferencePollOverview.as_view(), name="poll-overview"),
+                path("update/", views.ParticipantUpdateView.as_view(), name="participant-update"),
+                path("delete/", views.DeleteInformationAndPreferencesView.as_view(), name="participant-delete"),
             ]
         ),
     ),

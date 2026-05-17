@@ -4,10 +4,11 @@ from itertools import groupby
 from django import forms
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Exists, OuterRef
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import FormView, CreateView, TemplateView
+from django.views.generic import FormView, CreateView, TemplateView, UpdateView, DeleteView
 
 from AKModel.availability.models import Availability
 from AKModel.availability.serializers import AvailabilityFormSerializer
@@ -163,7 +164,6 @@ class PreferencePollStartView(EventSlugMixin, CreateView):
     View: Start the preference poll for the event by showing the preference poll create form
 
     This view is used to start the preference poll for the event by showing the preference poll create form.
-    It uses the `PreferencePollCreateView` to show the form and handle the form submission.
     """
     model = EventParticipant
     template_name = "AKPreference/poll_start.html"
@@ -179,13 +179,12 @@ class PreferencePollStartView(EventSlugMixin, CreateView):
         if "preference_user_uuid" in request.session:
             if self.event.eventparticipant_set.filter(uuid=request.session["preference_user_uuid"]).exists():
                 return redirect(self.get_success_url())
-            else:
-                # If the uuid in the session is not valid anymore (e.g. because the participant was deleted),
-                # remove it from the session
-                del request.session["preference_user_uuid"]
-                messages.warning(request,
-                                 _("There was an error discovering your previously entered information. "
-                                   "Please start again."))
+            # If the uuid in the session is not valid anymore (e.g. because the participant was deleted),
+            # remove it from the session
+            del request.session["preference_user_uuid"]
+            messages.warning(request,
+                             _("There was an error discovering your previously entered information. "
+                               "Please start again."))
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -203,6 +202,9 @@ class PreferencePollStartView(EventSlugMixin, CreateView):
 
 
 class CheckSessionForParticipantMixin:
+    """
+    Mixin to check whether the session contains a valid participant uuid for the event and redirect to the start page if not
+    """
     def get(self, request, *args, **kwargs):
         # Check whether the user already registered for preference polling for this event and
         # redirect to second step in that case
@@ -231,7 +233,59 @@ class PreferencePollOverview(EventSlugRedirectWhenInactiveMixin, CheckSessionFor
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context['uuid'] = self.request.session.get("preference_user_uuid", None)
+        context['participant'] = self.event.eventparticipant_set.get(uuid=context['uuid'])
+        context['categories'] = self.event.akcategory_set.all().annotate(
+            has_saved_preferences=Exists(
+                AKPreference.objects.filter(
+                    ak__category=OuterRef('pk'),
+                    participant=context['participant']
+                )
+            )
+        )
         return context
+
+
+class ParticipantUpdateView(EventSlugRedirectWhenInactiveMixin, CheckSessionForParticipantMixin, UpdateView):
+    """
+    View: Update the participant information for the preference poll
+    """
+    model = EventParticipant
+    template_name = "AKPreference/poll_start.html"
+    title = _("Update information")
+    form_class = EventParticipantForm
+
+    def get_success_url(self):
+        return reverse_lazy("poll:poll-overview", kwargs={"event_slug": self.event.slug})
+
+    def form_valid(self, form):
+        r = super().form_valid(form)
+        messages.success(self.request, _("Information updated."))
+        return r
+
+    def get_object(self, queryset=...):
+        return EventParticipant.objects.get(uuid=self.request.session['preference_user_uuid'])
+
+
+class DeleteInformationAndPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForParticipantMixin, DeleteView):
+    """
+    View: Delete the participant information and preferences for the preference poll
+    """
+    model = EventParticipant
+    template_name = "AKPreference/poll_delete.html"
+    title = _("Delete information and preferences")
+
+    def get_success_url(self):
+        # After deleting the participant, also remove the uuid from the session to allow re-entering the poll
+        if "preference_user_uuid" in self.request.session:
+            del self.request.session["preference_user_uuid"]
+        return reverse_lazy("dashboard:dashboard_event", kwargs={"slug": self.event.slug})
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, _("Your information and preferences were deleted."))
+        return super().delete(request, *args, **kwargs)
+
+    def get_object(self, queryset=...):
+        return EventParticipant.objects.get(uuid=self.request.session['preference_user_uuid'])
 
 
 @status_manager.register(name="preferences")
