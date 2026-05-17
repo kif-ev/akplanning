@@ -6,10 +6,12 @@ app_name = "poll"
 
 urlpatterns = [
     path(
-        "<slug:event_slug>/poll/",
+        '<slug:event_slug>/poll/',
         include(
             [
-                path("", views.PreferencePollCreateView.as_view(), name="poll"),
+                path("old/", views.PreferencePollCreateView.as_view(), name="poll"),
+                path("start/", views.PreferencePollStartView.as_view(), name="poll-start"),
+                path("overview/", views.PreferencePollOverview.as_view(), name="poll-overview"),
             ]
         ),
     ),
