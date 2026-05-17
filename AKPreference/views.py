@@ -147,6 +147,17 @@ class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
         return redirect(self.get_success_url())
 
 
+def uuid_key(event):
+    """
+    Determine the session key for the participant uuid for the given event
+    :param event: event to determine the session key for
+    :type event: Event
+    :return: session key for the participant uuid for the given event
+    :rtype: str
+    """
+    return f"preference_user_uuid_{event.slug}"
+
+
 class EventSlugRedirectWhenInactiveMixin(EventSlugMixin):
     """
     Mixin to redirect to the dashboard when the event is not active
@@ -176,12 +187,13 @@ class PreferencePollStartView(EventSlugMixin, CreateView):
     def get(self, request, *args, **kwargs):
         # Check whether the user already registered for preference polling for this event and
         # redirect to second step in that case
-        if "preference_user_uuid" in request.session:
-            if self.event.eventparticipant_set.filter(uuid=request.session["preference_user_uuid"]).exists():
+        key = uuid_key(self.event)
+        if key in request.session:
+            if self.event.eventparticipant_set.filter(uuid=request.session[key]).exists():
                 return redirect(self.get_success_url())
             # If the uuid in the session is not valid anymore (e.g. because the participant was deleted),
             # remove it from the session
-            del request.session["preference_user_uuid"]
+            del request.session[uuid_key(self.event)]
             messages.warning(request,
                              _("There was an error discovering your previously entered information. "
                                "Please start again."))
@@ -190,7 +202,7 @@ class PreferencePollStartView(EventSlugMixin, CreateView):
     def form_valid(self, form):
         s = super().form_valid(form)
         # Save the uuid of the created participant in the session to recognize the user in the next step
-        self.request.session["preference_user_uuid"] = str(self.object.uuid)
+        self.request.session[uuid_key(self.event)] = str(self.object.uuid)
         return s
 
     def get_initial(self):
@@ -208,12 +220,13 @@ class CheckSessionForParticipantMixin:
     def get(self, request, *args, **kwargs):
         # Check whether the user already registered for preference polling for this event and
         # redirect to second step in that case
-        if not "preference_user_uuid" in request.session:
+        key = uuid_key(self.event)
+        if not key in request.session:
             return redirect(reverse_lazy("poll:poll-start", kwargs={"event_slug": self.event.slug}))
-        elif not self.event.eventparticipant_set.filter(uuid=request.session["preference_user_uuid"]).exists():
+        if not self.event.eventparticipant_set.filter(uuid=request.session[key]).exists():
             # If the uuid in the session is not valid anymore (e.g. because the participant was deleted),
             # remove it from the session
-            del request.session["preference_user_uuid"]
+            del request.session[uuid_key(self.event)]
             messages.warning(request,
                              _("There was an error discovering your previously entered information. "
                                "Please start again."))
@@ -232,7 +245,7 @@ class PreferencePollOverview(EventSlugRedirectWhenInactiveMixin, CheckSessionFor
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
-        context['uuid'] = self.request.session.get("preference_user_uuid", None)
+        context['uuid'] = self.request.session.get(uuid_key(self.event), None)
         context['participant'] = self.event.eventparticipant_set.get(uuid=context['uuid'])
         context['categories'] = self.event.akcategory_set.all().annotate(
             has_saved_preferences=Exists(
@@ -263,7 +276,7 @@ class ParticipantUpdateView(EventSlugRedirectWhenInactiveMixin, CheckSessionForP
         return r
 
     def get_object(self, queryset=...):
-        return EventParticipant.objects.get(uuid=self.request.session['preference_user_uuid'])
+        return EventParticipant.objects.get(uuid=self.request.session[uuid_key(self.event)])
 
 
 class DeleteInformationAndPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForParticipantMixin, DeleteView):
@@ -276,8 +289,9 @@ class DeleteInformationAndPreferencesView(EventSlugRedirectWhenInactiveMixin, Ch
 
     def get_success_url(self):
         # After deleting the participant, also remove the uuid from the session to allow re-entering the poll
-        if "preference_user_uuid" in self.request.session:
-            del self.request.session["preference_user_uuid"]
+        key = uuid_key(self.event)
+        if key in self.request.session:
+            del self.request.session[key]
         return reverse_lazy("dashboard:dashboard_event", kwargs={"slug": self.event.slug})
 
     def delete(self, request, *args, **kwargs):
@@ -285,7 +299,7 @@ class DeleteInformationAndPreferencesView(EventSlugRedirectWhenInactiveMixin, Ch
         return super().delete(request, *args, **kwargs)
 
     def get_object(self, queryset=...):
-        return EventParticipant.objects.get(uuid=self.request.session['preference_user_uuid'])
+        return EventParticipant.objects.get(uuid=self.request.session[uuid_key(self.event)])
 
 
 @status_manager.register(name="preferences")
