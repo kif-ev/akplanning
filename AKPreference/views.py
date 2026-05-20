@@ -1,150 +1,18 @@
-import json
-from itertools import groupby
-
 from django import forms
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Exists, OuterRef
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, CreateView, TemplateView, UpdateView, DeleteView
 
-from AKModel.availability.models import Availability
-from AKModel.availability.serializers import AvailabilityFormSerializer
 from AKModel.metaviews import status_manager
 from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminActionView
 from AKModel.metaviews.status import TemplateStatusWidget
-from AKModel.models import AK
+from AKModel.models import AKCategory
 from AKPreference.models import AKPreference, EventParticipant
-from .forms import EventParticipantForm
-
-
-class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
-    """
-    View: Show a form to register the AK preference of a participant.
-
-    The form creates the `EventParticipant` instance as well as the
-    AKPreferences for each AK of the event.
-
-    For the creation of the event participant, a `EventParticipantForm` is used.
-    For the preferences, a ModelFormset is created.
-    """
-
-    form_class = forms.Form
-    model = AKPreference
-    form_class = forms.modelform_factory(
-            model=AKPreference, fields=["preference", "ak", "event"]
-    )
-    template_name = "AKPreference/poll.html"
-    success_message = _("AK preferences were registered successfully")
-
-    def _create_modelformset(self):
-        return forms.modelformset_factory(
-                model=AKPreference,
-                fields=["preference", "ak", "event"],
-                widgets={
-                    "ak": forms.HiddenInput,
-                    "event": forms.HiddenInput,
-                    "preference": forms.RadioSelect,
-                },
-                extra=0,
-        )
-
-    def get(self, request, *args, **kwargs):
-        s = super().get(request, *args, **kwargs)
-        # Don't show preference form when event is not active or poll is hidden -> redirect to dashboard
-        if not self.event.active or (self.event.poll_hidden and not request.user.is_staff):
-            return redirect(self.get_success_url())
-        return s
-
-    def get_success_url(self):
-        return reverse_lazy(
-                "dashboard:dashboard_event", kwargs={"slug": self.event.slug}
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        ak_set = (
-            AK.objects.filter(event=self.event)
-            .order_by()
-            .all()
-            .prefetch_related('owners')
-        )
-        initial_lst = [
-            {"ak": ak, "event": self.event} for ak in ak_set
-        ]
-
-        context["formset"] = self._create_modelformset()(
-                queryset=AKPreference.objects.none(),
-                initial=initial_lst,
-        )
-        context["formset"].extra = len(initial_lst)
-
-        for form, init in zip(context["formset"], initial_lst, strict=True):
-            form.fields["preference"].label = init["ak"].name
-            form.fields["preference"].help_text = (
-                    "Description: " + init["ak"].description
-            )
-            form.ak_obj = init["ak"]
-
-        sorted_forms = sorted(
-                context["formset"],
-                key=lambda f: (f.ak_obj.category.name, f.ak_obj.id)
-        )
-        grouped_forms = [
-            (category, list(forms))
-            for category, forms in groupby(sorted_forms, key=lambda f: f.ak_obj.category)
-        ]
-        context["grouped_forms"] = grouped_forms
-        availabilities_serialization = AvailabilityFormSerializer(
-                (
-                    [Availability.with_event_length(event=self.event)],
-                    self.event,
-                )
-        )
-
-        context["participant_form"] = EventParticipantForm(
-                initial={
-                    "event": self.event,
-                    "availabilities": json.dumps(availabilities_serialization.data),
-                }
-        )
-        context['show_types'] = self.event.aktype_set.count() > 0
-        return context
-
-    def post(self, request, *args, **kwargs):
-        self._load_event()
-        model_formset_cls = self._create_modelformset()
-        formset = model_formset_cls(request.POST)
-        participant_form = EventParticipantForm(
-                data=request.POST, initial={"event": self.event}
-        )
-        if formset.is_valid() and participant_form.is_valid():
-            return self.form_valid(form=(formset, participant_form))
-        return self.form_invalid(form=(formset, participant_form))
-
-    def form_valid(self, form):
-        try:
-            formset, participant_form = form
-            participant = participant_form.save()
-            instances = formset.save(commit=False)
-            for instance in instances:
-                instance.participant = participant
-                instance.save()
-            success_message = self.get_success_message(participant_form.cleaned_data)
-            if success_message:
-                messages.success(self.request, success_message)
-        except:
-            messages.error(
-                    self.request,
-                    _(
-                            "Something went wrong. Your preferences were not saved. "
-                            "Please try again or contact the organizers."
-                    ),
-            )
-            return self.form_invalid(form=form)
-        return redirect(self.get_success_url())
+from .forms import EventParticipantForm, PreferenceForm, PreferenceFormSet
 
 
 def uuid_key(event):
@@ -158,6 +26,18 @@ def uuid_key(event):
     return f"preference_user_uuid_{event.slug}"
 
 
+class PreferencePollCreateView(EventSlugMixin, SuccessMessageMixin, FormView):
+    """
+    View: Show a form to register the AK preference of a participant.
+
+    The form creates the `EventParticipant` instance as well as the
+    AKPreferences for each AK of the event.
+
+    For the creation of the event participant, a `EventParticipantForm` is used.
+    For the preferences, a ModelFormset is created.
+    """
+
+
 class EventSlugRedirectWhenInactiveMixin(EventSlugMixin):
     """
     Mixin to redirect to the dashboard when the event is not active
@@ -166,11 +46,11 @@ class EventSlugRedirectWhenInactiveMixin(EventSlugMixin):
         self._load_event()
         if not self.event.active or (self.event.poll_hidden and not request.user.is_staff):
             messages.warning(request, _("Preference poll is not active"))
-            return redirect(self.get_success_url())
+            return redirect(reverse_lazy("dashboard:dashboard_event", kwargs={"slug": self.event.slug}))
         return super().dispatch(request, *args, **kwargs)
 
 
-class PreferencePollStartView(EventSlugMixin, CreateView):
+class PreferencePollStartView(EventSlugRedirectWhenInactiveMixin, CreateView):
     """
     View: Start the preference poll for the event by showing the preference poll create form
 
@@ -182,7 +62,7 @@ class PreferencePollStartView(EventSlugMixin, CreateView):
     form_class = EventParticipantForm
 
     def get_success_url(self):
-        return reverse_lazy("poll:poll-overview", kwargs={"event_slug": self.event.slug})
+        return reverse_lazy("poll:overview", kwargs={"event_slug": self.event.slug})
 
     def get(self, request, *args, **kwargs):
         # Check whether the user already registered for preference polling for this event and
@@ -222,7 +102,7 @@ class CheckSessionForParticipantMixin:
         # redirect to second step in that case
         key = uuid_key(self.event)
         if not key in request.session:
-            return redirect(reverse_lazy("poll:poll-start", kwargs={"event_slug": self.event.slug}))
+            return redirect(reverse_lazy("poll:start", kwargs={"event_slug": self.event.slug}))
         if not self.event.eventparticipant_set.filter(uuid=request.session[key]).exists():
             # If the uuid in the session is not valid anymore (e.g. because the participant was deleted),
             # remove it from the session
@@ -231,6 +111,9 @@ class CheckSessionForParticipantMixin:
                              _("There was an error discovering your previously entered information. "
                                "Please start again."))
         return super().get(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy("poll:overview", kwargs={"event_slug": self.event.slug})
 
 
 class PreferencePollOverview(EventSlugRedirectWhenInactiveMixin, CheckSessionForParticipantMixin, TemplateView):
@@ -267,9 +150,6 @@ class ParticipantUpdateView(EventSlugRedirectWhenInactiveMixin, CheckSessionForP
     title = _("Update information")
     form_class = EventParticipantForm
 
-    def get_success_url(self):
-        return reverse_lazy("poll:poll-overview", kwargs={"event_slug": self.event.slug})
-
     def form_valid(self, form):
         r = super().form_valid(form)
         messages.success(self.request, _("Information updated."))
@@ -300,6 +180,76 @@ class DeleteInformationAndPreferencesView(EventSlugRedirectWhenInactiveMixin, Ch
 
     def get_object(self, queryset=...):
         return EventParticipant.objects.get(uuid=self.request.session[uuid_key(self.event)])
+
+
+class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForParticipantMixin, FormView):
+    template_name = 'AKPreference/poll_preferences.html'
+    model = EventParticipant
+
+    def dispatch(self, request, *args, **kwargs):
+        self.ak_category = get_object_or_404(AKCategory, pk=self.kwargs['category_pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['participant'] = self.get_object()
+        kwargs['category'] = self.ak_category
+        return kwargs
+
+    def get_form_class(self):
+        existing_preferences_ak_ids = self.get_object().akpreference_set.values_list('ak', flat=True)
+        aks_without_preferences = self.ak_category.ak_set.exclude(pk__in=existing_preferences_ak_ids).prefetch_related('owners')
+        self.initial = [
+            {
+                'event': self.event,
+                'participant': self.get_object(),
+                'ak': ak,
+            } for ak in aks_without_preferences
+        ]
+
+        return forms.modelformset_factory(AKPreference, form=PreferenceForm, formset=PreferenceFormSet,
+                                          extra=len(self.initial))
+
+    def get_object(self, queryset=...):
+        if not hasattr(self, "object") or self.object is None:
+            self.object = EventParticipant.objects.get(uuid=self.request.session[uuid_key(self.event)])
+        return self.object
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context['category'] = self.ak_category
+        ak_details = {ak.pk: ak for ak in self.ak_category.ak_set.prefetch_related('owners').all()}
+        for f in context['form']:
+            # If type of initial['ak'] is not string
+            ak = ak_details[f.initial['ak']] if isinstance(f.initial['ak'], int) else f.initial['ak']
+            f.fields["preference"].label = ak.name
+            f.fields["preference"].help_text = (
+                    _("Description: ") + ak.description
+            )
+            f.ak_obj = ak
+        return context
+
+    def form_valid(self, form):
+        count_saved = 0
+        count_deleted = 0
+
+        # Loop over all forms in the formset and store all preferences that are not "ignore"
+        # Delete previously saved preferences that are now set to "ignore"
+        for f in form.forms:
+            if "preference" in f.cleaned_data:
+                o = f.save(commit=False)
+                if f.cleaned_data['preference'] > 0:
+                    o.save()
+                    count_saved += 1
+                else:
+                    o.delete()
+                    count_deleted += 1
+
+        messages.success(
+            self.request,
+            _(f"{count_saved} Preferences saved/updated, {count_deleted} previously saved Preferences deleted.")
+        )
+        return redirect(self.get_success_url())
 
 
 @status_manager.register(name="preferences")

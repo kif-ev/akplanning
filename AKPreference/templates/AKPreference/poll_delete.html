@@ -1,4 +1,4 @@
-{% extends 'AKPreference/poll_base.html' %}
+{% extends 'base.html' %}
 
 {% load i18n %}
 {% load django_bootstrap5 %}
@@ -12,7 +12,12 @@
 
 {% block breadcrumbs %}
     {% include "AKPreference/poll_breadcrumbs.html" %}
-    <li class="breadcrumb-item active">{% trans "AK Preference Poll" %}</li>
+        <li class="breadcrumb-item">
+        <a href="{% url 'poll:overview' event_slug=event.slug %}">
+            {% trans "AK Preference Poll" %}
+        </a>
+    </li>
+    <li class="breadcrumb-item active">{% trans "Delete" %}</li>
 {% endblock %}
 
 {% block content %}
@@ -32,7 +37,7 @@
             {% fa6_icon "check" 'fas' %} {% trans "Confirm" %}
         </button>
 
-        <a href="{% url "poll:poll-overview" event_slug=event.slug %}" class="btn btn-secondary">
+        <a href="{% url "poll:overview" event_slug=event.slug %}" class="btn btn-secondary">
             {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
         </a>
     </form>
