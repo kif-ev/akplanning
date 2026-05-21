@@ -16,7 +16,7 @@ class PollViewTests(BasicViewTests, TestCase):
         Test: Make sure that user is redirected from poll to dashboard when poll is hidden
         """
         event = Event.objects.get(slug='kif42')
-        _, url_poll = self._name_and_url(('poll', {'event_slug': event.slug}))
+        _, url_poll = self._name_and_url(('start', {'event_slug': event.slug}))
         url_dashboard = reverse("dashboard:dashboard_event", kwargs={"slug": event.slug})
 
         event.poll_hidden = True
@@ -37,4 +37,5 @@ class PollViewTests(BasicViewTests, TestCase):
             msg=f"{url_poll} broken",
         )
 
-        self.assertTemplateUsed(response, "AKPreference/poll.html", msg_prefix="Poll is not visible for staff user")
+        self.assertTemplateUsed(response, "AKPreference/poll_start.html",
+                                msg_prefix="Poll is not visible for staff user")

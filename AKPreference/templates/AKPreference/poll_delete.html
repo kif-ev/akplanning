@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load django_bootstrap5 %}
+{% load fontawesome_6 %}
+{% load static %}
+{% load tz %}
+{% load static %}
+
+
+{% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "Preferences" %}{% endblock %}
+
+{% block breadcrumbs %}
+    {% include "AKPreference/poll_breadcrumbs.html" %}
+        <li class="breadcrumb-item">
+        <a href="{% url 'poll:overview' event_slug=event.slug %}">
+            {% trans "AK Preference Poll" %}
+        </a>
+    </li>
+    <li class="breadcrumb-item active">{% trans "Delete" %}</li>
+{% endblock %}
+
+{% block content %}
+    {% include "messages.html" %}
+
+    {% block headline %}
+        <h2>{% trans 'AK Preference Poll' %}</h2>
+    {% endblock %}
+    <form method="POST" class="post-form">{% csrf_token %}
+
+        <div class="text-danger mt-4 mb-4 text-center">
+            <div style="font-size:10em">{% fa6_icon "eraser" %}</div>
+            <h4>{% trans "Do you really want to delete your information and all saved preferences? This cannot be undone!" %}</h4>
+        </div>
+
+        <button type="submit" class="save btn btn-danger float-end" value="Confirm">
+            {% fa6_icon "check" 'fas' %} {% trans "Confirm" %}
+        </button>
+
+        <a href="{% url "poll:overview" event_slug=event.slug %}" class="btn btn-secondary">
+            {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
+        </a>
+    </form>
+{% endblock %}

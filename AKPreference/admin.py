@@ -1,7 +1,13 @@
 from django import forms
 from django.contrib import admin
+from django.contrib.admin import action
+from django.db.models import Count
+from django.http import HttpResponseRedirect
+from django.utils.translation import gettext_lazy as _
+from django.urls import path, reverse_lazy
 
 from AKPreference.models import AKPreference, EventParticipant
+from AKPreference.views import AnonymizeParticipantsView
 from AKModel.admin import PrepopulateWithNextActiveEventMixin, EventRelatedFieldListFilter
 from AKModel.models import AK, AKRequirement
 
@@ -10,6 +16,11 @@ class EventParticipantAdminForm(forms.ModelForm):
     """
     Adapted admin form for EventParticipant for usage in :class:`EventParticipantAdmin`)
     """
+    class Meta:
+        widgets = {
+            "requirements": forms.CheckboxSelectMultiple,
+        }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Filter possible values for foreign keys & m2m when event is specified
@@ -23,11 +34,49 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
     Admin interface for EventParticipant
     """
     model = EventParticipant
-    list_display = ['name', 'institution', 'event']
+    list_display = ['name', 'institution', 'event', 'uuid', 'preference_count']
     list_filter = ['event', 'institution']
     list_editable = []
+    readonly_fields = ['uuid']
     ordering = ['name']
+    actions = ['anonymize']
     form = EventParticipantAdminForm
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(preference_count=Count('akpreference'))
+
+    def preference_count(self, obj):
+        """
+        Access the annotated preference count for the participants as field in the admin list view
+        :param obj: partipipant object
+        :return: annotated preference count
+        """
+        return obj.preference_count
+    preference_count.admin_order_field = 'preference_count'
+    preference_count.short_description = _('Count of saved preferences')
+
+    def get_urls(self):
+        """
+        Add additional URLs/views
+        Currently used to reset the interest field and interest counter field
+        """
+        urls = [
+            path('anonymize-participants/', AnonymizeParticipantsView.as_view(),
+                 name="preference-anonymize-participants"),
+        ]
+        urls.extend(super().get_urls())
+        return urls
+
+    @action(description=_("Anonymize participants"))
+    def anonymize(self, request, queryset):
+        """
+        Action: Anonymize selected participants
+        Will use a typical admin confirmation view flow
+        """
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(
+                f"{reverse_lazy('admin:preference-anonymize-participants')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 class AKPreferenceAdminForm(forms.ModelForm):

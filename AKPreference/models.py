@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -22,10 +23,14 @@ class EventParticipant(models.Model):
     requirements = models.ManyToManyField(to=AKRequirement, blank=True, verbose_name=_('Requirements'),
                                           help_text=_("Participant's Requirements"))
 
+    uuid = models.UUIDField(unique=True, verbose_name=_('UUID'), default=uuid.uuid4,
+                            help_text=_('Unique and non-guessable identifier for this participant'))
+
     def __str__(self) -> str:
         string = _("Anonymous {pk}").format(pk=self.pk) if not self.name else self.name
         if self.institution:
             string += f" ({self.institution})"
+        string += f" [{self.uuid}]"
         return string
 
     @property

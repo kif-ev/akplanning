@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load django_bootstrap5 %}
+{% load fontawesome_6 %}
+{% load static %}
+{% load tz %}
+{% load static %}
+
+
+{% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "Preferences" %}{% endblock %}
+
+{% block breadcrumbs %}
+    {% include "AKPreference/poll_breadcrumbs.html" %}
+    <li class="breadcrumb-item active">{% trans "AK Preference Poll" %}</li>
+{% endblock %}
+
+{% block content %}
+    {% include "messages.html" %}
+
+    {% block headline %}
+        <h2>{% trans 'AK Preference Poll' %}</h2>
+    {% endblock %}
+
+    UUID: {{ uuid }}
+
+    <h3 class="mt-3">{% trans "Enter Preferences" %}</h3>
+
+    <ul style="font-size: 1.2em;" class="mt-3 mb-5">
+        {% for category in categories %}
+            <li>
+                <a href="{% url 'poll:preferences-enter' event_slug=event.slug category_pk=category.pk %}">
+                    {{ category.name }}
+                </a>
+                &nbsp;
+                {% if category.has_saved_preferences %}
+                    {% fa6_icon "circle-check" %}
+                {% endif %}
+                <br>
+                {{ category.description }}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a class="btn btn-primary" href="{% url 'poll:participant-update' event_slug=event.slug %}">
+        {% fa6_icon "user-pen" %}
+        &nbsp;
+        {% trans "Update your information" %}
+    </a>
+    &nbsp;
+    <a class="btn btn-danger" href="{% url 'poll:participant-delete' event_slug=event.slug %}">
+        {% fa6_icon "trash" %}
+        &nbsp;
+        {% trans "Delete saved information &amp; preferences" %}
+    </a>
+
+{% endblock %}
+

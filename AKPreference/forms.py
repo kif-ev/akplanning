@@ -1,10 +1,9 @@
 from django import forms
-from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
 from AKModel.models import AKRequirement
-from AKPreference.models import EventParticipant
+from AKPreference.models import EventParticipant, AKPreference
 
 
 class EventParticipantForm(AvailabilitiesFormMixin, forms.ModelForm):
@@ -49,3 +48,37 @@ class EventParticipantForm(AvailabilitiesFormMixin, forms.ModelForm):
                 Availability.with_event_length(event=self.cleaned_data["event"])
             )
         return availabilities
+
+
+class PreferenceForm(forms.ModelForm):
+    """
+    Form for each preference
+    """
+    class Meta:
+        model = AKPreference
+        fields = '__all__'
+        widgets = {
+            "event": forms.HiddenInput,
+            "participant": forms.HiddenInput,
+            "ak": forms.HiddenInput,
+            "preference": forms.RadioSelect,
+        }
+
+
+class PreferenceFormSet(forms.BaseModelFormSet):
+    """
+    Formset to control all lines to enter preferences for a given participant and category
+    """
+    def __init__(self, *args, **kwargs):
+        self.participant = kwargs.pop("participant")
+        self.category = kwargs.pop("category")
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self):
+        # Override queryset to only show existing preferences of the given participant and category
+        # Other options will be added as "extras" in the view
+        if not hasattr(self, "_queryset"):
+            self._queryset = (super().get_queryset().filter(participant=self.participant, ak__category=self.category)
+                    .select_related('ak')
+                    .order_by('ak'))
+        return self._queryset
