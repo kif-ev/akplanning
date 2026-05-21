@@ -7,9 +7,9 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import path, reverse_lazy
 
 from AKPreference.models import AKPreference, EventParticipant
+from AKPreference.views import AnonymizeParticipantsView
 from AKModel.admin import PrepopulateWithNextActiveEventMixin, EventRelatedFieldListFilter
 from AKModel.models import AK, AKRequirement
-from AKPreference.views import AnonymizeParticipantsView
 
 
 class EventParticipantAdminForm(forms.ModelForm):
@@ -47,6 +47,11 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
         return qs.annotate(preference_count=Count('akpreference'))
 
     def preference_count(self, obj):
+        """
+        Access the annotated preference count for the participants as field in the admin list view
+        :param obj: partipipant object
+        :return: annotated preference count
+        """
         return obj.preference_count
     preference_count.admin_order_field = 'preference_count'
     preference_count.short_description = _('Count of saved preferences')
@@ -57,7 +62,8 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
         Currently used to reset the interest field and interest counter field
         """
         urls = [
-            path('anonymize-participants/', AnonymizeParticipantsView.as_view(), name="preference-anonymize-participants"),
+            path('anonymize-participants/', AnonymizeParticipantsView.as_view(),
+                 name="preference-anonymize-participants"),
         ]
         urls.extend(super().get_urls())
         return urls

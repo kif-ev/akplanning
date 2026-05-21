@@ -95,9 +95,13 @@ class PreferencePollStartView(EventSlugRedirectWhenInactiveMixin, CreateView):
 
 class CheckSessionForParticipantMixin:
     """
-    Mixin to check whether the session contains a valid participant uuid for the event and redirect to the start page if not
+    Mixin to check whether the session contains a valid participant uuid for the event
+    and redirect to the start page if not
     """
     def get(self, request, *args, **kwargs):
+        """
+        Override get method of view
+        """
         # Check whether the user already registered for preference polling for this event and
         # redirect to second step in that case
         key = uuid_key(self.event)
@@ -113,6 +117,9 @@ class CheckSessionForParticipantMixin:
         return super().get(request, *args, **kwargs)
 
     def get_success_url(self):
+        """
+        Override get_success_url of view
+        """
         return reverse_lazy("poll:overview", kwargs={"event_slug": self.event.slug})
 
 
@@ -159,7 +166,8 @@ class ParticipantUpdateView(EventSlugRedirectWhenInactiveMixin, CheckSessionForP
         return EventParticipant.objects.get(uuid=self.request.session[uuid_key(self.event)])
 
 
-class DeleteInformationAndPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForParticipantMixin, DeleteView):
+class DeleteInformationAndPreferencesView(EventSlugRedirectWhenInactiveMixin,
+                                          CheckSessionForParticipantMixin, DeleteView):
     """
     View: Delete the participant information and preferences for the preference poll
     """
@@ -183,6 +191,9 @@ class DeleteInformationAndPreferencesView(EventSlugRedirectWhenInactiveMixin, Ch
 
 
 class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForParticipantMixin, FormView):
+    """
+    View to enter and update preferences for a given category
+    """
     template_name = 'AKPreference/poll_preferences.html'
     model = EventParticipant
 
@@ -198,7 +209,8 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
 
     def get_form_class(self):
         existing_preferences_ak_ids = self.get_object().akpreference_set.values_list('ak', flat=True)
-        aks_without_preferences = self.ak_category.ak_set.exclude(pk__in=existing_preferences_ak_ids).prefetch_related('owners')
+        aks_without_preferences = (self.ak_category.ak_set.exclude(pk__in=existing_preferences_ak_ids)
+                                   .prefetch_related('owners'))
         self.initial = [
             {
                 'event': self.event,
@@ -211,6 +223,9 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
                                           extra=len(self.initial))
 
     def get_object(self, queryset=...):
+        """
+        Override
+        """
         if not hasattr(self, "object") or self.object is None:
             self.object = EventParticipant.objects.get(uuid=self.request.session[uuid_key(self.event)])
         return self.object
