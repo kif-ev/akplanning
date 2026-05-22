@@ -132,20 +132,18 @@ class DashboardTests(TestCase):
         url_event_dashboard = reverse('dashboard:dashboard_event', kwargs={"slug": self.event.slug})
 
         if apps.is_installed('AKPlan'):
-            # Plan hidden? No buttons should show up
+            # Plan hidden? Button should not show
             self.event.plan_hidden = True
             self.event.save()
             response = self.client.get(url_event_dashboard)
-            self.assertNotContains(response, "Current AKs")
-            self.assertNotContains(response, "AK Wall")
+            self.assertNotContains(response, "Schedule")
 
             # Plan not hidden?
-            # Buttons for current AKs and AK Wall should be on the page
+            # Buttons for schedule should be on the page
             self.event.plan_hidden = False
             self.event.save()
             response = self.client.get(url_event_dashboard)
-            self.assertContains(response, "Current AKs")
-            self.assertContains(response, "AK Wall")
+            self.assertContains(response, "Schedule")
 
     def test_poll_hidden(self):
         """
