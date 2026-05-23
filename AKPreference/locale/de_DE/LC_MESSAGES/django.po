@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-20 16:33+0200\n"
+"POT-Creation-Date: 2026-05-23 19:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,15 +17,16 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKPreference/admin.py:52
+#: AKPreference/admin.py:60
 msgid "Count of saved preferences"
 msgstr "Anzahl gespeicherter Präferenzen"
 
-#: AKPreference/admin.py:65 AKPreference/views.py:277
+#: AKPreference/admin.py:76 AKPreference/views.py:293
 msgid "Anonymize participants"
 msgstr "Teilnehmende anonymisieren"
 
 #: AKPreference/models.py:12 AKPreference/models.py:98
+#: AKPreference/templates/admin/AKPreference/participant.html:9
 msgid "Participant"
 msgstr "Teilnehmende*r"
 
@@ -94,6 +95,7 @@ msgid "Participant this preference belongs to"
 msgstr "Teilnehmer*in, zu dem*der die Präferenz gehört"
 
 #: AKPreference/models.py:101
+#: AKPreference/templates/admin/AKPreference/participant.html:31
 msgid "AK"
 msgstr "AK"
 
@@ -118,6 +120,7 @@ msgid "Required"
 msgstr "Erforderlich"
 
 #: AKPreference/models.py:113
+#: AKPreference/templates/admin/AKPreference/participant.html:32
 msgid "Preference"
 msgstr "Präferenz"
 
@@ -169,7 +172,9 @@ msgstr "Löschen"
 msgid ""
 "Do you really want to delete your information and all saved preferences? "
 "This cannot be undone!"
-msgstr "Möchtest du wirklich deine Informationen und alle gespeicherten Präferenzen löschen? Das kann nicht rückgängig gemacht werden!"
+msgstr ""
+"Möchtest du wirklich deine Informationen und alle gespeicherten Präferenzen "
+"löschen? Das kann nicht rückgängig gemacht werden!"
 
 #: AKPreference/templates/AKPreference/poll_delete.html:37
 msgid "Confirm"
@@ -220,6 +225,10 @@ msgstr "Speichern"
 msgid "Continue"
 msgstr "Fortfahren"
 
+#: AKPreference/templates/admin/AKPreference/participant.html:47
+msgid "This participant does not have any preferences currently"
+msgstr "Diese*r Teilnehmende*r hat noch keine Präferenzen."
+
 #: AKPreference/templates/admin/AKPreference/status/preference_overview.html:7
 msgid ""
 "\n"
@@ -256,16 +265,16 @@ msgstr[1] ""
 "                <h3>Präferenzeinträge</h3>\n"
 "            "
 
-#: AKPreference/views.py:48
+#: AKPreference/views.py:49
 #, fuzzy
 msgid "Preference poll is not active"
 msgstr "Präferenzabfrage ist nicht aktiv"
 
-#: AKPreference/views.py:61
+#: AKPreference/views.py:62
 msgid "Start Preference Poll"
 msgstr "AK-Präferenzenabfrage starten"
 
-#: AKPreference/views.py:78 AKPreference/views.py:111
+#: AKPreference/views.py:79 AKPreference/views.py:116
 msgid ""
 "There was an error discovering your previously entered information. Please "
 "start again."
@@ -273,35 +282,35 @@ msgstr ""
 "Es gab ein Problem beim Laden deiner bisher eingegebenen Informationen. "
 "Bitte beginne von vorne."
 
-#: AKPreference/views.py:127
+#: AKPreference/views.py:135
 msgid "Preference Poll Overview"
 msgstr "Übersicht AK-Präferenzen"
 
-#: AKPreference/views.py:150
+#: AKPreference/views.py:158
 msgid "Update information"
 msgstr "Informationen aktualisieren"
 
-#: AKPreference/views.py:155
+#: AKPreference/views.py:163
 msgid "Information updated."
 msgstr "Informationen aktualisiert"
 
-#: AKPreference/views.py:168
+#: AKPreference/views.py:177
 msgid "Delete information and preferences"
 msgstr "Gespeicherte Informationen und Präferenzen löschen"
 
-#: AKPreference/views.py:178
+#: AKPreference/views.py:187
 msgid "Your information and preferences were deleted."
 msgstr "Deine Informationen und Präferenzen wurden gelöscht."
 
-#: AKPreference/views.py:227
+#: AKPreference/views.py:243
 msgid "Description: "
 msgstr "Beschreibung: "
 
-#: AKPreference/views.py:261
+#: AKPreference/views.py:277
 msgid "Preference Poll Summary"
 msgstr "Zusammenfassung AK-Präferenzen"
 
-#: AKPreference/views.py:279
+#: AKPreference/views.py:295
 msgid ""
 "The following participants will be anonymized by removing their name and "
 "institution. This cannot be undone!"
@@ -309,7 +318,7 @@ msgstr ""
 "Die folgenden Teilnehmen werden anonymisiert, indem ihr Name und ihre "
 "Institution entfernt werden. Das kann nicht rückgängig gemacht werden!"
 
-#: AKPreference/views.py:281
+#: AKPreference/views.py:297
 msgid "Participants successfully anonymized."
 msgstr "Teilnehmende erfolgreich anonymisiert"
 
