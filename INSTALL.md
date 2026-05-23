@@ -10,7 +10,7 @@ setup.
 
 ### System Requirements
 
-* Python3.11+ incl. development tools
+* Python3.13+ incl. development tools
 * Virtualenv
 * pdflatex & beamer
   class (`texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-extra texlive-luatex`)
@@ -37,7 +37,7 @@ Python requirements are listed in ``requirements.txt``. They can be installed wi
 
 ### Manual Setup
 
-1. setup a virtual environment using the proper python version ``virtualenv venv -p python3.11``
+1. setup a virtual environment using the proper python version ``virtualenv venv -p python3.13``
 1. activate virtualenv ``source venv/bin/activate``
 1. install python requirements ``pip install -r requirements.txt``
 1. setup necessary database tables etc. ``python manage.py migrate``
@@ -68,7 +68,7 @@ is not stored in any repository or similar, and disable DEBUG mode (``settings.p
 1. create a folder, e.g. ``mkdir /srv/AKPlanning/``
 1. change to the new directory ``cd /srv/AKPlanning/``
 1. clone this repository ``git clone URL .``
-1. setup a virtual environment using the proper python version ``virtualenv venv -p python3.11``
+1. setup a virtual environment using the proper python version ``virtualenv venv -p python3.13``
 1. activate virtualenv ``source venv/bin/activate``
 1. update tools ``pip install --upgrade setuptools pip wheel``
 1. install python requirements ``pip install -r requirements.txt``
