@@ -39,7 +39,7 @@
             // Create entries for all scheduled slots
             events: [
                 {% if not event.plan_hidden or user.is_staff %}
-                    {% for slot in akslots.all %}
+                    {% for slot in akslots %}
                         {% if slot.start %}
                             {
                                 'title':
@@ -50,7 +50,8 @@
                                     {% endif %},
                                 'start': '{{ slot.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
                                 'end': '{{ slot.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-                                'url' : '{% if slot.room %}{% url "plan:plan_room" event_slug=event.slug pk=slot.room.pk %}{% else %}#{% endif %}'
+                                {% if slot.color %}'backgroundColor': '{{ slot.color }}',{% endif %}
+                                'url' : '{% if slot.room %}{% url "plan:plan_room" event_slug=event.slug pk=slot.room.pk %}{% else %}#{% endif %}',
                             },
                         {% endif %}
                     {% endfor %}

@@ -1,14 +1,15 @@
 from django import forms
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Exists, OuterRef
+from django.db.models import Subquery, Exists, OuterRef
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import FormView, CreateView, TemplateView, UpdateView, DeleteView
+from django.views.generic import FormView, CreateView, TemplateView, UpdateView, DeleteView, DetailView
 
+from AKModel.availability.models import Availability
 from AKModel.metaviews import status_manager
-from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminActionView
+from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminActionView, AdminViewMixin
 from AKModel.metaviews.status import TemplateStatusWidget
 from AKModel.models import AKCategory
 from AKPreference.models import AKPreference, EventParticipant
@@ -297,3 +298,35 @@ class AnonymizeParticipantsView(IntermediateAdminActionView):
 
     def action(self, form):
         self.entities.update(name='', institution='')
+
+
+class ParticipantAdminView(AdminViewMixin, DetailView):
+    """
+    View: Get information about a participant (preferences and availabilities)
+    """
+    model = EventParticipant
+    context_object_name = 'participant'
+    template_name = "admin/AKPreference/participant.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['event'] = self.object.event
+        context["preferences"] = (AKPreference.objects.filter(participant=self.object, preference__gt=0)
+                                  .select_related('ak')
+                                  .order_by('-preference'))
+        relevant_aks = context["preferences"].values_list('ak', flat=True)
+        context["akslots"] = context["event"].akslot_set.select_related('ak', 'room').filter(ak__in=relevant_aks).annotate(
+            preference=Subquery(
+                AKPreference.objects.filter(
+                    participant=self.object,
+                    ak=OuterRef('ak')
+                ).values('preference')[:1]
+            )
+        )
+        PREFERENCE_COLORS = ['#555', '#75caeb', '#158cba', '#ff4136']
+        context["akslots"] = list(context["akslots"])
+        for akslot in context["akslots"]:
+            akslot.color = PREFERENCE_COLORS[akslot.preference]
+        context["availabilities"] = Availability.objects.filter(participant=self.object).all()
+        context["title_in_cal"] = "akname"
+        return context

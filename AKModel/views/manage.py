@@ -394,7 +394,7 @@ class AKsByUserView(AdminViewMixin, EventSlugMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["aks"] = self.object.ak_set.select_related('event')
-        context["akslots"] = AKSlot.objects.filter(ak__owners=self.object).select_related('ak', 'room')
+        context["akslots"] = AKSlot.objects.filter(ak__owners=self.object).select_related('ak', 'room').all()
         context["availabilities"] = []
         context["title_in_cal"] = "akname"
         return context

@@ -217,6 +217,10 @@ class AKOwnerAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
     ordering = ['name']
     readonly_fields = ['aks_url']
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(ak_count=Count('ak'))
+
     @display(description=_("AKs"))
     def aks_url(self, obj):
         """
@@ -228,7 +232,8 @@ class AKOwnerAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
         """
         return format_html("<a href='{url}'>{text}</a>",
                            url=reverse_lazy('admin:aks_by_owner', kwargs={'event_slug': obj.event.slug, 'pk': obj.pk}),
-                           text=obj.ak_set.count())
+                           text=obj.ak_count)
+    aks_url.admin_order_field='ak_count'
 
 
 @admin.register(AKCategory)

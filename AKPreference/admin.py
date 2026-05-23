@@ -3,11 +3,12 @@ from django.contrib import admin
 from django.contrib.admin import action
 from django.db.models import Count
 from django.http import HttpResponseRedirect
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.urls import path, reverse_lazy
 
 from AKPreference.models import AKPreference, EventParticipant
-from AKPreference.views import AnonymizeParticipantsView
+from AKPreference.views import AnonymizeParticipantsView, ParticipantAdminView
 from AKModel.admin import PrepopulateWithNextActiveEventMixin, EventRelatedFieldListFilter
 from AKModel.models import AK, AKRequirement
 
@@ -52,7 +53,9 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
         :param obj: partipipant object
         :return: annotated preference count
         """
-        return obj.preference_count
+        return format_html("<a href='{url}'>{text}</a>",
+                url=reverse_lazy('admin:participant-details', kwargs={'pk': obj.pk}),
+                text=obj.preference_count)
     preference_count.admin_order_field = 'preference_count'
     preference_count.short_description = _('Count of saved preferences')
 
@@ -62,8 +65,10 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
         Currently used to reset the interest field and interest counter field
         """
         urls = [
-            path('anonymize-participants/', AnonymizeParticipantsView.as_view(),
+            path('anonymize-participants/', self.admin_site.admin_view(AnonymizeParticipantsView.as_view()),
                  name="preference-anonymize-participants"),
+            path('details/<pk>/', self.admin_site.admin_view(ParticipantAdminView.as_view()),
+                 name="participant-details"),
         ]
         urls.extend(super().get_urls())
         return urls
@@ -106,6 +111,9 @@ class AKPreferenceAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
     model = AKPreference
     form = AKPreferenceAdminForm
     list_display = ['preference', 'participant', 'ak', 'event']
-    list_filter = ['event', ('ak', EventRelatedFieldListFilter), ('participant', EventRelatedFieldListFilter)]
+    list_filter = ['event',
+                   ('ak', EventRelatedFieldListFilter),
+                   ('participant', EventRelatedFieldListFilter),
+                   'preference']
     list_editable = []
     ordering = ['participant', 'preference', 'ak']

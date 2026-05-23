@@ -306,7 +306,7 @@ class AKDetailView(EventSlugMixin, DetailView):
                     break
 
         context['event'] = self.event
-        context['akslots'] = context["ak"].akslot_set.all().select_related('ak', 'room')
+        context['akslots'] = context["ak"].akslot_set.all().select_related('ak', 'room').all()
         context['title_in_cal'] = "room"
 
         # Display interest indication button?

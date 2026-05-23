@@ -1,0 +1,56 @@
+{% extends "admin/base_site.html" %}
+{% load tags_AKModel %}
+{% load static %}
+{% load i18n %}
+{% load tz %}
+{% load fontawesome_6 %}
+{% load django_bootstrap5 %}
+
+{% block title %}{% trans "Participant" %}: {{owner}}{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {% bootstrap_javascript %}
+    <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
+    {% if 'AKPlan'|check_app_installed %}
+        {% include "AKPlan/plan_akslot.html" %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% timezone event.timezone %}
+        <h2>
+            [{{ event }}] <a href="{% url 'admin:AKPreference_eventparticipant_change' participant.pk %}">
+            {{ participant }}</a>
+        </h2>
+
+        <div class="row mt-4">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{% trans 'AK' %}</th>
+                        <th>{% trans 'Preference' %}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                {% for preference in preferences %}
+                    <tr>
+                        <td>{{ preference.ak }}</td>
+                        <td>{{ preference.get_preference_display }}</td>
+                        <td>
+                            <a href="{% url 'admin:AKPreference_akpreference_change' preference.pk %}">
+                                {% fa6_icon "pen" %}
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td>{% trans "This participant does not have any preferences currently" %}</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        {% if 'AKPlan'|check_app_installed %}
+            <div id='akSlotCalendar' style="margin-top: 50px;margin-bottom: 50px;"></div>
+        {% endif %}
+    {% endtimezone %}
+{% endblock %}
