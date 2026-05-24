@@ -18,5 +18,5 @@ djangorestframework==3.17.1
 django-docs==0.3.3
 
 fontawesomefree==6.6.0  # Makes static files (css, fonts) available locally
-tzdata==2025.3
+tzdata==2026.2
 jsonschema==4.26.0
