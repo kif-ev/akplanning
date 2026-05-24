@@ -26,6 +26,10 @@ git pull
 pip install --upgrade setuptools pip wheel
 pip install --upgrade -r requirements.txt
 
+if [ "$1" = "--prod" ] || [ "$2" = "--prod" ]; then
+    pip install --upgrade -r requirements/mysql.txt
+fi
+
 ./manage.py migrate
 ./manage.py collectstatic --noinput
 ./manage.py compilemessages -l de_DE
