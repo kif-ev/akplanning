@@ -1,46 +1,65 @@
-image: python:3.13
-
-services:
-  - mysql
+stages:
+  - installation
+  - test
+  - deploy
 
 variables:
+  PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_INPUT: "1"
   MYSQL_DATABASE: "test"
   MYSQL_ROOT_PASSWORD: "mysql"
   MYSQL_USER: "django"
   MYSQL_PASSWORD: "mysql"
   MYSQL_HOST: "mysql"
 
-cache:
-  paths:
-    - ~/.cache/pip/
+default:
+  image: python:3.13
+  cache:
+    key:
+      files:
+        - requirements/*.txt
+        - requirements.txt
+    paths:
+      - .cache/pip
+      - venv/
+    policy: pull-push
 
-.before_script_template:
-  before_script:
+installation:
+  stage: installation
+  services:
+    - mysql
+  script:
     - python -V  # Print out python version for debugging
     - apt-get -qq update
-    - apt-get -qq install -y python3-virtualenv python3 python3-dev python3-pip gettext default-mysql-client default-libmysqlclient-dev
+    - apt-get -qq install -y python3-virtualenv python3-dev python3-pip gettext
     - ./Utils/setup.sh --ci
-    - mkdir -p public/badges public/lint
-    - echo undefined > public/badges/$CI_JOB_NAME.score
-    - source venv/bin/activate
-    - pip install pylint-gitlab pylint-django
-    - mysql --version
 
 migrations:
-  extends: .before_script_template
+  needs:
+    - installation
+  stage: test
   script:
     - source venv/bin/activate
     - ./manage.py makemigrations --dry-run --check
 
 test:
-  extends: .before_script_template
+  needs:
+    - installation
+  services:
+    - mysql
+  stage: test
   script:
     - source venv/bin/activate
-    - echo "GRANT ALL on *.* to '${MYSQL_USER}';"| mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -h mysql --ssl-verify-server-cert=false
+    - apt-get -qq update
+    - apt-get -qq install -y default-mysql-client default-libmysqlclient-dev
     - pip install pytest-cov
+    - pip install -r requirements/test.txt
+    - pip install -r requirements/mysql.txt
+    - mysql --version
+    - echo "GRANT ALL on *.* to '${MYSQL_USER}';"| mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -h mysql --ssl-verify-server-cert=false
     - coverage run --source='.' manage.py test --settings AKPlanning.settings_ci
   after_script:
-    - source venv/bin/activate
     - coverage report
     - coverage xml
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
@@ -52,9 +71,14 @@ test:
       junit: unit.xml
 
 lint:
-  extends: .before_script_template
+  needs:
+    - installation
   stage: test
   script:
+    - mkdir -p public/badges public/lint
+    - echo undefined > public/badges/$CI_JOB_NAME.score
+    - source venv/bin/activate
+    - pip install -r requirements/lint.txt
     - pylint --load-plugins pylint_django --django-settings-module=AKPlanning.settings_ci --rcfile pylintrc --exit-zero --output-format=text AK* | tee /tmp/pylint.txt
     - sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' /tmp/pylint.txt > public/badges/$CI_JOB_NAME.score
     - pylint --load-plugins pylint_django --django-settings-module=AKPlanning.settings_ci --rcfile pylintrc --exit-zero --output-format=pylint_gitlab.GitlabCodeClimateReporter AK* > codeclimate.json
@@ -70,12 +94,14 @@ lint:
     when: always
 
 doc:
-  extends: .before_script_template
+  needs:
+    - installation
   stage: test
   script:
+    - source venv/bin/activate
+    - pip install -r requirements/docs.txt
     - cd docs
     - make html
-    - cd ..
   artifacts:
     paths:
       - docs/_build/html

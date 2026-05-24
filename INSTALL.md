@@ -23,7 +23,8 @@ setup.
 
 ### Python Requirements
 
-Python requirements are listed in ``requirements.txt``. They can be installed with pip using ``-r requirements.txt``.
+Python requirements are listed in ``requirements.txt`` and in the files in the requirements directory.
+They can be installed with pip using ``-r requirements.txt`` and for production setup ``-r requirements_mysql.txt``.
 
 ## Development Setup
 

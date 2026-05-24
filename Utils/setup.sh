@@ -1,26 +1,35 @@
 #!/usr/bin/env bash
 # Setup AKPlanning
-# execute as ./Utils/setup.sh
+# execute as ./Utils/setup.sh [--prod OR --ci]
 
 # abort on error, print executed commands
 set -ex
 
-# remove old virtualenv
-rm -rf venv/
-
 # Setup Python Environment
+# remove old virtualenv if --ci flag is not set
+if [ -z "$1" ] || [ "$1" != "--ci" ]; then
+  rm -rf venv/
+fi
+
 # Requires: Virtualenv, appropriate Python installation
-virtualenv venv -p python3.13
+if [ ! -d "venv" ]; then
+  virtualenv venv -p python3.13
+fi
 source venv/bin/activate
 pip install --upgrade setuptools pip wheel
-pip install -r requirements.txt
 
-# set environment variable when we want to update in production
-if [ "$1" = "--prod" ]; then
-    export DJANGO_SETTINGS_MODULE=AKPlanning.settings_production
-fi
 if [ "$1" = "--ci" ]; then
-    export DJANGO_SETTINGS_MODULE=AKPlanning.settings_ci
+  pip install -r requirements/core.txt
+  pip install -r requirements/mysql.txt
+  export DJANGO_SETTINGS_MODULE=AKPlanning.settings_ci
+else
+  pip install -r requirements.txt
+fi
+
+# set environment variable when we want to setup in production
+if [ "$1" = "--prod" ]; then
+  pip install -r requirements/mysql.txt
+  export DJANGO_SETTINGS_MODULE=AKPlanning.settings_production
 fi
 
 # Setup database
