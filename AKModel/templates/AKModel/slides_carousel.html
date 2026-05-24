@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% load tags_AKModel %}
+{% load static %}
+{% load i18n %}
+{% load fontawesome_6 %}
+
+{% block title %}{{ event_name }}: {{ subtitle|default:_('AKs') }}{% endblock %}
+
+{% block imports %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'AKModel/css/slides_carousel.css' %}">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const carousel = document.getElementById('slidesCarousel');
+            if (carousel) {
+                carousel.focus();
+
+                const items = Array.from(carousel.querySelectorAll('.carousel-item'));
+                const carouselInstance = bootstrap.Carousel.getOrCreateInstance(carousel, {
+                    keyboard: true,
+                    ride: false,
+                });
+
+                // Handle category link clicks
+                const categoryLinks = document.querySelectorAll('.btn-category-link');
+                categoryLinks.forEach(link => {
+                    link.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const categoryId = this.getAttribute('data-category-id');
+                        // Find the chapter slide with matching category ID
+                        // Search through all carousel items and their articles
+                        const targetSlide = items.findIndex(item => {
+                            const article = item.querySelector('article[data-category-id]');
+                            return article && String(article.getAttribute('data-category-id')) === String(categoryId);
+                        });
+                        if (targetSlide >= 0) {
+                            carouselInstance.to(targetSlide);
+                        }
+                    });
+                });
+
+                const syncAkInUrl = function (activeItem) {
+                    const activeAkId = activeItem ? activeItem.getAttribute('data-ak-id') : null;
+                    const url = new URL(window.location.href);
+                    if (activeAkId) {
+                        url.searchParams.set('current_ak', activeAkId);
+                        window.sessionStorage.setItem('ak_slides_current_ak', activeAkId);
+                    } else {
+                        url.searchParams.delete('current_ak');
+                    }
+                    window.history.replaceState({}, '', url.toString());
+                };
+
+                const targetAkId = new URL(window.location.href).searchParams.get('current_ak')
+                    || window.sessionStorage.getItem('ak_slides_current_ak');
+                if (targetAkId) {
+                    const targetIndex = items.findIndex((item) => item.getAttribute('data-ak-id') === targetAkId);
+                    if (targetIndex >= 0) {
+                        carouselInstance.to(targetIndex);
+                    }
+                }
+
+                syncAkInUrl(carousel.querySelector('.carousel-item.active'));
+                carousel.addEventListener('slid.bs.carousel', function () {
+                    syncAkInUrl(carousel.querySelector('.carousel-item.active'));
+                });
+
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                        const activeElement = document.activeElement;
+                        const isTypingContext = activeElement && (
+                            activeElement.tagName === 'INPUT' ||
+                            activeElement.tagName === 'TEXTAREA' ||
+                            activeElement.isContentEditable
+                        );
+                        if (isTypingContext) {
+                            return;
+                        }
+
+                        event.preventDefault();
+                        if (event.key === 'ArrowLeft') {
+                            carouselInstance.prev();
+                        } else {
+                            carouselInstance.next();
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block language-switcher %}
+{% endblock %}
+
+{% block content %}
+    <div class="slides-shell no-print">
+        <div id="slidesCarousel"
+             class="carousel slide slides-carousel"
+             data-bs-ride="false"
+             data-bs-keyboard="true"
+             tabindex="0"
+             aria-label="{{ event_name }} slides">
+            {% if slides|length > 1 %}
+                <div class="carousel-indicators">
+                    {% for slide in slides %}
+                        <button type="button"
+                                data-bs-target="#slidesCarousel"
+                                data-bs-slide-to="{{ forloop.counter0 }}"
+                                {% if forloop.first %}class="active" aria-current="true"{% endif %}
+                                aria-label="Slide {{ forloop.counter }}"></button>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="carousel-inner h-100">
+                {% for slide in slides %}
+                    <div class="carousel-item h-100 {% if forloop.first %}active{% endif %}"
+                         {% if slide.kind == 'ak' %}data-ak-id="{{ slide.ak.pk }}"{% endif %}>
+                        <div class="h-100 d-flex align-items-center">
+                            {% if slide.kind == 'title' %}
+                                <article
+                                        class="slide-card w-100 p-4 p-md-5 d-flex flex-column justify-content-center text-center">
+                                    <h1 class="display-3 mb-4">{{ slide.event_name }}</h1>
+                                    <p class="lead mb-4">{{ slide.subtitle }}</p>
+                                    {% if categories_with_aks %}
+                                        <div class="category-links mt-4">
+                                            {% for category, ak_list_with_next in categories_with_aks %}
+                                                <button class="btn btn-category-link"
+                                                        data-category-id="{{ category.id }}"
+                                                        type="button">
+                                                    {{ category.name }}
+                                                </button>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </article>
+                            {% elif slide.kind == 'chapter' %}
+                                <article
+                                        class="slide-card w-100 p-4 p-md-5 d-flex flex-column justify-content-center text-center"
+                                        data-category-id="{{ slide.category.id }}">
+                                    <div class="text-uppercase text-muted mb-3">{% trans "Category" %}</div>
+                                    <h1 class="display-4 mb-0">{{ slide.category.name }}</h1>
+                                </article>
+                            {% else %}
+                                <article class="slide-card w-100 p-4 p-md-5 d-flex flex-column justify-content-between">
+                                    <div class="slide-heading pb-3 mb-3 d-flex justify-content-between align-items-start gap-3">
+                                        <div>
+                                            <div class="text-uppercase small text-muted mb-2">{{ slide.category.name }}</div>
+                                            <h2 class="mb-0">
+                                                {% if slide.ak.wish %}{% fa6_icon "magic" 'fas' %} {% endif %}
+                                                {{ slide.ak.name }}
+                                                {% if slide.ak.reso %}{% fa6_icon "scroll" 'fas' %}{% endif %}
+                                            </h2>
+                                        </div>
+                                        <div class="text-muted small text-end">
+                                            {{ forloop.counter }} / {{ slides|length }}
+                                        </div>
+                                    </div>
+
+                                    <div class="slide-meta mb-4">
+                                        {% if not slide.ak.wish %}
+                                            <div class="mb-3">
+                                                <strong>{% fa6_icon "user" 'fas' %} {% trans "Who?" %}</strong>
+                                                <span>{{ slide.ak.owners_list }}</span>
+                                            </div>
+                                        {% endif %}
+
+                                        {% if show_types and slide.ak.types_list %}
+                                            <div class="mb-3">
+                                                <strong>{% fa6_icon "list" 'fas' %} {% trans "Types" %}</strong>
+                                                <span>{{ slide.ak.types_list }}</span>
+                                            </div>
+                                        {% endif %}
+
+                                        {% if not result_presentation_mode and slide.ak.durations_list %}
+                                            <div class="mb-3">
+                                                <strong>{% fa6_icon "clock" 'fas' %} {% trans "Duration(s)" %}</strong>
+                                                <span>{{ slide.ak.durations_list }}</span>
+                                            </div>
+                                        {% endif %}
+
+                                        {% if slide.ak.goal %}
+                                            <div class="mb-3">
+                                                <strong>{% fa6_icon "bullseye" 'fas' %} {% trans "Design/Goal" %}</strong>
+                                                <span>{{ slide.ak.goal }}</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="slide-body flex-grow-1">
+                                        {{ slide.ak.description|linebreaksbr }}
+                                    </div>
+
+                                    {% if slide.next_aks %}
+                                        <div class="slide-footer pt-3 mt-4 small text-muted">
+                                            <span class="me-2">{% trans "Next:" %}</span>
+                                            {% for n_ak in slide.next_aks %}
+                                                {% if n_ak and not n_ak.wish %}
+                                                    <span class="me-3">
+                                                    {% fa6_icon "angles-right" 'fas' %}
+                                                    {{ n_ak.name }}
+                                                </span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </article>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="carousel-item active h-100">
+                        <div class="h-100 d-flex align-items-center justify-content-center">
+                            <div class="text-center text-muted">
+                                <h2>{{ event_name }}</h2>
+                                <p>{% trans "No AKs match the selected filters." %}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if slides|length > 1 %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#slidesCarousel"
+                        data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">{% trans "Previous" %}</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#slidesCarousel"
+                        data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">{% trans "Next" %}</span>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
