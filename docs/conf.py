@@ -4,14 +4,13 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 import os
 import sys
-from recommonmark.parser import CommonMarkParser
 import django
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'AK Planning'
-copyright = '2025, N. Geisler, B. Hättasch & more'
+copyright = '2026, N. Geisler, B. Hättasch & more'
 author = 'N. Geisler, B. Hättasch & more'
 
 # -- General configuration ---------------------------------------------------
@@ -23,6 +22,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinxcontrib_django",
     'sphinx.ext.viewcode',    # enable viewing autodoc'd code
+    'myst_parser',
 ]
 
 templates_path = ['_templates']
@@ -49,11 +49,11 @@ os.environ['SPHINX_APIDOC_OPTIONS'] = "members,show-inheritance"
 
 # -- Input ----
 
-source_parsers = {
-    '.md': CommonMarkParser,
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.txt': 'markdown',
+    '.md': 'markdown',
 }
-
-source_suffix = ['.rst', '.md']
 
 # -- Extension Conf ----
 
