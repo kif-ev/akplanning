@@ -6,15 +6,11 @@
 set -ex
 
 # Setup Python Environment
-# remove old virtualenv if --ci flag is not set
-if [ -z "$1" ] || [ "$1" != "--ci" ]; then
-  rm -rf venv/
-fi
+# remove old virtualenv
+rm -rf venv/
 
 # Requires: Virtualenv, appropriate Python installation
-if [ ! -d "venv" ]; then
-  virtualenv venv -p python3.13
-fi
+virtualenv venv -p python3.13
 source venv/bin/activate
 pip install --upgrade setuptools pip wheel
 
