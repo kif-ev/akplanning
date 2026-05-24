@@ -1,6 +1,7 @@
 import json
 import traceback
 from typing import List
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
@@ -16,6 +17,7 @@ from AKModel.models import (
     AKRequirement,
     AKSlot,
     AKTrack,
+    AKType,
     ConstraintViolation,
     DefaultSlot,
     Event,
@@ -294,6 +296,41 @@ class ModelViewTests(BasicViewTests, TestCase):
         },
     ]
 
+    def _expected_slide_ak_count(self, event, data):
+        """Calculate expected number of AK slides for the given export config."""
+        category_ids = [int(pk) for pk in data.get("categories", [])]
+        type_ids = [int(pk) for pk in data.get("types", [])]
+        categories = AKCategory.objects.filter(id__in=category_ids) if category_ids else None
+        types = None
+        if type_ids and len(type_ids) < event.aktype_set.count():
+            types = AKType.objects.filter(id__in=type_ids)
+
+        categories_with_aks = event.get_categories_with_aks(
+                filter_func=lambda ak: (not data["presentation_mode"])
+                                       or (ak.present or (ak.present is None and ak.category.present_by_default)),
+                types=types,
+                types_all_selected_only=data.get("types_all_selected_only", False),
+                sort_func=lambda ak: ak.wish,
+                categories=categories,
+        )
+        return sum(len(ak_list) for _, ak_list in categories_with_aks)
+
+    def _prepare_types_for_export_tests(self, event):
+        """Create a deterministic type setup so type-based filtering paths are exercised."""
+        existing_types = list(event.aktype_set.all())
+        primary_type = existing_types[0] if existing_types else AKType.objects.create(event=event, name="Type A",
+                                                                                      slug="type-a")
+        secondary_type = AKType.objects.create(event=event, name="Type B", slug="type-b")
+
+        ak1 = AK.objects.get(pk=1)
+        ak2 = AK.objects.get(pk=2)
+        ak4 = AK.objects.get(pk=4)
+        ak1.types.set([primary_type])
+        ak2.types.set([secondary_type])
+        ak4.types.set([primary_type, secondary_type])
+
+        return primary_type, secondary_type
+
     def test_admin(self):
         """
         Test basic admin functionality (displaying and interacting with model instances)
@@ -360,6 +397,150 @@ class ModelViewTests(BasicViewTests, TestCase):
             AK.objects.filter(event_id=2, include_in_export=True).count(),
             "Wiki export contained the wrong number of AKs",
         )
+
+    def test_slide_export_web_view(self):
+        """
+        Test web slide export
+        This ensures the export endpoint publishes a public slide URL and that the public page renders correctly.
+        """
+        self.client.force_login(self.admin_user)
+
+        event = Event.objects.get(slug="kif42")
+        export_url = reverse_lazy("admin:ak_slide_export", kwargs={"event_slug": "kif42"})
+        data = {
+            "num_next": 3,
+            "presentation_mode": "False",
+            "export_mode": "web",
+            "categories": [str(category.pk) for category in event.akcategory_set.all()],
+        }
+        if event.aktype_set.exists():
+            data["types"] = [str(ak_type.pk) for ak_type in event.aktype_set.all()]
+
+        response = self.client.post(export_url, data=data)
+        self.assertEqual(response.status_code, 302, "Web slide export did not redirect to a public URL")
+        public_url = str(reverse_lazy("model:ak_slides_public", kwargs={"event_slug": "kif42"}))
+        self.assertTrue(
+                response["Location"].startswith(public_url),
+                msg=f"Unexpected redirect target: {response['Location']}",
+        )
+
+        self.client.logout()
+        public_response = self.client.get(response["Location"])
+        self.assertEqual(public_response.status_code, 200, "Published slide URL not working at all")
+        self.assertIn("text/html", public_response["Content-Type"])
+        self.assertIn(event.name, public_response.content.decode("utf-8"))
+        self.assertIn("slidesCarousel", public_response.content.decode("utf-8"))
+        self.assertIn("carousel-item", public_response.content.decode("utf-8"))
+        self.assertIn("result_presentation_mode", public_response.context)
+        self.assertIn("show_types", public_response.context)
+        self.assertEqual(public_response.context["event_name"], event.name)
+        self.assertTrue(
+                len(public_response.context["slides"]) > 0,
+                "Published slide URL did not include any AKs",
+        )
+
+    def test_slide_export_modes_include_expected_ak_count_for_configurations(self):
+        """Both web and PDF exports include the expected number of AKs for multiple filter configurations."""
+        self.client.force_login(self.admin_user)
+        event = Event.objects.get(slug="kif42")
+        export_url = reverse_lazy("admin:ak_slide_export", kwargs={"event_slug": "kif42"})
+        primary_type, secondary_type = self._prepare_types_for_export_tests(event)
+
+        configurations = [
+            {
+                "name": "all_default",
+                "num_next": 3,
+                "presentation_mode": False,
+                "categories": [str(category.pk) for category in event.akcategory_set.all()],
+                "types": [str(ak_type.pk) for ak_type in event.aktype_set.all()],
+                "types_all_selected_only": False,
+            },
+            {
+                "name": "presentation_only",
+                "num_next": 2,
+                "presentation_mode": True,
+                "categories": [str(category.pk) for category in event.akcategory_set.all()],
+                "types": [str(ak_type.pk) for ak_type in event.aktype_set.all()],
+                "types_all_selected_only": False,
+            },
+            {
+                "name": "single_category",
+                "num_next": 1,
+                "presentation_mode": False,
+                "categories": [str(event.akcategory_set.get(pk=4).pk)],
+                "types": [str(ak_type.pk) for ak_type in event.aktype_set.all()],
+                "types_all_selected_only": False,
+            },
+            {
+                "name": "single_type",
+                "num_next": 3,
+                "presentation_mode": False,
+                "categories": [str(category.pk) for category in event.akcategory_set.all()],
+                "types": [str(primary_type.pk)],
+                "types_all_selected_only": False,
+            },
+            {
+                "name": "all_selected_types_only",
+                "num_next": 3,
+                "presentation_mode": False,
+                "categories": [str(category.pk) for category in event.akcategory_set.all()],
+                "types": [str(primary_type.pk), str(secondary_type.pk)],
+                "types_all_selected_only": True,
+            },
+        ]
+
+        for config in configurations:
+            expected_count = self._expected_slide_ak_count(event, config)
+
+            web_data = {
+                "num_next": config["num_next"],
+                "presentation_mode": str(config["presentation_mode"]),
+                "export_mode": "web",
+                "categories": config["categories"],
+                "types": config["types"],
+            }
+            if config["types_all_selected_only"]:
+                web_data["types_all_selected_only"] = "on"
+
+            web_response = self.client.post(export_url, data=web_data)
+            self.assertEqual(web_response.status_code, 302, msg=f"{config['name']}: web export did not redirect")
+            self.client.logout()
+            published_response = self.client.get(web_response["Location"])
+            self.client.force_login(self.admin_user)
+            self.assertEqual(
+                    len([slide for slide in published_response.context["slides"] if slide["kind"] == "ak"]),
+                    expected_count,
+                    msg=f"{config['name']}: wrong AK count in web export",
+            )
+
+            pdf_data = {
+                "num_next": config["num_next"],
+                "presentation_mode": str(config["presentation_mode"]),
+                "export_mode": "pdf",
+                "categories": config["categories"],
+                "types": config["types"],
+            }
+            if config["types_all_selected_only"]:
+                pdf_data["types_all_selected_only"] = "on"
+
+            captured_context = {}
+
+            def capture_context(_template_name, context):
+                captured_context.update(context)
+                return "\\documentclass{article}\\begin{document}x\\end{document}"
+
+            with patch("AKModel.views.manage.render_template_with_context", side_effect=capture_context), \
+                    patch("AKModel.views.manage.run_tex_in_directory", return_value=b"%PDF-1.4"), \
+                    patch("AKModel.views.manage.os.remove"):
+                pdf_response = self.client.post(export_url, data=pdf_data)
+
+            self.assertEqual(pdf_response.status_code, 200, msg=f"{config['name']}: pdf export failed")
+            self.assertIn("application/pdf", pdf_response["Content-Type"])
+            self.assertEqual(
+                    sum(len(ak_list) for _, ak_list in captured_context["categories_with_aks"]),
+                    expected_count,
+                    msg=f"{config['name']}: wrong AK count in pdf export",
+            )
 
     def test_list_api_views(self):
         """
