@@ -1,4 +1,5 @@
 :tocdepth: 2
+
 Code
 =====
 
@@ -7,5 +8,7 @@ Code
     code/AKModel
     code/AKOnline
     code/AKPlan
+    code/AKPreference
     code/AKScheduling
+    code/AKSolverInterface
     code/AKSubmission
