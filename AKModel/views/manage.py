@@ -38,15 +38,6 @@ def _parse_selected_ids(values):
 def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids, types_all_selected_only,
                                 categories_ids):
     """Build the context used by both the admin config and the public slides page."""
-    translations = {
-        'symbols': _("Symbols"),
-        'who': _("Who?"),
-        'duration': _("Duration(s)"),
-        'reso': _("Reso intention?"),
-        'wish': _("Wish"),
-        'types': _("Types"),
-        'goal': _("Design/Goal"),
-    }
 
     def build_ak_list_with_next_aks(ak_list):
         """
@@ -110,7 +101,6 @@ def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids
                                 categories_with_aks],
         'slides': slides,
         'subtitle': _("AKs") + " " + types_filter_string,
-        'translations': translations,
         'result_presentation_mode': presentation_mode,
         'show_types': show_types,
     }
@@ -120,11 +110,12 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
     """
     View: Export slides to present AKs
 
-    Over a form to choose some settings for the export and then render the slide content in the browser
+    Over a form to choose some settings for the export and then render the slide content in the browser or as PDF
     """
     title = _('Export AK Slides')
     form_class = SlideExportForm
     template_name = 'admin/AKModel/export/slides.html'
+    tex_template_name = 'admin/AKModel/export/slides.tex'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -170,13 +161,23 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
                 types_all_selected_only=form.cleaned_data["types_all_selected_only"],
                 categories_ids=_parse_selected_ids(form.cleaned_data["categories"]),
         )
-        source = render_template_with_context(self.template_name, context)
+        context['translations'] = {
+            'symbols': _("Symbols"),
+            'who': _("Who?"),
+            'duration': _("Duration(s)"),
+            'reso': _("Reso intention?"),
+            'wish': _("Wish"),
+            'types': _("Types"),
+            'goal': _("Design/Goal"),
+        }
+
+        source = render_template_with_context(self.tex_template_name, context)
 
         # Perform real compilation (run latex twice for correct page numbers)
         with tempfile.TemporaryDirectory() as tempdir:
-            run_tex_in_directory(source, tempdir, template_name=self.template_name)
+            run_tex_in_directory(source, tempdir, template_name=self.tex_template_name)
             os.remove(f'{tempdir}/texput.tex')
-            pdf = run_tex_in_directory(source, tempdir, template_name=self.template_name)
+            pdf = run_tex_in_directory(source, tempdir, template_name=self.tex_template_name)
 
         # Show PDF file to the user (with a filename containing a timestamp to prevent confusions about the right
         # version to use when generating multiple versions of the slides, e.g., because owners did last-minute changes
@@ -194,24 +195,26 @@ class PublishedSlidesView(EventSlugMixin, TemplateView):
     """Public slides view for an event."""
     template_name = "AKModel/slides_carousel.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        config = self.request.GET.get("config")
+    def get(self, request, *args, **kwargs):
+        config = request.GET.get("config")
         if config:
             try:
-                config_data = signing.loads(config)
+                self.config_data = signing.loads(config)
             except signing.BadSignature:
-                config_data = {}
-        else:
-            config_data = {}
+                messages.warning(request, _('Invalid export config, please try again.'))
+                return HttpResponseRedirect(reverse("admin:ak_slide_export", kwargs={"event_slug": self.event.slug}))
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
         context.update(_build_slide_export_context(
                 event=self.event,
-                num_next=int(config_data.get("num_next", 3)),
-                presentation_mode=bool(config_data.get("presentation_mode", False)),
-                types_ids=_parse_selected_ids(config_data["types"]) if "types" in config_data else None,
-                types_all_selected_only=bool(config_data.get("types_all_selected_only", False)),
-                categories_ids=_parse_selected_ids(config_data["categories"]) if "categories" in config_data else None,
+                num_next=int(self.config_data.get("num_next", 3)),
+                presentation_mode=bool(self.config_data.get("presentation_mode", False)),
+                types_ids=_parse_selected_ids(self.config_data["types"]) if "types" in self.config_data else None,
+                types_all_selected_only=bool(self.config_data.get("types_all_selected_only", False)),
+                categories_ids=_parse_selected_ids(self.config_data["categories"]) if "categories" in self.config_data else None,
         ))
         return context
 

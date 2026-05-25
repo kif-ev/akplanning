@@ -439,6 +439,16 @@ class ModelViewTests(BasicViewTests, TestCase):
                 "Published slide URL did not include any AKs",
         )
 
+    def test_slide_export_web_view_invalid_config_redirects_to_export(self):
+        """Invalid signed carousel configs should send users back to the export page."""
+        event = Event.objects.get(slug="kif42")
+        public_url = reverse_lazy("model:ak_slides_public", kwargs={"event_slug": "kif42"})
+        response = self.client.get(f"{public_url}?config=definitely-not-a-valid-signature")
+
+        self.assertEqual(response.status_code, 302, "Invalid slide config did not redirect")
+        expected_redirect = str(reverse_lazy("admin:ak_slide_export", kwargs={"event_slug": event.slug}))
+        self.assertEqual(response["Location"], expected_redirect)
+
     def test_slide_export_modes_include_expected_ak_count_for_configurations(self):
         """Both web and PDF exports include the expected number of AKs for multiple filter configurations."""
         self.client.force_login(self.admin_user)
