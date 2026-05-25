@@ -1,5 +1,5 @@
 stages:
-  - installation
+  - setup
   - test
   - deploy
 
@@ -16,17 +16,12 @@ variables:
 default:
   image: python:3.13
   cache:
-    key:
-      files:
-        - requirements/*.txt
-        - requirements.txt
     paths:
       - .cache/pip
       - venv/
-    policy: pull-push
 
 installation:
-  stage: installation
+  stage: setup
   services:
     - mysql
   script:
@@ -57,7 +52,21 @@ test:
     - pip install -r requirements/test.txt
     - pip install -r requirements/mysql.txt
     - mysql --version
-    - echo "GRANT ALL on *.* to '${MYSQL_USER}';"| mysql -u root --password="${MYSQL_ROOT_PASSWORD}" -h mysql --ssl-verify-server-cert=false
+    - |
+      for i in {1..30}; do
+        if mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -h mysql --skip-ssl -e "SELECT 1" > /dev/null 2>&1; then
+          echo "MySQL is ready"
+          break
+        fi
+        echo "Waiting for MySQL... ($i/30)"
+        sleep 2
+      done
+    - |
+      mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -h mysql --skip-ssl --execute="\
+        CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';\
+        GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_USER}'@'%' WITH GRANT OPTION;\
+        FLUSH PRIVILEGES;\
+      "
     - coverage run --source='.' manage.py test --settings AKPlanning.settings_ci
   after_script:
     - coverage report
