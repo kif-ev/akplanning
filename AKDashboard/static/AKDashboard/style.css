@@ -34,14 +34,14 @@
 }
 
 #recent-changes-list {
-    list-style-type:none;
+    list-style-type: none;
     padding-left: 0;
     line-height: 220%;
 }
 
 #recent-changes-list li {
     font-size: 120%;
-    font-family:monospace;
+    font-family: monospace;
 }
 
 #recent-changes-list a {

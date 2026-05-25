@@ -56,26 +56,26 @@ class BasicViewTests:
         """
         user_model = get_user_model()
         self.staff_user = user_model.objects.create(
-            username="Test Staff User",
-            email="teststaff@example.com",
-            password="staffpw",
-            is_staff=True,
-            is_active=True,
+                username="Test Staff User",
+                email="teststaff@example.com",
+                password="staffpw",
+                is_staff=True,
+                is_active=True,
         )
         self.admin_user = user_model.objects.create(
-            username="Test Admin User",
-            email="testadmin@example.com",
-            password="adminpw",
-            is_staff=True,
-            is_superuser=True,
-            is_active=True,
+                username="Test Admin User",
+                email="testadmin@example.com",
+                password="adminpw",
+                is_staff=True,
+                is_superuser=True,
+                is_active=True,
         )
         self.deactivated_user = user_model.objects.create(
-            username="Test Deactivated User",
-            email="testdeactivated@example.com",
-            password="deactivatedpw",
-            is_staff=True,
-            is_active=False,
+                username="Test Deactivated User",
+                email="testdeactivated@example.com",
+                password="deactivatedpw",
+                is_staff=True,
+                is_active=False,
         )
 
     def _name_and_url(self, view_name):
@@ -123,14 +123,14 @@ class BasicViewTests:
             try:
                 response = self.client.get(url)
                 self.assertEqual(
-                    response.status_code,
-                    200,
-                    msg=f"{view_name_with_prefix} ({url}) broken",
+                        response.status_code,
+                        200,
+                        msg=f"{view_name_with_prefix} ({url}) broken",
                 )
             except Exception:  # pylint: disable=broad-exception-caught
                 self.fail(
-                    f"An error occurred during rendering of {view_name_with_prefix} ({url}):"
-                    f"\n\n{traceback.format_exc()}"
+                        f"An error occurred during rendering of {view_name_with_prefix} ({url}):"
+                        f"\n\n{traceback.format_exc()}"
                 )
 
     def test_access_control_staff_only(self):
@@ -146,9 +146,9 @@ class BasicViewTests:
             view_name_with_prefix, url = self._name_and_url(view_name_info)
             response = self.client.get(url)
             self.assertEqual(
-                response.status_code,
-                expected_response_code,
-                msg=f"{view_name_with_prefix} ({url}) accessible by non-staff",
+                    response.status_code,
+                    expected_response_code,
+                    msg=f"{view_name_with_prefix} ({url}) accessible by non-staff",
             )
 
         # Logged in? Views should be visible
@@ -158,14 +158,14 @@ class BasicViewTests:
             try:
                 response = self.client.get(url)
                 self.assertEqual(
-                    response.status_code,
-                    200,
-                    msg=f"{view_name_with_prefix} ({url}) should be accessible for staff (but isn't)",
+                        response.status_code,
+                        200,
+                        msg=f"{view_name_with_prefix} ({url}) should be accessible for staff (but isn't)",
                 )
             except Exception:  # pylint: disable=broad-exception-caught
                 self.fail(
-                    f"An error occurred during rendering of {view_name_with_prefix} ({url}):"
-                    f"\n\n{traceback.format_exc()}"
+                        f"An error occurred during rendering of {view_name_with_prefix} ({url}):"
+                        f"\n\n{traceback.format_exc()}"
                 )
 
         # Disabled user? Views should not be visible
@@ -177,9 +177,9 @@ class BasicViewTests:
             view_name_with_prefix, url = self._name_and_url(view_name_info)
             response = self.client.get(url)
             self.assertEqual(
-                response.status_code,
-                expected_response_code,
-                msg=f"{view_name_with_prefix} ({url}) still accessible for deactivated user",
+                    response.status_code,
+                    expected_response_code,
+                    msg=f"{view_name_with_prefix} ({url}) still accessible for deactivated user",
             )
 
     def _to_sendable_value(self, val):
@@ -231,9 +231,9 @@ class BasicViewTests:
 
         response = self.client.get(url)
         self.assertEqual(
-            response.status_code,
-            200,
-            msg=f"{name}: Could not load edit form via GET ({url})",
+                response.status_code,
+                200,
+                msg=f"{name}: Could not load edit form via GET ({url})",
         )
 
         form = response.context[form_name]
@@ -242,13 +242,13 @@ class BasicViewTests:
         response = self.client.post(url, data=data)
         if expected_code == 200:
             self.assertEqual(
-                response.status_code, 200, msg=f"{name}: Did not return 200 ({url}"
+                    response.status_code, 200, msg=f"{name}: Did not return 200 ({url}"
             )
         elif expected_code == 302:
             self.assertRedirects(
-                response,
-                target_url,
-                msg_prefix=f"{name}: Did not redirect ({url} -> {target_url}",
+                    response,
+                    target_url,
+                    msg_prefix=f"{name}: Did not redirect ({url} -> {target_url}",
             )
         if expected_message != "":
             self._assert_message(response, expected_message, msg_prefix=f"{name}")
@@ -347,9 +347,9 @@ class ModelViewTests(BasicViewTests, TestCase):
                 _, url = self._name_and_url((f"admin:AKModel_{model[1]}_add", {}))
             response = self.client.get(url)
             self.assertEqual(
-                response.status_code,
-                200,
-                msg=f"Add form for model {model[1]} ({url}) broken",
+                    response.status_code,
+                    200,
+                    msg=f"Add form for model {model[1]} ({url}) broken",
             )
 
         for model in self.ADMIN_MODELS:
@@ -357,13 +357,13 @@ class ModelViewTests(BasicViewTests, TestCase):
             m = model[0].objects.first()
             if m is not None:
                 _, url = self._name_and_url(
-                    (f"admin:AKModel_{model[1]}_change", {"object_id": m.pk})
+                        (f"admin:AKModel_{model[1]}_change", {"object_id": m.pk})
                 )
                 response = self.client.get(url)
                 self.assertEqual(
-                    response.status_code,
-                    200,
-                    msg=f"Edit form for model {model[1]} ({url}) broken",
+                        response.status_code,
+                        200,
+                        msg=f"Edit form for model {model[1]} ({url}) broken",
                 )
 
     def test_wiki_export(self):
@@ -381,21 +381,21 @@ class ModelViewTests(BasicViewTests, TestCase):
         for _, aks in response.context["categories_with_aks"]:
             for ak in aks:
                 self.assertEqual(
-                    ak.include_in_export,
-                    True,
-                    f"AK with export flag set to False (pk={ak.pk}) included in export",
+                        ak.include_in_export,
+                        True,
+                        f"AK with export flag set to False (pk={ak.pk}) included in export",
                 )
                 self.assertNotEqual(
-                    ak.pk,
-                    1,
-                    "AK known to be excluded from export (PK 1) included in export",
+                        ak.pk,
+                        1,
+                        "AK known to be excluded from export (PK 1) included in export",
                 )
                 export_count += 1
 
         self.assertEqual(
-            export_count,
-            AK.objects.filter(event_id=2, include_in_export=True).count(),
-            "Wiki export contained the wrong number of AKs",
+                export_count,
+                AK.objects.filter(event_id=2, include_in_export=True).count(),
+                "Wiki export contained the wrong number of AKs",
         )
 
     def test_slide_export_web_view(self):
@@ -575,29 +575,29 @@ class ModelViewTests(BasicViewTests, TestCase):
             try:
                 response = self.client.get(url)
                 self.assertEqual(
-                    response.status_code,
-                    200,
-                    msg=f"API view {view_name_with_prefix} ({url}) is not loading correctly",
+                        response.status_code,
+                        200,
+                        msg=f"API view {view_name_with_prefix} ({url}) is not loading correctly",
                 )
             except Exception:  # pylint: disable=broad-exception-caught
                 self.fail(
-                    f"An error occurred loading api view {view_name_with_prefix} ({url}):"
-                    f"\n\n{traceback.format_exc()}"
+                        f"An error occurred loading api view {view_name_with_prefix} ({url}):"
+                        f"\n\n{traceback.format_exc()}"
                 )
             parsed_response = json.loads(response.content.decode("utf-8"))
             included_items = set(item["id"] for item in parsed_response)
             expected_items = set(obj.pk for obj in model.objects.filter(event=event))
             self.assertEqual(
-                included_items,
-                expected_items,
-                msg=f"API view {view_name_with_prefix} ({url}) is not including the correct items. "
-                    f"Missing: {expected_items - included_items}, Extra: {included_items - expected_items}",
+                    included_items,
+                    expected_items,
+                    msg=f"API view {view_name_with_prefix} ({url}) is not including the correct items. "
+                        f"Missing: {expected_items - included_items}, Extra: {included_items - expected_items}",
             )
             missing_fields = [field for field in expected_fields if field not in parsed_response[0].keys()]
             self.assertEqual(
-                missing_fields,
-                [],
-                msg=f"API view {view_name_with_prefix} ({url}) is missing fields in the output: {missing_fields}",
+                    missing_fields,
+                    [],
+                    msg=f"API view {view_name_with_prefix} ({url}) is missing fields in the output: {missing_fields}",
             )
 
     def test_api_root_view(self):
@@ -608,9 +608,9 @@ class ModelViewTests(BasicViewTests, TestCase):
         url = reverse("model:api-root", kwargs={"event_slug": "kif42"})
         response = self.client.get(url)
         self.assertEqual(
-            response.status_code,
-            200,
-            msg="API root view not reachable",
+                response.status_code,
+                200,
+                msg="API root view not reachable",
         )
 
     def test_api_root_view_invalid_event_slug(self):
@@ -620,7 +620,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         url = reverse("model:api-root", kwargs={"event_slug": "invalidslug"})
         response = self.client.get(url)
         self.assertEqual(
-            response.status_code,
-            404,
-            msg="API root view did not return 404 for invalid event slug",
+                response.status_code,
+                404,
+                msg="API root view did not return 404 for invalid event slug",
         )

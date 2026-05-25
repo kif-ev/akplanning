@@ -11,10 +11,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='akslot',
-            name='room',
-            field=models.ForeignKey(blank=True, help_text='Room the AK will take place in', null=True,
-                                    on_delete=django.db.models.deletion.SET_NULL, to='AKModel.Room',
-                                    verbose_name='Room'),
+                model_name='akslot',
+                name='room',
+                field=models.ForeignKey(blank=True, help_text='Room the AK will take place in', null=True,
+                                        on_delete=django.db.models.deletion.SET_NULL, to='AKModel.Room',
+                                        verbose_name='Room'),
         ),
     ]

@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0035_event_plan_hidden'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ak',
-            name='protocol_link',
-            field=models.URLField(blank=True, help_text='Link to protocol', verbose_name='Protocol Link'),
+                model_name='ak',
+                name='protocol_link',
+                field=models.URLField(blank=True, help_text='Link to protocol', verbose_name='Protocol Link'),
         ),
         migrations.AddField(
-            model_name='historicalak',
-            name='protocol_link',
-            field=models.URLField(blank=True, help_text='Link to protocol', verbose_name='Protocol Link'),
+                model_name='historicalak',
+                name='protocol_link',
+                field=models.URLField(blank=True, help_text='Link to protocol', verbose_name='Protocol Link'),
         ),
     ]

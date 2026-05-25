@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0039_event_wiki_template_name'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='reso_deadline',
-            field=models.DateTimeField(blank=True, help_text='When should AKs with intention to submit a resolution be done?', null=True, verbose_name='Resolution Deadline'),
+                model_name='event',
+                name='reso_deadline',
+                field=models.DateTimeField(blank=True,
+                                           help_text='When should AKs with intention to submit a resolution be done?',
+                                           null=True, verbose_name='Resolution Deadline'),
         ),
     ]

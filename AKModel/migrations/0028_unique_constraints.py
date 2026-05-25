@@ -4,50 +4,50 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0027_event_timezone'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='akcategory',
-            name='name',
-            field=models.CharField(help_text='Name of the AK Category', max_length=64, verbose_name='Name'),
+                model_name='akcategory',
+                name='name',
+                field=models.CharField(help_text='Name of the AK Category', max_length=64, verbose_name='Name'),
         ),
         migrations.AlterField(
-            model_name='akowner',
-            name='slug',
-            field=models.SlugField(blank=True, help_text='Slug for URL generation', max_length=64, verbose_name='Slug'),
+                model_name='akowner',
+                name='slug',
+                field=models.SlugField(blank=True, help_text='Slug for URL generation', max_length=64,
+                                       verbose_name='Slug'),
         ),
         migrations.AlterField(
-            model_name='akrequirement',
-            name='name',
-            field=models.CharField(help_text='Name of the Requirement', max_length=128, verbose_name='Name'),
+                model_name='akrequirement',
+                name='name',
+                field=models.CharField(help_text='Name of the Requirement', max_length=128, verbose_name='Name'),
         ),
         migrations.AlterField(
-            model_name='aktrack',
-            name='name',
-            field=models.CharField(help_text='Name of the AK Track', max_length=64, verbose_name='Name'),
+                model_name='aktrack',
+                name='name',
+                field=models.CharField(help_text='Name of the AK Track', max_length=64, verbose_name='Name'),
         ),
         migrations.AlterUniqueTogether(
-            name='ak',
-            unique_together={('event', 'name'), ('event', 'short_name')},
+                name='ak',
+                unique_together={('event', 'name'), ('event', 'short_name')},
         ),
         migrations.AlterUniqueTogether(
-            name='akcategory',
-            unique_together={('event', 'name')},
+                name='akcategory',
+                unique_together={('event', 'name')},
         ),
         migrations.AlterUniqueTogether(
-            name='akrequirement',
-            unique_together={('event', 'name')},
+                name='akrequirement',
+                unique_together={('event', 'name')},
         ),
         migrations.AlterUniqueTogether(
-            name='aktrack',
-            unique_together={('event', 'name')},
+                name='aktrack',
+                unique_together={('event', 'name')},
         ),
         migrations.AlterUniqueTogether(
-            name='room',
-            unique_together={('event', 'name', 'building')},
+                name='room',
+                unique_together={('event', 'name', 'building')},
         ),
     ]

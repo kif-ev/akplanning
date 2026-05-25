@@ -4,15 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0046_present_by_default'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='room',
-            name='capacity',
-            field=models.IntegerField(help_text='Maximum number of people (-1 for unlimited).', verbose_name='Capacity'),
+                model_name='room',
+                name='capacity',
+                field=models.IntegerField(help_text='Maximum number of people (-1 for unlimited).',
+                                          verbose_name='Capacity'),
         ),
     ]

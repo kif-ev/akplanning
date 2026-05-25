@@ -1,8 +1,10 @@
 from django.contrib.admin import AdminSite
 from django.utils.translation import gettext_lazy as _
-# from django.urls import path
 
 from AKModel.models import Event
+
+
+# from django.urls import path
 
 
 class AKAdminSite(AdminSite):

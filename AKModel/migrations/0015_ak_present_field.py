@@ -4,15 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0014_akcategory'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ak',
-            name='present',
-            field=models.BooleanField(help_text='Present results of this AK', null=True, verbose_name='Present this AK'),
+                model_name='ak',
+                name='present',
+                field=models.BooleanField(help_text='Present results of this AK', null=True,
+                                          verbose_name='Present this AK'),
         ),
     ]

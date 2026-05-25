@@ -10,7 +10,7 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from AKModel.models import Event, AKOwner, Room, AK, AKCategory
+from AKModel.models import AK, AKCategory, AKOwner, Event, Room
 # TODO: Decouple from AKPreference app
 from AKPreference.models import EventParticipant
 
@@ -40,56 +40,56 @@ class Availability(models.Model):
     # pylint: disable=broad-exception-raised
 
     event = models.ForeignKey(
-        to=Event,
-        related_name='availabilities',
-        on_delete=models.CASCADE,
-        verbose_name=_('Event'),
-        help_text=_('Associated event'),
+            to=Event,
+            related_name='availabilities',
+            on_delete=models.CASCADE,
+            verbose_name=_('Event'),
+            help_text=_('Associated event'),
     )
     person = models.ForeignKey(
-        to=AKOwner,
-        related_name='availabilities',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        verbose_name=_('Person'),
-        help_text=_('Person whose availability this is'),
+            to=AKOwner,
+            related_name='availabilities',
+            on_delete=models.CASCADE,
+            null=True,
+            blank=True,
+            verbose_name=_('Person'),
+            help_text=_('Person whose availability this is'),
     )
     room = models.ForeignKey(
-        to=Room,
-        related_name='availabilities',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        verbose_name=_('Room'),
-        help_text=_('Room whose availability this is'),
+            to=Room,
+            related_name='availabilities',
+            on_delete=models.CASCADE,
+            null=True,
+            blank=True,
+            verbose_name=_('Room'),
+            help_text=_('Room whose availability this is'),
     )
     ak = models.ForeignKey(
-        to=AK,
-        related_name='availabilities',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        verbose_name=_('AK'),
-        help_text=_('AK whose availability this is'),
+            to=AK,
+            related_name='availabilities',
+            on_delete=models.CASCADE,
+            null=True,
+            blank=True,
+            verbose_name=_('AK'),
+            help_text=_('AK whose availability this is'),
     )
     ak_category = models.ForeignKey(
-        to=AKCategory,
-        related_name='availabilities',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        verbose_name=_('AK Category'),
-        help_text=_('AK Category whose availability this is'),
+            to=AKCategory,
+            related_name='availabilities',
+            on_delete=models.CASCADE,
+            null=True,
+            blank=True,
+            verbose_name=_('AK Category'),
+            help_text=_('AK Category whose availability this is'),
     )
     participant = models.ForeignKey(
-        to=EventParticipant,
-        related_name='availabilities',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        verbose_name=_('Participant'),
-        help_text=_('Participant whose availability this is'),
+            to=EventParticipant,
+            related_name='availabilities',
+            on_delete=models.CASCADE,
+            null=True,
+            blank=True,
+            verbose_name=_('Participant'),
+            help_text=_('Participant whose availability this is'),
     )
     start = models.DateTimeField()
     end = models.DateTimeField()
@@ -113,16 +113,16 @@ class Availability(models.Model):
 
     def __hash__(self):
         return hash(
-            (
-                getattr(self, 'event', None),
-                self.person,
-                self.room,
-                self.ak,
-                self.ak_category,
-                self.participant,
-                self.start,
-                self.end,
-            )
+                (
+                    getattr(self, 'event', None),
+                    self.person,
+                    self.room,
+                    self.ak,
+                    self.ak_category,
+                    self.participant,
+                    self.start,
+                    self.end,
+                )
         )
 
     def __eq__(self, other: 'Availability') -> bool:
@@ -132,10 +132,10 @@ class Availability(models.Model):
         are the same.
         """
         return all(
-            (
-                getattr(self, attribute, None) == getattr(other, attribute, None)
-                for attribute in ['event', 'person', 'room', 'ak', 'ak_category', 'participant', 'start', 'end']
-            )
+                (
+                    getattr(self, attribute, None) == getattr(other, attribute, None)
+                    for attribute in ['event', 'person', 'room', 'ak', 'ak_category', 'participant', 'start', 'end']
+                )
         )
 
     @cached_property
@@ -183,7 +183,7 @@ class Availability(models.Model):
             raise Exception('Only overlapping Availabilities can be merged.')
 
         avail = Availability(
-            start=min(self.start, other.start), end=max(self.end, other.end)
+                start=min(self.start, other.start), end=max(self.end, other.end)
         )
         if self.event == other.event:
             avail.event = self.event
@@ -203,7 +203,7 @@ class Availability(models.Model):
             raise Exception('Only overlapping Availabilities can be intersected.')
 
         avail = Availability(
-            start=max(self.start, other.start), end=min(self.end, other.end)
+                start=max(self.start, other.start), end=min(self.end, other.end)
         )
         if self.event == other.event:
             avail.event = self.event
@@ -285,13 +285,13 @@ class Availability(models.Model):
 
     @classmethod
     def with_event_length(
-        cls,
-        event: Event,
-        person: AKOwner | None = None,
-        room: Room | None = None,
-        ak: AK | None = None,
-        ak_category: AKCategory | None = None,
-        participant: EventParticipant | None = None,
+            cls,
+            event: Event,
+            person: AKOwner | None = None,
+            room: Room | None = None,
+            ak: AK | None = None,
+            ak_category: AKCategory | None = None,
+            participant: EventParticipant | None = None,
     ) -> "Availability":
         """
         Create an availability covering exactly the time between event start and event end.
@@ -310,7 +310,7 @@ class Availability(models.Model):
         timeframe_end = event.end  # adapt to our event model
         timeframe_end = timeframe_end + datetime.timedelta(days=1)
         return Availability(start=timeframe_start, end=timeframe_end, event=event, person=person,
-                                    room=room, ak=ak, ak_category=ak_category, participant=participant)
+                            room=room, ak=ak, ak_category=ak_category, participant=participant)
 
     def is_covered(self, availabilities: List['Availability']):
         """Check if list of availibilities cover this object.

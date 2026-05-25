@@ -3,9 +3,14 @@
   "$id": "schemas/solver-output.schema.json",
   "type": "object",
   "additionalProperties": false,
-  "required": ["input", "scheduled_aks"],
+  "required": [
+    "input",
+    "scheduled_aks"
+  ],
   "properties": {
-    "input": {"$ref": "solver-input.schema.json"},
+    "input": {
+      "$ref": "solver-input.schema.json"
+    },
     "scheduled_aks": {
       "type": "array",
       "items": {
@@ -43,7 +48,12 @@
             "uniqueItems": true
           }
         },
-        "required": ["ak_id", "room_id", "timeslot_ids", "participant_ids"],
+        "required": [
+          "ak_id",
+          "room_id",
+          "timeslot_ids",
+          "participant_ids"
+        ],
         "additionalProperties": false
       },
       "uniqueItems": true

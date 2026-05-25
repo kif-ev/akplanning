@@ -15,29 +15,28 @@ def create_slugs(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0067_eventparticipant_requirements_and_more'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='aktype',
-            name='slug',
-            field=models.SlugField(max_length=30, null=True, verbose_name='Slug'),
+                model_name='aktype',
+                name='slug',
+                field=models.SlugField(max_length=30, null=True, verbose_name='Slug'),
         ),
         migrations.RunPython(create_slugs, migrations.RunPython.noop),
         migrations.AlterUniqueTogether(
-            name='aktype',
-            unique_together={('event', 'name')},
+                name='aktype',
+                unique_together={('event', 'name')},
         ),
         migrations.AlterField(
-            model_name='aktype',
-            name='slug',
-            field=models.SlugField(max_length=30, verbose_name='Slug'),
+                model_name='aktype',
+                name='slug',
+                field=models.SlugField(max_length=30, verbose_name='Slug'),
         ),
         migrations.AlterUniqueTogether(
-            name='aktype',
-            unique_together={('event', 'name'), ('event', 'slug')},
+                name='aktype',
+                unique_together={('event', 'name'), ('event', 'slug')},
         ),
     ]

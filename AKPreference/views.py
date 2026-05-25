@@ -1,15 +1,15 @@
 from django import forms
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Subquery, Exists, OuterRef
-from django.shortcuts import redirect, get_object_or_404
+from django.db.models import Exists, OuterRef, Subquery
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import FormView, CreateView, TemplateView, UpdateView, DeleteView, DetailView
+from django.views.generic import CreateView, DeleteView, DetailView, FormView, TemplateView, UpdateView
 
 from AKModel.availability.models import Availability
 from AKModel.metaviews import status_manager
-from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminActionView, AdminViewMixin
+from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, IntermediateAdminActionView
 from AKModel.metaviews.status import TemplateStatusWidget
 from AKModel.models import AKCategory
 from AKPreference.models import AKPreference, EventParticipant
@@ -43,6 +43,7 @@ class EventSlugRedirectWhenInactiveMixin(EventSlugMixin):
     """
     Mixin to redirect to the dashboard when the event is not active
     """
+
     def dispatch(self, request, *args, **kwargs):
         self._load_event()
         if not self.event.active or (self.event.poll_hidden and not request.user.is_staff):
@@ -99,6 +100,7 @@ class CheckSessionForParticipantMixin:
     Mixin to check whether the session contains a valid participant uuid for the event
     and redirect to the start page if not
     """
+
     def get(self, request, *args, **kwargs):
         """
         Override get method of view
@@ -139,12 +141,12 @@ class PreferencePollOverview(EventSlugRedirectWhenInactiveMixin, CheckSessionFor
         context['uuid'] = self.request.session.get(uuid_key(self.event), None)
         context['participant'] = self.event.eventparticipant_set.get(uuid=context['uuid'])
         context['categories'] = self.event.akcategory_set.all().annotate(
-            has_saved_preferences=Exists(
-                AKPreference.objects.filter(
-                    ak__category=OuterRef('pk'),
-                    participant=context['participant']
+                has_saved_preferences=Exists(
+                        AKPreference.objects.filter(
+                                ak__category=OuterRef('pk'),
+                                participant=context['participant']
+                        )
                 )
-            )
         )
         return context
 
@@ -262,8 +264,8 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
                     count_deleted += 1
 
         messages.success(
-            self.request,
-            _(f"{count_saved} Preferences saved/updated, {count_deleted} previously saved Preferences deleted.")
+                self.request,
+                _(f"{count_saved} Preferences saved/updated, {count_deleted} previously saved Preferences deleted.")
         )
         return redirect(self.get_success_url())
 
@@ -315,13 +317,14 @@ class ParticipantAdminView(AdminViewMixin, DetailView):
                                   .select_related('ak')
                                   .order_by('-preference'))
         relevant_aks = context["preferences"].values_list('ak', flat=True)
-        context["akslots"] = context["event"].akslot_set.select_related('ak', 'room').filter(ak__in=relevant_aks).annotate(
-            preference=Subquery(
-                AKPreference.objects.filter(
-                    participant=self.object,
-                    ak=OuterRef('ak')
-                ).values('preference')[:1]
-            )
+        context["akslots"] = context["event"].akslot_set.select_related('ak', 'room').filter(
+                ak__in=relevant_aks).annotate(
+                preference=Subquery(
+                        AKPreference.objects.filter(
+                                participant=self.object,
+                                ak=OuterRef('ak')
+                        ).values('preference')[:1]
+                )
         )
         PREFERENCE_COLORS = ['#555', '#75caeb', '#158cba', '#ff4136']
         context["akslots"] = list(context["akslots"])

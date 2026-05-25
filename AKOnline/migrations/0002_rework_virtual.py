@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0057_upgrades'),
         ('AKOnline', '0001_AKOnline'),
@@ -12,8 +11,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameModel(
-            'VirtualRoom',
-            'VirtualRoomOld'
+                'VirtualRoom',
+                'VirtualRoomOld'
         ),
 
     ]

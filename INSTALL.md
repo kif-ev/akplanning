@@ -105,14 +105,15 @@ is not stored in any repository or similar, and disable DEBUG mode (``settings.p
 1. restart uwsgi ``sudo systemctl restart uwsgi``
 1. execute the update script ``./Utils/update.sh --prod``
 
-
 ## Deployment Setup using Docker
+
 This project also provides a docker file for easy deployment.
 
 The container described by the docker file only contains the project itself.
 Additional containers for the database and webserver are needed to use it.
 
 The following [docker-compose](https://docs.docker.com/compose/) file shows a typical usage:
+
 ```
 version: "3"
 
@@ -209,7 +210,9 @@ http {
     }
 }
 ```
+
 ### Initializing and migrating database
+
 On the first start, the database must be initialized (the Tables created and so on).
 When updating the project the database must be migrated.
 Both are done using the `migrate` command.
@@ -224,6 +227,7 @@ Database migration may lead to the corruption or loss of data in some cases.
 Make sure you have a backup before running the command and be very careful with enabling auto migration.
 
 ### Creating initial superuser
+
 There are two ways to create the initial superuser when using the docker container.
 For both the database must have been intialized before.
 
@@ -234,10 +238,12 @@ The second way is to run the following command after the container has started:
 `docker-compose exec -it akplanning-server ./manage.py createsuperuser`
 
 ### Extra django settings
+
 For simple cases you can pass environment variables starting with `EXTRA_DJANGO_SETTING`.
 The content of such variables is written into python files, which are loaded as settings.
 
-For more complex scenarios you can also mount a docker volume to `/app/AKPlanning/settings` and add any number of python files to the volume.
+For more complex scenarios you can also mount a docker volume to `/app/AKPlanning/settings` and add any number of python
+files to the volume.
 
 ## Updates
 
@@ -249,4 +255,5 @@ Afterwards, you may check your setup by executing ``Utils/check.sh`` or ``Utils/
 ### Updating when using docker
 
 To update when using docker, just switch the tag of the image for `akplanning-server`.
-Then (if `AUTO_MIGRATE_DB` is not enabled), do a database migration as described in [Initializing and migrating database](#initializing-and-migrating-database)
+Then (if `AUTO_MIGRATE_DB` is not enabled), do a database migration as described
+in [Initializing and migrating database](#initializing-and-migrating-database)

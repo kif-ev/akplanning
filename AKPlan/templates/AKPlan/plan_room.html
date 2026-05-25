@@ -15,7 +15,7 @@
 
 
 {% block encode %}
-[
+    [
     {% for slot in slots %}
         {% if slot.start %}
             {'title': '{{ slot.ak }}',
@@ -29,30 +29,32 @@
     {% endfor %}
     {% for a in room.availabilities.all %}
         {
-            title: '',
-            start: '{{ a.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-            end: '{{ a.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-            'resourceId': '{{ a.room.title }}',
-            backgroundColor: '#28B62C',
-            display: 'background',
-            groupId: 'roomAvailable',
+        title: '',
+        start: '{{ a.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+        end: '{{ a.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+        'resourceId': '{{ a.room.title }}',
+        backgroundColor: '#28B62C',
+        display: 'background',
+        groupId: 'roomAvailable',
         },
     {% endfor %}
-]
+    ]
 {% endblock %}
 
 
 {% block content %}
     <div class="float-end">
         <ul class="nav nav-pills">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Rooms" %}</a>
-            <div class="dropdown-menu" style="">
-                {% for r in event.room_set.all %}
-                    <a class="dropdown-item" href="{% url "plan:plan_room" event_slug=event.slug pk=r.pk %}">{{ r }}</a>
-                {% endfor %}
-            </div>
-          </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                   aria-haspopup="true" aria-expanded="false">{% trans "Rooms" %}</a>
+                <div class="dropdown-menu" style="">
+                    {% for r in event.room_set.all %}
+                        <a class="dropdown-item"
+                           href="{% url "plan:plan_room" event_slug=event.slug pk=r.pk %}">{{ r }}</a>
+                    {% endfor %}
+                </div>
+            </li>
         </ul>
     </div>
 
@@ -80,22 +82,23 @@
 
     <table class="table table-borderless" style="margin-top: 30px;">
         <tbody>
+        <tr>
+            <td>{% trans "Capacity" %}:</td>
+            <td>{{ room.capacity }}</td>
+        </tr>
+        {% if room.properties.count > 0 %}
             <tr>
-                <td>{% trans "Capacity" %}:</td><td>{{ room.capacity }}</td>
+                <td>{% trans "Properties" %}:</td>
+                <td>
+                    {% for property in room.properties.all %}
+                        {% if forloop.counter0 > 0 %}
+                            ,&nbsp;
+                        {% endif %}
+                        {{ property }}
+                    {% endfor %}
+                </td>
             </tr>
-            {% if room.properties.count > 0 %}
-                <tr>
-                    <td>{% trans "Properties" %}:</td>
-                    <td>
-                        {% for property in room.properties.all %}
-                            {% if forloop.counter0 > 0 %}
-                                ,&nbsp;
-                            {% endif %}
-                            {{ property }}
-                        {% endfor %}
-                    </td>
-                </tr>
-            {% endif %}
+        {% endif %}
         </tbody>
     </table>
 {% endblock %}

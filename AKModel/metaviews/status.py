@@ -91,6 +91,7 @@ class TemplateStatusWidget(StatusWidget):
     """
     A :class:`StatusWidget` that produces its content by rendering a given html template
     """
+
     @property
     @abstractmethod
     def template_name(self) -> str:
@@ -129,6 +130,7 @@ class StatusManager:
 
         :param name: name of this widget (only used internally). Has to be unique.
         """
+
         def _register(widget_class):
             w = widget_class()
             self.widgets[name] = w

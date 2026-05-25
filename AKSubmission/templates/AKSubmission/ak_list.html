@@ -7,7 +7,8 @@
         </li>
         {% if event.aktrack_set.count > 0 %}
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                   aria-haspopup="true"
                    aria-expanded="false">{% trans "Tracks" %}</a>
                 <div class="dropdown-menu" style="">
                     {% for track in event.aktrack_set.all %}
@@ -20,7 +21,8 @@
         {% endif %}
         {% if show_types %}
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                   aria-haspopup="true"
                    aria-expanded="false">{% trans "Types" %}</a>
                 <div class="dropdown-menu" style="">
                     {% for type in event.aktype_set.all %}
@@ -51,7 +53,8 @@
 
 <div id="akListTabbed" class="tab-content">
     {% for category, AKs in categories_with_aks %}
-        <div class="tab-pane fade {% if category.name == active_category %}show active{% endif %}" id="category_{{ category.pk }}">
+        <div class="tab-pane fade {% if category.name == active_category %}show active{% endif %}"
+             id="category_{{ category.pk }}">
             <p><b>{{ category.name }}:</b> {{ category.description }}</p>
             {% include "AKSubmission/ak_table.html" %}
         </div>

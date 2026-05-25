@@ -1,10 +1,10 @@
 import itertools
 import json
-import math
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Generator, Iterable
 
+import math
 from django.apps import apps
 from django.conf import settings
 from django.core.validators import RegexValidator
@@ -750,13 +750,16 @@ class AKType(models.Model):
     def __str__(self):
         return self.name
 
+
 class AKManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(trashed_at__isnull=True)
 
+
 class AKManagerAll(models.Manager):
     def get_queryset(self):
         return super().get_queryset()
+
 
 class AKManagerTrashed(models.Manager):
     def get_queryset(self):
@@ -822,7 +825,7 @@ class AK(models.Model):
                                             help_text=_("Include AK in wiki export?"))
 
     trashed_at = models.DateTimeField(verbose_name=_('Trashed at'), null=True,
-                                  help_text=_("If filled, AK was trashed at:"))
+                                      help_text=_("If filled, AK was trashed at:"))
 
     history = HistoricalRecords(excluded_fields=['interest', 'interest_counter', 'include_in_export'])
 

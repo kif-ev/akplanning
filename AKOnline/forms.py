@@ -11,10 +11,11 @@ class VirtualRoomForm(ModelForm):
 
     Should be used as part of a multi form (see :class:`RoomWithVirtualForm` below)
     """
+
     class Meta:
         model = VirtualRoom
         # Show all fields except for room
-        exclude = ['room'] #pylint: disable=modelform-uses-exclude
+        exclude = ['room']  # pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0067_eventparticipant_requirements_and_more'),
         ('AKPreference', '0001_initial'),
@@ -13,38 +12,40 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveField(
-            model_name='eventparticipant',
-            name='event',
+                model_name='eventparticipant',
+                name='event',
         ),
         migrations.RemoveField(
-            model_name='eventparticipant',
-            name='requirements',
+                model_name='eventparticipant',
+                name='requirements',
         ),
         migrations.RemoveField(
-            model_name='availability',
-            name='participant',
+                model_name='availability',
+                name='participant',
         ),
         migrations.AddField(
-            model_name='event',
-            name='poll_hidden',
-            field=models.BooleanField(default=True, help_text='Hides preference poll for non-staff users', verbose_name='Poll Hidden'),
+                model_name='event',
+                name='poll_hidden',
+                field=models.BooleanField(default=True, help_text='Hides preference poll for non-staff users',
+                                          verbose_name='Poll Hidden'),
         ),
         migrations.AddField(
-            model_name='event',
-            name='poll_published_at',
-            field=models.DateTimeField(blank=True, help_text='Timestamp at which the preference poll was published', null=True, verbose_name='Poll published at'),
+                model_name='event',
+                name='poll_published_at',
+                field=models.DateTimeField(blank=True, help_text='Timestamp at which the preference poll was published',
+                                           null=True, verbose_name='Poll published at'),
         ),
         migrations.DeleteModel(
-            name='AKPreference',
+                name='AKPreference',
         ),
         migrations.DeleteModel(
-            name='EventParticipant',
+                name='EventParticipant',
         ),
         migrations.AddField(
-            model_name='availability',
-            name='participant',
-            field=models.ForeignKey(blank=True, help_text='Participant whose availability this is', null=True,
-                                    on_delete=django.db.models.deletion.CASCADE, related_name='availabilities',
-                                    to='AKPreference.eventparticipant', verbose_name='Participant'),
+                model_name='availability',
+                name='participant',
+                field=models.ForeignKey(blank=True, help_text='Participant whose availability this is', null=True,
+                                        on_delete=django.db.models.deletion.CASCADE, related_name='availabilities',
+                                        to='AKPreference.eventparticipant', verbose_name='Participant'),
         ),
     ]

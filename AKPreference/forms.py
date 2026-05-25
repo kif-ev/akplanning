@@ -3,7 +3,7 @@ from django import forms
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
 from AKModel.models import AKRequirement
-from AKPreference.models import EventParticipant, AKPreference
+from AKPreference.models import AKPreference, EventParticipant
 
 
 class EventParticipantForm(AvailabilitiesFormMixin, forms.ModelForm):
@@ -29,7 +29,7 @@ class EventParticipantForm(AvailabilitiesFormMixin, forms.ModelForm):
         self.initial = {**self.initial, **kwargs["initial"]}
 
         self.fields["requirements"].queryset = AKRequirement.objects.filter(
-            event=self.initial.get("event"), relevant_for_participants=True
+                event=self.initial.get("event"), relevant_for_participants=True
         )
         # Don't ask for requirements if there are no requirements configured for this event
         if self.fields["requirements"].queryset.count() == 0:
@@ -45,7 +45,7 @@ class EventParticipantForm(AvailabilitiesFormMixin, forms.ModelForm):
         availabilities = super().clean_availabilities()
         if len(availabilities) == 0:
             availabilities.append(
-                Availability.with_event_length(event=self.cleaned_data["event"])
+                    Availability.with_event_length(event=self.cleaned_data["event"])
             )
         return availabilities
 
@@ -54,6 +54,7 @@ class PreferenceForm(forms.ModelForm):
     """
     Form for each preference
     """
+
     class Meta:
         model = AKPreference
         fields = '__all__'
@@ -69,6 +70,7 @@ class PreferenceFormSet(forms.BaseModelFormSet):
     """
     Formset to control all lines to enter preferences for a given participant and category
     """
+
     def __init__(self, *args, **kwargs):
         self.participant = kwargs.pop("participant")
         self.category = kwargs.pop("category")
@@ -79,6 +81,6 @@ class PreferenceFormSet(forms.BaseModelFormSet):
         # Other options will be added as "extras" in the view
         if not hasattr(self, "_queryset"):
             self._queryset = (super().get_queryset().filter(participant=self.participant, ak__category=self.category)
-                    .select_related('ak')
-                    .order_by('ak'))
+                              .select_related('ak')
+                              .order_by('ak'))
         return self._queryset

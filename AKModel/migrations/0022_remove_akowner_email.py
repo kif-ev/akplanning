@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveField(
-            model_name='akowner',
-            name='email',
+                model_name='akowner',
+                name='email',
         ),
     ]

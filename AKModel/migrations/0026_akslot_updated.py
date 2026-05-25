@@ -10,8 +10,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='akslot',
-            name='updated',
-            field=models.DateTimeField(auto_now=True, verbose_name='Last update'),
+                model_name='akslot',
+                name='updated',
+                field=models.DateTimeField(auto_now=True, verbose_name='Last update'),
         ),
     ]

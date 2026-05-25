@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0069_merge_20250617_1844'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='akrequirement',
-            name='relevant_for_participants',
-            field=models.BooleanField(default=False, help_text='Show this requirement when collecting participant preferences', verbose_name='Relevant for Participants?'),
+                model_name='akrequirement',
+                name='relevant_for_participants',
+                field=models.BooleanField(default=False,
+                                          help_text='Show this requirement when collecting participant preferences',
+                                          verbose_name='Relevant for Participants?'),
         ),
     ]

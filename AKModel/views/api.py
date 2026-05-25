@@ -1,10 +1,10 @@
-from rest_framework import mixins, viewsets, permissions
+from rest_framework import mixins, permissions, viewsets
 from rest_framework.routers import APIRootView
 
 from AKModel.metaviews.admin import EventSlugMixin
-from AKModel.models import AKOwner, AKCategory, AKTrack, AK, Room, AKSlot
-from AKModel.serializers import AKOwnerSerializer, AKCategorySerializer, AKTrackSerializer, AKSerializer, \
-    RoomSerializer, AKSlotSerializer
+from AKModel.models import AK, AKCategory, AKOwner, AKSlot, AKTrack, Room
+from AKModel.serializers import AKCategorySerializer, AKOwnerSerializer, AKSerializer, AKSlotSerializer, \
+    AKTrackSerializer, RoomSerializer
 
 
 class APIRootViewWithEventSlugCheck(EventSlugMixin, APIRootView):

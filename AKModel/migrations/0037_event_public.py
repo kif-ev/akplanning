@@ -4,15 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0036_protocol_link'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='public',
-            field=models.BooleanField(default=True, help_text='Show this event on overview page.', verbose_name='Public event'),
+                model_name='event',
+                name='public',
+                field=models.BooleanField(default=True, help_text='Show this event on overview page.',
+                                          verbose_name='Public event'),
         ),
     ]

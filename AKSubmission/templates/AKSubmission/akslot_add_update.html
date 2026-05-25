@@ -20,7 +20,7 @@
         <h2>{% trans 'AK Duration(s)' %}</h2>
     {% endblock %}
     <form method="POST" class="post-form">{% csrf_token %}
-    {% bootstrap_form form %}
+        {% bootstrap_form form %}
         <button type="submit" class="save btn btn-primary float-end">
             {% fa6_icon "check" 'fas' %} {% trans "Continue" %}
         </button>

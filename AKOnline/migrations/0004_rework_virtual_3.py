@@ -3,9 +3,7 @@
 from django.db import migrations
 
 
-
 class Migration(migrations.Migration):
-
     atomic = False
 
     dependencies = [
@@ -21,8 +19,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            copy_rooms,
-            reverse_code=migrations.RunPython.noop,
-            elidable=True,
+                copy_rooms,
+                reverse_code=migrations.RunPython.noop,
+                elidable=True,
         )
     ]

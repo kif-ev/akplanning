@@ -6,7 +6,7 @@
 {% load fontawesome_6 %}
 {% load django_bootstrap5 %}
 
-{% block title %}{% trans "Participant" %}: {{owner}}{% endblock %}
+{% block title %}{% trans "Participant" %}: {{ owner }}{% endblock %}
 
 {% block extrahead %}
     {{ block.super }}
@@ -27,11 +27,11 @@
         <div class="row mt-4">
             <table class="table table-striped">
                 <thead>
-                    <tr>
-                        <th>{% trans 'AK' %}</th>
-                        <th>{% trans 'Preference' %}</th>
-                        <th></th>
-                    </tr>
+                <tr>
+                    <th>{% trans 'AK' %}</th>
+                    <th>{% trans 'Preference' %}</th>
+                    <th></th>
+                </tr>
                 </thead>
                 {% for preference in preferences %}
                     <tr>
@@ -44,7 +44,9 @@
                         </td>
                     </tr>
                 {% empty %}
-                    <tr><td>{% trans "This participant does not have any preferences currently" %}</td></tr>
+                    <tr>
+                        <td>{% trans "This participant does not have any preferences currently" %}</td>
+                    </tr>
                 {% endfor %}
             </table>
         </div>

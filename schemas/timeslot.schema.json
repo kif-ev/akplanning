@@ -1,26 +1,36 @@
- {
+{
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "schemas/timeslot.schema.json",
   "title": "Timeslot",
   "type": "object",
-  "required": ["info", "blocks"],
+  "required": [
+    "info",
+    "blocks"
+  ],
   "additionalProperties": false,
   "properties": {
     "info": {
       "type": "object",
       "properties": {
-        "duration": {"description": "Duration in hours of a slot unit", "type": "number"},
+        "duration": {
+          "description": "Duration in hours of a slot unit",
+          "type": "number"
+        },
         "blocknames": {
           "type": "array",
           "items": {
             "type": "array",
-            "items": {"type": "string"},
+            "items": {
+              "type": "string"
+            },
             "minItems": 2,
             "maxItems": 2
           }
         }
       },
-      "required": ["duration"]
+      "required": [
+        "duration"
+      ]
     },
     "blocks": {
       "type": "array",
@@ -39,21 +49,33 @@
             "info": {
               "type": "object",
               "properties": {
-                "start": {"description": "Start datetime of the timeslot", "type": "string"},
-                "end": {"description": "End datetime of the timeslot", "type": "string"}
+                "start": {
+                  "description": "Start datetime of the timeslot",
+                  "type": "string"
+                },
+                "end": {
+                  "description": "End datetime of the timeslot",
+                  "type": "string"
+                }
               },
-              "required": ["start", "end"]
+              "required": [
+                "start",
+                "end"
+              ]
             },
             "fulfilled_time_constraints": {
               "$ref": "common/constraints.schema.json",
               "description": "Time constraints fulfilled by this timeslot"
             }
           },
-          "required": ["id", "info", "fulfilled_time_constraints"],
+          "required": [
+            "id",
+            "info",
+            "fulfilled_time_constraints"
+          ],
           "additionalProperties": false
         }
       }
     }
   }
 }
- 

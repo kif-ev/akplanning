@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0016_category_description'),
         ('AKModel', '0017_owner_slug'),

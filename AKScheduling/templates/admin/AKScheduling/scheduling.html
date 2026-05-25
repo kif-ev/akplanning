@@ -14,297 +14,299 @@
 {% get_current_language as LANGUAGE_CODE %}
 
 {% localize on %}
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}{% trans "Scheduling for" %} {{event}}{% endblock %}</title>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}{% trans "Scheduling for" %} {{ event }}{% endblock %}</title>
 
-    {# Load Bootstrap CSS and JavaScript as well as font awesome #}
-    {% compress css %}
-        <link rel="stylesheet" type="text/x-scss" href="{% static 'common/vendor/bootswatch-lumen/theme.scss' %}">
-        {% fontawesome_6_css %}
-        <link rel="stylesheet" href="{% static 'common/css/custom.css' %}">
-    {% endcompress %}
+        {# Load Bootstrap CSS and JavaScript as well as font awesome #}
+        {% compress css %}
+            <link rel="stylesheet" type="text/x-scss" href="{% static 'common/vendor/bootswatch-lumen/theme.scss' %}">
+            {% fontawesome_6_css %}
+            <link rel="stylesheet" href="{% static 'common/css/custom.css' %}">
+        {% endcompress %}
 
-    {% compress js %}
-        {% bootstrap_javascript %}
-        <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
-        {% fontawesome_6_js %}
-    {% endcompress %}
+        {% compress js %}
+            {% bootstrap_javascript %}
+            <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
+            {% fontawesome_6_js %}
+        {% endcompress %}
 
-    {% include "AKModel/load_fullcalendar.html" %}
+        {% include "AKModel/load_fullcalendar.html" %}
 
-    <style>
-        .unscheduled-slot {
-            cursor: move;
+        <style>
+            .unscheduled-slot {
+                cursor: move;
 
-        }
+            }
 
-        .fc-v-event, .tooltip {
-            white-space: pre-line;
-        }
+            .fc-v-event, .tooltip {
+                white-space: pre-line;
+            }
 
-        .fc-v-event {
-            border-width: 4px;
-        }
+            .fc-v-event {
+                border-width: 4px;
+            }
 
-        html, body {
-          height: 100%;
-          margin: 0;
-        }
+            html, body {
+                height: 100%;
+                margin: 0;
+            }
 
-        .box {
-          display: flex;
-          flex-flow: column;
-          height: 100%;
-        }
+            .box {
+                display: flex;
+                flex-flow: column;
+                height: 100%;
+            }
 
-        .box .row.header, .box .row.footer {
-          flex: 0 1 auto;
-        }
+            .box .row.header, .box .row.footer {
+                flex: 0 1 auto;
+            }
 
-        .box .row.content {
-          flex: 1 1 auto;
-        }
-    </style>
+            .box .row.content {
+                flex: 1 1 auto;
+            }
+        </style>
 
-    <script type="application/javascript" src="{% static "common/js/api.js" %}"></script>
-    <script type="application/javascript" src="{% static "AKScheduling/js/scheduling.js" %}"></script>
+        <script type="application/javascript" src="{% static "common/js/api.js" %}"></script>
+        <script type="application/javascript" src="{% static "AKScheduling/js/scheduling.js" %}"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Place slots by dropping placeholders on calendar
-            var containerEl = document.getElementById('unscheduled-slots');
-            new FullCalendar.Draggable(containerEl, {
-                itemSelector: '.unscheduled-slot',
-            });
-
-            // Calendar
-            var planEl = document.getElementById('planCalendar');
-
-            plan = new FullCalendar.Calendar(planEl, {
-                timeZone: '{{ event.timezone }}',
-                headerToolbar: {
-                    left: 'today prev,next',
-                    center: 'title',
-                    right: 'resourceTimelineDayVert,resourceTimelineDayHoriz,resourceTimelineEventVert,resourceTimelineEventHoriz'
-                },
-                //aspectRatio: 2,
-                height: '100%',
-                themeSystem: 'bootstrap5',
-                buttonIcons: {
-                  prev: 'ignore fa-solid fa-angle-left',
-                  next: 'ignore fa-solid fa-angle-right',
-                },
-                // Adapt to user selected locale
-                locale: '{{ LANGUAGE_CODE }}',
-                initialView: 'resourceTimelineEventVert',
-                views: {
-                    resourceTimelineDayHoriz: {
-                        type: 'resourceTimelineDay',
-                        buttonText: '{% trans "Day (Horizontal)" %}',
-                        slotDuration: '00:15',
-                        scrollTime: '08:00',
-                        titleFormat: {weekday: 'long', day: 'numeric', month: 'numeric'},
-                    },
-                    resourceTimelineDayVert: {
-                        type: 'resourceTimeGridDay',
-                        buttonText: '{% trans "Day (Vertical)" %}',
-                        slotDuration: '00:30',
-                        scrollTime: '08:00',
-                        titleFormat: {weekday: 'long', day: 'numeric', month: 'numeric'},
-                    },
-                    resourceTimelineEventHoriz: {
-                        type: 'resourceTimeline',
-                        visibleRange: {
-                            start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-                            end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
-                        },
-                        buttonText: '{% trans "Event (Horizontal)" %}',
-                        slotDuration: '00:15',
-                    },
-                    resourceTimelineEventVert: {
-                        type: 'resourceTimeGrid',
-                        visibleRange: {
-                            start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-                            end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
-                        },
-                        buttonText: '{% trans "Event (Vertical)" %}',
-                        slotDuration: '00:30',
-                    }
-                },
-                // Show full AK title as tooltip for each AK (needs to be removed and newly placed when AK is moved)
-                eventDidMount: function (info) {
-                    if (info.event.extendedProps.description !== undefined) {
-                        $(info.el).tooltip({title: info.event.extendedProps.description, trigger: 'hover'});
-                    }
-                },
-                eventWillUnmount: function (info) {
-                    $(info.el).tooltip('dispose');
-                },
-                // Show tooltip with details on resource title
-                resourceLabelDidMount : function(info) {
-                    $(info.el).tooltip({title: info.resource.extendedProps.details, trigger: 'hover', placement: 'top'});
-                },
-
-                // React to event changes (moving or change of duration)
-                eventChange: updateEvent,
-                eventReceive: updateEvent,
-                editable: true,
-                selectable: true,
-                drop: function (info) {
-                    info.draggedEl.parentNode.removeChild(info.draggedEl);
-                },
-                select: function (info) {
-                    console.log(info);
-                    $('#id_start').val(info.startStr);
-                    $('#id_end').val(info.endStr);
-                    $('#id_room').val(info.resource._resource.id);
-                    $('#id_room_name').val(info.resource._resource.title);
-                    $('#id_duration').val(Math.abs(info.end-info.start)/1000/60/60);
-                    $('#id_ak').val("");
-                    $('#newAKSlotModal').modal('show');
-                },
-                allDaySlot: false,
-                nowIndicator: true,
-                now: "{% timestamp_now event.timezone %}",
-                eventTextColor: '#fff',
-                eventColor: '#127ba3',
-                eventBackgroundColor: '#28B62C',
-                datesAboveResources: true,
-                resourceAreaHeaderContent: '{% trans "Room" %}',
-                resources: '{% url "model:scheduling-resources-list" event_slug=event.slug %}',
-                eventSources: [
-                    '{% url "model:scheduling-events" event_slug=event.slug %}',
-                    '{% url "model:scheduling-room-availabilities" event_slug=event.slug %}',
-                    '{% url "model:scheduling-default-slots" event_slug=event.slug %}'
-                ],
-                schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
-                dayMinWidth: 100,
-            });
-
-            plan.setOption('contentHeight', $(window).height() - $('#header').height() * 11);
-            plan.render();
-
-            function updateEvent(changeInfo) {
-                room = changeInfo.event.getResources()[0];
-                $.ajax({
-                    url: '{% url "model:scheduling-event-list" event_slug=event.slug %}' + changeInfo.event.extendedProps.slotID + "/",
-                    type: 'PUT',
-                    data: {
-                        start: plan.formatIso(changeInfo.event.start),
-                        end: plan.formatIso(changeInfo.event.end),
-                        roomId: room.id,
-                    },
-                    success: function (response) {
-                    },
-                    error: function (response) {
-                        changeInfo.revert();
-                        alert("ERROR. Did not update " + changeInfo.event.title)
-                    }
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Place slots by dropping placeholders on calendar
+                var containerEl = document.getElementById('unscheduled-slots');
+                new FullCalendar.Draggable(containerEl, {
+                    itemSelector: '.unscheduled-slot',
                 });
-            }
 
-            $('.unscheduled-slot').each(function() {
-                $(this).tooltip({title: $(this).first().attr('data-details'), trigger: 'hover'});
-            });
+                // Calendar
+                var planEl = document.getElementById('planCalendar');
 
-            const cv_url = "{% url "model:scheduling-constraint-violations-list" event_slug=event.slug %}";
+                plan = new FullCalendar.Calendar(planEl, {
+                    timeZone: '{{ event.timezone }}',
+                    headerToolbar: {
+                        left: 'today prev,next',
+                        center: 'title',
+                        right: 'resourceTimelineDayVert,resourceTimelineDayHoriz,resourceTimelineEventVert,resourceTimelineEventHoriz'
+                    },
+                    //aspectRatio: 2,
+                    height: '100%',
+                    themeSystem: 'bootstrap5',
+                    buttonIcons: {
+                        prev: 'ignore fa-solid fa-angle-left',
+                        next: 'ignore fa-solid fa-angle-right',
+                    },
+                    // Adapt to user selected locale
+                    locale: '{{ LANGUAGE_CODE }}',
+                    initialView: 'resourceTimelineEventVert',
+                    views: {
+                        resourceTimelineDayHoriz: {
+                            type: 'resourceTimelineDay',
+                            buttonText: '{% trans "Day (Horizontal)" %}',
+                            slotDuration: '00:15',
+                            scrollTime: '08:00',
+                            titleFormat: {weekday: 'long', day: 'numeric', month: 'numeric'},
+                        },
+                        resourceTimelineDayVert: {
+                            type: 'resourceTimeGridDay',
+                            buttonText: '{% trans "Day (Vertical)" %}',
+                            slotDuration: '00:30',
+                            scrollTime: '08:00',
+                            titleFormat: {weekday: 'long', day: 'numeric', month: 'numeric'},
+                        },
+                        resourceTimelineEventHoriz: {
+                            type: 'resourceTimeline',
+                            visibleRange: {
+                                start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                                end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
+                            },
+                            buttonText: '{% trans "Event (Horizontal)" %}',
+                            slotDuration: '00:15',
+                        },
+                        resourceTimelineEventVert: {
+                            type: 'resourceTimeGrid',
+                            visibleRange: {
+                                start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                                end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
+                            },
+                            buttonText: '{% trans "Event (Vertical)" %}',
+                            slotDuration: '00:30',
+                        }
+                    },
+                    // Show full AK title as tooltip for each AK (needs to be removed and newly placed when AK is moved)
+                    eventDidMount: function (info) {
+                        if (info.event.extendedProps.description !== undefined) {
+                            $(info.el).tooltip({title: info.event.extendedProps.description, trigger: 'hover'});
+                        }
+                    },
+                    eventWillUnmount: function (info) {
+                        $(info.el).tooltip('dispose');
+                    },
+                    // Show tooltip with details on resource title
+                    resourceLabelDidMount: function (info) {
+                        $(info.el).tooltip({
+                            title: info.resource.extendedProps.details,
+                            trigger: 'hover',
+                            placement: 'top'
+                        });
+                    },
 
-            const cv_callback_success = function(response) {
-               let table_html = '';
+                    // React to event changes (moving or change of duration)
+                    eventChange: updateEvent,
+                    eventReceive: updateEvent,
+                    editable: true,
+                    selectable: true,
+                    drop: function (info) {
+                        info.draggedEl.parentNode.removeChild(info.draggedEl);
+                    },
+                    select: function (info) {
+                        console.log(info);
+                        $('#id_start').val(info.startStr);
+                        $('#id_end').val(info.endStr);
+                        $('#id_room').val(info.resource._resource.id);
+                        $('#id_room_name').val(info.resource._resource.title);
+                        $('#id_duration').val(Math.abs(info.end - info.start) / 1000 / 60 / 60);
+                        $('#id_ak').val("");
+                        $('#newAKSlotModal').modal('show');
+                    },
+                    allDaySlot: false,
+                    nowIndicator: true,
+                    now: "{% timestamp_now event.timezone %}",
+                    eventTextColor: '#fff',
+                    eventColor: '#127ba3',
+                    eventBackgroundColor: '#28B62C',
+                    datesAboveResources: true,
+                    resourceAreaHeaderContent: '{% trans "Room" %}',
+                    resources: '{% url "model:scheduling-resources-list" event_slug=event.slug %}',
+                    eventSources: [
+                        '{% url "model:scheduling-events" event_slug=event.slug %}',
+                        '{% url "model:scheduling-room-availabilities" event_slug=event.slug %}',
+                        '{% url "model:scheduling-default-slots" event_slug=event.slug %}'
+                    ],
+                    schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+                    dayMinWidth: 100,
+                });
 
-               let unresolved_violations_count = 0;
+                plan.setOption('contentHeight', $(window).height() - $('#header').height() * 11);
+                plan.render();
 
-               if(response.length > 0) {
-                   // Update violations table
-                   for(let i=0;i<response.length;i++) {
-                       let icon_html = '';
-                       let muted_html = '';
-                       if(response[i].manually_resolved) {
-                            icon_html = '{% fa6_icon "check" "fas" %} ';
-                            muted_html = 'text-muted';
-                          }
-                       else {
-                           unresolved_violations_count++;
-                       }
-
-                       if(response[i].level_display==='{% trans "Violation" %}')
-                           icon_html += '{% fa6_icon "exclamation-triangle" "fas" %}';
-                       else
-                           icon_html += '{% fa6_icon "info-circle" "fas" %}';
-
-                       table_html += '<tr class="'+ muted_html+ '"><td class="nowrap">' + icon_html;
-                       table_html += "</td><td class='small'>" + response[i].type_display + "</td></tr>";
-                       table_html += "<tr class='" + muted_html + "'><td colspan='2' class='small'>" + response[i].details + "</td></tr>"
-                   }
-               }
-               else {
-                   // Update violations table
-                   table_html ='<tr class="text-muted"><td colspan="2" class="text-center">{% trans "No violations" %}</td></tr>'
-               }
-
-               // Update violation count badge
-                if(unresolved_violations_count > 0)
-                    $('#violationCountBadge').html(unresolved_violations_count).removeClass('bg-success').addClass('bg-warning');
-                else
-                    $('#violationCountBadge').html(0).removeClass('bg-warning').addClass('bg-success');
-
-               // Show violation list (potentially empty) in violations table
-               $('#violationsTableBody').html(table_html);
-            }
-
-            function reloadCVs() {
-                loadCVs(cv_url, cv_callback_success, default_cv_callback_error);
-            }
-            reloadCVs();
-
-            const reloadBtn = $('#reloadBtn');
-
-            function reload() {
-                plan.refetchEvents();
-                reloadCVs();
-                // TODO Reload unscheduled AKs
-            }
-
-            reloadBtn.click(reload);
-
-            function addSlot() {
-                let ak = $('#id_ak').val();
-                if(ak === "") {
-                    alert("{% trans "Please choose AK" %}");
-                }
-                else {
+                function updateEvent(changeInfo) {
+                    room = changeInfo.event.getResources()[0];
                     $.ajax({
-                       url: "{% url "model:AKSlot-list" event_slug=event.slug %}",
-                        type: 'POST',
+                        url: '{% url "model:scheduling-event-list" event_slug=event.slug %}' + changeInfo.event.extendedProps.slotID + "/",
+                        type: 'PUT',
                         data: {
-                            start: $('#id_start').val(),
-                            duration: $('#id_duration').val(),
-                            room: $('#id_room').val(),
-                            ak: ak,
-                            event: "{{ event.pk }}",
-                            treat_as_local: true,
+                            start: plan.formatIso(changeInfo.event.start),
+                            end: plan.formatIso(changeInfo.event.end),
+                            roomId: room.id,
                         },
                         success: function (response) {
-                           $('#newAKSlotModal').modal('hide');
-                           reload();
                         },
                         error: function (response) {
-                           console.error(response);
-                           alert("{% trans 'Could not create slot' %}");
+                            changeInfo.revert();
+                            alert("ERROR. Did not update " + changeInfo.event.title)
                         }
-                   });
+                    });
                 }
-            }
 
-            $('#newAKSlotModalSubmitButton').click(addSlot);
-        });
-    </script>
+                $('.unscheduled-slot').each(function () {
+                    $(this).tooltip({title: $(this).first().attr('data-details'), trigger: 'hover'});
+                });
 
-</head>
-<body>
+                const cv_url = "{% url "model:scheduling-constraint-violations-list" event_slug=event.slug %}";
+
+                const cv_callback_success = function (response) {
+                    let table_html = '';
+
+                    let unresolved_violations_count = 0;
+
+                    if (response.length > 0) {
+                        // Update violations table
+                        for (let i = 0; i < response.length; i++) {
+                            let icon_html = '';
+                            let muted_html = '';
+                            if (response[i].manually_resolved) {
+                                icon_html = '{% fa6_icon "check" "fas" %} ';
+                                muted_html = 'text-muted';
+                            } else {
+                                unresolved_violations_count++;
+                            }
+
+                            if (response[i].level_display === '{% trans "Violation" %}')
+                                icon_html += '{% fa6_icon "exclamation-triangle" "fas" %}';
+                            else
+                                icon_html += '{% fa6_icon "info-circle" "fas" %}';
+
+                            table_html += '<tr class="' + muted_html + '"><td class="nowrap">' + icon_html;
+                            table_html += "</td><td class='small'>" + response[i].type_display + "</td></tr>";
+                            table_html += "<tr class='" + muted_html + "'><td colspan='2' class='small'>" + response[i].details + "</td></tr>"
+                        }
+                    } else {
+                        // Update violations table
+                        table_html = '<tr class="text-muted"><td colspan="2" class="text-center">{% trans "No violations" %}</td></tr>'
+                    }
+
+                    // Update violation count badge
+                    if (unresolved_violations_count > 0)
+                        $('#violationCountBadge').html(unresolved_violations_count).removeClass('bg-success').addClass('bg-warning');
+                    else
+                        $('#violationCountBadge').html(0).removeClass('bg-warning').addClass('bg-success');
+
+                    // Show violation list (potentially empty) in violations table
+                    $('#violationsTableBody').html(table_html);
+                }
+
+                function reloadCVs() {
+                    loadCVs(cv_url, cv_callback_success, default_cv_callback_error);
+                }
+
+                reloadCVs();
+
+                const reloadBtn = $('#reloadBtn');
+
+                function reload() {
+                    plan.refetchEvents();
+                    reloadCVs();
+                    // TODO Reload unscheduled AKs
+                }
+
+                reloadBtn.click(reload);
+
+                function addSlot() {
+                    let ak = $('#id_ak').val();
+                    if (ak === "") {
+                        alert("{% trans "Please choose AK" %}");
+                    } else {
+                        $.ajax({
+                            url: "{% url "model:AKSlot-list" event_slug=event.slug %}",
+                            type: 'POST',
+                            data: {
+                                start: $('#id_start').val(),
+                                duration: $('#id_duration').val(),
+                                room: $('#id_room').val(),
+                                ak: ak,
+                                event: "{{ event.pk }}",
+                                treat_as_local: true,
+                            },
+                            success: function (response) {
+                                $('#newAKSlotModal').modal('hide');
+                                reload();
+                            },
+                            error: function (response) {
+                                console.error(response);
+                                alert("{% trans 'Could not create slot' %}");
+                            }
+                        });
+                    }
+                }
+
+                $('#newAKSlotModalSubmitButton').click(addSlot);
+            });
+        </script>
+
+    </head>
+    <body>
     <div class="modal" id="newAKSlotModal">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -317,82 +319,91 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="newAKSlotModalSubmitButton">{% trans "Add" %}</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                    <button type="button" class="btn btn-primary"
+                            id="newAKSlotModalSubmitButton">{% trans "Add" %}</button>
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">{% trans "Cancel" %}</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="box p-3">
-      <div class="row header pb-2">
-          <div class="col">
-              <h2 class="d-inline">
-                  <button class="btn btn-outline-warning" id="reloadBtn" style="vertical-align: text-bottom;">
-                      <span id="reloadBtnVisDefault">{% fa6_icon "redo" "fas" %}</span>
-                  </button>
-                  {% trans "Scheduling for" %} {{event}}
-              </h2>
-              <h5 class="d-inline ml-2">
-                  <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %} {% fa6_icon "level-up-alt" "fas" %}</a>
-              </h5>
-          </div>
-      </div>
-      <div class="row content">
-        <div class="col-md-8 col-lg-9 col-xl-10">
-            <div id="planCalendar"></div>
-        </div>
-        <div class="col-md-4 col-lg-3 col-xl-2" id="sidebar">
-            <ul class="nav nav-tabs">
-              <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="tab" href="#unscheduled-slots">{% trans "Unscheduled" %}</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#violations"><span id="violationCountBadge" class="badge bg-success">0</span> {% trans "Violation(s)" %}</a>
-              </li>
-            </ul>
-            <div id="sidebarContent" class="tab-content">
-              <div class="tab-pane fade show active" id="unscheduled-slots" style="height: 80vh;overflow-y: scroll;">
-                {% regroup slots_unscheduled by ak.track as slots_unscheduled_by_track_list %}
-                {% for track_slots in slots_unscheduled_by_track_list %}
-                    {% if track_slots.grouper %}
-                        <h5 class="mt-2">{{ track_slots.grouper }}</h5>
-                    {% endif %}
-                    {% for slot in track_slots.list %}
-                        <div class="unscheduled-slot badge" style='background-color: {% with slot.ak.category.color as color %} {% if color %}{{ color }}{% else  %}#000000;{% endif %}{% endwith %}'
-                             {% with slot.ak.details as details %}
-                             data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}", "url": "{% url "admin:AKModel_akslot_change" slot.pk %}"}' data-details="{{ details }}">{{ slot.ak.short_name }}
-                            ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
-                            {% endwith %}
-                        </div>
-                    {% endfor %}
-                {% endfor %}
-              </div>
-              <div class="tab-pane fade" id="violations">
-                  <table class="table mt-4 mb-4">
-                    <thead>
-                        <tr>
-                            <th>{% trans "Level" %}</th>
-                            <th>{% trans "Problem" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody id="violationsTableBody">
-                        <tr class="text-muted">
-                            <td colspan="2" class="text-center">
-                                {% trans "No violations" %}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-              </div>
+        <div class="row header pb-2">
+            <div class="col">
+                <h2 class="d-inline">
+                    <button class="btn btn-outline-warning" id="reloadBtn" style="vertical-align: text-bottom;">
+                        <span id="reloadBtnVisDefault">{% fa6_icon "redo" "fas" %}</span>
+                    </button>
+                    {% trans "Scheduling for" %} {{ event }}
+                </h2>
+                <h5 class="d-inline ml-2">
+                    <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %} {% fa6_icon "level-up-alt" "fas" %}</a>
+                </h5>
             </div>
         </div>
-      </div>
-      <div class="row footer">
-        <!-- Currently not used -->
-      </div>
+        <div class="row content">
+            <div class="col-md-8 col-lg-9 col-xl-10">
+                <div id="planCalendar"></div>
+            </div>
+            <div class="col-md-4 col-lg-3 col-xl-2" id="sidebar">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab"
+                           href="#unscheduled-slots">{% trans "Unscheduled" %}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#violations"><span id="violationCountBadge"
+                                                                                          class="badge bg-success">0</span> {% trans "Violation(s)" %}
+                        </a>
+                    </li>
+                </ul>
+                <div id="sidebarContent" class="tab-content">
+                    <div class="tab-pane fade show active" id="unscheduled-slots"
+                         style="height: 80vh;overflow-y: scroll;">
+                        {% regroup slots_unscheduled by ak.track as slots_unscheduled_by_track_list %}
+                        {% for track_slots in slots_unscheduled_by_track_list %}
+                            {% if track_slots.grouper %}
+                                <h5 class="mt-2">{{ track_slots.grouper }}</h5>
+                            {% endif %}
+                            {% for slot in track_slots.list %}
+                                <div class="unscheduled-slot badge"
+                                     style='background-color: {% with slot.ak.category.color as color %}
+                                         {% if color %}{{ color }}{% else %}#000000;{% endif %}{% endwith %}'
+                                        {% with slot.ak.details as details %}
+                                     data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}", "url": "{% url "admin:AKModel_akslot_change" slot.pk %}"}'
+                                     data-details="{{ details }}">{{ slot.ak.short_name }}
+                                            ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
+                                        {% endwith %}
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                    <div class="tab-pane fade" id="violations">
+                        <table class="table mt-4 mb-4">
+                            <thead>
+                            <tr>
+                                <th>{% trans "Level" %}</th>
+                                <th>{% trans "Problem" %}</th>
+                            </tr>
+                            </thead>
+                            <tbody id="violationsTableBody">
+                            <tr class="text-muted">
+                                <td colspan="2" class="text-center">
+                                    {% trans "No violations" %}
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row footer">
+            <!-- Currently not used -->
+        </div>
     </div>
-</body>
-</html>
+    </body>
+    </html>
 {% endlocalize %}

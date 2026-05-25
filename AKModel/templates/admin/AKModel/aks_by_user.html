@@ -6,7 +6,7 @@
 {% load fontawesome_6 %}
 {% load django_bootstrap5 %}
 
-{% block title %}{% trans "AKs by Owner" %}: {{owner}}{% endblock %}
+{% block title %}{% trans "AKs by Owner" %}: {{ owner }}{% endblock %}
 
 {% block extrahead %}
     {{ block.super }}
@@ -20,7 +20,8 @@
 
 {% block content %}
     {% timezone event.timezone %}
-        <h2>[{{event}}] <a href="{% url 'admin:AKModel_akowner_change' owner.pk %}">{{owner}}</a> - {% trans "AKs" %}</h2>
+        <h2>[{{ event }}] <a href="{% url 'admin:AKModel_akowner_change' owner.pk %}">{{ owner }}</a>
+            - {% trans "AKs" %}</h2>
 
         <div class="row mt-4">
             <table class="table table-striped">
@@ -29,19 +30,21 @@
                         <td>{{ ak }}</td>
                         {% if "AKSubmission"|check_app_installed %}
                             <td class="text-end">
-                                <a href="{{ ak.detail_url }}" data-bs-toggle="tooltip"
-                                   title="{% trans 'Details' %}"
-                                   class="btn btn-primary">{% fa6_icon 'info' 'fas' %}</a>
-                                {% if event.active %}
-                                    <a href="{{ ak.edit_url }}" data-bs-toggle="tooltip"
-                                       title="{% trans 'Edit' %}"
-                                       class="btn btn-success">{% fa6_icon 'pencil-alt' 'fas' %}</a>
-                                {% endif %}
+                            <a href="{{ ak.detail_url }}" data-bs-toggle="tooltip"
+                               title="{% trans 'Details' %}"
+                               class="btn btn-primary">{% fa6_icon 'info' 'fas' %}</a>
+                            {% if event.active %}
+                                <a href="{{ ak.edit_url }}" data-bs-toggle="tooltip"
+                                   title="{% trans 'Edit' %}"
+                                   class="btn btn-success">{% fa6_icon 'pencil-alt' 'fas' %}</a>
                             {% endif %}
+                        {% endif %}
                         </td>
                     </tr>
                 {% empty %}
-                    <tr><td>{% trans "This user does not have any AKs currently" %}</td></tr>
+                    <tr>
+                        <td>{% trans "This user does not have any AKs currently" %}</td>
+                    </tr>
                 {% endfor %}
             </table>
         </div>

@@ -10,10 +10,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='ak',
-            name='notes',
-            field=models.TextField(blank=True,
-                                   help_text='Notes to organizers. These are public. For private notes, please send an e-mail.',
-                                   verbose_name='Organizational Notes'),
+                model_name='ak',
+                name='notes',
+                field=models.TextField(blank=True,
+                                       help_text='Notes to organizers. These are public. For private notes, please send an e-mail.',
+                                       verbose_name='Organizational Notes'),
         ),
     ]

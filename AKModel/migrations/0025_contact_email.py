@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0024_event_dependencies'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='contact_email',
-            field=models.EmailField(blank=True, help_text='An email address that is displayed on every page and can be used for all kinds of questions', max_length=254, verbose_name='Contact email address'),
+                model_name='event',
+                name='contact_email',
+                field=models.EmailField(blank=True,
+                                        help_text='An email address that is displayed on every page and can be used for all kinds of questions',
+                                        max_length=254, verbose_name='Contact email address'),
         ),
     ]

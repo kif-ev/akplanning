@@ -8,7 +8,7 @@
 {% load tags_AKPlan %}
 {% load fontawesome_6 %}
 
-{% block title %}{% trans "Constraint Violations for" %} {{event}}{% endblock %}
+{% block title %}{% trans "Constraint Violations for" %} {{ event }}{% endblock %}
 
 {% block extrahead %}
     {{ block.super }}
@@ -20,37 +20,35 @@
         document.addEventListener('DOMContentLoaded', function () {
             const url = "{% url "model:scheduling-constraint-violations-list" event_slug=event.slug %}";
 
-            const callback_success = function(response) {
-               let table_html = '';
+            const callback_success = function (response) {
+                let table_html = '';
 
-               let unresolved_constraint_violations = 0;
+                let unresolved_constraint_violations = 0;
 
-               if(response.length > 0) {
+                if (response.length > 0) {
 
-                   // Update violations table
-                   for(let i=0;i<response.length;i++) {
-                       if(response[i].manually_resolved) {
-                           table_html += '<tr class="text-muted"><td class="nowrap">{% fa6_icon "check" "fas" %}</td>';
-                       }
-                       else {
-                           table_html += '<tr><td></td>';
-                           unresolved_constraint_violations++;
-                       }
-                       table_html += "<td>" + response[i].level_display + "</td><td>" + response[i].type_display + "</td><td>" + response[i].details + "</td><td class='nowrap'>" + response[i].timestamp_display + "</td><td><a href='" + response[i].edit_url + "'><i class='btn btn-primary fa fa-pen'></i></a></td></tr>";
-                   }
-               }
-               else {
-                   // Update violations table
-                   table_html ='<tr class="text-muted"><td colspan="5" class="text-center">{% trans "No violations" %}</td></tr>'
-               }
-               // Update violation count badge
-               if(unresolved_constraint_violations > 0)
-                   $('#violationCountBadge').html(unresolved_constraint_violations).removeClass('bg-success').addClass('bg-warning');
-               else
-                   $('#violationCountBadge').html(0).removeClass('bg-warning').addClass('bg-success');
+                    // Update violations table
+                    for (let i = 0; i < response.length; i++) {
+                        if (response[i].manually_resolved) {
+                            table_html += '<tr class="text-muted"><td class="nowrap">{% fa6_icon "check" "fas" %}</td>';
+                        } else {
+                            table_html += '<tr><td></td>';
+                            unresolved_constraint_violations++;
+                        }
+                        table_html += "<td>" + response[i].level_display + "</td><td>" + response[i].type_display + "</td><td>" + response[i].details + "</td><td class='nowrap'>" + response[i].timestamp_display + "</td><td><a href='" + response[i].edit_url + "'><i class='btn btn-primary fa fa-pen'></i></a></td></tr>";
+                    }
+                } else {
+                    // Update violations table
+                    table_html = '<tr class="text-muted"><td colspan="5" class="text-center">{% trans "No violations" %}</td></tr>'
+                }
+                // Update violation count badge
+                if (unresolved_constraint_violations > 0)
+                    $('#violationCountBadge').html(unresolved_constraint_violations).removeClass('bg-success').addClass('bg-warning');
+                else
+                    $('#violationCountBadge').html(0).removeClass('bg-warning').addClass('bg-success');
 
-               // Show violation list (potentially empty) in violations table
-               $('#violationsTableBody').html(table_html);
+                // Show violation list (potentially empty) in violations table
+                $('#violationsTableBody').html(table_html);
             }
 
 
@@ -58,6 +56,7 @@
             function reload() {
                 loadCVs(url, callback_success, default_cv_callback_error)
             }
+
             reload();
 
             // Bind reload button
@@ -66,11 +65,10 @@
             // Toggle automatic reloading (every 30 s) based on checkbox
             let autoReloadInterval = undefined;
             $('#cbxAutoReload').change(function () {
-                if(this.checked) {
-                    autoReloadInterval = setInterval(reload, 30*1000);
-                }
-                else {
-                    if(autoReloadInterval !== undefined)
+                if (this.checked) {
+                    autoReloadInterval = setInterval(reload, 30 * 1000);
+                } else {
+                    if (autoReloadInterval !== undefined)
                         clearInterval(autoReloadInterval);
                 }
             });
@@ -79,7 +77,8 @@
 {% endblock extrahead %}
 
 {% block content %}
-    <h4 class="mt-4 mb-4"><span id="violationCountBadge" class="badge bg-success">0</span> {% trans "Violation(s)" %}</h4>
+    <h4 class="mt-4 mb-4"><span id="violationCountBadge" class="badge bg-success">0</span> {% trans "Violation(s)" %}
+    </h4>
 
     <input type="checkbox" id="cbxAutoReload">
     <label for="cbxAutoReload">{% trans "Auto reload?" %}</label>
@@ -90,14 +89,14 @@
 
     <table class="table table-striped mt-4 mb-4">
         <thead>
-            <tr>
-                <th></th>
-                <th>{% trans "Violation" %}</th>
-                <th>{% trans "Problem" %}</th>
-                <th>{% trans "Details" %}</th>
-                <th>{% trans "Since" %}</th>
-                <th></th>
-            </tr>
+        <tr>
+            <th></th>
+            <th>{% trans "Violation" %}</th>
+            <th>{% trans "Problem" %}</th>
+            <th>{% trans "Details" %}</th>
+            <th>{% trans "Since" %}</th>
+            <th></th>
+        </tr>
         </thead>
         <tbody id="violationsTableBody">
         <tr class="text-muted">

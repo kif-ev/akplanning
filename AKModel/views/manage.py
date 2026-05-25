@@ -214,7 +214,8 @@ class PublishedSlidesView(EventSlugMixin, TemplateView):
                 presentation_mode=bool(self.config_data.get("presentation_mode", False)),
                 types_ids=_parse_selected_ids(self.config_data["types"]) if "types" in self.config_data else None,
                 types_all_selected_only=bool(self.config_data.get("types_all_selected_only", False)),
-                categories_ids=_parse_selected_ids(self.config_data["categories"]) if "categories" in self.config_data else None,
+                categories_ids=_parse_selected_ids(
+                        self.config_data["categories"]) if "categories" in self.config_data else None,
         ))
         return context
 
@@ -256,6 +257,7 @@ class CVSetLevelWarningView(IntermediateAdminActionView):
 
     def action(self, form):
         self.entities.update(level=ConstraintViolation.ViolationLevel.WARNING)
+
 
 class ClearScheduleView(IntermediateAdminActionView, ListView):
     """
@@ -372,6 +374,7 @@ class PollUnpublishView(IntermediateAdminActionView):
     def action(self, form):
         self.entities.update(poll_published_at=None, poll_hidden=True)
 
+
 class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
     """
     Admin view: Allow to edit the default slots of an event
@@ -414,10 +417,10 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
                     # Make sure only slots (currently) belonging to this event are edited
                     # (user did not manipulate IDs and slots have not been deleted in another session in the meantime)
                     messages.add_message(
-                        self.request,
-                        messages.WARNING,
-                        _("Could not update slot {id} since it does not belong to {event}")
-                        .format(id=slot['id'], event=self.event.name)
+                            self.request,
+                            messages.WARNING,
+                            _("Could not update slot {id} since it does not belong to {event}")
+                            .format(id=slot['id'], event=self.event.name)
                     )
                 else:
                     # Update existing entries
@@ -431,9 +434,9 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
             else:
                 # Create new entries
                 DefaultSlot.objects.create(
-                    start=start,
-                    end=end,
-                    event=self.event
+                        start=start,
+                        end=end,
+                        event=self.event
                 )
                 created_count += 1
 
@@ -445,10 +448,10 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
         # Inform user about changes performed
         if created_count + updated_count + deleted_count > 0:
             messages.add_message(
-                self.request,
-                messages.SUCCESS,
-                _("Updated {u} slot(s). created {c} new slot(s) and deleted {d} slot(s)")
-                .format(u=str(updated_count), c=str(created_count), d=str(deleted_count))
+                    self.request,
+                    messages.SUCCESS,
+                    _("Updated {u} slot(s). created {c} new slot(s) and deleted {d} slot(s)")
+                    .format(u=str(updated_count), c=str(created_count), d=str(deleted_count))
             )
         return super().form_valid(form)
 
@@ -475,6 +478,7 @@ class DefaultSlotCategoryBulkAssignmentView(IntermediateAdminActionView):
         for slot in self.entities:
             slot.primary_categories.clear()
             slot.primary_categories.set(categories)
+
 
 class AKsByUserView(AdminViewMixin, EventSlugMixin, DetailView):
     """

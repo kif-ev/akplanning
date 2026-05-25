@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0045_event_tz_pytz_update'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='akcategory',
-            name='present_by_default',
-            field=models.BooleanField(blank=True, default=True, help_text='Present AKs of this category by default if AK owner did not specify whether this AK should be presented?', verbose_name='Present by default'),
+                model_name='akcategory',
+                name='present_by_default',
+                field=models.BooleanField(blank=True, default=True,
+                                          help_text='Present AKs of this category by default if AK owner did not specify whether this AK should be presented?',
+                                          verbose_name='Present by default'),
         ),
     ]

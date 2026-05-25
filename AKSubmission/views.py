@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from math import floor
 
 from django.apps import apps
 from django.conf import settings
@@ -11,6 +10,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView
+from math import floor
 
 from AKModel.availability.models import Availability
 from AKModel.metaviews import status_manager
@@ -247,7 +247,8 @@ class AKListByTypeView(AKOverviewView):
         # Override dispatching
         # Needed to handle the checking whether the type exists
 
-        self.type = get_object_or_404(AKType, slug=kwargs['type_slug'])  # pylint: disable=attribute-defined-outside-init
+        self.type = get_object_or_404(AKType,
+                                      slug=kwargs['type_slug'])  # pylint: disable=attribute-defined-outside-init
         return super().dispatch(request, *args, **kwargs)
 
     def filter_aks(self, context, category):

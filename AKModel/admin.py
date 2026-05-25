@@ -21,10 +21,10 @@ from AKModel.forms import RoomFormWithAvailabilities
 from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKRequirement, AKSlot, AKTrack, AKType, \
     ConstraintViolation, DefaultSlot, Event, Room
 from AKModel.urls import get_admin_urls_event, get_admin_urls_event_wizard
-from AKModel.views.ak import AKMoveToTrashView, AKResetInterestCounterView, AKResetInterestView, AKRestoreFromTrashView, \
-    AKAssignTrackView
+from AKModel.views.ak import AKAssignTrackView, AKMoveToTrashView, AKResetInterestCounterView, AKResetInterestView, \
+    AKRestoreFromTrashView
 from AKModel.views.manage import AvailabilitiesApplyOffsetView, ClearScheduleView, CVMarkResolvedView, \
-    CVSetLevelViolationView, CVSetLevelWarningView, SlotsApplyOffsetView, DefaultSlotCategoryBulkAssignmentView
+    CVSetLevelViolationView, CVSetLevelWarningView, DefaultSlotCategoryBulkAssignmentView, SlotsApplyOffsetView
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -233,7 +233,8 @@ class AKOwnerAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
         return format_html("<a href='{url}'>{text}</a>",
                            url=reverse_lazy('admin:aks_by_owner', kwargs={'event_slug': obj.event.slug, 'pk': obj.pk}),
                            text=obj.ak_count)
-    aks_url.admin_order_field='ak_count'
+
+    aks_url.admin_order_field = 'ak_count'
 
 
 @admin.register(AKCategory)
@@ -372,7 +373,8 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
                    ]
     list_editable = ['short_name', 'track', 'interest_counter']
     ordering = ['pk']
-    actions = ['wiki_export', 'reset_interest', 'reset_interest_counter', 'assign_track', 'move_to_trash', 'restore_from_trash']
+    actions = ['wiki_export', 'reset_interest', 'reset_interest_counter', 'assign_track', 'move_to_trash',
+               'restore_from_trash']
     readonly_fields = ['ak_details_link', 'trashed_at']
     list_display_links = ['name']
     form = AKAdminForm

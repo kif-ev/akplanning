@@ -7,7 +7,7 @@
         {% for category in event.akcategory_set.all %}
             <li>
                 <a href="{% url 'admin:AKModel_akcategory_change' category.pk %}">{{ category }}</a>
-            ({{ category.ak_set.count }})
+                ({{ category.ak_set.count }})
             </li>
         {% endfor %}
     </ul>

@@ -1,4 +1,5 @@
 import uuid
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -50,15 +51,15 @@ class EventParticipant(models.Model):
 
         avails = self.availabilities.all()
         participant_required_prefs = AKPreference.objects.filter(
-            event=self.event,
-            participant=self,
-            preference=AKPreference.PreferenceLevel.REQUIRED,
+                event=self.event,
+                participant=self,
+                preference=AKPreference.PreferenceLevel.REQUIRED,
         )
 
         if (
-            avails
-            and not Availability.is_event_covered(self.event, avails)
-            and participant_required_prefs.exists()
+                avails
+                and not Availability.is_event_covered(self.event, avails)
+                and participant_required_prefs.exists()
         ):
             # participant has restricted availability and is actually required for AKs
             return [f"availability-participant-{self.pk}"]
@@ -75,7 +76,7 @@ class EventParticipant(models.Model):
         return (
             AKPreference.objects
             .filter(
-                participant=self, preference__gt=0
+                    participant=self, preference__gt=0
             )
             .order_by()
             .select_related('ak')
@@ -96,7 +97,7 @@ class AKPreference(models.Model):
                               help_text=_('Associated event'))
 
     participant = models.ForeignKey(to=EventParticipant, on_delete=models.CASCADE, verbose_name=_('Participant'),
-                              help_text=_('Participant this preference belongs to'))
+                                    help_text=_('Participant this preference belongs to'))
 
     ak = models.ForeignKey(to=AK, on_delete=models.CASCADE, verbose_name=_('AK'),
                            help_text=_('AK this preference belongs to'))
@@ -111,9 +112,9 @@ class AKPreference(models.Model):
         REQUIRED = 3, _("Required")
 
     preference = models.PositiveSmallIntegerField(verbose_name=_('Preference'), choices=PreferenceLevel.choices,
-                                             help_text=_('Preference level for the AK'),
-                                             blank=False,
-                                             default=PreferenceLevel.IGNORE)
+                                                  help_text=_('Preference level for the AK'),
+                                                  blank=False,
+                                                  default=PreferenceLevel.IGNORE)
 
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_('Timestamp'), help_text=_('Time of creation'))
 

@@ -12,7 +12,12 @@
       "description": "The maximum number of total participants. Unbounded capacity is represented by -1",
       "type": "integer",
       "anyOf": [
-        {"minimum": 1}, {"const": -1}
+        {
+          "minimum": 1
+        },
+        {
+          "const": -1
+        }
       ]
     },
     "fulfilled_room_constraints": {
@@ -26,11 +31,22 @@
     "info": {
       "type": "object",
       "properties": {
-        "name": {"description": "Name of the room", "type": "string"}
+        "name": {
+          "description": "Name of the room",
+          "type": "string"
+        }
       },
-      "required": ["name"]
+      "required": [
+        "name"
+      ]
     }
   },
-  "required": ["id", "capacity", "fulfilled_room_constraints", "time_constraints", "info"],
+  "required": [
+    "id",
+    "capacity",
+    "fulfilled_room_constraints",
+    "time_constraints",
+    "info"
+  ],
   "additionalProperties": false
 }

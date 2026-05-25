@@ -10,13 +10,13 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelOptions(
-            name='room',
-            options={'ordering': ['location', 'name'], 'verbose_name': 'Room', 'verbose_name_plural': 'Rooms'},
+                name='room',
+                options={'ordering': ['location', 'name'], 'verbose_name': 'Room', 'verbose_name_plural': 'Rooms'},
         ),
         migrations.AlterField(
-            model_name='room',
-            name='location',
-            field=models.CharField(blank=True, help_text='Name or number of the location', max_length=256,
-                                   verbose_name='Location'),
+                model_name='room',
+                name='location',
+                field=models.CharField(blank=True, help_text='Name or number of the location', max_length=256,
+                                       verbose_name='Location'),
         ),
     ]

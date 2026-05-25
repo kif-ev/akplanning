@@ -10,10 +10,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='slug',
-            field=models.SlugField(help_text='Short name of letters/numbers/dots/dashes/underscores used in URLs.',
-                                   max_length=32, unique=True, verbose_name='Short Form'),
+                model_name='event',
+                name='slug',
+                field=models.SlugField(help_text='Short name of letters/numbers/dots/dashes/underscores used in URLs.',
+                                       max_length=32, unique=True, verbose_name='Short Form'),
         ),
 
     ]

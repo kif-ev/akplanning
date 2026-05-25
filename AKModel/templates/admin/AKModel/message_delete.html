@@ -5,7 +5,8 @@
 {% load fontawesome_6 %}
 
 {% block action_preview %}
-    <p>{% blocktrans with message_count=ak_messages.count %}Are you sure you want to delete all orga messages for {{ event }}? This will permanently delete {{ message_count }} message(s):{% endblocktrans %}</p>
+    <p>{% blocktrans with message_count=ak_messages.count %}Are you sure you want to delete all orga messages for
+        {{ event }}? This will permanently delete {{ message_count }} message(s):{% endblocktrans %}</p>
 
     {% include "admin/AKModel/render_ak_messages.html" %}
 {% endblock %}

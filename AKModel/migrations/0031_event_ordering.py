@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0030_AK_interest_counter'),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='event',
-            options={'ordering': ['-start'], 'verbose_name': 'Event', 'verbose_name_plural': 'Events'},
+                name='event',
+                options={'ordering': ['-start'], 'verbose_name': 'Event', 'verbose_name_plural': 'Events'},
         ),
     ]

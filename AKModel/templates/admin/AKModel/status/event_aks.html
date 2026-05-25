@@ -6,24 +6,25 @@
 {% else %}
     <table>
         <tbody>
-            <tr>
-                <td>{% trans "AKs" %}</td>
-                <td>
-                    <a href="{% url 'admin:AKModel_ak_changelist' %}?event__id__exact={{ event.pk }}">
-                        {{ ak_count }}
-                    </a>
-                </td>
-            </tr>
-            <tr>
-                <td>{% trans "Slots" %}</td>
-                <td>
-                    <a href="{% url 'admin:AKModel_akslot_changelist' %}?event__id__exact={{ event.pk }}">
-                        {{ event.akslot_set.count }}
-                    </a>
-                </td>
-            </tr>
-            <tr>
-              <td>{% trans "Unscheduled Slots" %}</td><td>
+        <tr>
+            <td>{% trans "AKs" %}</td>
+            <td>
+                <a href="{% url 'admin:AKModel_ak_changelist' %}?event__id__exact={{ event.pk }}">
+                    {{ ak_count }}
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td>{% trans "Slots" %}</td>
+            <td>
+                <a href="{% url 'admin:AKModel_akslot_changelist' %}?event__id__exact={{ event.pk }}">
+                    {{ event.akslot_set.count }}
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td>{% trans "Unscheduled Slots" %}</td>
+            <td>
                 {% if "AKScheduling"|check_app_installed %}
                     <a href="{% url 'admin:slots_unscheduled' event_slug=event.slug %}">
                         {{ unscheduled_slots_count }}
@@ -32,7 +33,7 @@
                     {{ unscheduled_slots_count }}
                 {% endif %}
             </td>
-            </tr>
+        </tr>
         </tbody>
     </table>
 {% endif %}
