@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+{% load tags_AKModel %}
+{% load i18n %}
+{% load django_bootstrap5 %}
+{% load fontawesome_6 %}
+
+{% block title %}{{ event }}: {{ title }}{% endblock %}
+
+{% block content %}
+    <div class="no-print mb-4">
+        <h2>{{ event_name }}</h2>
+        <p class="text-muted">
+            {% trans "Choose the slide filters. You can either export a PDF (legacy) or publish/open the web carousel." %}
+        </p>
+
+        <form method="post" class="mb-4">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <input type="hidden" name="export_mode" value="{{ default_export_mode|default:'pdf' }}">
+            <div class="d-flex gap-2 flex-wrap">
+                <button type="submit" name="export_mode" value="pdf" class="save btn btn-primary">
+                    {% fa6_icon "file-pdf" 'fas' %} {% trans "Export PDF" %}
+                </button>
+                <button type="submit" name="export_mode" value="web" formtarget="_blank" class="save btn btn-success">
+                    {% fa6_icon "display" 'fas' %} {% trans "Open Web Carousel" %}
+                </button>
+                <a href="javascript:history.back()" class="btn btn-info">
+                    {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

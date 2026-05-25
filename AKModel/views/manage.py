@@ -3,9 +3,13 @@ import json
 import os
 import tempfile
 from itertools import zip_longest
+from urllib.parse import urlencode
 
 from django.contrib import messages
+from django.core import signing
 from django.db.models.functions import Now
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, ListView, TemplateView
@@ -13,9 +17,9 @@ from django_tex.core import render_template_with_context, run_tex_in_directory
 from django_tex.response import PDFResponse
 
 from AKModel.availability.models import Availability
-from AKModel.forms import SlideExportForm, DefaultSlotEditorForm, ShiftByOffsetForm, DefaultSlotCategoriesForm
-from AKModel.metaviews.admin import EventSlugMixin, IntermediateAdminView, IntermediateAdminActionView, AdminViewMixin
-from AKModel.models import ConstraintViolation, Event, DefaultSlot, AKOwner, AKSlot, AKType, AKCategory
+from AKModel.forms import DefaultSlotCategoriesForm, DefaultSlotEditorForm, ShiftByOffsetForm, SlideExportForm
+from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, IntermediateAdminActionView, IntermediateAdminView
+from AKModel.models import AKCategory, AKOwner, AKSlot, AKType, ConstraintViolation, DefaultSlot, Event
 
 
 class UserView(TemplateView):
@@ -27,14 +31,97 @@ class UserView(TemplateView):
     template_name = "AKModel/user.html"
 
 
+def _parse_selected_ids(values):
+    return [int(value) for value in values if str(value).strip() != ""]
+
+
+def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids, types_all_selected_only,
+                                categories_ids):
+    """Build the context used by both the admin config and the public slides page."""
+
+    def build_ak_list_with_next_aks(ak_list):
+        """
+        Create a list of tuples cosisting of an AK and a list of upcoming AKs (list length depending on setting)
+        """
+        if num_next <= 0:
+            return [(ak, []) for ak in ak_list]
+        next_aks_list = zip_longest(*[ak_list[i + 1:] for i in range(num_next)], fillvalue=None)
+        return list(zip_longest(ak_list, next_aks_list, fillvalue=[]))
+
+    # Create a list of types to filter AKs by (if at least one type was selected)
+    types = None
+    types_filter_string = ""
+    show_types = event.aktype_set.count() > 0
+    available_type_count = event.aktype_set.count()
+    if types_ids and len(types_ids) < available_type_count:
+        types = AKType.objects.filter(id__in=types_ids)
+        names_string = ', '.join(AKType.objects.get(pk=t).name for t in types_ids)
+        types_filter_string = f"[{_('Type(s)')}: {names_string}]"
+
+    categories = None
+    if categories_ids:
+        categories = AKCategory.objects.filter(id__in=categories_ids)
+
+    # Get all relevant AKs (wishes separately, and either all AKs or only those who should directly or indirectly
+    # be presented when restriction setting was chosen)
+    categories_with_aks = event.get_categories_with_aks(filter_func=lambda
+        ak: not presentation_mode or (ak.present or (ak.present is None and ak.category.present_by_default)),
+                                                        types=types,
+                                                        types_all_selected_only=types_all_selected_only,
+                                                        sort_func=lambda ak: ak.wish,
+                                                        categories=categories)
+
+    slides = [{
+        'kind': 'title',
+        'event_name': event.name,
+        'subtitle': _("AKs") + " " + types_filter_string,
+    }]
+    for category, ak_list in categories_with_aks:
+        ak_list_with_next = build_ak_list_with_next_aks(ak_list)
+        if len(ak_list_with_next) == 0:
+            continue
+
+        slides.append({
+            'kind': 'chapter',
+            'category': category,
+        })
+
+        for ak, next_aks in ak_list_with_next:
+            slides.append({
+                'kind': 'ak',
+                'category': category,
+                'ak': ak,
+                'next_aks': next_aks,
+            })
+
+    return {
+        'title': event.name,
+        'event_name': event.name,
+        'categories_with_aks': [(category, build_ak_list_with_next_aks(ak_list)) for category, ak_list in
+                                categories_with_aks],
+        'slides': slides,
+        'subtitle': _("AKs") + " " + types_filter_string,
+        'result_presentation_mode': presentation_mode,
+        'show_types': show_types,
+    }
+
+
 class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
     """
     View: Export slides to present AKs
 
-    Over a form to choose some settings for the export and then generate the PDF
+    Over a form to choose some settings for the export and then render the slide content in the browser or as PDF
     """
     title = _('Export AK Slides')
     form_class = SlideExportForm
+    template_name = 'admin/AKModel/export/slides.html'
+    tex_template_name = 'admin/AKModel/export/slides.tex'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["event_name"] = self.event.name
+        context["default_export_mode"] = self.request.GET.get("export_mode", "pdf")
+        return context
 
     def get_form(self, form_class=None):
         # Filter type choices to those of the current event
@@ -54,15 +141,27 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             form.fields['types_all_selected_only'].widget = form.fields['types_all_selected_only'].hidden_widget()
         return form
 
-    def form_valid(self, form):
-        # pylint: disable=invalid-name
-        template_name = 'admin/AKModel/export/slides.tex'
+    def _build_public_url(self, form):
+        public_url = reverse("model:ak_slides_public", kwargs={"event_slug": self.event.slug})
+        config = signing.dumps({
+            "num_next": form.cleaned_data["num_next"],
+            "presentation_mode": form.cleaned_data["presentation_mode"],
+            "types": form.cleaned_data["types"],
+            "types_all_selected_only": form.cleaned_data["types_all_selected_only"],
+            "categories": form.cleaned_data["categories"],
+        })
+        return f"{public_url}?{urlencode({'config': config})}"
 
-        # Settings
-        NEXT_AK_LIST_LENGTH = form.cleaned_data['num_next']
-        RESULT_PRESENTATION_MODE = form.cleaned_data["presentation_mode"]
-
-        translations = {
+    def _build_pdf_response(self, form):
+        context = _build_slide_export_context(
+                event=self.event,
+                num_next=form.cleaned_data["num_next"],
+                presentation_mode=form.cleaned_data["presentation_mode"],
+                types_ids=_parse_selected_ids(form.cleaned_data["types"]),
+                types_all_selected_only=form.cleaned_data["types_all_selected_only"],
+                categories_ids=_parse_selected_ids(form.cleaned_data["categories"]),
+        )
+        context['translations'] = {
             'symbols': _("Symbols"),
             'who': _("Who?"),
             'duration': _("Duration(s)"),
@@ -72,58 +171,52 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             'goal': _("Design/Goal"),
         }
 
-        def build_ak_list_with_next_aks(ak_list):
-            """
-            Create a list of tuples cosisting of an AK and a list of upcoming AKs (list length depending on setting)
-            """
-            next_aks_list = zip_longest(*[ak_list[i + 1:] for i in range(NEXT_AK_LIST_LENGTH)], fillvalue=None)
-            return list(zip_longest(ak_list, next_aks_list, fillvalue=[]))
-
-        # Create a list of types to filter AKs by (if at least one type was selected)
-        types = None
-        types_filter_string = ""
-        show_types = self.event.aktype_set.count() > 0
-        if len(form.cleaned_data['types']) > 0:
-            types = AKType.objects.filter(id__in=form.cleaned_data['types'])
-            names_string = ', '.join(AKType.objects.get(pk=t).name for t in form.cleaned_data['types'])
-            types_filter_string = f"[{_('Type(s)')}: {names_string}]"
-        types_all_selected_only = form.cleaned_data['types_all_selected_only']
-        categories = None
-        if len(form.cleaned_data['categories']) > 0:
-            categories = AKCategory.objects.filter(id__in=form.cleaned_data['categories'])
-        # Get all relevant AKs (wishes separately, and either all AKs or only those who should directly or indirectly
-        # be presented when restriction setting was chosen)
-        categories_with_aks = self.event.get_categories_with_aks(filter_func=lambda
-            ak: not RESULT_PRESENTATION_MODE or (ak.present or (ak.present is None and ak.category.present_by_default)),
-                                                                    types=types,
-                                                                    types_all_selected_only=types_all_selected_only,
-                                                                    sort_func=lambda ak: ak.wish,
-                                                                    categories=categories)
-
-        # Create context for LaTeX rendering
-        context = {
-            'title': self.event.name,
-            'categories_with_aks': [(category, build_ak_list_with_next_aks(ak_list)) for category, ak_list in
-                                    categories_with_aks],
-            'subtitle': _("AKs") + " " + types_filter_string,
-            "translations": translations,
-            "result_presentation_mode": RESULT_PRESENTATION_MODE,
-            "show_types": show_types,
-        }
-
-        source = render_template_with_context(template_name, context)
+        source = render_template_with_context(self.tex_template_name, context)
 
         # Perform real compilation (run latex twice for correct page numbers)
         with tempfile.TemporaryDirectory() as tempdir:
-            run_tex_in_directory(source, tempdir, template_name=self.template_name)
+            run_tex_in_directory(source, tempdir, template_name=self.tex_template_name)
             os.remove(f'{tempdir}/texput.tex')
-            pdf = run_tex_in_directory(source, tempdir, template_name=self.template_name)
+            pdf = run_tex_in_directory(source, tempdir, template_name=self.tex_template_name)
 
         # Show PDF file to the user (with a filename containing a timestamp to prevent confusions about the right
         # version to use when generating multiple versions of the slides, e.g., because owners did last-minute changes
         # to their AKs
         timestamp = datetime.datetime.now(tz=self.event.timezone).strftime("%Y-%m-%d_%H_%M")
         return PDFResponse(pdf, filename=f'{self.event.slug}_ak_slides_{timestamp}.pdf')
+
+    def form_valid(self, form):
+        if self.request.POST.get("export_mode", self.request.GET.get("export_mode", "pdf")) == "web":
+            return HttpResponseRedirect(self._build_public_url(form))
+        return self._build_pdf_response(form)
+
+
+class PublishedSlidesView(EventSlugMixin, TemplateView):
+    """Public slides view for an event."""
+    template_name = "AKModel/slides_carousel.html"
+
+    def get(self, request, *args, **kwargs):
+        config = request.GET.get("config")
+        if config:
+            try:
+                self.config_data = signing.loads(config)
+            except signing.BadSignature:
+                messages.warning(request, _('Invalid export config, please try again.'))
+                return HttpResponseRedirect(reverse("admin:ak_slide_export", kwargs={"event_slug": self.event.slug}))
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context.update(_build_slide_export_context(
+                event=self.event,
+                num_next=int(self.config_data.get("num_next", 3)),
+                presentation_mode=bool(self.config_data.get("presentation_mode", False)),
+                types_ids=_parse_selected_ids(self.config_data["types"]) if "types" in self.config_data else None,
+                types_all_selected_only=bool(self.config_data.get("types_all_selected_only", False)),
+                categories_ids=_parse_selected_ids(self.config_data["categories"]) if "categories" in self.config_data else None,
+        ))
+        return context
 
 
 class CVMarkResolvedView(IntermediateAdminActionView):
