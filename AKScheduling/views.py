@@ -3,14 +3,14 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import ListView, DetailView, UpdateView
+from django.views.generic import DetailView, ListView, UpdateView
 
 from AKModel.metaviews import status_manager
+from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, FilterByEventSlugMixin, IntermediateAdminView
 from AKModel.metaviews.status import TemplateStatusWidget
-from AKModel.models import AKSlot, AKTrack, Event, AK, AKCategory
-from AKModel.metaviews.admin import EventSlugMixin, FilterByEventSlugMixin, AdminViewMixin, IntermediateAdminView
-from AKScheduling.checks import aks_with_unfulfillable_requirements, aks_not_in_default_schedules, aks_too_big
-from AKScheduling.forms import AKInterestForm, AKAddSlotForm
+from AKModel.models import AK, AKCategory, AKSlot, AKTrack, Event
+from AKScheduling.checks import aks_not_in_default_schedules, aks_too_big, aks_with_unfulfillable_requirements
+from AKScheduling.forms import AKAddSlotForm, AKInterestForm
 
 
 class UnscheduledSlotsAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
@@ -43,7 +43,8 @@ class SchedulingAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
 
     def get_queryset(self):
         return super().get_queryset().filter(start__isnull=True).select_related('event', 'ak', 'ak__track',
-            'ak__category').prefetch_related('ak__types', 'ak__owners', 'ak__conflicts', 'ak__prerequisites',
+                                                                                'ak__category').prefetch_related(
+                'ak__types', 'ak__owners', 'ak__conflicts', 'ak__prerequisites',
             'ak__requirements', 'ak__conflict').order_by('ak__track', 'ak')
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -107,8 +108,9 @@ class SpecialAttentionAKsAdminView(AdminViewMixin, DetailView):
         context["title"] = f"{_('AKs requiring special attention for')} {context['event']}"
 
         # Load all "special" AKs from the database using annotations to reduce the amount of necessary queries
-        aks = (AK.objects.select_related('event').filter(event=context["event"]).annotate(Count('owners', distinct=True))
-               .annotate(Count('akslot', distinct=True)).annotate(Count('availabilities', distinct=True)))
+        aks = (
+            AK.objects.select_related('event').filter(event=context["event"]).annotate(Count('owners', distinct=True))
+            .annotate(Count('akslot', distinct=True)).annotate(Count('availabilities', distinct=True)))
         aks_with_comment = []
         ak_wishes_with_slots = []
         aks_without_availabilities = []
@@ -134,7 +136,8 @@ class SpecialAttentionAKsAdminView(AdminViewMixin, DetailView):
         context["aks_without_slots"] = aks_without_slots
         context["aks_without_availabilities"] = aks_without_availabilities
         context["aks_unfulfillable_requirements"] = aks_with_unfulfillable_requirements(context["event"])
-        context["aks_no_default_slot"], context["aks_no_default_slot_for_category"] = aks_not_in_default_schedules(context["event"])
+        context["aks_no_default_slot"], context["aks_no_default_slot_for_category"] = aks_not_in_default_schedules(
+                context["event"])
         context["aks_too_big"] = aks_too_big(context["event"])
         context["rooms_count"] = context["event"].rooms.count()
 
@@ -193,7 +196,7 @@ class InterestEnteringAdminView(SuccessMessageMixin, AdminViewMixin, EventSlugMi
             if next_is_next:
                 context['next_ak'] = other_ak
                 next_is_next = False
-            elif other_ak.pk == context['ak'].pk :
+            elif other_ak.pk == context['ak'].pk:
                 context['previous_ak'] = last_ak
                 next_is_next = True
             last_ak = other_ak
@@ -238,8 +241,8 @@ class WishSlotCleanupView(EventSlugMixin, IntermediateAdminView):
     def get_preview(self):
         slots = self.event.get_unscheduled_wish_slots()
         return _("The following {count} unscheduled slots of wishes will be deleted:\n\n {slots}").format(
-            count=len(slots),
-            slots=", ".join(str(s.ak) for s in slots)
+                count=len(slots),
+                slots=", ".join(str(s.ak) for s in slots)
         )
 
     def form_valid(self, form):
@@ -267,8 +270,8 @@ class AvailabilityAutocreateView(EventSlugMixin, IntermediateAdminView):
         aks = self.event.get_aks_without_availabilities()
         return _("The following {count} AKs don't have any availability information. "
                  "Create default availability for them:\n\n {aks}").format(
-            count=len(aks),
-            aks=", ".join(str(ak) for ak in aks)
+                count=len(aks),
+                aks=", ".join(str(ak) for ak in aks)
         )
 
     def form_valid(self, form):
@@ -282,15 +285,15 @@ class AvailabilityAutocreateView(EventSlugMixin, IntermediateAdminView):
                 availability = Availability.with_event_length(event=self.event, ak=ak)
                 availability.save()
                 success_count += 1
-            except: # pylint: disable=bare-except
+            except:  # pylint: disable=bare-except
                 messages.add_message(
-                    self.request, messages.WARNING,
-                    _("Could not create default availabilities for AK: {ak}").format(ak=ak)
+                        self.request, messages.WARNING,
+                        _("Could not create default availabilities for AK: {ak}").format(ak=ak)
                 )
 
         messages.add_message(
-            self.request, messages.SUCCESS,
-            _("Created default availabilities for {count} AKs").format(count=success_count)
+                self.request, messages.SUCCESS,
+                _("Created default availabilities for {count} AKs").format(count=success_count)
         )
         return super().form_valid(form)
 

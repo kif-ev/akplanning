@@ -12,10 +12,10 @@
     <li class="breadcrumb-item">{% trans "Category" %}: {{ category }}</li>
 {% endblock %}
 
-    {% block header %}
-        <h1 class="mb-3">{%  trans "Plan:" %} {{ event }}
-            <a href="{% url 'plan:plan_overview' event_slug=event.slug %}" class="btn btn-outline btn-outline-secondary">
-                {% trans "Category" %}: {{ category }} {% fa6_icon "xmark" %}
-            </a>
-        </h1>
-    {% endblock %}
+{% block header %}
+    <h1 class="mb-3">{% trans "Plan:" %} {{ event }}
+        <a href="{% url 'plan:plan_overview' event_slug=event.slug %}" class="btn btn-outline btn-outline-secondary">
+            {% trans "Category" %}: {{ category }} {% fa6_icon "xmark" %}
+        </a>
+    </h1>
+{% endblock %}

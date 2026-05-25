@@ -15,7 +15,7 @@
 {% block content %}
     {% include "admin/AKModel/event_wizard/wizard_steps.html" %}
 
-    {%  trans "Add a new event. Please start by filling these basic properties. You can specify more settings later." %}
+    {% trans "Add a new event. Please start by filling these basic properties. You can specify more settings later." %}
 
     <form method="post" action="{% url 'admin:new_event_wizard_settings' %}">{% csrf_token %}
         {% bootstrap_form form %}

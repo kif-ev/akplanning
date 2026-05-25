@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-29 20:03+0100\n"
+"POT-Creation-Date: 2026-05-25 12:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,42 +49,44 @@ msgstr "AK Tracks, die im Export enthalten sein sollen"
 msgid "AK types to include in the export"
 msgstr "AK Typen, die im Export enthalten sein sollen"
 
-#: AKSolverInterface/forms.py:56
+#: AKSolverInterface/forms.py:57
 msgid ""
 "The following AKs cannot be placed in the default timeslots of their "
 "category. Remove constraint?"
-msgstr "Die folgenden AKs können nicht in den Default-Zeitslots ihrer Kategorie platziert werden. Constraints entfernen?"
+msgstr ""
+"Die folgenden AKs können nicht in den Default-Zeitslots ihrer Kategorie "
+"platziert werden. Constraints entfernen?"
 
-#: AKSolverInterface/forms.py:103
+#: AKSolverInterface/forms.py:104
 msgid "JSON data"
 msgstr "JSON-Daten"
 
-#: AKSolverInterface/forms.py:104
+#: AKSolverInterface/forms.py:105
 msgid "JSON data from the scheduling solver"
 msgstr "JSON-Daten, die der scheduling-solver produziert hat"
 
-#: AKSolverInterface/forms.py:109
+#: AKSolverInterface/forms.py:110
 msgid "File with JSON data"
 msgstr "Datei mit JSON-Daten"
 
-#: AKSolverInterface/forms.py:110
+#: AKSolverInterface/forms.py:111
 msgid "File with JSON data from the scheduling solver"
 msgstr "Datei mit JSON-Daten, die der scheduling-solver produziert hat"
 
-#: AKSolverInterface/forms.py:130
+#: AKSolverInterface/forms.py:131
 msgid "Cannot decode as JSON"
 msgstr "Dekodierung als JSON fehlgeschlagen"
 
-#: AKSolverInterface/forms.py:135
+#: AKSolverInterface/forms.py:136
 #, python-format
 msgid "Invalid JSON format: %(msg)s at %(error_path)s"
 msgstr "Ungültige JSON-Eingabe: %(msg)s bei %(error_path)s"
 
-#: AKSolverInterface/forms.py:156
+#: AKSolverInterface/forms.py:157
 msgid "Please enter data as a file OR via text, not both."
 msgstr "Gib die Daten bitte als Datei oder als Text ein, nicht beides."
 
-#: AKSolverInterface/forms.py:162
+#: AKSolverInterface/forms.py:163
 msgid "No data entered. Please enter data as a file or via text."
 msgstr ""
 "Keine Daten eingegeben. Gib die Daten bitte als Datei oder als Text ein."
@@ -128,14 +130,14 @@ msgid "The following AKs cannot be placed in any default slot: {aks_list}"
 msgstr ""
 "Die folgenden AKs können in keinem Default-Slot platziert werden: {aks_list}"
 
-#: AKSolverInterface/views.py:97
+#: AKSolverInterface/views.py:99
 #, python-brace-format
 msgid ""
 "Category constraints for slots of the following AKs were removed: {aks_list}"
 msgstr ""
 "Kategorie-Constraints für slots der folgenden AKs wurden entfernt: {aks_list}"
 
-#: AKSolverInterface/views.py:107
+#: AKSolverInterface/views.py:109
 #, python-brace-format
 msgid ""
 "The following AKs have no slot assigned to them and are therefore not "
@@ -144,36 +146,36 @@ msgstr ""
 "Die folgenden AKs haben keine zugehörigen Slots und werden deshalb nicht "
 "exportiert: {aks_list}"
 
-#: AKSolverInterface/views.py:136
+#: AKSolverInterface/views.py:138
 msgid "No AKSlots are exported"
 msgstr "Keine AK Slots werden exportiert"
 
-#: AKSolverInterface/views.py:144
+#: AKSolverInterface/views.py:146
 msgid "No Rooms are exported"
 msgstr "Keine Räume werden exportiert"
 
-#: AKSolverInterface/views.py:150
+#: AKSolverInterface/views.py:152
 msgid "No real participants are exported"
 msgstr "Keine echten Teilnehmenden werden exportiert"
 
-#: AKSolverInterface/views.py:165
+#: AKSolverInterface/views.py:167
 msgid "No timeslots are exported"
 msgstr "Keine Zeitslots werden exportiert"
 
-#: AKSolverInterface/views.py:173
+#: AKSolverInterface/views.py:175
 msgid "Exporting AKs for the solver failed! Reason: "
 msgstr "Daten für den Solver exportieren fehlgeschlagen! Grund: "
 
-#: AKSolverInterface/views.py:184
+#: AKSolverInterface/views.py:186
 msgid "AK Schedule JSON Import"
 msgstr "AK-Plan JSON-Import"
 
-#: AKSolverInterface/views.py:195
+#: AKSolverInterface/views.py:197
 #, python-brace-format
 msgid "Successfully imported {n} slot(s)"
 msgstr "Erfolgreich {n} Slot(s) importiert"
 
-#: AKSolverInterface/views.py:203
+#: AKSolverInterface/views.py:205
 msgid "Importing an AK schedule failed! Reason: "
 msgstr "AK-Plan importieren fehlgeschlagen! Grund: "
 

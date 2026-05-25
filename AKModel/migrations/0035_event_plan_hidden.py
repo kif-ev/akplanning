@@ -4,15 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0034_room_rename_field'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='plan_hidden',
-            field=models.BooleanField(default=True, help_text='Hides plan for non-staff users', verbose_name='Plan Hidden'),
+                model_name='event',
+                name='plan_hidden',
+                field=models.BooleanField(default=True, help_text='Hides plan for non-staff users',
+                                          verbose_name='Plan Hidden'),
         ),
     ]

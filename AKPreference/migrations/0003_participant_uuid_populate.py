@@ -4,14 +4,15 @@ import uuid
 
 from django.db import migrations
 
+
 def gen_uuid(apps, schema_editor):
     EventParticipant = apps.get_model("AKPreference", "eventparticipant")
     for row in EventParticipant.objects.all():
         row.uuid = uuid.uuid4()
         row.save(update_fields=["uuid"])
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
         ('AKPreference', '0002_participant_uuid_null'),
     ]

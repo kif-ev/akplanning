@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from AKModel.metaviews import status_manager
 from AKModel.metaviews.admin import EventSlugMixin
-from AKModel.metaviews.status import TemplateStatusWidget, StatusView
+from AKModel.metaviews.status import StatusView, TemplateStatusWidget
 
 
 @status_manager.register(name="event_overview")
@@ -35,7 +35,7 @@ class EventCategoriesWidget(TemplateStatusWidget):
         {
             "text": _("Add category"),
             "url": reverse_lazy("admin:AKModel_akcategory_add"),
-         }
+        }
     ]
 
     def render_title(self, context: dict[any]) -> str:
@@ -62,7 +62,7 @@ class EventRoomsWidget(TemplateStatusWidget):
         {
             "text": _("Add Room"),
             "url": reverse_lazy("admin:AKModel_room_add"),
-         }
+        }
     ]
 
     def render_title(self, context: dict[any]) -> str:
@@ -82,10 +82,10 @@ class EventRoomsWidget(TemplateStatusWidget):
                 return actions
 
         actions.append(
-            {
-                "text": _("Import Rooms from CSV"),
-                "url": import_room_url,
-            }
+                {
+                    "text": _("Import Rooms from CSV"),
+                    "url": import_room_url,
+                }
         )
         return actions
 
@@ -130,31 +130,31 @@ class EventAKsWidget(TemplateStatusWidget):
                                         ),
                 })
         actions.extend([
-                {
-                    "text": _("Edit Default Slots"),
-                    "url": reverse_lazy("admin:default-slots-editor", kwargs={"event_slug": context["event"].slug}),
-                },
-                {
-                    "text": _("Manage ak tracks"),
-                    "url": reverse_lazy("admin:tracks_manage", kwargs={"event_slug": context["event"].slug}),
-                },
-                {
-                    "text": _("Export AKs as CSV"),
-                    "url": reverse_lazy("admin:ak_csv_export", kwargs={"event_slug": context["event"].slug}),
-                },
-                {
-                    "text": _("Export Slots as CSV"),
-                    "url": reverse_lazy("admin:slot_csv_export", kwargs={"event_slug": context["event"].slug}),
-                },
-                {
-                    "text": _("Export AKs for Wiki"),
-                    "url": reverse_lazy("admin:ak_wiki_export", kwargs={"slug": context["event"].slug}),
-                },
-                {
-                    "text": _("Export AK Slides"),
-                    "url": reverse_lazy("admin:ak_slide_export", kwargs={"event_slug": context["event"].slug}),
-                },
-            ]
+            {
+                "text": _("Edit Default Slots"),
+                "url": reverse_lazy("admin:default-slots-editor", kwargs={"event_slug": context["event"].slug}),
+            },
+            {
+                "text": _("Manage ak tracks"),
+                "url": reverse_lazy("admin:tracks_manage", kwargs={"event_slug": context["event"].slug}),
+            },
+            {
+                "text": _("Export AKs as CSV"),
+                "url": reverse_lazy("admin:ak_csv_export", kwargs={"event_slug": context["event"].slug}),
+            },
+            {
+                "text": _("Export Slots as CSV"),
+                "url": reverse_lazy("admin:slot_csv_export", kwargs={"event_slug": context["event"].slug}),
+            },
+            {
+                "text": _("Export AKs for Wiki"),
+                "url": reverse_lazy("admin:ak_wiki_export", kwargs={"slug": context["event"].slug}),
+            },
+            {
+                "text": _("Export AK Slides"),
+                "url": reverse_lazy("admin:ak_slide_export", kwargs={"event_slug": context["event"].slug}),
+            },
+        ]
         )
         if apps.is_installed("AKSolverInterface"):
             actions.extend([

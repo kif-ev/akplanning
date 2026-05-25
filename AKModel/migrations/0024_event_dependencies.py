@@ -3,7 +3,7 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
-from AKModel.models import AKCategory, Event, AKTrack
+from AKModel.models import AKCategory, AKTrack, Event
 
 
 def migrate_data_forward(apps, schema_editor):
@@ -25,37 +25,37 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='akcategory',
-            name='event',
-            field=models.ForeignKey(help_text='Associated event', null=True,
-                                    on_delete=django.db.models.deletion.CASCADE, to='AKModel.Event',
-                                    verbose_name='Event'),
+                model_name='akcategory',
+                name='event',
+                field=models.ForeignKey(help_text='Associated event', null=True,
+                                        on_delete=django.db.models.deletion.CASCADE, to='AKModel.Event',
+                                        verbose_name='Event'),
         ),
         migrations.AddField(
-            model_name='aktrack',
-            name='event',
-            field=models.ForeignKey(help_text='Associated event', null=True,
-                                    on_delete=django.db.models.deletion.CASCADE, to='AKModel.Event',
-                                    verbose_name='Event'),
+                model_name='aktrack',
+                name='event',
+                field=models.ForeignKey(help_text='Associated event', null=True,
+                                        on_delete=django.db.models.deletion.CASCADE, to='AKModel.Event',
+                                        verbose_name='Event'),
         ),
 
         migrations.RunPython(
-            migrate_data_forward,
-            reverse_code=migrations.RunPython.noop,
+                migrate_data_forward,
+                reverse_code=migrations.RunPython.noop,
         ),
 
         migrations.AlterField(
-            model_name='akcategory',
-            name='event',
-            field=models.ForeignKey(help_text='Associated event',
-                                    on_delete=django.db.models.deletion.CASCADE, to='AKModel.Event',
-                                    verbose_name='Event'),
+                model_name='akcategory',
+                name='event',
+                field=models.ForeignKey(help_text='Associated event',
+                                        on_delete=django.db.models.deletion.CASCADE, to='AKModel.Event',
+                                        verbose_name='Event'),
         ),
         migrations.AlterField(
-            model_name='aktrack',
-            name='event',
-            field=models.ForeignKey(help_text='Associated event',
-                                    on_delete=django.db.models.deletion.CASCADE, to='AKModel.Event',
-                                    verbose_name='Event'),
+                model_name='aktrack',
+                name='event',
+                field=models.ForeignKey(help_text='Associated event',
+                                        on_delete=django.db.models.deletion.CASCADE, to='AKModel.Event',
+                                        verbose_name='Event'),
         ),
     ]

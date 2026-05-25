@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-23 19:43+0200\n"
+"POT-Creation-Date: 2026-05-25 12:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,122 +17,122 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKPreference/admin.py:60
+#: AKPreference/admin.py:62
 msgid "Count of saved preferences"
 msgstr "Anzahl gespeicherter Präferenzen"
 
-#: AKPreference/admin.py:76 AKPreference/views.py:293
+#: AKPreference/admin.py:78 AKPreference/views.py:295
 msgid "Anonymize participants"
 msgstr "Teilnehmende anonymisieren"
 
-#: AKPreference/models.py:12 AKPreference/models.py:98
+#: AKPreference/models.py:13 AKPreference/models.py:99
 #: AKPreference/templates/admin/AKPreference/participant.html:9
 msgid "Participant"
 msgstr "Teilnehmende*r"
 
-#: AKPreference/models.py:13
+#: AKPreference/models.py:14
 msgid "Participants"
 msgstr "Teilnehmende"
 
-#: AKPreference/models.py:16
+#: AKPreference/models.py:17
 msgid "Nickname"
 msgstr "Spitzname"
 
-#: AKPreference/models.py:17
+#: AKPreference/models.py:18
 msgid ""
 "Name to identify a participant by (in case of questions from the organizers)"
 msgstr "Name, zur Identifikation bei Rückfragen von den Organisator*innen"
 
-#: AKPreference/models.py:18
+#: AKPreference/models.py:19
 msgid "Institution"
 msgstr "Institution"
 
-#: AKPreference/models.py:18
+#: AKPreference/models.py:19
 msgid "Uni etc."
 msgstr "Uni etc."
 
-#: AKPreference/models.py:20 AKPreference/models.py:95
+#: AKPreference/models.py:21 AKPreference/models.py:96
 msgid "Event"
 msgstr "Event"
 
-#: AKPreference/models.py:21 AKPreference/models.py:96
+#: AKPreference/models.py:22 AKPreference/models.py:97
 msgid "Associated event"
 msgstr "Zugehöriges Event"
 
-#: AKPreference/models.py:23
+#: AKPreference/models.py:24
 msgid "Requirements"
 msgstr "Anforderungen"
 
-#: AKPreference/models.py:24
+#: AKPreference/models.py:25
 msgid "Participant's Requirements"
 msgstr "Anforderungen des*der Teilnehmer*in"
 
-#: AKPreference/models.py:26
+#: AKPreference/models.py:27
 msgid "UUID"
 msgstr "UUID"
 
-#: AKPreference/models.py:27
+#: AKPreference/models.py:28
 msgid "Unique and non-guessable identifier for this participant"
 msgstr ""
 "Eindeutige und nicht durch Ausprobieren aufzufindendes "
 "Identifikationsmerkmal des*der Teilnehmer*in"
 
-#: AKPreference/models.py:30
+#: AKPreference/models.py:31
 #, python-brace-format
 msgid "Anonymous {pk}"
 msgstr "Anonym {pk}"
 
-#: AKPreference/models.py:90
+#: AKPreference/models.py:91
 msgid "AK Preference"
 msgstr "AK Präferenz"
 
-#: AKPreference/models.py:91
+#: AKPreference/models.py:92
 msgid "AK Preferences"
 msgstr "AK-Präferenzen"
 
-#: AKPreference/models.py:99
+#: AKPreference/models.py:100
 msgid "Participant this preference belongs to"
 msgstr "Teilnehmer*in, zu dem*der die Präferenz gehört"
 
-#: AKPreference/models.py:101
+#: AKPreference/models.py:102
 #: AKPreference/templates/admin/AKPreference/participant.html:31
 msgid "AK"
 msgstr "AK"
 
-#: AKPreference/models.py:102
+#: AKPreference/models.py:103
 msgid "AK this preference belongs to"
 msgstr "AK zu dem die Präferenz gehört"
 
-#: AKPreference/models.py:108
+#: AKPreference/models.py:109
 msgid "Ignore"
 msgstr "Ignorieren"
 
-#: AKPreference/models.py:109
+#: AKPreference/models.py:110
 msgid "Interested"
 msgstr "Interessiert"
 
-#: AKPreference/models.py:110
+#: AKPreference/models.py:111
 msgid "Great interest"
 msgstr "Großes Interesse"
 
-#: AKPreference/models.py:111
+#: AKPreference/models.py:112
 msgid "Required"
 msgstr "Erforderlich"
 
-#: AKPreference/models.py:113
+#: AKPreference/models.py:114
 #: AKPreference/templates/admin/AKPreference/participant.html:32
 msgid "Preference"
 msgstr "Präferenz"
 
-#: AKPreference/models.py:114
+#: AKPreference/models.py:115
 msgid "Preference level for the AK"
 msgstr "Präferenz-Level für diesen AK"
 
-#: AKPreference/models.py:118
+#: AKPreference/models.py:119
 msgid "Timestamp"
 msgstr "Zeitpunkt"
 
-#: AKPreference/models.py:118
+#: AKPreference/models.py:119
 msgid "Time of creation"
 msgstr "Erstellungszeitpunkt"
 
@@ -225,15 +225,24 @@ msgstr "Speichern"
 msgid "Continue"
 msgstr "Fortfahren"
 
-#: AKPreference/templates/admin/AKPreference/participant.html:47
+#: AKPreference/templates/admin/AKPreference/participant.html:48
 msgid "This participant does not have any preferences currently"
 msgstr "Diese*r Teilnehmende*r hat noch keine Präferenzen."
 
 #: AKPreference/templates/admin/AKPreference/status/preference_overview.html:7
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "                <h3>Participant</h3>\n"
+#| "                "
+#| msgid_plural ""
+#| "\n"
+#| "                <h3>Participants</h3>\n"
+#| "            "
 msgid ""
 "\n"
 "                <h3>Participant</h3>\n"
-"                "
+"            "
 msgid_plural ""
 "\n"
 "                <h3>Participants</h3>\n"
@@ -248,10 +257,19 @@ msgstr[1] ""
 "            "
 
 #: AKPreference/templates/admin/AKPreference/status/preference_overview.html:17
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "                <h3>Poll Entry</h3>\n"
+#| "                "
+#| msgid_plural ""
+#| "\n"
+#| "                <h3>Poll Entries</h3>\n"
+#| "            "
 msgid ""
 "\n"
 "                <h3>Poll Entry</h3>\n"
-"                "
+"            "
 msgid_plural ""
 "\n"
 "                <h3>Poll Entries</h3>\n"
@@ -265,16 +283,16 @@ msgstr[1] ""
 "                <h3>Präferenzeinträge</h3>\n"
 "            "
 
-#: AKPreference/views.py:49
+#: AKPreference/views.py:50
 #, fuzzy
 msgid "Preference poll is not active"
 msgstr "Präferenzabfrage ist nicht aktiv"
 
-#: AKPreference/views.py:62
+#: AKPreference/views.py:63
 msgid "Start Preference Poll"
 msgstr "AK-Präferenzenabfrage starten"
 
-#: AKPreference/views.py:79 AKPreference/views.py:116
+#: AKPreference/views.py:80 AKPreference/views.py:118
 msgid ""
 "There was an error discovering your previously entered information. Please "
 "start again."
@@ -282,35 +300,35 @@ msgstr ""
 "Es gab ein Problem beim Laden deiner bisher eingegebenen Informationen. "
 "Bitte beginne von vorne."
 
-#: AKPreference/views.py:135
+#: AKPreference/views.py:137
 msgid "Preference Poll Overview"
 msgstr "Übersicht AK-Präferenzen"
 
-#: AKPreference/views.py:158
+#: AKPreference/views.py:160
 msgid "Update information"
 msgstr "Informationen aktualisieren"
 
-#: AKPreference/views.py:163
+#: AKPreference/views.py:165
 msgid "Information updated."
 msgstr "Informationen aktualisiert"
 
-#: AKPreference/views.py:177
+#: AKPreference/views.py:179
 msgid "Delete information and preferences"
 msgstr "Gespeicherte Informationen und Präferenzen löschen"
 
-#: AKPreference/views.py:187
+#: AKPreference/views.py:189
 msgid "Your information and preferences were deleted."
 msgstr "Deine Informationen und Präferenzen wurden gelöscht."
 
-#: AKPreference/views.py:243
+#: AKPreference/views.py:245
 msgid "Description: "
 msgstr "Beschreibung: "
 
-#: AKPreference/views.py:277
+#: AKPreference/views.py:279
 msgid "Preference Poll Summary"
 msgstr "Zusammenfassung AK-Präferenzen"
 
-#: AKPreference/views.py:295
+#: AKPreference/views.py:297
 msgid ""
 "The following participants will be anonymized by removing their name and "
 "institution. This cannot be undone!"
@@ -318,7 +336,7 @@ msgstr ""
 "Die folgenden Teilnehmen werden anonymisiert, indem ihr Name und ihre "
 "Institution entfernt werden. Das kann nicht rückgängig gemacht werden!"
 
-#: AKPreference/views.py:297
+#: AKPreference/views.py:299
 msgid "Participants successfully anonymized."
 msgstr "Teilnehmende erfolgreich anonymisiert"
 

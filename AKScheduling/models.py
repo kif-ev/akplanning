@@ -5,12 +5,12 @@
 # pylint: disable=unused-argument
 from typing import Iterable
 
-from django.db.models.signals import post_save, m2m_changed, pre_delete
+from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.models import Availability
-from AKModel.models import AK, AKSlot, Room, Event, ConstraintViolation
+from AKModel.models import AK, AKSlot, ConstraintViolation, Event, Room
 
 
 def update_constraint_violations(new_violations, existing_violations_to_check):
@@ -60,9 +60,9 @@ def update_cv_reso_deadline_for_slot(slot):
         # Violation?
         if slot.end > event.reso_deadline:
             c = ConstraintViolation(
-                type=violation_type,
-                level=ConstraintViolation.ViolationLevel.VIOLATION,
-                event=event,
+                    type=violation_type,
+                    level=ConstraintViolation.ViolationLevel.VIOLATION,
+                    event=event,
             )
             c.aks_tmp.add(slot.ak)
             c.ak_slots_tmp.add(slot)
@@ -85,12 +85,12 @@ def check_capacity_for_slot(slot: AKSlot):
         # Create a violation if interest exceeds room capacity
         if slot.room.capacity < slot.ak.interest:
             c = ConstraintViolation(
-                type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED,
-                level=ConstraintViolation.ViolationLevel.VIOLATION,
-                event=slot.event,
-                room=slot.room,
-                comment=_("Not enough space for AK interest (Interest: %(interest)d, Capacity: %(capacity)d)")
-                        % {'interest': slot.ak.interest, 'capacity': slot.room.capacity},
+                    type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED,
+                    level=ConstraintViolation.ViolationLevel.VIOLATION,
+                    event=slot.event,
+                    room=slot.room,
+                    comment=_("Not enough space for AK interest (Interest: %(interest)d, Capacity: %(capacity)d)")
+                            % {'interest': slot.ak.interest, 'capacity': slot.room.capacity},
             )
             c.ak_slots_tmp.add(slot)
             c.aks_tmp.add(slot.ak)
@@ -99,12 +99,12 @@ def check_capacity_for_slot(slot: AKSlot):
         # Create a warning if interest is close to room capacity
         if slot.room.capacity < slot.ak.interest + 5 or slot.room.capacity < slot.ak.interest * 1.25:
             c = ConstraintViolation(
-                type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED,
-                level=ConstraintViolation.ViolationLevel.WARNING,
-                event=slot.event,
-                room=slot.room,
-                comment=_("Space is too close to AK interest (Interest: %(interest)d, Capacity: %(capacity)d)")
-                        % {'interest': slot.ak.interest, 'capacity': slot.room.capacity}
+                    type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED,
+                    level=ConstraintViolation.ViolationLevel.WARNING,
+                    event=slot.event,
+                    room=slot.room,
+                    comment=_("Space is too close to AK interest (Interest: %(interest)d, Capacity: %(capacity)d)")
+                            % {'interest': slot.ak.interest, 'capacity': slot.room.capacity}
             )
             c.ak_slots_tmp.add(slot)
             c.aks_tmp.add(slot.ak)
@@ -165,10 +165,10 @@ def ak_owners_changed_handler(sender, instance: AK, action: str, **kwargs):
                         if slot.overlaps(other_slot):
                             # ...and create a temporary violation if necessary...
                             c = ConstraintViolation(
-                                type=violation_type,
-                                level=ConstraintViolation.ViolationLevel.VIOLATION,
-                                event=event,
-                                ak_owner=owner
+                                    type=violation_type,
+                                    level=ConstraintViolation.ViolationLevel.VIOLATION,
+                                    event=event,
+                                    ak_owner=owner
                             )
                             c.aks_tmp.add(instance)
                             c.aks_tmp.add(other_slot.ak)
@@ -210,9 +210,9 @@ def ak_conflicts_changed_handler(sender, instance: AK, action: str, **kwargs):
                     if slot.overlaps(other_slot):
                         # ...and create a temporary violation if necessary...
                         c = ConstraintViolation(
-                            type=violation_type,
-                            level=ConstraintViolation.ViolationLevel.VIOLATION,
-                            event=event,
+                                type=violation_type,
+                                level=ConstraintViolation.ViolationLevel.VIOLATION,
+                                event=event,
                         )
                         c.aks_tmp.add(instance)
                         c.ak_slots_tmp.add(slot)
@@ -243,9 +243,9 @@ def get_cvs_where_ak_is_prerequisite(slot: AKSlot, event: Event) -> Iterable[Con
                 if slot.end > other_slot.start:
                     # ...and create a temporary violation if necessary...
                     c = ConstraintViolation(
-                        type=violation_type,
-                        level=ConstraintViolation.ViolationLevel.VIOLATION,
-                        event=event,
+                            type=violation_type,
+                            level=ConstraintViolation.ViolationLevel.VIOLATION,
+                            event=event,
                     )
                     c.aks_tmp.add(slot.ak)
                     c.aks_tmp.add(other_slot.ak)
@@ -282,9 +282,9 @@ def ak_prerequisites_changed_handler(sender, instance: AK, action: str, **kwargs
                     if other_slot.end > slot.start:
                         # ...and create a temporary violation if necessary...
                         c = ConstraintViolation(
-                            type=violation_type,
-                            level=ConstraintViolation.ViolationLevel.VIOLATION,
-                            event=event,
+                                type=violation_type,
+                                level=ConstraintViolation.ViolationLevel.VIOLATION,
+                                event=event,
                         )
                         c.aks_tmp.add(instance)
                         c.aks_tmp.add(other_slot.ak)
@@ -332,11 +332,11 @@ def ak_requirements_changed_handler(sender, instance: AK, action: str, **kwargs)
             if not requirement in room_requirements:
                 # ...and create a temporary violation if necessary...
                 c = ConstraintViolation(
-                    type=violation_type,
-                    level=ConstraintViolation.ViolationLevel.VIOLATION,
-                    event=event,
-                    requirement=requirement,
-                    room=room,
+                        type=violation_type,
+                        level=ConstraintViolation.ViolationLevel.VIOLATION,
+                        event=event,
+                        requirement=requirement,
+                        room=room,
                 )
                 c.aks_tmp.add(instance)
                 c.ak_slots_tmp.add(slot)
@@ -377,10 +377,10 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                         if instance.overlaps(other_slot):
                             # ...and create a temporary violation if necessary...
                             c = ConstraintViolation(
-                                type=violation_type,
-                                level=ConstraintViolation.ViolationLevel.VIOLATION,
-                                event=event,
-                                ak_owner=owner
+                                    type=violation_type,
+                                    level=ConstraintViolation.ViolationLevel.VIOLATION,
+                                    event=event,
+                                    ak_owner=owner
                             )
                             c.aks_tmp.add(instance.ak)
                             c.aks_tmp.add(other_slot.ak)
@@ -407,10 +407,10 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                 if instance.overlaps(other_slot):
                     # ...and create a temporary violation if necessary...
                     c = ConstraintViolation(
-                        type=violation_type,
-                        level=ConstraintViolation.ViolationLevel.WARNING,
-                        event=event,
-                        room=instance.room
+                            type=violation_type,
+                            level=ConstraintViolation.ViolationLevel.WARNING,
+                            event=event,
+                            room=instance.room
                     )
                     c.aks_tmp.add(instance.ak)
                     c.aks_tmp.add(other_slot.ak)
@@ -441,9 +441,9 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                 if instance.overlaps(other_slot):
                     # ...and create a temporary violation if necessary...
                     c = ConstraintViolation(
-                        type=violation_type,
-                        level=ConstraintViolation.ViolationLevel.WARNING,
-                        event=event,
+                            type=violation_type,
+                            level=ConstraintViolation.ViolationLevel.WARNING,
+                            event=event,
                     )
                     c.aks_tmp.add(instance.ak)
                     c.ak_slots_tmp.add(instance)
@@ -472,9 +472,9 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                 break
         if not covered:
             c = ConstraintViolation(
-                type=violation_type,
-                level=ConstraintViolation.ViolationLevel.VIOLATION,
-                event=event
+                    type=violation_type,
+                    level=ConstraintViolation.ViolationLevel.VIOLATION,
+                    event=event
             )
             c.aks_tmp.add(instance.ak)
             c.ak_slots_tmp.add(instance)
@@ -501,11 +501,11 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
             if requirement not in room_requirements:
                 # ...and create a temporary violation if necessary...
                 c = ConstraintViolation(
-                    type=violation_type,
-                    level=ConstraintViolation.ViolationLevel.VIOLATION,
-                    event=event,
-                    requirement=requirement,
-                    room=instance.room,
+                        type=violation_type,
+                        level=ConstraintViolation.ViolationLevel.VIOLATION,
+                        event=event,
+                        requirement=requirement,
+                        room=instance.room,
                 )
                 c.aks_tmp.add(instance.ak)
                 c.ak_slots_tmp.add(instance)
@@ -532,9 +532,9 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                     if instance.overlaps(other_slot):
                         # ...and create a temporary violation if necessary...
                         c = ConstraintViolation(
-                            type=violation_type,
-                            level=ConstraintViolation.ViolationLevel.VIOLATION,
-                            event=event,
+                                type=violation_type,
+                                level=ConstraintViolation.ViolationLevel.VIOLATION,
+                                event=event,
                         )
                         c.aks_tmp.add(instance.ak)
                         c.ak_slots_tmp.add(instance)
@@ -562,9 +562,9 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
                     if other_slot.end > instance.start:
                         # ...and create a temporary violation if necessary...
                         c = ConstraintViolation(
-                            type=violation_type,
-                            level=ConstraintViolation.ViolationLevel.VIOLATION,
-                            event=event,
+                                type=violation_type,
+                                level=ConstraintViolation.ViolationLevel.VIOLATION,
+                                event=event,
                         )
                         c.aks_tmp.add(instance.ak)
                         c.aks_tmp.add(other_slot.ak)
@@ -586,7 +586,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
 
     # Compare to/update list of existing violations of this type for this slot
     existing_violations_to_check = list(
-        instance.constraintviolation_set.filter(type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED)
+            instance.constraintviolation_set.filter(type=ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED)
     )
     update_constraint_violations(new_violations, existing_violations_to_check)
 
@@ -651,11 +651,11 @@ def room_requirements_changed_handler(sender, instance: Room, action: str, **kwa
             if not requirement in instance.properties.all():
                 # ...and create a temporary violation if necessary.
                 c = ConstraintViolation(
-                    type=violation_type,
-                    level=ConstraintViolation.ViolationLevel.VIOLATION,
-                    event=event,
-                    requirement=requirement,
-                    room=instance,
+                        type=violation_type,
+                        level=ConstraintViolation.ViolationLevel.VIOLATION,
+                        event=event,
+                        requirement=requirement,
+                        room=instance,
                 )
                 c.aks_tmp.add(slot.ak)
                 c.ak_slots_tmp.add(slot)
@@ -692,9 +692,9 @@ def availability_changed_handler(sender, instance: Availability, **kwargs):
                     break
             if not covered:
                 c = ConstraintViolation(
-                    type=violation_type,
-                    level=ConstraintViolation.ViolationLevel.VIOLATION,
-                    event=event
+                        type=violation_type,
+                        level=ConstraintViolation.ViolationLevel.VIOLATION,
+                        event=event
                 )
                 c.aks_tmp.add(instance.ak)
                 c.ak_slots_tmp.add(slot)

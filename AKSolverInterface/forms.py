@@ -53,7 +53,8 @@ class JSONExportControlForm(forms.Form):
     ignore_slot_category_mismatches = forms.MultipleChoiceField(
             choices=[],
             widget=forms.CheckboxSelectMultiple,
-            label=_("The following AKs cannot be placed in the default timeslots of their category. Remove constraint?"),
+            label=_(
+                    "The following AKs cannot be placed in the default timeslots of their category. Remove constraint?"),
             required=False,
     )
 

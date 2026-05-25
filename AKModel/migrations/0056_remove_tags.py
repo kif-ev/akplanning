@@ -4,17 +4,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0055_ak_export'),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='ak',
-            name='tags',
+                model_name='ak',
+                name='tags',
         ),
         migrations.DeleteModel(
-            name='AKTag',
+                name='AKTag',
         ),
     ]

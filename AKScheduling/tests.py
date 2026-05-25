@@ -4,8 +4,8 @@ from datetime import timedelta
 from django.test import TestCase
 from django.utils import timezone
 
+from AKModel.models import AK, AKCategory, AKRequirement, AKSlot, Event, Room
 from AKModel.tests.test_views import BasicViewTests
-from AKModel.models import AKSlot, Event, Room, AK, AKCategory, AKRequirement
 from AKScheduling.checks import aks_with_unfulfillable_requirements
 
 
@@ -56,13 +56,13 @@ class ModelViewTests(BasicViewTests, TestCase):
 
         # Try API call
         response = self.client.put(
-            events_api_url,
-            json.dumps({
-                'start': new_start_time_string,
-                'end': new_end_time_string,
-                'roomId': room_id,
-            }),
-            content_type = 'application/json'
+                events_api_url,
+                json.dumps({
+                    'start': new_start_time_string,
+                    'end': new_end_time_string,
+                    'roomId': room_id,
+                }),
+                content_type='application/json'
         )
         self.assertEqual(response.status_code, 200, "PUT to API endpoint did not work")
 
@@ -75,13 +75,13 @@ class ModelViewTests(BasicViewTests, TestCase):
 
         # Try second API call
         response = self.client.put(
-            events_api_url,
-            json.dumps({
-                'start': new_start_time_string,
-                'end': new_end_time_string,
-                'roomId': new_room.pk,
-            }),
-            content_type = 'application/json'
+                events_api_url,
+                json.dumps({
+                    'start': new_start_time_string,
+                    'end': new_end_time_string,
+                    'roomId': new_room.pk,
+                }),
+                content_type='application/json'
         )
         self.assertEqual(response.status_code, 200, "Second PUT to API endpoint did not work")
 
@@ -100,14 +100,14 @@ class ModelViewTests(BasicViewTests, TestCase):
 
         # Create an AK with an unfulfillable requirement (that is not property of any room)
         ak = AK.objects.create(
-            event=event,
-            name="Test AK with unfulfillable requirement",
-            category=AKCategory.objects.filter(event=event).first(),
-            include_in_export=True,
+                event=event,
+                name="Test AK with unfulfillable requirement",
+                category=AKCategory.objects.filter(event=event).first(),
+                include_in_export=True,
         )
         req = AKRequirement.objects.create(
-            event=event,
-            name="Unfulfillable Requirement",
+                event=event,
+                name="Unfulfillable Requirement",
         )
         ak.requirements.add(req)
 
@@ -123,8 +123,8 @@ class ModelViewTests(BasicViewTests, TestCase):
                       "Missed existing AK with invalid requirement combination")
 
         aks_unfulfillable_requirements_filtered = aks_with_unfulfillable_requirements(
-            event,
-            qs=event.ak_set.exclude(category__in=[AKCategory.objects.filter(event=event).first()])
+                event,
+                qs=event.ak_set.exclude(category__in=[AKCategory.objects.filter(event=event).first()])
         )
         self.assertNotIn(ak, aks_unfulfillable_requirements_filtered,
                          "Filtering did not work correctly")

@@ -49,7 +49,7 @@
     {% if 'AKPreference'|check_app_installed and event.active %}
         {% if not event.poll_hidden or user.is_staff %}
             <a class="dashboard-box btn btn-primary"
-            href="{% url 'poll:start' event_slug=event.slug %}">
+               href="{% url 'poll:start' event_slug=event.slug %}">
                 <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button">
                     <span class="fa fa-poll"></span>
                     <span class='text'>{% trans 'AK Preferences' %}</span>

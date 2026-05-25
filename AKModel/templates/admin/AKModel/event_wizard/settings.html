@@ -18,20 +18,20 @@
 
     {% timezone timezone %}
 
-    <form method="post">{% csrf_token %}
-        {% bootstrap_form form %}
+        <form method="post">{% csrf_token %}
+            {% bootstrap_form form %}
 
-        <button type="submit" class="save btn btn-success float-end" value="Submit">
-            {% fa6_icon "check" 'fas' %} {% trans "Continue" %}
-        </button>
+            <button type="submit" class="save btn btn-success float-end" value="Submit">
+                {% fa6_icon "check" 'fas' %} {% trans "Continue" %}
+            </button>
 
-        <a href="{% url 'admin:new_event_wizard_start' %}" class="btn btn-info">
-            {% fa6_icon "chevron-left" 'fas' %} {% trans "Back" %}
-        </a>
-        <a href="{% url 'admin:index' %}" class="btn btn-warning">
-            {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
-        </a>
-    </form>
+            <a href="{% url 'admin:new_event_wizard_start' %}" class="btn btn-info">
+                {% fa6_icon "chevron-left" 'fas' %} {% trans "Back" %}
+            </a>
+            <a href="{% url 'admin:index' %}" class="btn btn-warning">
+                {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
+            </a>
+        </form>
 
     {% endtimezone %}
 {% endblock %}

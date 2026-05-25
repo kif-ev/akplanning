@@ -9,7 +9,7 @@
     {{ block.super }}
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // JSON highlighting.
             prettyPrint();
         });
@@ -31,23 +31,23 @@
             {% bootstrap_field form.ignore_slot_category_mismatches %}
         </div>
         <button type="submit" class="save btn btn-primary float-end">
-          {% fa6_icon "check" 'fas' %} {% trans "Generate/Update Export" %}
+            {% fa6_icon "check" 'fas' %} {% trans "Generate/Update Export" %}
         </button>
 
         <button type="reset" class="btn btn-danger">
-          {% fa6_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
+            {% fa6_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
         </button>
 
         <a href="{{ ak.detail_url }}" class="btn btn-secondary">
-          {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
+            {% fa6_icon "times" 'fas' %} {% trans "Cancel" %}
         </a>
     </form>
 
     {% if json_data_oneline %}
         <div class="mt-3 mb-3">
-          <label for="export_single_line" class="form-label">{% translate 'Exported JSON:' %}</label>
-          <input readonly type="text" name="export_single_line" class="form-control form-control-sm"
-                 value="{{ json_data_oneline }}" style="font-family:var(--font-family-monospace);">
+            <label for="export_single_line" class="form-label">{% translate 'Exported JSON:' %}</label>
+            <input readonly type="text" name="export_single_line" class="form-control form-control-sm"
+                   value="{{ json_data_oneline }}" style="font-family:var(--font-family-monospace);">
         </div>
 
         <div class="mb-3">

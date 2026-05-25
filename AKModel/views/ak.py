@@ -1,12 +1,12 @@
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import ListView, DetailView
+from django.views.generic import DetailView, ListView
 
 from AKModel.forms import TrackAssignmentForm
-from AKModel.metaviews.admin import AdminViewMixin, FilterByEventSlugMixin, EventSlugMixin, IntermediateAdminView, \
-    IntermediateAdminActionView
-from AKModel.models import AKRequirement, AKSlot, Event, AKOrgaMessage, AK, AKTrack
+from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, FilterByEventSlugMixin, IntermediateAdminActionView, \
+    IntermediateAdminView
+from AKModel.models import AK, AKOrgaMessage, AKRequirement, AKSlot, AKTrack, Event
 
 
 class AKRequirementOverview(AdminViewMixin, FilterByEventSlugMixin, ListView):
@@ -66,8 +66,8 @@ class AKWikiExportView(AdminViewMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         categories_with_aks, ak_wishes = context["event"].get_categories_with_aks(
-            wishes_seperately=True,
-            filter_func=lambda ak: ak.include_in_export
+                wishes_seperately=True,
+                filter_func=lambda ak: ak.include_in_export
         )
 
         context["categories_with_aks"] = [(category.name, ak_list) for category, ak_list in categories_with_aks]

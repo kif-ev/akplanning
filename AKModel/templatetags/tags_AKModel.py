@@ -1,9 +1,9 @@
 from django import template
 from django.apps import apps
 from django.conf import settings
-from django.utils.html import format_html, mark_safe, conditional_escape
-from django.templatetags.static import static
 from django.template.defaultfilters import date
+from django.templatetags.static import static
+from django.utils.html import conditional_escape, format_html, mark_safe
 from fontawesome_6.app_settings import get_css
 
 from AKModel.models import Event
@@ -62,6 +62,7 @@ def wiki_owners_export(owners, event):
     :return: linkified owners list in wiki syntax
     :rtype: str
     """
+
     def to_link(owner):
         if owner.link != '':
             event_link_prefix, _ = event.base_url.rsplit("/", 1)
@@ -75,7 +76,7 @@ def wiki_owners_export(owners, event):
 
 
 @register.filter
-def event_month_year(event:Event):
+def event_month_year(event: Event):
     """
     Print rough event date (month and year)
     :param event: event to print the date for
@@ -114,5 +115,5 @@ def fontawesome_6_js():
     :rtype: str
     """
     return mark_safe(format_html(
-        '<script type="text/javascript" src="{}"></script>', static('fontawesome_6/js/django-fontawesome.js')
+            '<script type="text/javascript" src="{}"></script>', static('fontawesome_6/js/django-fontawesome.js')
     ))

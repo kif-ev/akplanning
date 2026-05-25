@@ -1,10 +1,10 @@
 import json
-import math
 from collections import defaultdict
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 from itertools import chain
 
+import math
 from bs4 import BeautifulSoup
 from django.contrib.auth import get_user_model
 from django.forms import ModelMultipleChoiceField

@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
-from AKModel.forms import AdminIntermediateForm, AdminIntermediateActionForm
+from AKModel.forms import AdminIntermediateActionForm, AdminIntermediateForm
 from AKModel.models import Event
 
 
@@ -147,6 +147,7 @@ class WizardViewMixin:
     In the current implementation, the steps of the wizard are hardcoded here,
     hence this mixin can only be used for the event creation wizard
     """
+
     # pylint: disable=too-few-public-methods
     def get_context_data(self, **kwargs):
         """
@@ -180,9 +181,9 @@ class IntermediateAdminActionView(IntermediateAdminView, ABC):
     # pylint: disable=no-member
     form_class = AdminIntermediateActionForm
     entities = None
-    success_message : str
-    confirmation_message : str
-    model : Model
+    success_message: str
+    confirmation_message: str
+    model: Model
 
     def get_queryset(self, pks=None):
         """
@@ -216,10 +217,10 @@ class IntermediateAdminActionView(IntermediateAdminView, ABC):
         self.entities = self.get_queryset(pks=form.cleaned_data['pks'])
         self.action(form)
         LogEntry.objects.log_actions(
-            user_id=self.request.user.id,
-            queryset=self.entities,
-            action_flag=CHANGE,
-            change_message=self.success_message
+                user_id=self.request.user.id,
+                queryset=self.entities,
+                action_flag=CHANGE,
+                change_message=self.success_message
         )
         messages.add_message(self.request, messages.SUCCESS, self.success_message)
         return super().form_valid(form)
@@ -234,6 +235,7 @@ class LoopActionMixin(ABC):
     further customization can be reached with the two callbacks `pre_action()` and `post_action()`
     that are called before and after performing the action loop
     """
+
     def action(self, form):  # pylint: disable=unused-argument
         """
         The real action to perform.

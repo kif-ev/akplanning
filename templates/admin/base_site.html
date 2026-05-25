@@ -12,32 +12,33 @@
     {% compress css %}
         <link rel="stylesheet" type="text/x-scss" href="{% static 'common/vendor/bootswatch-lumen/theme.scss' %}">
         {% fontawesome_6_css %}
-        <link rel="stylesheet" href="{% static "admin/css/base.css" %}" />
+        <link rel="stylesheet" href="{% static "admin/css/base.css" %}"/>
         {% if not debug %}
             <link rel="stylesheet" type="text/css" href="{% static "common/css/admin-color.css" %}"/>
         {% endif %}
         <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
         <style>
-        a.btn {
-            color: #FFFFFF;
-        }
+            a.btn {
+                color: #FFFFFF;
+            }
 
-        .block-header {
-            margin-top: 20px;
-        }
-        .deleteEvent {
-            background-color: #6a6a6a !important;
-        }
+            .block-header {
+                margin-top: 20px;
+            }
 
-        .deleteEvent .fc-event-title {
-            font-size: 5vw;
-            text-align: center;
-        }
+            .deleteEvent {
+                background-color: #6a6a6a !important;
+            }
 
-        /* Fix delete button height in admin interface */
-        .submit-row a.deletelink, .delete-confirmation form .cancel-link {
-            height: auto!important;
-        }
+            .deleteEvent .fc-event-title {
+                font-size: 5vw;
+                text-align: center;
+            }
+
+            /* Fix delete button height in admin interface */
+            .submit-row a.deletelink, .delete-confirmation form .cancel-link {
+                height: auto !important;
+            }
         </style>
     {% endcompress %}
 {% endblock %}

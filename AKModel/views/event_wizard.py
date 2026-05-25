@@ -3,11 +3,11 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, FormView, UpdateView, DetailView
+from django.views.generic import CreateView, DetailView, FormView, UpdateView
 
-from AKModel.forms import NewEventWizardStartForm, NewEventWizardSettingsForm, NewEventWizardPrepareImportForm, \
-    NewEventWizardImportForm, NewEventWizardActivateForm
-from AKModel.metaviews.admin import AdminViewMixin, WizardViewMixin, EventSlugMixin
+from AKModel.forms import NewEventWizardActivateForm, NewEventWizardImportForm, NewEventWizardPrepareImportForm, \
+    NewEventWizardSettingsForm, NewEventWizardStartForm
+from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, WizardViewMixin
 from AKModel.models import Event
 
 

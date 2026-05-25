@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0038_akorgamessage'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='wiki_export_template_name',
-            field=models.CharField(blank=True, max_length=50, verbose_name='Wiki Export Template Name'),
+                model_name='event',
+                name='wiki_export_template_name',
+                field=models.CharField(blank=True, max_length=50, verbose_name='Wiki Export Template Name'),
         ),
     ]

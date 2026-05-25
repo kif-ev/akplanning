@@ -10,10 +10,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='default_slot',
-            field=models.DecimalField(decimal_places=2, default=2,
-                                      help_text='Default length in hours that is assumed for AKs in this event.',
-                                      max_digits=4, verbose_name='Default Slot Length'),
+                model_name='event',
+                name='default_slot',
+                field=models.DecimalField(decimal_places=2, default=2,
+                                          help_text='Default length in hours that is assumed for AKs in this event.',
+                                          max_digits=4, verbose_name='Default Slot Length'),
         ),
     ]

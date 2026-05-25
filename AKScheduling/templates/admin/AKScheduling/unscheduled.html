@@ -4,7 +4,7 @@
 {% load i18n %}
 {% load tz %}
 
-{% block title %}{% trans "Unscheduled AK Slots" %}: {{event}}{% endblock %}
+{% block title %}{% trans "Unscheduled AK Slots" %}: {{ event }}{% endblock %}
 
 {% block content %}
 
@@ -13,22 +13,22 @@
     {% regroup akslots by ak as unscheduled_by_ak %}
 
     <ul>
-    {% for group in unscheduled_by_ak %}
-        <li>
-            {% with group.grouper as ak %}
-                {% if "AKSubmission"|check_app_installed %}
-                    <a href="{{ ak.detail_url }}">{{ ak }}</a>
-                {% else %}
-                    {{ ak }}
-                {% endif %}
-            {% endwith %}
-            <ul>
-                {% for slot in group.list %}
-                    <li><a href="{% url 'admin:AKModel_akslot_change' slot.pk %}">{{ slot.duration }}</a></li>
-                {% endfor %}
-            </ul>
-        </li>
-    {% endfor %}
+        {% for group in unscheduled_by_ak %}
+            <li>
+                {% with group.grouper as ak %}
+                    {% if "AKSubmission"|check_app_installed %}
+                        <a href="{{ ak.detail_url }}">{{ ak }}</a>
+                    {% else %}
+                        {{ ak }}
+                    {% endif %}
+                {% endwith %}
+                <ul>
+                    {% for slot in group.list %}
+                        <li><a href="{% url 'admin:AKModel_akslot_change' slot.pk %}">{{ slot.duration }}</a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
     </ul>
 
     <a href="{% url 'admin:event_status' event.slug %}">{% trans "Event Status" %}</a>

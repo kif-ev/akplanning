@@ -38,19 +38,22 @@ if apps.is_installed("AKScheduling"):
 
     extra_paths.append(path('api/scheduling-events/', EventsView.as_view(), name='scheduling-events'))
     extra_paths.append(path('api/scheduling-room-availabilities/', RoomAvailabilitiesView.as_view(),
-             name='scheduling-room-availabilities')),
+                            name='scheduling-room-availabilities')),
     extra_paths.append(path('api/scheduling-default-slots/', DefaultSlotsView.as_view(),
-             name='scheduling-default-slots'))
+                            name='scheduling-default-slots'))
 
-#If AKSubmission is active, register an additional API endpoint for increasing the interest counter
+# If AKSubmission is active, register an additional API endpoint for increasing the interest counter
 if apps.is_installed("AKSubmission"):
     from AKSubmission.api import increment_interest_counter
-    extra_paths.append(path('api/ak/<pk>/indicate-interest/', increment_interest_counter, name='submission-ak-indicate-interest'))
+
+    extra_paths.append(
+            path('api/ak/<pk>/indicate-interest/', increment_interest_counter, name='submission-ak-indicate-interest'))
 
 # If AKSolverInterface is active, register additional API endpoints
 if apps.is_installed("AKSolverInterface"):
-     from AKSolverInterface.api import ExportEventForSolverViewSet
-     api_router.register("solver-export", ExportEventForSolverViewSet, basename="solver-export")
+    from AKSolverInterface.api import ExportEventForSolverViewSet
+
+    api_router.register("solver-export", ExportEventForSolverViewSet, basename="solver-export")
 
 event_specific_paths = [
     path('api/', include(api_router.urls), name='api'),
@@ -63,8 +66,8 @@ app_name = 'model'
 # Included all these extra view paths at a path starting with the event slug
 urlpatterns = [
     path(
-        '<slug:event_slug>/',
-        include(event_specific_paths)
+            '<slug:event_slug>/',
+            include(event_specific_paths)
     ),
     path('user/', AKModel.views.manage.UserView.as_view(), name="user"),
 ]
@@ -113,7 +116,8 @@ def get_admin_urls_event(admin_site):
              name="ak_wiki_export"),
         path('<slug:event_slug>/delete-orga-messages/', admin_site.admin_view(AKMessageDeleteView.as_view()),
              name="ak_delete_orga_messages"),
-        path('<slug:event_slug>/ak-slide-export/', admin_site.admin_view(ExportSlidesView.as_view()), name="ak_slide_export"),
+        path('<slug:event_slug>/ak-slide-export/', admin_site.admin_view(ExportSlidesView.as_view()),
+             name="ak_slide_export"),
         path('plan/publish/', admin_site.admin_view(PlanPublishView.as_view()), name="plan-publish"),
         path('plan/unpublish/', admin_site.admin_view(PlanUnpublishView.as_view()), name="plan-unpublish"),
         path('poll/publish/', admin_site.admin_view(PollPublishView.as_view()), name="poll-publish"),

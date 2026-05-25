@@ -4,15 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0020_ak_unique'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='base_url',
-            field=models.URLField(blank=True, help_text='Prefix for wiki link construction', verbose_name='Base URL'),
+                model_name='event',
+                name='base_url',
+                field=models.URLField(blank=True, help_text='Prefix for wiki link construction',
+                                      verbose_name='Base URL'),
         ),
     ]

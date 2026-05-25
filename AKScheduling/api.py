@@ -4,18 +4,19 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import ListView
-from rest_framework import viewsets, mixins, serializers, permissions
+from rest_framework import mixins, permissions, serializers, viewsets
 from rest_framework.exceptions import MethodNotAllowed
 
 from AKModel.availability.models import Availability
-from AKModel.models import Room, AKSlot, ConstraintViolation, DefaultSlot
 from AKModel.metaviews.admin import EventSlugMixin
+from AKModel.models import AKSlot, ConstraintViolation, DefaultSlot, Room
 
 
 class ResourceSerializer(serializers.ModelSerializer):
     """
     REST Framework Serializer for Rooms to produce format required for fullcalendar resources
     """
+
     class Meta:
         model = Room
         fields = ['id', 'title', 'details']
@@ -57,29 +58,29 @@ class EventsView(LoginRequiredMixin, EventSlugMixin, ListView):
 
     def get_queryset(self):
         return super().get_queryset().select_related('ak').filter(
-            event=self.event, room__isnull=False, start__isnull=False
+                event=self.event, room__isnull=False, start__isnull=False
         )
 
     def render_to_response(self, context, **response_kwargs):
         return JsonResponse(
-            [{
-                "slotID": slot.pk,
-                "title": f'{slot.ak.short_name}:\n{slot.ak.owners_list}',
-                "description": slot.ak.details,
-                "resourceId": slot.room.id,
-                "start": timezone.localtime(slot.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
-                "end": timezone.localtime(slot.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
-                "backgroundColor": slot.ak.category.color,
-                "borderColor":
-                    "#2c3e50" if slot.fixed
-                    else '#e74c3c' if slot.constraintviolation_set.filter(manually_resolved=False).count() > 0
-                    else slot.ak.category.color,
-                "constraint": 'roomAvailable',
-                "editable": not slot.fixed,
-                'url': str(reverse('admin:AKModel_akslot_change', args=[slot.pk])),
-            } for slot in context["object_list"]],
-            safe=False,
-            **response_kwargs
+                [{
+                    "slotID": slot.pk,
+                    "title": f'{slot.ak.short_name}:\n{slot.ak.owners_list}',
+                    "description": slot.ak.details,
+                    "resourceId": slot.room.id,
+                    "start": timezone.localtime(slot.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                    "end": timezone.localtime(slot.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                    "backgroundColor": slot.ak.category.color,
+                    "borderColor":
+                        "#2c3e50" if slot.fixed
+                        else '#e74c3c' if slot.constraintviolation_set.filter(manually_resolved=False).count() > 0
+                        else slot.ak.category.color,
+                    "constraint": 'roomAvailable',
+                    "editable": not slot.fixed,
+                    'url': str(reverse('admin:AKModel_akslot_change', args=[slot.pk])),
+                } for slot in context["object_list"]],
+                safe=False,
+                **response_kwargs
         )
 
 
@@ -99,16 +100,16 @@ class RoomAvailabilitiesView(LoginRequiredMixin, EventSlugMixin, ListView):
 
     def render_to_response(self, context, **response_kwargs):
         return JsonResponse(
-            [{
-                "title": "",
-                "resourceId": a.room.id,
-                "start": timezone.localtime(a.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
-                "end": timezone.localtime(a.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
-                "display": 'background',
-                "groupId": 'roomAvailable',
-            } for a in context["availabilities"]],
-            safe=False,
-            **response_kwargs
+                [{
+                    "title": "",
+                    "resourceId": a.room.id,
+                    "start": timezone.localtime(a.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                    "end": timezone.localtime(a.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                    "display": 'background',
+                    "groupId": 'roomAvailable',
+                } for a in context["availabilities"]],
+                safe=False,
+                **response_kwargs
         )
 
 
@@ -129,17 +130,17 @@ class DefaultSlotsView(LoginRequiredMixin, EventSlugMixin, ListView):
     def render_to_response(self, context, **response_kwargs):
         all_room_ids = [r.pk for r in self.event.room_set.all()]
         return JsonResponse(
-            [{
-                "title": "",
-                "resourceIds": all_room_ids,
-                "start": timezone.localtime(a.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
-                "end": timezone.localtime(a.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
-                "display": 'background',
-                "groupId": 'defaultSlot',
-                "backgroundColor": '#69b6d4'
-            } for a in context["default_slots"]],
-            safe=False,
-            **response_kwargs
+                [{
+                    "title": "",
+                    "resourceIds": all_room_ids,
+                    "start": timezone.localtime(a.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                    "end": timezone.localtime(a.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                    "display": 'background',
+                    "groupId": 'defaultSlot',
+                    "backgroundColor": '#69b6d4'
+                } for a in context["default_slots"]],
+                safe=False,
+                **response_kwargs
         )
 
 
@@ -147,6 +148,7 @@ class EventSerializer(serializers.ModelSerializer):
     """
     REST framework serializer to adapt between AKSlot model and the event format of fullcalendar
     """
+
     class Meta:
         model = AKSlot
         fields = ['id', 'start', 'end', 'roomId']
@@ -198,6 +200,7 @@ class ConstraintViolationSerializer(serializers.ModelSerializer):
     """
     REST Framework Serializer for constraint violations
     """
+
     class Meta:
         model = ConstraintViolation
         fields = ['pk', 'type_display', 'aks', 'ak_slots', 'ak_owner', 'room', 'requirement', 'category', 'comment',

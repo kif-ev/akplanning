@@ -10,9 +10,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='ak',
-            name='owners',
-            field=models.ManyToManyField(blank=True, help_text='Those organizing the AK', to='AKModel.AKOwner',
-                                         verbose_name='Owners'),
+                model_name='ak',
+                name='owners',
+                field=models.ManyToManyField(blank=True, help_text='Those organizing the AK', to='AKModel.AKOwner',
+                                             verbose_name='Owners'),
         ),
     ]

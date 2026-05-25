@@ -11,7 +11,7 @@ from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
-from AKModel.models import AKCategory, AKRequirement, AKType, Event, Room, AK, AKTrack, DefaultSlot
+from AKModel.models import AK, AKCategory, AKRequirement, AKTrack, AKType, DefaultSlot, Event, Room
 
 
 class DateTimeInput(forms.DateInput):
@@ -328,8 +328,8 @@ class TrackAssignmentForm(AdminIntermediateActionForm):
         events = set(ak.event for ak in aks)
         if len(events) > 1:
             err = ValidationError(
-                _("Selected AKs belong to different events. Please select only AKs from the same event."),
-                "invalid",
+                    _("Selected AKs belong to different events. Please select only AKs from the same event."),
+                    "invalid",
             )
             self.add_error(None, err)
             return cleaned_data
@@ -338,8 +338,8 @@ class TrackAssignmentForm(AdminIntermediateActionForm):
         # Neither existing nor new track
         if not (cleaned_data.get("track") or cleaned_data.get("new_track")):
             err = ValidationError(
-                _("No track selected. Please choose an existing track or specify the name of a new one."),
-                "invalid",
+                    _("No track selected. Please choose an existing track or specify the name of a new one."),
+                    "invalid",
             )
             self.add_error("track", err)
             self.add_error("new_track", err)
@@ -347,8 +347,8 @@ class TrackAssignmentForm(AdminIntermediateActionForm):
         # Existing and new track at the same time
         elif cleaned_data.get("track") and cleaned_data.get("new_track"):
             err = ValidationError(
-                _("Please choose either an existing track or specify the name of a new one, not both."),
-                "invalid",
+                    _("Please choose either an existing track or specify the name of a new one, not both."),
+                    "invalid",
             )
             self.add_error("track", err)
             self.add_error("new_track", err)
@@ -358,8 +358,8 @@ class TrackAssignmentForm(AdminIntermediateActionForm):
             new_track_name = cleaned_data["new_track"]
             if event.aktrack_set.filter(event=event, name=new_track_name).exists():
                 err = ValidationError(
-                    _("A track with this name already exists. Please choose a different name."),
-                    "invalid",
+                        _("A track with this name already exists. Please choose a different name."),
+                        "invalid",
                 )
                 self.add_error("new_track", err)
 
@@ -434,8 +434,8 @@ class DefaultSlotCategoriesForm(AdminIntermediateActionForm):
         events = set(slot.event for slot in slots)
         if len(events) > 1:
             err = ValidationError(
-                _("Selected default slots belong to different events. Please select only default slots from the same event."),
-                "invalid",
+                    _("Selected default slots belong to different events. Please select only default slots from the same event."),
+                    "invalid",
             )
             self.add_error(None, err)
             return cleaned_data

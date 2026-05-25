@@ -4,6 +4,7 @@ from AKModel.models import AKSlot
 from AKModel.serializers import StringListField
 from AKPreference.models import AKPreference, EventParticipant
 
+
 class ExportAKPreferenceSerializer(serializers.ModelSerializer):
     """Export serializer for AKPreference objects.
 

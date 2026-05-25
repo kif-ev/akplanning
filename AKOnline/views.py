@@ -22,10 +22,12 @@ class RoomCreationWithVirtualView(RoomCreationView):
         objects = form.save()
         self.room = objects['room']
         # Create a (translated) success message containing information about the created room
-        messages.success(self.request, _("Created Room '%(room)s'" % {'room': objects['room']})) #pylint: disable=consider-using-f-string, line-too-long
+        messages.success(self.request, _("Created Room '%(room)s'" % {
+            'room': objects['room']}))  # pylint: disable=consider-using-f-string, line-too-long
         if objects['virtual'] is not None:
             # Create a (translated) success message containing information about the created virtual room
-            messages.success(self.request, _("Created related Virtual Room '%(vroom)s'" % {'vroom': objects['virtual']})) #pylint: disable=consider-using-f-string, line-too-long
+            messages.success(self.request, _("Created related Virtual Room '%(vroom)s'" % {
+                'vroom': objects['virtual']}))  # pylint: disable=consider-using-f-string, line-too-long
         return HttpResponseRedirect(self.get_success_url())
 
 

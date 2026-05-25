@@ -6,7 +6,7 @@
             <h1>{{ participants_count }}</h1>
             {% blocktrans count participants_count=participants_count %}
                 <h3>Participant</h3>
-                {% plural %}
+            {% plural %}
                 <h3>Participants</h3>
             {% endblocktrans %}
         </a>
@@ -16,7 +16,7 @@
             <h1>{{ preference_count }}</h1>
             {% blocktrans count preference_count=preference_count %}
                 <h3>Poll Entry</h3>
-                {% plural %}
+            {% plural %}
                 <h3>Poll Entries</h3>
             {% endblocktrans %}
         </a>

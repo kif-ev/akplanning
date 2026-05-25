@@ -52,9 +52,9 @@
                         {% endif %}
                         {% if show_types %}
                             <p>
-                            {% for aktype in f.ak_obj.types.all %}
-                                <span class="badge bg-light">{{ aktype.name }}</span>&nbsp;
-                            {% endfor %}
+                                {% for aktype in f.ak_obj.types.all %}
+                                    <span class="badge bg-light">{{ aktype.name }}</span>&nbsp;
+                                {% endfor %}
                             </p>
                         {% endif %}
                         {% if f.ak_obj.reso %}

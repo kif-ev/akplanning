@@ -1,7 +1,7 @@
 import json
 
 from django.contrib import messages
-from django.db.models import Q, Count
+from django.db.models import Count, Q
 from django.db.models.query import QuerySet
 from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
@@ -49,18 +49,19 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
         aks_no_default_slot, aks_no_default_slot_for_category = aks_not_in_default_schedules(self.event, qs)
         if aks_no_default_slot and len(aks_no_default_slot) > 0:
             messages.warning(
-                self.request,
-                _(
-                    "The following AKs cannot be placed in any default slot: {aks_list}"
-                ).format(
-                    aks_list=", ".join(f"{ak.name}" for ak in aks_no_default_slot)
-                )
+                    self.request,
+                    _(
+                            "The following AKs cannot be placed in any default slot: {aks_list}"
+                    ).format(
+                            aks_list=", ".join(f"{ak.name}" for ak in aks_no_default_slot)
+                    )
             )
         if aks_no_default_slot_for_category and len(aks_no_default_slot_for_category) > 0:
             form.fields["ignore_slot_category_mismatches"].choices = [
                 (ak.pk, f"{ak.name} ({ak.category})") for ak in aks_no_default_slot_for_category
             ]
-            form.fields["ignore_slot_category_mismatches"].initial = form.fields["ignore_slot_category_mismatches"].choices
+            form.fields["ignore_slot_category_mismatches"].initial = form.fields[
+                "ignore_slot_category_mismatches"].choices
             self.show_ignore_slot_category_mismatches_field = True
         print(form.fields["ignore_slot_category_mismatches"].choices)
 
@@ -82,14 +83,15 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, FormView):
         try:
             # Find AKs that are not wishes but nevertheless have no slots
             aks_without_slot = AK.objects.annotate(num_owners=Count('owners')).filter(event=self.event,
-                                                 akslot__isnull=True,
-                                                 category__in=form.cleaned_data["export_categories"],
-                                                 num_owners__gt=0
-                                                 ).all()
+                                                                                      akslot__isnull=True,
+                                                                                      category__in=form.cleaned_data[
+                                                                                          "export_categories"],
+                                                                                      num_owners__gt=0
+                                                                                      ).all()
 
             aks_to_ignore_category_for = self.event.ak_set.filter(
-                                                pk__in=form.cleaned_data.get("ignore_slot_category_mismatches", [])
-                                            ).all()
+                    pk__in=form.cleaned_data.get("ignore_slot_category_mismatches", [])
+            ).all()
             if len(aks_to_ignore_category_for) > 0:
                 messages.warning(
                         self.request,

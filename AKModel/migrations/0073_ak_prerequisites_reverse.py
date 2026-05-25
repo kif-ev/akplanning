@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0072_AK_new_fields'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ak',
-            name='prerequisites',
-            field=models.ManyToManyField(blank=True, help_text='AKs that should precede this AK in the schedule', related_name='is_prerequisite_of', to='AKModel.ak', verbose_name='Prerequisite AKs'),
+                model_name='ak',
+                name='prerequisites',
+                field=models.ManyToManyField(blank=True, help_text='AKs that should precede this AK in the schedule',
+                                             related_name='is_prerequisite_of', to='AKModel.ak',
+                                             verbose_name='Prerequisite AKs'),
         ),
     ]

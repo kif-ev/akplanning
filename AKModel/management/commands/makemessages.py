@@ -8,6 +8,7 @@ class Command(MakeMessagesCommand):
     Adapted version of the :class:`MakeMessagesCommand`
     Ensure PO files are generated using forward slashes in the location comments on all operating systems
     """
+
     def find_files(self, root):
         # Replace backward slashes with forward slashes if necessary in file list
         all_files = super().find_files(root)

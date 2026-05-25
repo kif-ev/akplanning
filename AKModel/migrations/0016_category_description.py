@@ -4,15 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0015_ak_present_field'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='akcategory',
-            name='description',
-            field=models.TextField(blank=True, help_text='Short description of this AK Category', verbose_name='Description'),
+                model_name='akcategory',
+                name='description',
+                field=models.TextField(blank=True, help_text='Short description of this AK Category',
+                                       verbose_name='Description'),
         ),
     ]

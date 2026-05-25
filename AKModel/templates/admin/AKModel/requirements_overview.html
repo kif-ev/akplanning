@@ -5,11 +5,12 @@
 {% load tz %}
 {% load fontawesome_6 %}
 
-{% block title %}{% trans "Status" %}: {{event}}{% endblock %}
+{% block title %}{% trans "Status" %}: {{ event }}{% endblock %}
 
 {% block content %}
     {% timezone event.timezone %}
-        <h2><a href="{% url 'admin:AKModel_event_change' event.pk %}">{{event}}</a> - {% trans "Requirements Overview" %}</h2>
+        <h2><a href="{% url 'admin:AKModel_event_change' event.pk %}">{{ event }}</a>
+            - {% trans "Requirements Overview" %}</h2>
         <h5>{{ event.start }} - {{ event.end }}</h5>
 
         <div class="row mt-4">
@@ -23,19 +24,21 @@
                                 <td>{{ ak }}</td>
                                 {% if "AKSubmission"|check_app_installed %}
                                     <td class="text-end">
-                                        <a href="{{ ak.detail_url }}" data-bs-toggle="tooltip"
-                                           title="{% trans 'Details' %}"
-                                           class="btn btn-primary">{% fa6_icon 'info' 'fas' %}</a>
-                                        {% if event.active %}
-                                            <a href="{{ ak.edit_url }}" data-bs-toggle="tooltip"
-                                               title="{% trans 'Edit' %}"
-                                               class="btn btn-success">{% fa6_icon 'pencil-alt' 'fas' %}</a>
-                                        {% endif %}
+                                    <a href="{{ ak.detail_url }}" data-bs-toggle="tooltip"
+                                       title="{% trans 'Details' %}"
+                                       class="btn btn-primary">{% fa6_icon 'info' 'fas' %}</a>
+                                    {% if event.active %}
+                                        <a href="{{ ak.edit_url }}" data-bs-toggle="tooltip"
+                                           title="{% trans 'Edit' %}"
+                                           class="btn btn-success">{% fa6_icon 'pencil-alt' 'fas' %}</a>
                                     {% endif %}
+                                {% endif %}
                                 </td>
                             </tr>
                         {% empty %}
-                            <tr><td>{% trans "No AKs with this requirement" %}</td></tr>
+                            <tr>
+                                <td>{% trans "No AKs with this requirement" %}</td>
+                            </tr>
                         {% endfor %}
                     </table>
                 </div>

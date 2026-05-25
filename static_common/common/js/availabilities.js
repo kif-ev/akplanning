@@ -6,7 +6,7 @@
 // It was significantly changed to deal with the newer fullcalendar version, event specific timezones,
 // to remove the dependency to moments timezone and improve the visualization of deletion
 
-function createAvailabilityEditors(timezone, language, startDate, endDate, slotResolution='00:30:00') {
+function createAvailabilityEditors(timezone, language, startDate, endDate, slotResolution = '00:30:00') {
     $("input.availabilities-editor-data").each(function () {
         const eventColor = '#28B62C';
 
@@ -17,19 +17,19 @@ function createAvailabilityEditors(timezone, language, startDate, endDate, slotR
         data_field.hide();
 
         // Add inputs to add slots without the need to click and drag
-        let manualSlotAdderSource = 
-            "<form id='formManualAdd'>"+
+        let manualSlotAdderSource =
+            "<form id='formManualAdd'>" +
             "<div class='d-flex align-items-center justify-content-start gap-2 flex-wrap py-1 mb-0'>" +
-                "<input type='datetime-local' id='inputStart' value='" + startDate + "' min='" + startDate + "' max='" + endDate + "'>" +
-                "<i class='fas fa-long-arrow-alt-right'></i>" +
-                "<input type='datetime-local' id='inputEnd' value='" + endDate + "' min='" + startDate + "' max='" + endDate + "'>" +
-                "<button class='btn btn-primary' type='submit'><i class='fas fa-plus'></i></button>" +
+            "<input type='datetime-local' id='inputStart' value='" + startDate + "' min='" + startDate + "' max='" + endDate + "'>" +
+            "<i class='fas fa-long-arrow-alt-right'></i>" +
+            "<input type='datetime-local' id='inputEnd' value='" + endDate + "' min='" + startDate + "' max='" + endDate + "'>" +
+            "<button class='btn btn-primary' type='submit'><i class='fas fa-plus'></i></button>" +
             "</div>" +
             "</form>";
-            let manualSlotAdder = $(manualSlotAdderSource);
+        let manualSlotAdder = $(manualSlotAdderSource);
         editor.after(manualSlotAdder);
 
-        $('#formManualAdd').submit(function(event) {
+        $('#formManualAdd').submit(function (event) {
             add($('#inputStart').val(), $('#inputEnd').val());
             event.preventDefault();
         });
@@ -133,7 +133,7 @@ function createAvailabilityEditors(timezone, language, startDate, endDate, slotR
             data = {
                 availabilities: plan.getEvents().map(function (e) {
                     let id = e.id;
-                    if(e.id.startsWith("new"))
+                    if (e.id.startsWith("new"))
                         id = "";
                     return {
                         id: id,

@@ -9,32 +9,33 @@ def migrate_data_forward(apps, schema_editor):
     for instance in AKOwner.objects.all():
         if instance.slug == '':
             instance.slug = instance._generate_slug()
-        instance.save() # Will trigger slug update
+        instance.save()  # Will trigger slug update
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0016_slot_room_blank'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='akowner',
-            name='slug',
-            field=models.SlugField(blank=True, help_text='Slug for URL generation', max_length=64, verbose_name='Slug'),
+                model_name='akowner',
+                name='slug',
+                field=models.SlugField(blank=True, help_text='Slug for URL generation', max_length=64,
+                                       verbose_name='Slug'),
         ),
         migrations.AlterField(
-            model_name='akowner',
-            name='name',
-            field=models.CharField(help_text='Name to identify an AK owner by', max_length=64, verbose_name='Nickname'),
+                model_name='akowner',
+                name='name',
+                field=models.CharField(help_text='Name to identify an AK owner by', max_length=64,
+                                       verbose_name='Nickname'),
         ),
         migrations.RunPython(
-            migrate_data_forward,
-            migrations.RunPython.noop,
+                migrate_data_forward,
+                migrations.RunPython.noop,
         ),
         migrations.AlterUniqueTogether(
-            name='akowner',
-            unique_together={('event', 'name', 'institution'), ('event', 'slug')},
+                name='akowner',
+                unique_together={('event', 'name', 'institution'), ('event', 'slug')},
         )
     ]

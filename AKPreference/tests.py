@@ -1,8 +1,9 @@
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 
 from AKModel.models import Event
 from AKModel.tests.test_views import BasicViewTests
+
 
 class PollViewTests(BasicViewTests, TestCase):
     """
@@ -32,9 +33,9 @@ class PollViewTests(BasicViewTests, TestCase):
         response = self.client.get(url_poll)
 
         self.assertEqual(
-            response.status_code,
-            200,
-            msg=f"{url_poll} broken",
+                response.status_code,
+                200,
+                msg=f"{url_poll} broken",
         )
 
         self.assertTemplateUsed(response, "AKPreference/poll_start.html",

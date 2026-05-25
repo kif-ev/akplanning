@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -14,127 +13,127 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="EventParticipant",
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
+                name="EventParticipant",
+                fields=[
+                    (
+                        "id",
+                        models.AutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                        ),
                     ),
-                ),
-                (
-                    "name",
-                    models.CharField(
-                        blank=True,
-                        help_text="Name to identify a participant by (in case of questions from the organizers)",
-                        max_length=64,
-                        verbose_name="Nickname",
+                    (
+                        "name",
+                        models.CharField(
+                                blank=True,
+                                help_text="Name to identify a participant by (in case of questions from the organizers)",
+                                max_length=64,
+                                verbose_name="Nickname",
+                        ),
                     ),
-                ),
-                (
-                    "institution",
-                    models.CharField(
-                        blank=True,
-                        help_text="Uni etc.",
-                        max_length=128,
-                        verbose_name="Institution",
+                    (
+                        "institution",
+                        models.CharField(
+                                blank=True,
+                                help_text="Uni etc.",
+                                max_length=128,
+                                verbose_name="Institution",
+                        ),
                     ),
-                ),
-                (
-                    "event",
-                    models.ForeignKey(
-                        help_text="Associated event",
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="AKModel.event",
-                        verbose_name="Event",
+                    (
+                        "event",
+                        models.ForeignKey(
+                                help_text="Associated event",
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="AKModel.event",
+                                verbose_name="Event",
+                        ),
                     ),
-                ),
-                (
-                    "requirements",
-                    models.ManyToManyField(
-                        blank=True,
-                        help_text="Participant's Requirements",
-                        to="AKModel.akrequirement",
-                        verbose_name="Requirements",
+                    (
+                        "requirements",
+                        models.ManyToManyField(
+                                blank=True,
+                                help_text="Participant's Requirements",
+                                to="AKModel.akrequirement",
+                                verbose_name="Requirements",
+                        ),
                     ),
-                ),
-            ],
-            options={
-                "verbose_name": "Participant",
-                "verbose_name_plural": "Participants",
-                "ordering": ["name"],
-            },
+                ],
+                options={
+                    "verbose_name": "Participant",
+                    "verbose_name_plural": "Participants",
+                    "ordering": ["name"],
+                },
         ),
         migrations.CreateModel(
-            name="AKPreference",
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
+                name="AKPreference",
+                fields=[
+                    (
+                        "id",
+                        models.AutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                        ),
                     ),
-                ),
-                (
-                    "preference",
-                    models.PositiveSmallIntegerField(
-                        choices=[
-                            (0, "Ignore"),
-                            (1, "Interested"),
-                            (2, "Great interest"),
-                            (3, "Required"),
-                        ],
-                        default=0,
-                        help_text="Preference level for the AK",
-                        verbose_name="Preference",
+                    (
+                        "preference",
+                        models.PositiveSmallIntegerField(
+                                choices=[
+                                    (0, "Ignore"),
+                                    (1, "Interested"),
+                                    (2, "Great interest"),
+                                    (3, "Required"),
+                                ],
+                                default=0,
+                                help_text="Preference level for the AK",
+                                verbose_name="Preference",
+                        ),
                     ),
-                ),
-                (
-                    "timestamp",
-                    models.DateTimeField(
-                        auto_now_add=True,
-                        help_text="Time of creation",
-                        verbose_name="Timestamp",
+                    (
+                        "timestamp",
+                        models.DateTimeField(
+                                auto_now_add=True,
+                                help_text="Time of creation",
+                                verbose_name="Timestamp",
+                        ),
                     ),
-                ),
-                (
-                    "ak",
-                    models.ForeignKey(
-                        help_text="AK this preference belongs to",
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="AKModel.ak",
-                        verbose_name="AK",
+                    (
+                        "ak",
+                        models.ForeignKey(
+                                help_text="AK this preference belongs to",
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="AKModel.ak",
+                                verbose_name="AK",
+                        ),
                     ),
-                ),
-                (
-                    "event",
-                    models.ForeignKey(
-                        help_text="Associated event",
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="AKModel.event",
-                        verbose_name="Event",
+                    (
+                        "event",
+                        models.ForeignKey(
+                                help_text="Associated event",
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="AKModel.event",
+                                verbose_name="Event",
+                        ),
                     ),
-                ),
-                (
-                    "participant",
-                    models.ForeignKey(
-                        help_text="Participant this preference belongs to",
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="AKPreference.eventparticipant",
-                        verbose_name="Participant",
+                    (
+                        "participant",
+                        models.ForeignKey(
+                                help_text="Participant this preference belongs to",
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="AKPreference.eventparticipant",
+                                verbose_name="Participant",
+                        ),
                     ),
-                ),
-            ],
-            options={
-                "verbose_name": "AK Preference",
-                "verbose_name_plural": "AK Preferences",
-                "ordering": ["-timestamp"],
-                "unique_together": {("event", "participant", "ak")},
-            },
+                ],
+                options={
+                    "verbose_name": "AK Preference",
+                    "verbose_name_plural": "AK Preferences",
+                    "ordering": ["-timestamp"],
+                    "unique_together": {("event", "participant", "ak")},
+                },
         ),
     ]

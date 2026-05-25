@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0057_upgrades'),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='ak',
-            options={'ordering': ['pk'], 'verbose_name': 'AK', 'verbose_name_plural': 'AKs'},
+                name='ak',
+                options={'ordering': ['pk'], 'verbose_name': 'AK', 'verbose_name_plural': 'AKs'},
         ),
     ]

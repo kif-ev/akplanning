@@ -10,15 +10,15 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='interest_end',
-            field=models.DateTimeField(blank=True, help_text='Closing time for expression of interest.', null=True,
-                                       verbose_name='Interest Window End'),
+                model_name='event',
+                name='interest_end',
+                field=models.DateTimeField(blank=True, help_text='Closing time for expression of interest.', null=True,
+                                           verbose_name='Interest Window End'),
         ),
         migrations.AddField(
-            model_name='event',
-            name='interest_start',
-            field=models.DateTimeField(blank=True, help_text='Opening time for expression of interest.', null=True,
-                                       verbose_name='Interest Window Start'),
+                model_name='event',
+                name='interest_start',
+                field=models.DateTimeField(blank=True, help_text='Opening time for expression of interest.', null=True,
+                                           verbose_name='Interest Window Start'),
         ),
     ]

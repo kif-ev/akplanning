@@ -16,5 +16,5 @@ class VirtualRoomAdmin(admin.ModelAdmin):
         # Don't allow changing the room on existing virtual rooms
         # Instead, a link to the room editing form will be displayed automatically
         if obj:
-            return self.readonly_fields + ('room', )
+            return self.readonly_fields + ('room',)
         return self.readonly_fields

@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0059_interest_default'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='akorgamessage',
-            name='resolved',
-            field=models.BooleanField(default=False, help_text='This message has been resolved (no further action needed)', verbose_name='Resolved'),
+                model_name='akorgamessage',
+                name='resolved',
+                field=models.BooleanField(default=False,
+                                          help_text='This message has been resolved (no further action needed)',
+                                          verbose_name='Resolved'),
         ),
     ]

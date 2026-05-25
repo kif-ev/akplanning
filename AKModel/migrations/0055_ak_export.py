@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0054_default_slots'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ak',
-            name='include_in_export',
-            field=models.BooleanField(default=True, help_text='Include AK in wiki export?', verbose_name='Export?'),
+                model_name='ak',
+                name='include_in_export',
+                field=models.BooleanField(default=True, help_text='Include AK in wiki export?', verbose_name='Export?'),
         ),
     ]

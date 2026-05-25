@@ -4,7 +4,7 @@ from datetime import timedelta
 from AKModel.models import Event
 
 
-def aks_with_unfulfillable_requirements(event: Event, qs = None):
+def aks_with_unfulfillable_requirements(event: Event, qs=None):
     """Get all AKs that have unfulfillable requirements.
 
     An AK has unfulfillable requirements if there is no room in the event that fullfills all of its requirements.
@@ -44,7 +44,8 @@ def aks_with_unfulfillable_requirements(event: Event, qs = None):
             aks_not_possible.append(ak)
     return aks_not_possible
 
-def aks_too_big(event: Event, qs = None):
+
+def aks_too_big(event: Event, qs=None):
     """
     Get all AKs that are too big to fit into any room of the event.
 
@@ -70,7 +71,7 @@ def aks_too_big(event: Event, qs = None):
     return aks_too_big
 
 
-def aks_not_in_default_schedules(event: Event, qs = None):
+def aks_not_in_default_schedules(event: Event, qs=None):
     """
     Get all AKs without any availabilities inside the default schedules
     (strict and those inside default slots but not ones matching their category)

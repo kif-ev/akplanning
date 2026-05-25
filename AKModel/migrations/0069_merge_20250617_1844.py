@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0068_aktype_slug'),
         ('AKModel', '0068_event_export_delete_preferences_participants'),

@@ -37,21 +37,20 @@
 
         function indicate_interest(ak_id, btn) {
             $.ajax({
-                   url: "{% url "model:AK-list" event_slug=event.slug %}" + ak_id + "/indicate-interest/",
-                    type: 'POST',
-                    data: {
-                    },
-                    success: function (response) {
-                       btn.html('{% fa6_icon 'check' 'fas' %}');
-                       btn.off('click');
-                    },
-                    error: function (response) {
-                       if(response.status === 403)
-                            alert("{% trans 'Interest indication currently not allowed. Sorry.' %}");
-                       else
-                           alert("{% trans 'Could not save your interest. Sorry.' %}");
-                    }
-               });
+                url: "{% url "model:AK-list" event_slug=event.slug %}" + ak_id + "/indicate-interest/",
+                type: 'POST',
+                data: {},
+                success: function (response) {
+                    btn.html('{% fa6_icon 'check' 'fas' %}');
+                    btn.off('click');
+                },
+                error: function (response) {
+                    if (response.status === 403)
+                        alert("{% trans 'Interest indication currently not allowed. Sorry.' %}");
+                    else
+                        alert("{% trans 'Could not save your interest. Sorry.' %}");
+                }
+            });
         }
 
         // Update counter

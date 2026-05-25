@@ -4,15 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0042_akslot_fixed'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='akslot',
-            name='fixed',
-            field=models.BooleanField(default=False, help_text='Length and time of this AK should not be changed', verbose_name='Scheduling fixed'),
+                model_name='akslot',
+                name='fixed',
+                field=models.BooleanField(default=False, help_text='Length and time of this AK should not be changed',
+                                          verbose_name='Scheduling fixed'),
         ),
     ]

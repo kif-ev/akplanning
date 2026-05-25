@@ -4,9 +4,11 @@
 
 {% block content %}
 
-<pre>
+    <pre>
 date;name;start;end;category;who;link;
-{% for slot in slots %}{{ slot.start | timezone:event.timezone | date:"l" }};{{ slot.ak.name }};{{ slot.start | timezone:event.timezone | date:"H:i"  }};{{ slot.end | timezone:event.timezone | date:"H:i"  }};{{ slot.ak.category }};{{ slot.ak.owners.all|join:", " }};{{ slot.ak.link }};
+{% for slot in slots %}{{ slot.start | timezone:event.timezone | date:"l" }};{{ slot.ak.name }};
+    {{ slot.start | timezone:event.timezone | date:"H:i" }};{{ slot.end | timezone:event.timezone | date:"H:i" }};
+    {{ slot.ak.category }};{{ slot.ak.owners.all|join:", " }};{{ slot.ak.link }};
 {% endfor %}
 </pre>
 {% endblock %}

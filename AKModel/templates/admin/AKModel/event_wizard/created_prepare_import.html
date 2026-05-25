@@ -18,11 +18,11 @@
 
     {% timezone event.timezone %}
         <div class="card border-success mt-3 mb-3" style="max-width: 100%;">
-          <div class="card-header">{% trans "New event:" %}</div>
-          <div class="card-body">
-            <h4 class="card-title">{{event}}</h4>
-            <p class="card-text">{{ event.start }} - {{ event.end }}</p>
-          </div>
+            <div class="card-header">{% trans "New event:" %}</div>
+            <div class="card-body">
+                <h4 class="card-title">{{ event }}</h4>
+                <p class="card-text">{{ event.start }} - {{ event.end }}</p>
+            </div>
         </div>
     {% endtimezone %}
 
@@ -43,8 +43,8 @@
             </a>
 
             <button type="submit" class="save btn btn-success" value="Submit">
-            {% fa6_icon "check" 'fas' %} {% trans "Continue" %}
-        </button>
+                {% fa6_icon "check" 'fas' %} {% trans "Continue" %}
+            </button>
         </div>
 
         <a href="{% url 'admin:event_status' event.slug %}" class="btn btn-info">

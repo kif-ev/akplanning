@@ -7,11 +7,11 @@ from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import DetailView, ListView
 from django.utils.translation import gettext_lazy as _
+from django.views.generic import DetailView, ListView
 
 from AKModel.metaviews.admin import FilterByEventSlugMixin
-from AKModel.models import AKSlot, AKTrack, Room, AKType
+from AKModel.models import AKSlot, AKTrack, AKType, Room
 from AKPlan.templatetags.tags_AKPlan import highlight_change_colors
 
 
@@ -71,9 +71,9 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
     def get_queryset(self):
         # Ignore slots not scheduled yet
         qs = (super().get_queryset().filter(start__isnull=False).
-                select_related('event', 'ak', 'room', 'ak__category', 'ak__event'))
-                # Need to prefetch both event and ak__event
-                # since django is not aware that the two are always the same
+              select_related('event', 'ak', 'room', 'ak__category', 'ak__event'))
+        # Need to prefetch both event and ak__event
+        # since django is not aware that the two are always the same
 
         # Apply type filter if necessary
         if self.types_filter:
@@ -98,19 +98,19 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
         :rtype: List[Dict[str, str]]
         """
         encoded_events = [
-                {
-                    'title': slot.ak.short_name,
-                    'description': slot.ak.name,
-                    'start': timezone.localtime(slot.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
-                    'end': timezone.localtime(slot.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
-                    'resourceId': slot.room.title,
-                    'backgroundColor': highlight_change_colors(slot),
-                    'borderColor': slot.ak.category.color,
-                    'url': str(slot.ak.detail_url),
-                }
-                for slot in akslots
-                if slot.start and slot.room is not None
-            ]
+            {
+                'title': slot.ak.short_name,
+                'description': slot.ak.name,
+                'start': timezone.localtime(slot.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                'end': timezone.localtime(slot.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                'resourceId': slot.room.title,
+                'backgroundColor': highlight_change_colors(slot),
+                'borderColor': slot.ak.category.color,
+                'url': str(slot.ak.detail_url),
+            }
+            for slot in akslots
+            if slot.start and slot.room is not None
+        ]
         return encoded_events
 
     def _encode_rooms(self, rooms):
@@ -201,7 +201,7 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
             context["types_filter_empty"] = False
             if self.types_filter:
                 context["types_filter_empty"] = self.types_filter["empty"]
-                context["types_filter_strict"] = self.types_filter["strict"]#
+                context["types_filter_strict"] = self.types_filter["strict"]  #
         else:
             context["type_filtering_active"] = False
 

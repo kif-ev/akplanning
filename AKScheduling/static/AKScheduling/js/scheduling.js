@@ -7,6 +7,6 @@ function loadCVs(url, callback_success, callback_error) {
     });
 }
 
-const default_cv_callback_error = function(response) {
-   alert("{% trans 'Cannot load current violations from server' %}");
+const default_cv_callback_error = function (response) {
+    alert("{% trans 'Cannot load current violations from server' %}");
 }

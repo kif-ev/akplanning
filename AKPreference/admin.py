@@ -3,20 +3,21 @@ from django.contrib import admin
 from django.contrib.admin import action
 from django.db.models import Count
 from django.http import HttpResponseRedirect
+from django.urls import path, reverse_lazy
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from django.urls import path, reverse_lazy
 
+from AKModel.admin import EventRelatedFieldListFilter, PrepopulateWithNextActiveEventMixin
+from AKModel.models import AK, AKRequirement
 from AKPreference.models import AKPreference, EventParticipant
 from AKPreference.views import AnonymizeParticipantsView, ParticipantAdminView
-from AKModel.admin import PrepopulateWithNextActiveEventMixin, EventRelatedFieldListFilter
-from AKModel.models import AK, AKRequirement
 
 
 class EventParticipantAdminForm(forms.ModelForm):
     """
     Adapted admin form for EventParticipant for usage in :class:`EventParticipantAdmin`)
     """
+
     class Meta:
         widgets = {
             "requirements": forms.CheckboxSelectMultiple,
@@ -54,8 +55,9 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
         :return: annotated preference count
         """
         return format_html("<a href='{url}'>{text}</a>",
-                url=reverse_lazy('admin:participant-details', kwargs={'pk': obj.pk}),
-                text=obj.preference_count)
+                           url=reverse_lazy('admin:participant-details', kwargs={'pk': obj.pk}),
+                           text=obj.preference_count)
+
     preference_count.admin_order_field = 'preference_count'
     preference_count.short_description = _('Count of saved preferences')
 
@@ -88,6 +90,7 @@ class AKPreferenceAdminForm(forms.ModelForm):
     """
     Adapted admin form for AK preferences for usage in :class:`AKPreferenceAdmin`)
     """
+
     class Meta:
         widgets = {
             'participant': forms.Select,

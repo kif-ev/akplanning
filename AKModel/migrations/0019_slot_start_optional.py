@@ -4,15 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('AKModel', '0018_merge_20191023_2227'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='akslot',
-            name='start',
-            field=models.DateTimeField(blank=True, help_text='Time and date the slot begins', null=True, verbose_name='Slot Begin'),
+                model_name='akslot',
+                name='start',
+                field=models.DateTimeField(blank=True, help_text='Time and date the slot begins', null=True,
+                                           verbose_name='Slot Begin'),
         ),
     ]

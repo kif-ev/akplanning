@@ -13,17 +13,18 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='VirtualRoom',
-            fields=[
-                ('room_ptr',
-                 models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True,
-                                      primary_key=True, serialize=False, to='AKModel.Room')),
-                ('url', models.URLField(blank=True, help_text='URL to the room or server', verbose_name='URL')),
-            ],
-            options={
-                'verbose_name': 'Virtual Room',
-                'verbose_name_plural': 'Virtual Rooms',
-            },
-            bases=('AKModel.room',),
+                name='VirtualRoom',
+                fields=[
+                    ('room_ptr',
+                     models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE,
+                                          parent_link=True,
+                                          primary_key=True, serialize=False, to='AKModel.Room')),
+                    ('url', models.URLField(blank=True, help_text='URL to the room or server', verbose_name='URL')),
+                ],
+                options={
+                    'verbose_name': 'Virtual Room',
+                    'verbose_name_plural': 'Virtual Rooms',
+                },
+                bases=('AKModel.room',),
         ),
     ]

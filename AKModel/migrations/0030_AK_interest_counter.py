@@ -10,9 +10,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='ak',
-            name='interest_counter',
-            field=models.IntegerField(default=0, help_text='People who have indicated interest online',
-                                      verbose_name='Interest Counter'),
+                model_name='ak',
+                name='interest_counter',
+                field=models.IntegerField(default=0, help_text='People who have indicated interest online',
+                                          verbose_name='Interest Counter'),
         ),
     ]
