@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-21 18:09+0000\n"
+"POT-Creation-Date: 2026-05-25 12:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,52 +17,52 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AKDashboard/models.py:21
+#: AKDashboard/models.py:22
 msgid "Dashboard Button"
 msgstr "Dashboard-Button"
 
-#: AKDashboard/models.py:22
+#: AKDashboard/models.py:23
 msgid "Dashboard Buttons"
 msgstr "Dashboard-Buttons"
 
-#: AKDashboard/models.py:32
+#: AKDashboard/models.py:33
 msgid "Text"
 msgstr "Text"
 
-#: AKDashboard/models.py:33
+#: AKDashboard/models.py:34
 msgid "Text that will be shown on the button"
 msgstr "Text, der auf dem Button angezeigt wird"
 
-#: AKDashboard/models.py:34
+#: AKDashboard/models.py:35
 msgid "Link URL"
 msgstr "Link-URL"
 
-#: AKDashboard/models.py:34
+#: AKDashboard/models.py:35
 msgid "URL this button links to"
 msgstr "URL auf die der Button verweist"
 
-#: AKDashboard/models.py:35
+#: AKDashboard/models.py:36
 msgid "Icon"
 msgstr "Symbol"
 
-#: AKDashboard/models.py:37
+#: AKDashboard/models.py:38
 msgid "Button Style"
 msgstr "Stil des Buttons"
 
-#: AKDashboard/models.py:37
+#: AKDashboard/models.py:39
 msgid "Style (Color) of this button (bootstrap class)"
 msgstr "Stiel (Farbe) des Buttons (Bootstrap-Klasse)"
 
-#: AKDashboard/models.py:39
+#: AKDashboard/models.py:41
 msgid "Event"
 msgstr "Veranstaltung"
 
-#: AKDashboard/models.py:39
+#: AKDashboard/models.py:41
 msgid "Event this button belongs to"
 msgstr "Veranstaltung, zu der dieser Button gehört"
 
 #: AKDashboard/templates/AKDashboard/dashboard.html:19
-#: AKDashboard/templates/AKDashboard/dashboard_event.html:30
+#: AKDashboard/templates/AKDashboard/dashboard_event.html:32
 #: AKDashboard/templates/AKDashboard/dashboard_row_old_event.html:53
 msgid "Write to organizers of this event for questions and comments"
 msgstr ""
@@ -91,48 +91,46 @@ msgstr "Kürzlich"
 msgid "AK List"
 msgstr "AK-Liste"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:29
-msgid "Current AKs"
-msgstr "Aktuelle AKs"
-
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:36
-msgid "AK Wall"
-msgstr "AK-Wall"
-
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:44
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:28
 #: AKDashboard/templates/AKDashboard/dashboard_row_old_event.html:30
 msgid "Schedule"
 msgstr "AK-Plan"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:55
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:38
 msgid "AK Submission"
 msgstr "AK-Einreichung"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:63
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:46
 #: AKDashboard/templates/AKDashboard/dashboard_row_old_event.html:39
 msgid "AK History"
 msgstr "AK-Verlauf"
 
-#: AKDashboard/templates/AKDashboard/dashboard_row.html:72
+#: AKDashboard/templates/AKDashboard/dashboard_row.html:55
 msgid "AK Preferences"
 msgstr "AK-Präferenzen"
 
-#: AKDashboard/views.py:70
+#: AKDashboard/views.py:71
 #, python-format
 msgid "New AK: %(ak)s."
 msgstr "Neuer AK: %(ak)s."
 
-#: AKDashboard/views.py:73
+#: AKDashboard/views.py:74
 #, python-format
 msgid "AK \"%(ak)s\" edited."
 msgstr "AK \"%(ak)s\" bearbeitet."
 
-#: AKDashboard/views.py:76
+#: AKDashboard/views.py:77
 #, python-format
 msgid "AK \"%(ak)s\" deleted."
 msgstr "AK \"%(ak)s\" gelöscht."
 
-#: AKDashboard/views.py:91
+#: AKDashboard/views.py:94
 #, python-format
 msgid "AK \"%(ak)s\" (re-)scheduled."
 msgstr "AK \"%(ak)s\" (um-)geplant."
+
+#~ msgid "Current AKs"
+#~ msgstr "Aktuelle AKs"
+
+#~ msgid "AK Wall"
+#~ msgstr "AK-Wall"

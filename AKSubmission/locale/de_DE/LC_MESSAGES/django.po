@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-27 14:39+0000\n"
+"POT-Creation-Date: 2026-05-25 12:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,12 +54,12 @@ msgid "AK Submission"
 msgstr "AK-Eintragung"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:125
-#: AKSubmission/templates/AKSubmission/ak_interest_script.html:50
+#: AKSubmission/templates/AKSubmission/ak_interest_script.html:49
 msgid "Interest indication currently not allowed. Sorry."
 msgstr "Interessenangabe aktuell nicht erlaubt. Sorry."
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:127
-#: AKSubmission/templates/AKSubmission/ak_interest_script.html:52
+#: AKSubmission/templates/AKSubmission/ak_interest_script.html:51
 msgid "Could not save your interest. Sorry."
 msgstr "Interesse konnte nicht gespeichert werden. Sorry."
 
@@ -160,7 +160,7 @@ msgid "Category"
 msgstr "Kategorie"
 
 #: AKSubmission/templates/AKSubmission/ak_detail.html:228
-#: AKSubmission/templates/AKSubmission/ak_list.html:24
+#: AKSubmission/templates/AKSubmission/ak_list.html:26
 #: AKSubmission/templates/AKSubmission/ak_table.html:13
 msgid "Types"
 msgstr "Typen"
@@ -308,7 +308,7 @@ msgstr "Beabsichtigt eine Resolution einzureichen"
 msgid "All AKs"
 msgstr "Alle AKs"
 
-#: AKSubmission/templates/AKSubmission/ak_list.html:11
+#: AKSubmission/templates/AKSubmission/ak_list.html:12
 msgid "Tracks"
 msgstr "Tracks"
 
@@ -486,64 +486,64 @@ msgstr "Aktuell geplante AKs"
 msgid "AKs with Track"
 msgstr ""
 
-#: AKSubmission/views.py:267
+#: AKSubmission/views.py:268
 msgid "AKs with Type"
 msgstr ""
 
-#: AKSubmission/views.py:337
+#: AKSubmission/views.py:342
 msgid "Event inactive. Cannot create or update."
 msgstr "Event inaktiv. Hinzufügen/Bearbeiten nicht möglich."
 
-#: AKSubmission/views.py:362
+#: AKSubmission/views.py:367
 msgid "AK successfully created"
 msgstr "AK erfolgreich angelegt"
 
-#: AKSubmission/views.py:436
+#: AKSubmission/views.py:441
 msgid "AK successfully updated"
 msgstr "AK erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:487
+#: AKSubmission/views.py:492
 #, python-brace-format
 msgid "Added '{owner}' as new owner of '{ak.name}'"
 msgstr "'{owner}' als neue Leitung von '{ak.name}' hinzugefügt"
 
-#: AKSubmission/views.py:590
+#: AKSubmission/views.py:595
 msgid "No user selected"
 msgstr "Keine Person ausgewählt"
 
-#: AKSubmission/views.py:606
+#: AKSubmission/views.py:611
 msgid "Person Info successfully updated"
 msgstr "Personen-Info erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:642
+#: AKSubmission/views.py:647
 msgid "AK Slot successfully added"
 msgstr "AK-Slot erfolgreich angelegt"
 
-#: AKSubmission/views.py:661
+#: AKSubmission/views.py:666
 msgid "You cannot edit a slot that has already been scheduled"
 msgstr "Bereits geplante AK-Slots können nicht mehr bearbeitet werden"
 
-#: AKSubmission/views.py:671
+#: AKSubmission/views.py:676
 msgid "AK Slot successfully updated"
 msgstr "AK-Slot erfolgreich aktualisiert"
 
-#: AKSubmission/views.py:689
+#: AKSubmission/views.py:694
 msgid "You cannot delete a slot that has already been scheduled"
 msgstr "Bereits geplante AK-Slots können nicht mehr gelöscht werden"
 
-#: AKSubmission/views.py:699
+#: AKSubmission/views.py:704
 msgid "AK Slot successfully deleted"
 msgstr "AK-Slot erfolgreich angelegt"
 
-#: AKSubmission/views.py:711
+#: AKSubmission/views.py:716
 msgid "Messages"
 msgstr "Nachrichten"
 
-#: AKSubmission/views.py:721
+#: AKSubmission/views.py:726
 msgid "Delete all messages"
 msgstr "Alle Nachrichten löschen"
 
-#: AKSubmission/views.py:748
+#: AKSubmission/views.py:753
 msgid "Message to organizers successfully saved"
 msgstr "Nachricht an die Organisator*innen erfolgreich gespeichert"
 
