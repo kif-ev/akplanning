@@ -292,10 +292,8 @@ msgid "AK Categories"
 msgstr "AK-Kategorien"
 
 #: AKModel/forms.py:184
-#, fuzzy
-#| msgid "Which AK types should be included in the slides?"
 msgid "Which categories should be included in the slides?"
-msgstr "Welche AK-Typen sollen in den Folien enthalten sein?"
+msgstr "Welche Kategorien sollen in den Folien enthalten sein?"
 
 #: AKModel/forms.py:189 AKModel/models.py:746
 msgid "AK Types"
@@ -1292,13 +1290,11 @@ msgstr "Dauer(n)"
 
 #: AKModel/templates/AKModel/slides_carousel.html:200
 msgid "Next:"
-msgstr ""
+msgstr "Danach:"
 
 #: AKModel/templates/AKModel/slides_carousel.html:220
-#, fuzzy
-#| msgid "Only show AKs with all selected types?"
 msgid "No AKs match the selected filters."
-msgstr "Nur AKs mit dem ausgewählten Typ anzeigen?"
+msgstr "Keine AKs passen zu den ausgewählten Filtern."
 
 #: AKModel/templates/AKModel/slides_carousel.html:231
 msgid "Previous"
@@ -1648,7 +1644,7 @@ msgstr "Resolutionsabsicht?"
 
 #: AKModel/views/manage.py:204
 msgid "Invalid export config, please try again."
-msgstr "Keine valide Exportkonfiguration. Bitte stearte den Export noch einmal."
+msgstr "Keine valide Exportkonfiguration. Bitte starte den Export noch einmal."
 
 #: AKModel/views/manage.py:228
 msgid "The following Constraint Violations will be marked as manually resolved"
