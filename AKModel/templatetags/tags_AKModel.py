@@ -90,6 +90,18 @@ def event_month_year(event: Event):
     return f"{event_start_string} - {date(event.end, 'F')} {event.end.year}"
 
 
+@register.filter
+def remove_newlines(value):
+    """
+    Remove all newline characters from a string
+    :param value: string to process
+    :return: string with all newlines removed
+    """
+    if value is None:
+        return ''
+    return str(value).replace('\n', '').replace('\r', '')
+
+
 # get list of relevant css fontawesome css files for this instance
 css = get_css()
 
