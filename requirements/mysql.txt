@@ -1,1 +1,1 @@
-mysqlclient==2.2.8  # for production deployment
+mysqlclient==2.3.0  # for production deployment
