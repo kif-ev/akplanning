@@ -14,7 +14,7 @@ variables:
   MYSQL_HOST: "mysql"
 
 default:
-  image: python:3.13
+  image: python:3.15
   cache:
     paths:
       - .cache/pip
