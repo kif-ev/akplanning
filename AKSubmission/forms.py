@@ -80,6 +80,77 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
         if "owners" in self.fields:
             self.fields['owners'].queryset = AKOwner.objects.filter(event=self.initial.get('event'))
 
+    def clean(self):
+        """
+        Normalize/clean inputs
+
+        Generate a (not yet used) short name if field was left blank,
+        create a list of normalized slot durations
+
+        :return: cleaned inputs
+        """
+        cleaned_data = super().clean()
+
+        # Generate short name if not given
+        short_name = self.cleaned_data["short_name"]
+        if len(short_name) == 0:
+            short_name = self.cleaned_data['name']
+            # First try to split AK name at positions with semantic value (e.g., where the full name is separated
+            # by a ':'), if not possible, do a hard cut at the maximum specified length
+            short_name = short_name.partition(':')[0]
+            short_name = short_name.partition(' - ')[0]
+            short_name = short_name.partition(' (')[0]
+            short_name = short_name[:AK._meta.get_field('short_name').max_length]
+            # Check whether this short name already exists...
+            for i in itertools.count(1):
+                # ...and either use it...
+                if not AK.objects.filter(short_name=short_name, event=self.cleaned_data["event"]).exists():
+                    break
+                # ... or postfix a number starting at 1 and growing until an unused short name is found
+                digits = len(str(i))
+                short_name = f'{short_name[:-(digits + 1)]}-{i}'
+            cleaned_data["short_name"] = short_name
+            return cleaned_data
+
+
+class AKSubmissionForm(AKForm):
+    """
+    Form for Submitting new AKs
+
+    Is a special variant of :class:`AKForm` that does not allow to manually edit wiki and protocol links and enforces
+    the generation of at least one slot.
+    """
+
+    class Meta(AKForm.Meta):
+        # Exclude fields again that were previously included in the parent class
+        exclude = ['link']  # pylint: disable=modelform-uses-exclude
+        widgets = AKForm.Meta.widgets | {
+            'types': forms.CheckboxSelectMultiple(attrs={'checked': 'checked'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add field for durations (cleaning will be handled by parent class)
+        self.fields["durations"] = forms.CharField(
+                widget=forms.Textarea,
+                label=_("Duration(s)"),
+                help_text=_("Give the duration for your AK in hours, as a decimal number and without a unit symbol. "
+                            "For every time your AK should take place, enter one line with one duration."),
+                initial=self.initial.get('event').default_slot
+        )
+
+    def clean_availabilities(self):
+        """
+        Automatically improve availabilities entered.
+        If the user did not specify availabilities assume the full event duration is possible
+        :return: cleaned availabilities
+        (either user input or one availability for the full length of the event if user input was empty)
+        """
+        availabilities = super().clean_availabilities()
+        if len(availabilities) == 0:
+            availabilities.append(Availability.with_event_length(event=self.cleaned_data["event"]))
+        return availabilities
+
     @staticmethod
     def _clean_duration(duration):
         """
@@ -116,71 +187,13 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
 
         :return: cleaned inputs
         """
-        cleaned_data = super().clean()
 
-        # Generate short name if not given
-        short_name = self.cleaned_data["short_name"]
-        if len(short_name) == 0:
-            short_name = self.cleaned_data['name']
-            # First try to split AK name at positions with semantic value (e.g., where the full name is separated
-            # by a ':'), if not possible, do a hard cut at the maximum specified length
-            short_name = short_name.partition(':')[0]
-            short_name = short_name.partition(' - ')[0]
-            short_name = short_name.partition(' (')[0]
-            short_name = short_name[:AK._meta.get_field('short_name').max_length]
-            # Check whether this short name already exists...
-            for i in itertools.count(1):
-                # ...and either use it...
-                if not AK.objects.filter(short_name=short_name, event=self.cleaned_data["event"]).exists():
-                    break
-                # ... or postfix a number starting at 1 and growing until an unused short name is found
-                digits = len(str(i))
-                short_name = f'{short_name[:-(digits + 1)]}-{i}'
-            cleaned_data["short_name"] = short_name
+        cleaned_data = super().clean()
 
         # Get durations from raw durations field
         if "durations" in cleaned_data:
             cleaned_data["durations"] = [self._clean_duration(d) for d in self.cleaned_data["durations"].split()]
         return cleaned_data
-
-
-class AKSubmissionForm(AKForm):
-    """
-    Form for Submitting new AKs
-
-    Is a special variant of :class:`AKForm` that does not allow to manually edit wiki and protocol links and enforces
-    the generation of at least one slot.
-    """
-
-    class Meta(AKForm.Meta):
-        # Exclude fields again that were previously included in the parent class
-        exclude = ['link', 'protocol_link']  # pylint: disable=modelform-uses-exclude
-        widgets = AKForm.Meta.widgets | {
-            'types': forms.CheckboxSelectMultiple(attrs={'checked': 'checked'}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Add field for durations (cleaning will be handled by parent class)
-        self.fields["durations"] = forms.CharField(
-                widget=forms.Textarea,
-                label=_("Duration(s)"),
-                help_text=_("Give the duration for your AK in hours, as a decimal number and without a unit symbol. "
-                            "For every time your AK should take place, enter one line with one duration."),
-                initial=self.initial.get('event').default_slot
-        )
-
-    def clean_availabilities(self):
-        """
-        Automatically improve availabilities entered.
-        If the user did not specify availabilities assume the full event duration is possible
-        :return: cleaned availabilities
-        (either user input or one availability for the full length of the event if user input was empty)
-        """
-        availabilities = super().clean_availabilities()
-        if len(availabilities) == 0:
-            availabilities.append(Availability.with_event_length(event=self.cleaned_data["event"]))
-        return availabilities
 
 
 class AKWishForm(AKForm):

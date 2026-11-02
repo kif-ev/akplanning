@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load static %}
+{% load django_bootstrap5 %}
 
 
 {% block title %}{% trans "AKs" %}: {{ event.name }} - {% trans "New AK Wish" %}{% endblock %}
@@ -16,4 +17,9 @@
 
 {% block headline %}
     <h2>{% trans 'New AK Wish' %}</h2>
+{% endblock %}
+
+{% block form_contents %}
+    {# Don't allow to specify avails for wishes #}
+    {% bootstrap_form form exclude='availabilities' %}
 {% endblock %}
