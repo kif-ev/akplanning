@@ -2,12 +2,13 @@ import itertools
 import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from decimal import Decimal, ROUND_DOWN
 from typing import Any, Generator, Iterable
 
 import math
 from django.apps import apps
 from django.conf import settings
-from django.core.validators import RegexValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models, transaction
 from django.db.models import Count
 from django.urls import reverse_lazy
@@ -555,6 +556,27 @@ class Event(models.Model):
         return AKSlot.objects.filter(event=self).order_by()
 
     @property
+    def max_slot_duration(self) -> Decimal:
+        """
+        Maximum duration (in hours) a slot of this event can have
+
+        This is the length of the whole event (rounded down to the precision of :attr:`AKSlot.duration`),
+        but never more than can be stored in that field.
+        """
+        duration_field = AKSlot._meta.get_field('duration')
+        # Smallest step the field can store: scaleb(-n) shifts the decimal point n places to the left,
+        # i.e., 1 -> 0.01 for two decimal places
+        precision = Decimal(1).scaleb(-duration_field.decimal_places)
+        # Largest value the field can store, e.g., 10^(4-2) - 0.01 = 99.99 for max_digits=4 and decimal_places=2
+        max_storable = Decimal(10) ** (duration_field.max_digits - duration_field.decimal_places) - precision
+        # Event length in hours (computed as Decimal to avoid float inaccuracies), cut to the precision of the field.
+        # quantize(precision) rounds to the number of decimal places of precision (e.g., 3.3333 -> 3.33),
+        # ROUND_DOWN makes sure that the result never exceeds the actual event length (e.g., 3.339 -> 3.33, not 3.34)
+        event_length = (Decimal((self.end - self.start).total_seconds()) / 3600).quantize(precision,
+                                                                                           rounding=ROUND_DOWN)
+        return min(event_length, max_storable)
+
+    @property
     def participants(self):
         """Ordered queryset of all participants associated to this event."""
         if apps.is_installed("AKPreference"):
@@ -1099,7 +1121,7 @@ class AKSlot(models.Model):
     start = models.DateTimeField(verbose_name=_('Slot Begin'), help_text=_('Time and date the slot begins'),
                                  blank=True, null=True)
     duration = models.DecimalField(max_digits=4, decimal_places=2, default=2, verbose_name=_('Duration'),
-                                   help_text=_('Length in hours'))
+                                   help_text=_('Length in hours'), validators=[MinValueValidator(Decimal("0.01"))])
 
     fixed = models.BooleanField(default=False, verbose_name=_('Scheduling fixed'),
                                 help_text=_('Length and time of this AK should not be changed'))
@@ -1176,14 +1198,16 @@ class AKSlot(models.Model):
         :return: true if they overlap, false if not:
         :rtype: bool
         """
+        # TODO Discuss whether we need to check for < instead of <= here
         return self.start < other.end <= self.end or self.start <= other.start < self.end
 
     def save(self, *args, force_insert=False, force_update=False, using=None, update_fields=None):
         # Make sure duration is not longer than the event
+        # (only necessary if the duration is saved, i.e., not excluded by update_fields)
         if update_fields is None or 'duration' in update_fields:
-            event_duration = self.event.end - self.event.start
-            event_duration_hours = event_duration.days * 24 + event_duration.seconds // 3600
-            self.duration = min(self.duration, event_duration_hours)
+            # Duration may have been set as int, float or str (e.g., via API or in code),
+            # convert to Decimal to allow a safe comparison with the (Decimal) maximum
+            self.duration = min(Decimal(self.duration), self.event.max_slot_duration)
         super().save(*args,
                      force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 

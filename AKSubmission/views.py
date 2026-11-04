@@ -325,6 +325,24 @@ class AKHistoryView(EventSlugMixin, DetailView):
     template_name = "AKSubmission/ak_history.html"
 
 
+def warn_about_clamped_durations(request, form, event):
+    """
+    Inform the user if slot durations had to be shortened because they were longer than the event
+
+    :param request: current request (to attach the message to)
+    :param form: validated form with a list of the raw durations that were clamped (`clamped_durations`)
+    :param event: event the slots belong to
+    """
+    if form.clamped_durations:
+        messages.add_message(
+            request, messages.WARNING,
+            _("The following durations were longer than the event and were shortened to the length of "
+              "the event (%(max_duration)s hours): %(durations)s") % {
+                'max_duration': f"{float(event.max_slot_duration):g}",
+                'durations': ", ".join(form.clamped_durations),
+            })
+
+
 class EventInactiveRedirectMixin:
     """
     Mixin that will cause a redirect when actions are performed on an inactive event.
@@ -381,6 +399,8 @@ class AKAndAKWishSubmissionView(EventSlugMixin, EventInactiveRedirectMixin, Crea
             for duration in form.cleaned_data["durations"]:
                 new_slot = AKSlot(ak=self.object, duration=duration, event=self.object.event)
                 new_slot.save()
+
+        warn_about_clamped_durations(self.request, form, self.object.event)
 
         return super_form_valid
 
@@ -647,6 +667,11 @@ class AKSlotAddView(EventSlugMixin, EventInactiveRedirectMixin, CreateView):
         messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully added"))
         return self.object.ak.detail_url
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        warn_about_clamped_durations(self.request, form, self.object.event)
+        return response
+
 
 class AKSlotEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
     """
@@ -675,6 +700,11 @@ class AKSlotEditView(EventSlugMixin, EventInactiveRedirectMixin, UpdateView):
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully updated"))
         return self.object.ak.detail_url
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        warn_about_clamped_durations(self.request, form, self.object.event)
+        return response
 
 
 class AKSlotDeleteView(EventSlugMixin, EventInactiveRedirectMixin, DeleteView):
