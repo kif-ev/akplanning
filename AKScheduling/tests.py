@@ -1,10 +1,13 @@
+import html
 import json
+import re
 from datetime import timedelta
 
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 
-from AKModel.models import AK, AKCategory, AKRequirement, AKSlot, Event, Room
+from AKModel.models import AK, AKCategory, AKRequirement, AKSlot, AKTrack, Event, Room
 from AKModel.tests.test_views import BasicViewTests
 from AKScheduling.checks import aks_with_unfulfillable_requirements
 
@@ -88,6 +91,69 @@ class ModelViewTests(BasicViewTests, TestCase):
         # Make sure API call did update the slot as expected
         slot = AKSlot.objects.get(pk=pk)
         self.assertEqual(new_room.pk, slot.room.pk, "Update did not work")
+
+    def test_unscheduling_of_slot(self):
+        """
+        Test removing a slot from the schedule (e.g., by dragging it back to the list of unscheduled slots)
+        """
+        event = Event.get_by_slug('kif42')
+        slot = event.akslot_set.filter(start__isnull=False, room__isnull=False, fixed=False).first()
+        unschedule_url = f"/kif42/api/scheduling-event/{slot.pk}/unschedule/"
+
+        # Not possible without login
+        response = self.client.post(unschedule_url)
+        self.assertEqual(response.status_code, 403, "Unscheduling possible without login")
+        slot.refresh_from_db()
+        self.assertIsNotNone(slot.start)
+
+        self.client.force_login(self.admin_user)
+        response = self.client.post(unschedule_url)
+        self.assertEqual(response.status_code, 200, "POST to unschedule endpoint did not work")
+        slot.refresh_from_db()
+        self.assertIsNone(slot.start, "Slot was not unscheduled")
+        self.assertIsNone(slot.room, "Room of slot was not reset")
+
+        # Fixed slots cannot be unscheduled
+        fixed_slot = event.akslot_set.filter(start__isnull=False).exclude(pk=slot.pk).first()
+        AKSlot.objects.filter(pk=fixed_slot.pk).update(fixed=True)
+        response = self.client.post(f"/kif42/api/scheduling-event/{fixed_slot.pk}/unschedule/")
+        self.assertEqual(response.status_code, 400, "Fixed slot could be unscheduled")
+        fixed_slot.refresh_from_db()
+        self.assertIsNotNone(fixed_slot.start)
+
+        # Slots of other events cannot be unscheduled via this event
+        other_slot = AKSlot.objects.exclude(event=event).first()
+        response = self.client.post(f"/kif42/api/scheduling-event/{other_slot.pk}/unschedule/")
+        self.assertEqual(response.status_code, 404, "Slot of other event could be unscheduled")
+
+    def test_unscheduled_slot_drag_data(self):
+        """
+        Test that the data of unscheduled slots in the scheduling view (used to create calendar events when dropping
+        them on the calendar) is valid JSON and contains everything needed to unschedule them again later
+        """
+        event = Event.get_by_slug('kif42')
+        slot = event.akslot_set.filter(start__isnull=False, fixed=False).first()
+        # Track name with characters that need escaping
+        track = AKTrack.objects.create(name='Track "with" \'quotes\'', event=event)
+        AK.objects.filter(pk=slot.ak_id).update(track=track)
+        AKSlot.objects.filter(pk=slot.pk).update(start=None, room=None)
+
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse('admin:schedule', kwargs={'event_slug': 'kif42'}))
+        self.assertEqual(response.status_code, 200)
+
+        drag_data = [json.loads(html.unescape(data))
+                     for data in re.findall(r"data-event='([^']*)'", response.content.decode())]
+        self.assertGreater(len(drag_data), 0, "No unscheduled slots found")
+        for data in drag_data:
+            for key in ['title', 'duration', 'slotID', 'shortName', 'ownersList', 'slotDuration', 'trackId',
+                        'trackName', 'description', 'url']:
+                self.assertIn(key, data, f"Missing {key} in data for dropping slot {data.get('slotID')}")
+
+        data = next(d for d in drag_data if d['slotID'] == str(slot.pk))
+        self.assertEqual(data['trackId'], track.pk)
+        self.assertEqual(data['trackName'], track.name)
+        self.assertEqual(data['slotDuration'], float(slot.duration))
 
     def test_aks_unfulfillable_requirements(self):
         """

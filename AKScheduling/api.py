@@ -1,11 +1,14 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import ListView
-from rest_framework import mixins, permissions, serializers, viewsets
+from rest_framework import mixins, permissions, serializers, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed
+from rest_framework.response import Response
 
 from AKModel.availability.models import Availability
 from AKModel.metaviews.admin import EventSlugMixin
@@ -57,7 +60,11 @@ class EventsView(LoginRequiredMixin, EventSlugMixin, ListView):
     model = AKSlot
 
     def get_queryset(self):
-        return super().get_queryset().select_related('ak').filter(
+        return super().get_queryset().select_related('ak', 'ak__track', 'ak__category').prefetch_related(
+                # Availabilities are needed for the details of the AKs,
+                # load them together with their event (needed for the timezone when displaying them)
+                Prefetch('ak__availabilities', queryset=Availability.objects.select_related('event')),
+        ).filter(
                 event=self.event, room__isnull=False, start__isnull=False
         )
 
@@ -77,6 +84,14 @@ class EventsView(LoginRequiredMixin, EventSlugMixin, ListView):
                         else slot.ak.category.color,
                     "constraint": 'roomAvailable',
                     "editable": not slot.fixed,
+                    # Information needed to show the slot in the list of unscheduled slots when unscheduling it
+                    # (do not use "duration" here, fullcalendar treats that as property of recurring events and
+                    # would hence not make it available as extendedProp)
+                    "shortName": slot.ak.short_name,
+                    "ownersList": slot.ak.owners_list,
+                    "slotDuration": float(slot.duration),
+                    "trackId": slot.ak.track_id,
+                    "trackName": str(slot.ak.track) if slot.ak.track else "",
                     'url': str(reverse('admin:AKModel_akslot_change', args=[slot.pk])),
                 } for slot in context["object_list"]],
                 safe=False,
@@ -177,11 +192,22 @@ class EventSerializer(serializers.ModelSerializer):
         return instance
 
 
+class ChangePermissionForPost(permissions.DjangoModelPermissions):
+    """
+    Model permissions requiring change permission for POST requests
+
+    Needed for actions that modify existing objects via POST (instead of creating new objects)
+    """
+    perms_map = {**permissions.DjangoModelPermissions.perms_map,
+                 'POST': ['%(app_label)s.change_%(model_name)s']}
+
+
 class EventsViewSet(EventSlugMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     """
     API view: Update scheduling of a slot (event in fullcalendar format)
 
-    Write-only (will however reply with written values to PUT request)
+    Write-only (will however reply with written values to PUT request).
+    Slots can be removed from the schedule using the ``unschedule`` action.
     """
     permission_classes = (permissions.DjangoModelPermissions,)
     serializer_class = EventSerializer
@@ -194,6 +220,21 @@ class EventsViewSet(EventSlugMixin, mixins.UpdateModelMixin, viewsets.GenericVie
 
     def list(self, request, *args, **kwargs):
         raise MethodNotAllowed('GET')
+
+    @action(detail=True, methods=['post'], permission_classes=[ChangePermissionForPost])
+    def unschedule(self, request, *args, **kwargs):
+        """
+        Remove a slot from the schedule (i.e., reset its start and room)
+
+        Fixed slots cannot be unscheduled.
+        """
+        slot = get_object_or_404(AKSlot, pk=self.kwargs["pk"], event=self.event)
+        if slot.fixed:
+            return Response({'detail': 'Scheduling of this slot is fixed'}, status=status.HTTP_400_BAD_REQUEST)
+        slot.start = None
+        slot.room = None
+        slot.save()
+        return Response({'id': slot.pk})
 
 
 class ConstraintViolationSerializer(serializers.ModelSerializer):
