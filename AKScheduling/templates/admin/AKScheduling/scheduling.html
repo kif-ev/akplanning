@@ -405,7 +405,7 @@
 
                             table_html += '<tr class="' + muted_html + '"><td class="nowrap">' + icon_html;
                             table_html += "</td><td class='small'>" + response[i].type_display + "</td></tr>";
-                            table_html += "<tr class='" + muted_html + "'><td colspan='2' class='small'>" + response[i].details + "</td></tr>"
+                            table_html += "<tr class='" + muted_html + "'><td colspan='2' class='small'>" + response[i].details + cvResolutionHtml(response[i]) + "</td></tr>"
                         }
                     } else {
                         // Update violations table

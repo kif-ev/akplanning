@@ -748,11 +748,23 @@ class ConstraintViolationAdmin(admin.ModelAdmin):
     Admin interface for constraint violations
     Uses an adapted form (see :class:`ConstraintViolationAdminForm`)
     """
-    list_display = ['type', 'level', 'get_details', 'manually_resolved']
+    list_display = ['type', 'level', 'get_details', 'manually_resolved', 'resolved_by']
     list_filter = ['event']
-    readonly_fields = ['timestamp']
+    readonly_fields = ['timestamp', 'resolved_by']
     form = ConstraintViolationAdminForm
     actions = ['mark_resolved', 'set_violation', 'set_warning']
+
+    def save_model(self, request, obj, form, change):
+        # Track who marked the violation as resolved when (un)setting the flag in the edit form
+        # (the mark resolved action handles this itself)
+        if 'manually_resolved' in form.changed_data:
+            if obj.manually_resolved:
+                obj.resolved_by = request.user
+            else:
+                # No longer resolved, hence the information about the resolution is obsolete
+                obj.resolved_by = None
+                obj.resolution_reason = ""
+        super().save_model(request, obj, form, change)
 
     def get_urls(self):
         """

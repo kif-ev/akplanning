@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView
 from rest_framework import mixins, permissions, serializers, status, viewsets
 from rest_framework.decorators import action
@@ -245,7 +246,33 @@ class ConstraintViolationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConstraintViolation
         fields = ['pk', 'type_display', 'aks', 'ak_slots', 'ak_owner', 'room', 'requirement', 'category', 'comment',
-                  'timestamp_display', 'manually_resolved', 'level_display', 'details', 'edit_url']
+                  'timestamp_display', 'manually_resolved', 'level_display', 'details', 'edit_url',
+                  'resolution_reason', 'resolved_by_display', 'resolution_display']
+
+    resolved_by_display = serializers.SerializerMethodField()
+    resolution_display = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_resolved_by_display(obj):
+        """
+        Name of the user who marked the violation as resolved (empty if unknown or not resolved)
+        """
+        if obj.resolved_by is None:
+            return ""
+        return obj.resolved_by.get_full_name() or obj.resolved_by.get_username()
+
+    def get_resolution_display(self, obj):
+        """
+        Human-readable information about the manual resolution of the violation, i.e., who resolved it and why
+        (empty if the violation is not manually resolved)
+        """
+        if not obj.manually_resolved:
+            return ""
+        resolved_by = self.get_resolved_by_display(obj)
+        text = _("Resolved by %(user)s") % {'user': resolved_by} if resolved_by else str(_("Manually Resolved"))
+        if obj.resolution_reason:
+            text = f"{text}: {obj.resolution_reason}"
+        return text
 
 
 class ConstraintViolationsViewSet(EventSlugMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -259,6 +286,6 @@ class ConstraintViolationsViewSet(EventSlugMixin, mixins.ListModelMixin, viewset
 
     def get_queryset(self):
         # Optimize query to reduce database load
-        return (ConstraintViolation.objects.select_related('event', 'room')
+        return (ConstraintViolation.objects.select_related('event', 'room', 'resolved_by')
                 .prefetch_related('aks', 'ak_slots', 'ak_owner', 'requirement', 'category')
                 .filter(event=self.event).order_by('manually_resolved', '-type', '-timestamp'))

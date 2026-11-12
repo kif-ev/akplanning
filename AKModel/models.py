@@ -1392,6 +1392,11 @@ class ConstraintViolation(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_('Timestamp'), help_text=_('Time of creation'))
     manually_resolved = models.BooleanField(verbose_name=_('Manually Resolved'), default=False,
                                             help_text=_('Mark this violation manually as resolved'))
+    resolution_reason = models.TextField(verbose_name=_('Resolution Reason'), blank=True,
+                                         help_text=_('Why this violation was marked as manually resolved (optional)'))
+    resolved_by = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True,
+                                    related_name='+', verbose_name=_('Resolved by'),
+                                    help_text=_('User who marked this violation as manually resolved'))
 
     fields = ['ak_owner', 'room', 'requirement', 'category', 'comment']
     fields_mm = ['_aks', '_ak_slots']

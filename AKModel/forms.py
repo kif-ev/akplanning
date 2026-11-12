@@ -165,6 +165,18 @@ class AdminIntermediateActionForm(AdminIntermediateForm):
     pks = forms.CharField(widget=forms.HiddenInput)
 
 
+class CVMarkResolvedForm(AdminIntermediateActionForm):
+    """
+    Form for marking constraint violations as manually resolved, allows to (optionally) specify a reason for that
+    """
+    resolution_reason = forms.CharField(
+            label=_('Resolution Reason'),
+            help_text=_('Why are these violations resolved or acceptable? (optional)'),
+            required=False,
+            widget=forms.Textarea(attrs={'rows': 3}),
+    )
+
+
 class SlideExportForm(AdminIntermediateForm):
     """
     Form to control the slides generated from the AK list of an event

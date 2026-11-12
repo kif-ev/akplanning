@@ -19,6 +19,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const url = "{% url "model:scheduling-constraint-violations-list" event_slug=event.slug %}";
+            // Marking a violation as resolved uses the same intermediate page as the admin action,
+            // return to this page afterwards
+            const markResolvedUrl = "{% url "admin:cv-mark-resolved" %}";
+            const returnUrl = encodeURIComponent(window.location.pathname);
 
             const callback_success = function (response) {
                 let table_html = '';
@@ -35,7 +39,11 @@
                             table_html += '<tr><td></td>';
                             unresolved_constraint_violations++;
                         }
-                        table_html += "<td>" + response[i].level_display + "</td><td>" + response[i].type_display + "</td><td>" + response[i].details + "</td><td class='nowrap'>" + response[i].timestamp_display + "</td><td><a href='" + response[i].edit_url + "'><i class='btn btn-primary fa fa-pen'></i></a></td></tr>";
+                        table_html += "<td>" + response[i].level_display + "</td><td>" + response[i].type_display + "</td><td>" + response[i].details + cvResolutionHtml(response[i]) + "</td><td class='nowrap'>" + response[i].timestamp_display + "</td><td class='nowrap'>";
+                        if (!response[i].manually_resolved) {
+                            table_html += '<a href="' + markResolvedUrl + '?pks=' + response[i].pk + '&next=' + returnUrl + '" class="btn btn-success" title="{% trans "Mark as resolved" %}">{% fa6_icon "check" "fas" %}</a> ';
+                        }
+                        table_html += '<a href="' + response[i].edit_url + '" class="btn btn-primary">{% fa6_icon "pen" "fas" %}</a></td></tr>';
                     }
                 } else {
                     // Update violations table

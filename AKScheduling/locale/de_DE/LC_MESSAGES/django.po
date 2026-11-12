@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-12 23:48+0100\n"
+"POT-Creation-Date: 2026-11-13 00:24+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,15 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: AKScheduling/api.py:272
+#, python-format
+msgid "Resolved by %(user)s"
+msgstr "Behoben durch %(user)s"
+
+#: AKScheduling/api.py:272
+msgid "Manually Resolved"
+msgstr "Manuell behoben"
 
 #: AKScheduling/forms.py:24
 msgid "Start"
@@ -29,7 +38,7 @@ msgstr "Ende"
 msgid "Duration"
 msgstr "Dauer"
 
-#: AKScheduling/forms.py:27 AKScheduling/forms.py:28 AKScheduling/templates/admin/AKScheduling/scheduling.html:319
+#: AKScheduling/forms.py:27 AKScheduling/forms.py:28 AKScheduling/templates/admin/AKScheduling/scheduling.html:345
 msgid "Room"
 msgstr "Raum"
 
@@ -59,53 +68,57 @@ msgstr ""
 msgid "Constraint Violations for"
 msgstr ""
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:42
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:104
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:386
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:544
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:44
+msgid "Mark as resolved"
+msgstr "Als behoben markieren"
+
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:50
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:112
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:412
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:570
 msgid "No violations"
 msgstr "Keine Verletzungen"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:80
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:496
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:88
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:522
 msgid "Violation(s)"
 msgstr "Verletzung(en)"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:84
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:92
 msgid "Auto reload?"
 msgstr "Automatisch neu laden?"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:88
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:96
 msgid "Reload now"
 msgstr "Jetzt neu laden"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:94
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:375
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:102
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:401
 msgid "Violation"
 msgstr "Verletzung"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:95
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:538
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:103
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:564
 msgid "Problem"
 msgstr "Problem"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:96
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:104
 msgid "Details"
 msgstr "Details"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:97
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:105
 msgid "Since"
 msgstr "Seit"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:110
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:118
 #: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:256
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:480
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:506
 #: AKScheduling/templates/admin/AKScheduling/special_attention.html:129
 #: AKScheduling/templates/admin/AKScheduling/unscheduled.html:34
 msgid "Event Status"
 msgstr "Event-Status"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:112 AKScheduling/views.py:58
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:120 AKScheduling/views.py:58
 msgid "Scheduling"
 msgstr "Scheduling"
 
@@ -115,7 +128,7 @@ msgstr "Abschicken"
 
 #: AKScheduling/templates/admin/AKScheduling/manage_tracks.html:11
 #: AKScheduling/templates/admin/AKScheduling/scheduling.html:21
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:477
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:503
 msgid "Scheduling for"
 msgstr "Scheduling für"
 
@@ -151,55 +164,55 @@ msgstr "AK-Track hinzufügen"
 msgid "AKs without track"
 msgstr "AKs ohne Track"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:155
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:171
 msgid "Could not unschedule slot"
 msgstr "Konnte Slot nicht aus dem Plan entfernen"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:231
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:250
 msgid "Day (Horizontal)"
 msgstr "Tag (horizontal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:238
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:257
 msgid "Day (Vertical)"
 msgstr "Tag (vertikal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:249
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:268
 msgid "Event (Horizontal)"
 msgstr "Event (horizontal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:258
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:277
 msgid "Event (Vertical)"
 msgstr "Event (vertikal)"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:418
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:444
 msgid "Please choose AK"
 msgstr "Bitte AK auswählen"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:437
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:463
 msgid "Could not create slot"
 msgstr "Konnte Slot nicht anlegen"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:453
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:479
 msgid "Add slot"
 msgstr "Slot hinzufügen"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:462
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:488
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:464
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:490
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:492
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:518
 msgid "Unscheduled"
 msgstr "Nicht gescheduled"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:503
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:529
 msgid "Drop here to unschedule"
 msgstr "Hier ablegen, um aus dem Plan zu entfernen"
 
-#: AKScheduling/templates/admin/AKScheduling/scheduling.html:537
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:563
 msgid "Level"
 msgstr "Level"
 

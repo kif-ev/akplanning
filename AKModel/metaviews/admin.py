@@ -5,6 +5,7 @@ from django.contrib.admin.models import CHANGE, LogEntry
 from django.db.models import Model
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
@@ -176,7 +177,10 @@ class IntermediateAdminActionView(IntermediateAdminView, ABC):
 
     This will automatically handle the decoding of the URL encoding of the list of primary keys django does to select
     which objects the action should be run on, then display a preview, perform the action after confirmation and
-    redirect again to the object list including display of a confirmation message
+    redirect again to the object list including display of a confirmation message.
+
+    Instead of the object list, the view can also redirect to another (local) page after performing the action,
+    specified via the GET parameter ``next`` (e.g., to return to the page the action was started from)
     """
     # pylint: disable=no-member
     form_class = AdminIntermediateActionForm
@@ -204,6 +208,12 @@ class IntermediateAdminActionView(IntermediateAdminView, ABC):
         return f"{self.confirmation_message}:\n\n {joined_entities}"
 
     def get_success_url(self):
+        # Redirect to the page specified by the caller (if given and safe, i.e., on this host)
+        # The form is submitted to the same URL including the query string, hence the parameter is available here
+        next_url = self.request.GET.get('next')
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()},
+                                                        require_https=self.request.is_secure()):
+            return next_url
         return reverse(f"admin:{self.model._meta.app_label}_{self.model._meta.model_name}_changelist")
 
     @abstractmethod

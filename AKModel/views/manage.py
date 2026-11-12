@@ -17,7 +17,8 @@ from django_tex.core import render_template_with_context, run_tex_in_directory
 from django_tex.response import PDFResponse
 
 from AKModel.availability.models import Availability
-from AKModel.forms import DefaultSlotCategoriesForm, DefaultSlotEditorForm, ShiftByOffsetForm, SlideExportForm
+from AKModel.forms import CVMarkResolvedForm, DefaultSlotCategoriesForm, DefaultSlotEditorForm, ShiftByOffsetForm, \
+    SlideExportForm
 from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, IntermediateAdminActionView, IntermediateAdminView
 from AKModel.models import AKCategory, AKOwner, AKSlot, AKType, ConstraintViolation, DefaultSlot, Event
 
@@ -223,14 +224,19 @@ class PublishedSlidesView(EventSlugMixin, TemplateView):
 class CVMarkResolvedView(IntermediateAdminActionView):
     """
     Admin action view: Mark one or multitple constraint violation(s) as resolved
+
+    Asks for an (optional) reason and stores it together with the user who marked the violations as resolved
     """
     title = _('Mark Constraint Violations as manually resolved')
     model = ConstraintViolation
+    form_class = CVMarkResolvedForm
     confirmation_message = _("The following Constraint Violations will be marked as manually resolved")
     success_message = _("Constraint Violations marked as resolved")
 
     def action(self, form):
-        self.entities.update(manually_resolved=True)
+        self.entities.update(manually_resolved=True,
+                             resolution_reason=form.cleaned_data['resolution_reason'],
+                             resolved_by=self.request.user)
 
 
 class CVSetLevelViolationView(IntermediateAdminActionView):

@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from AKModel.models import AK, AKCategory, AKRequirement, AKSlot, AKTrack, Event, Room
+from AKModel.models import AK, AKCategory, AKRequirement, AKSlot, AKTrack, ConstraintViolation, Event, Room
 from AKModel.tests.test_views import BasicViewTests
 from AKScheduling.checks import aks_with_unfulfillable_requirements
 
@@ -154,6 +154,28 @@ class ModelViewTests(BasicViewTests, TestCase):
         self.assertEqual(data['trackId'], track.pk)
         self.assertEqual(data['trackName'], track.name)
         self.assertEqual(data['slotDuration'], float(slot.duration))
+
+    def test_constraint_violation_resolution_in_api(self):
+        """
+        Test that the constraint violations API includes who resolved a violation manually and why
+        """
+        ConstraintViolation.objects.filter(pk=1).update(manually_resolved=True, resolved_by=self.admin_user,
+                                                        resolution_reason="Discussed with <b>AK owners</b>")
+        ConstraintViolation.objects.filter(pk=2).update(manually_resolved=True)
+
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse('model:scheduling-constraint-violations-list',
+                                           kwargs={'event_slug': 'kif42'}))
+        self.assertEqual(response.status_code, 200)
+        cvs = {cv['pk']: cv for cv in response.json()}
+
+        self.assertEqual(cvs[1]['resolved_by_display'], "Test Admin User")
+        self.assertEqual(cvs[1]['resolution_reason'], "Discussed with <b>AK owners</b>")
+        self.assertEqual(cvs[1]['resolution_display'], "Resolved by Test Admin User: Discussed with <b>AK owners</b>")
+        # Resolved without known user and reason (e.g., resolved before this was tracked)
+        self.assertEqual(cvs[2]['resolution_display'], "Manually Resolved")
+        # Not resolved
+        self.assertEqual(cvs[3]['resolution_display'], "")
 
     def test_aks_unfulfillable_requirements(self):
         """
