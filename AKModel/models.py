@@ -873,14 +873,16 @@ class AK(models.Model):
     def details(self):
         """
         Generate a detailed string representation, e.g., for usage in scheduling
+
+        The availabilities are accessed via the reverse relation (``self.availabilities.all()``), hence they can be
+        loaded for multiple AKs at once using ``prefetch_related``. To avoid an additional query for the event of
+        every availability (needed for its timezone), prefetch them together with their event, i.e.,
+        ``Prefetch('availabilities', queryset=Availability.objects.select_related('event'))``
+
         :return: string representation of that AK with all details
         :rtype: str
         """
-        # local import to prevent cyclic import
-        # pylint: disable=import-outside-toplevel
-        from AKModel.availability.models import Availability
-        availabilities = ', \n'.join(f'{a.simplified}' for a in Availability.objects.select_related('event')
-                                     .filter(ak=self))
+        availabilities = ', \n'.join(f'{a.simplified}' for a in self.availabilities.all())
         detail_string = f"""{self.name}{" (R)" if self.reso else ""}:
 
         {self.owners_list}

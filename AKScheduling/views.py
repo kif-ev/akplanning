@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, ListView, UpdateView
 
+from AKModel.availability.models import Availability
 from AKModel.metaviews import status_manager
 from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, FilterByEventSlugMixin, IntermediateAdminView
 from AKModel.metaviews.status import TemplateStatusWidget
@@ -45,7 +46,12 @@ class SchedulingAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
         return super().get_queryset().filter(start__isnull=True).select_related('event', 'ak', 'ak__track',
                                                                                 'ak__category').prefetch_related(
                 'ak__types', 'ak__owners', 'ak__conflicts', 'ak__prerequisites',
-            'ak__requirements', 'ak__conflict').order_by('ak__track', 'ak')
+            'ak__requirements', 'ak__conflict',
+            # Availabilities are needed for the details of the AKs,
+            # load them together with their event (needed for the timezone when displaying them)
+            Prefetch('ak__availabilities',
+                     queryset=Availability.objects.select_related('event')),
+        ).order_by('ak__track', 'ak')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
