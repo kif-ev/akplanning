@@ -241,6 +241,9 @@
                     // Adapt to user selected locale
                     locale: '{{ LANGUAGE_CODE }}',
                     initialView: 'resourceTimelineEventVert',
+                    // Allow placing slots in steps of 15 minutes in all views
+                    // (even if the grid is coarser, e.g., to match default slots that do not align with it)
+                    snapDuration: '00:15',
                     views: {
                         resourceTimelineDayHoriz: {
                             type: 'resourceTimelineDay',
