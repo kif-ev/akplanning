@@ -39,6 +39,13 @@
             <span class='text'>{% trans 'AK History' %}</span>
         </div>
     </a>
+    <a class="btn btn-primary"
+       href="{% url 'dashboard:dashboard_event_info' slug=event.slug %}">
+        <div class="col-sm-12 col-md-3 col-lg-2 dashboard-button">
+            <span class="fa fa-circle-info"></span>
+            <span class='text'>{% trans 'Facts' %}</span>
+        </div>
+    </a>
     {% for button in event.dashboardbutton_set.all %}
         <a class="btn btn-{{ button.get_color_display }}"
            href="{{ button.url }}">

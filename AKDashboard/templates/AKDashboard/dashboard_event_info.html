@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% load fontawesome_6 %}
+{% load i18n %}
+{% load tags_AKModel %}
+
+{% block title %}{% trans "Facts" %}: {{ event }}{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard:dashboard' %}">AKPlanning</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'dashboard:dashboard_event' slug=event.slug %}">{{ event }}</a></li>
+    <li class="breadcrumb-item active">{% trans "Facts" %}</li>
+{% endblock %}
+
+{% block content %}
+    <h2>{% fa6_icon "circle-info" "fas" %} {% trans "Facts about" %} {{ event.name }}</h2>
+    <h4 class="text-muted">
+        {% if event.place %}
+            <b>{{ event.place }} &middot;</b>
+        {% endif %}
+        {{ event | event_month_year }}
+    </h4>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 mt-2 mb-5" id="event-facts">
+        {% for fact in facts %}
+            <div class="col">
+                <div class="card h-100 text-center event-fact">
+                    <div class="card-body">
+                        <div class="event-fact-icon text-primary mb-3">{% fa6_icon fact.icon.0 fact.icon.1 %}</div>
+                        <div class="event-fact-value">{{ fact.value }}</div>
+                        <div class="event-fact-title text-muted">{{ fact.title }}</div>
+                        {% if fact.detail %}
+                            <div class="event-fact-detail small text-muted mt-2">{{ fact.detail }}</div>
+                        {% endif %}
+                        {% if fact.ranking %}
+                            <hr>
+                            <div class="event-fact-title text-muted mb-2">{{ fact.ranking_title }}</div>
+                            <ol class="event-fact-ranking list-unstyled mb-0">
+                                {% for name, explanation in fact.ranking %}
+                                    <li>
+                                        <span class="event-fact-rank">{{ forloop.counter }}.</span>
+                                        <span class="event-fact-ranking-name">{{ name }}</span>
+                                        <span class="small text-muted d-block">{{ explanation }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
