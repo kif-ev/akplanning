@@ -120,6 +120,9 @@ def ak_changed_handler(sender, instance: AK, **kwargs):
 
     Changes might affect: Reso intention, Category, Interest
     """
+    # Skip raw saves (e.g., loaddata/fixtures): the loaded data already contains the matching constraint violations
+    if kwargs.get("raw", False):
+        return
     # React to potentially added/removed reso intention
     for slot in instance.akslot_set.all():
         update_cv_reso_deadline_for_slot(slot)
@@ -356,6 +359,9 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
 
     Changes might affect: Duplicate parallel, Two in room, Resodeadline
     """
+    # Skip raw saves (e.g., loaddata/fixtures): the loaded data already contains the matching constraint violations
+    if kwargs.get("raw", False):
+        return
     # TODO Consider rewriting this very long and complex method to resolve several (style) issues:
     # pylint: disable=too-many-nested-blocks,too-many-locals,too-many-branches,too-many-statements
     event = instance.event
@@ -615,6 +621,9 @@ def room_changed_handler(sender, instance: Room, **kwargs):
 
     Changes might affect: Room size
     """
+    # Skip raw saves (e.g., loaddata/fixtures): the loaded data already contains the matching constraint violations
+    if kwargs.get("raw", False):
+        return
     # Check room capacities
     violation_type = ConstraintViolation.ViolationType.ROOM_CAPACITY_EXCEEDED
     new_violations = []
@@ -674,6 +683,9 @@ def availability_changed_handler(sender, instance: Availability, **kwargs):
 
     Changes might affect: category availability, AK availability, Room availability
     """
+    # Skip raw saves (e.g., loaddata/fixtures): the loaded data already contains the matching constraint violations
+    if kwargs.get("raw", False):
+        return
     event = instance.event
 
     # An AK's availability changed: Might affect AK slots scheduled outside the permitted time
@@ -714,6 +726,9 @@ def event_changed_handler(sender, instance: Event, **kwargs):
 
     Changes might affect: Reso deadline
     """
+    # Skip raw saves (e.g., loaddata/fixtures): the loaded data already contains the matching constraint violations
+    if kwargs.get("raw", False):
+        return
     # Check for reso ak after reso deadline (which might have changed)
     if instance.reso_deadline:
         for slot in instance.akslot_set.filter(start__isnull=False, ak__reso=True):
