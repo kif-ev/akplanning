@@ -241,7 +241,7 @@ class DashboardEventInfoTests(TestCase):
         # Ordered by name since both institutions have one AK owner
         self.assertEqual(facts["Different institutions ranking"],
                          [("Hochschule Y", "1 AK owner"), ("Uni X", "1 AK owner")])
-        self.assertEqual(facts["Most AKs by one person"], ("a", "2 AKs: Test AK Inhalt, Test AK fixed slots"))
+        self.assertEqual(facts["Most AKs by one person"], ("a", "2 AKs: Test AK fixed slots, Test AK Inhalt"))
         self.assertEqual(facts["Most popular category"], ("Inhalt", "2 AKs"))
         # Categories with the same number of AKs are ordered by name
         self.assertEqual(facts["Most popular category ranking"],
@@ -263,7 +263,7 @@ class DashboardEventInfoTests(TestCase):
         event.akowner_set.filter(name='b').update(institution=' uni x ')
 
         facts = self._get_facts()
-        self.assertEqual(facts["Most AKs by one person"], ("a, b", "2 AKs each – a: Test AK Inhalt, Test AK fixed slots; b: AK Wish, Test AK Meta"))
+        self.assertEqual(facts["Most AKs by one person"], ("a, b", "2 AKs each – a: Test AK fixed slots, Test AK Inhalt; b: AK Wish, Test AK Meta"))
         self.assertEqual(facts["Different institutions"][0], "1")
         # Owners count for their institution, regardless of the number of AKs they offer
         self.assertEqual(facts["Different institutions ranking"], [("Uni X", "2 AK owners")])

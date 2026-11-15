@@ -2,7 +2,7 @@ from collections import Counter, defaultdict
 
 from django.apps import apps
 from django.db.models import Avg, Count, Q, Sum
-from django.db.models.functions import Length
+from django.db.models.functions import Length, Lower
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.formats import date_format, number_format
@@ -153,7 +153,8 @@ def _top_entries(queryset, field):
     # Filtering on an annotated field works because Django turns it into a condition on the aggregate (HAVING).
     # Entries with a value of 0 (e.g., categories without AKs) are dropped since they are no meaningful "top" entry.
     # The remaining entries are sorted descending, so the first one has the highest value.
-    queryset = queryset.filter(**{f"{field}__gt": 0}).order_by(f"-{field}")
+    # Ties are ordered by name (case-insensitively to get the same order regardless of the database collation).
+    queryset = queryset.filter(**{f"{field}__gt": 0}).order_by(f"-{field}", Lower('name'))
 
     # Fetch only this single entry (LIMIT 1) to determine the highest value.
     # No entry means that there were no entries with a positive value at all
@@ -280,7 +281,7 @@ class DashboardEventInfoView(DetailView):
                 owners.annotate(ak_count=Count('ak', filter=Q(ak__trashed_at__isnull=True))), 'ak_count')
         if top_owners:
             # List the (non-trashed) AKs of the top owners, prefixed with the owner's name if there are multiple
-            ak_lists = {owner: ", ".join(owner.ak_set.filter(trashed_at__isnull=True).order_by('name')
+            ak_lists = {owner: ", ".join(owner.ak_set.filter(trashed_at__isnull=True).order_by(Lower('name'))
                                          .values_list('name', flat=True))
                         for owner in top_owners}
             if len(top_owners) == 1:
@@ -317,7 +318,7 @@ class DashboardEventInfoView(DetailView):
         # Number of AKs for every category (categories with the same number of AKs are ordered by name)
         ranking = [(category.name,
                     ngettext("%(count)s AK", "%(count)s AKs", category.ak_count) % {'count': category.ak_count})
-                   for category in categories.order_by('-ak_count', 'name')]
+                   for category in categories.order_by('-ak_count', Lower('name'))]
         return [_fact(('layer-group', 'fas'), _("Most popular category"),
                       ", ".join(category.name for category in top_categories),
                       ngettext("%(count)s AK", "%(count)s AKs", ak_count) % {'count': ak_count},
@@ -326,10 +327,10 @@ class DashboardEventInfoView(DetailView):
     @staticmethod
     def _ak_name_facts(event):
         aks = AK.objects.filter(event=event).annotate(name_length=Length('name'))
-        longest = aks.order_by('-name_length').first()
+        longest = aks.order_by('-name_length', Lower('name')).first()
         if longest is None:
             return []
-        shortest = aks.order_by('name_length').first()
+        shortest = aks.order_by('name_length', Lower('name')).first()
         return [
             _fact(icon, title, ak.name,
                   ngettext("%(count)s character", "%(count)s characters", ak.name_length) % {'count': ak.name_length})
@@ -354,7 +355,7 @@ class DashboardEventInfoView(DetailView):
             # (slots of trashed AKs are unscheduled when trashing, hence no explicit trash filter is needed here)
             top_rooms = rooms.annotate(
                     scheduled_hours=Sum('akslot__duration', filter=Q(akslot__start__isnull=False))
-            ).filter(scheduled_hours__gt=0).order_by('-scheduled_hours', 'name')[:3]
+            ).filter(scheduled_hours__gt=0).order_by('-scheduled_hours', Lower('name'))[:3]
             ranking = [(room.name, _("%(hours)s hours of AKs") % {'hours': _format_number(room.scheduled_hours)})
                        for room in top_rooms]
         return [_fact(('door-open', 'fas'), _("Rooms"), rooms.count(),
