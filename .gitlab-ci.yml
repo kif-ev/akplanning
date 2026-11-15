@@ -29,6 +29,14 @@ installation:
     - apt-get -qq update
     - apt-get -qq install -y python3-virtualenv python3-dev python3-pip gettext
     - ./Utils/setup.sh --ci
+  artifacts:
+    # Compiled translations are not part of the repository but needed by later jobs (e.g., tests)
+    paths:
+      - "**/locale/**/*.mo"
+    exclude:
+      # Translations of installed packages are already part of the cached virtualenv
+      - "venv/**/*"
+    expire_in: 1 day
 
 migrations:
   needs:
