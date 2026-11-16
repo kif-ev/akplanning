@@ -1864,3 +1864,21 @@ msgstr "Zu Anforderungen gehörige AKs anzeigen"
 #: AKModel/views/status.py:208
 msgid "Event Status"
 msgstr "Eventstatus"
+
+#: AKModel/templates/admin/AKModel/default_slot_editor.html:25
+msgid "All categories"
+msgstr "Alle Kategorien"
+
+#: AKModel/templates/admin/AKModel/default_slot_editor.html:26
+msgid "No categories"
+msgstr "Keine Kategorien"
+
+#: AKModel/templates/admin/AKModel/default_slot_editor.html:27
+msgid ""
+"Select the primary categories for the next default slots to add. Existing "
+"slots keep their categories (delete and re-add them to change their "
+"categories)."
+msgstr ""
+"Wähle die primären Kategorien für die als nächstes hinzugefügten "
+"Standardslots. Bestehende Slots behalten ihre Kategorien (lösche sie und "
+"füge sie neu hinzu, um ihre Kategorien zu ändern)."

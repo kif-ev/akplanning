@@ -7,12 +7,136 @@
 
 {% block extrahead %}
     {{ block.super }}
+    {{ categories|json_script:"default-slot-categories" }}
     {% bootstrap_javascript %}
     <script src="{% static 'common/vendor/jquery/jquery-3.6.3.min.js' %}"></script>
     {% include "AKModel/load_fullcalendar_availabilities.html" %}
 
+    <style>
+        /* Larger titles for better readability (but keep the size of the deletion marker) */
+        .default-slot-event:not(.deleteEvent) .fc-event-title {
+            font-size: 1.2em;
+            font-weight: 500;
+        }
+    </style>
+
     <script>
         {% get_current_language as LANGUAGE_CODE %}
+        {% trans "All categories" as label_select_all %}
+        {% trans "No categories" as label_no_categories %}
+        {% trans "Select the primary categories for the next default slots to add. Existing slots keep their categories (delete and re-add them to change their categories)." as label_category_hint %}
+
+        /**
+         * Editor for default slots: Availability editor that additionally allows to assign primary categories
+         * to newly created slots.
+         *
+         * A list of checkboxes (one per category plus a toggle for all/none) above the calendar determines
+         * the categories of the next added slots. The categories of each slot are shown as event title and are
+         * submitted as list of category ids in the field "categories" of each slot.
+         * Existing slots cannot be changed regarding their categories, they need to be deleted and re-added instead.
+         */
+        class DefaultSlotEditor extends AvailabilityEditor {
+            colorWithCategories = 'var(--bs-primary, #158cba)';
+            colorWithoutCategories = '#8c8c8c';
+
+            constructor(dataField, timezone, language, startDate, endDate, slotResolution, categories, labels) {
+                super(dataField, timezone, language, startDate, endDate, slotResolution);
+                this.categories = categories;
+                this.categoryNames = new Map(categories.map(c => [String(c.id), c.name]));
+                this.labels = labels;
+            }
+
+            renderControls() {
+                const categorySelector = $("<div class='d-flex flex-wrap gap-3 py-1 mb-2'>");
+
+                // Toggle for all/no categories
+                this.toggleAll = $("<input type='checkbox' class='form-check-input' id='categoryToggleAll' checked>");
+                categorySelector.append(
+                    $("<div class='form-check fw-bold'>").append(
+                        this.toggleAll,
+                        $("<label class='form-check-label' for='categoryToggleAll'>").text(this.labels.selectAll)
+                    )
+                );
+
+                // One checkbox per category (initially all selected, i.e., new slots are valid for all categories)
+                // Checkboxes have no name attribute and are hence not submitted with the surrounding form
+                this.categoryCheckboxes = this.categories.map(c => {
+                    const checkbox = $("<input type='checkbox' class='form-check-input' checked>")
+                        .attr("id", "categoryCheckbox" + c.id)
+                        .val(String(c.id));
+                    categorySelector.append(
+                        $("<div class='form-check'>").append(
+                            checkbox,
+                            $("<label class='form-check-label'>").attr("for", "categoryCheckbox" + c.id).text(c.name)
+                        )
+                    );
+                    return checkbox;
+                });
+
+                this.toggleAll.on("change", () => {
+                    // "All categories" checkbox was pressed directly.
+                    // Depending on the state either check or uncheck all other checkboxes
+                    const checked = this.toggleAll.prop("checked");
+                    this.categoryCheckboxes.forEach(cb => cb.prop("checked", checked));
+                });
+                this.categoryCheckboxes.forEach(cb => cb.on("change", () => this.updateToggleAll()));
+
+                this.editor.before($("<p class='mb-1'>").text(this.labels.hint));
+                this.editor.before(categorySelector);
+            }
+
+            updateToggleAll() {
+                // Single category checkbox was checked
+                // Check whether all of them are checked or not
+                // Depending on the result, either show checked, half-checked or empty (none of the both props set)
+                // for "all categories" checkbox
+                const selectedCount = this.selectedCategories().length;
+                const total = this.categoryCheckboxes.length;
+                this.toggleAll.prop("checked", selectedCount === total);
+                this.toggleAll.prop("indeterminate", selectedCount > 0 && selectedCount < total);
+            }
+
+            selectedCategories() {
+                return this.categoryCheckboxes.filter(cb => cb.prop("checked")).map(cb => cb.val());
+            }
+
+            // Names of the given categories (ignoring ids of unknown categories)
+            categoryNamesOf(categoryIds) {
+                return (categoryIds || [])
+                    .map(id => this.categoryNames.get(String(id)))
+                    .filter(name => name !== undefined);
+            }
+
+            categoriesTitle(categoryIds) {
+                const names = this.categoryNamesOf(categoryIds);
+                return names.length > 0 ? names.join(", ") : this.labels.noCategories;
+            }
+
+            // Show categories as title and use a different color for slots without categories
+            eventFromData(entry) {
+                const color = this.categoryNamesOf(entry.categories).length > 0 ?
+                    this.colorWithCategories : this.colorWithoutCategories;
+                return Object.assign({}, entry, {
+                    title: this.categoriesTitle(entry.categories),
+                    backgroundColor: color,
+                    borderColor: color,
+                    classNames: ['default-slot-event'],
+                });
+            }
+
+            // New slots get the currently selected categories
+            newEvent(start, end, id) {
+                return this.eventFromData({start: start, end: end, id: id, categories: this.selectedCategories()});
+            }
+
+            serializeEvent(e) {
+                return Object.assign(super.serializeEvent(e), {categories: e.extendedProps.categories || []});
+            }
+
+            eventTitle(event) {
+                return this.categoriesTitle(event.extendedProps.categories);
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', function () {
             createAvailabilityEditors(
@@ -20,7 +144,15 @@
                 '{{ LANGUAGE_CODE }}',
                 '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
                 '{{ event.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-                '00:15:00'
+                '00:15:00',
+                DefaultSlotEditor, // Use the customized editor from above
+                // Pass additional arguments (categories and labels) to constructor
+                JSON.parse(document.getElementById('default-slot-categories').textContent),
+                {
+                    selectAll: '{{ label_select_all|escapejs }}',
+                    noCategories: '{{ label_no_categories|escapejs }}',
+                    hint: '{{ label_category_hint|escapejs }}',
+                }
             );
         });
     </script>
@@ -29,4 +161,3 @@
 {% block action_preview %}
     <h3>{{ event.name }}</h3>
 {% endblock %}
-
