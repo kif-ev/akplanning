@@ -1160,10 +1160,11 @@ class AKSlot(models.Model):
     def start_simplified(self):
         """
         Display start time of slot in format weekday + time, e.g. "Fri 14:00"
+        (localized according to the currently active language)
         """
         if self.start is None:
             return _("Not scheduled yet")
-        return self.start.astimezone(self.event.timezone).strftime('%a %H:%M')
+        return date_format(self.start.astimezone(self.event.timezone), format='D G:i', use_l10n=True)
 
     @property
     def time_simplified(self):
@@ -1579,8 +1580,9 @@ class DefaultSlot(models.Model):
     def start_simplified(self) -> str:
         """
         Property: Simplified version of the start timetstamp (weekday, hour, minute) as string
+        (localized according to the currently active language)
         """
-        return self.start.astimezone(self.event.timezone).strftime('%a %H:%M')
+        return date_format(self.start.astimezone(self.event.timezone), format='D G:i', use_l10n=True)
 
     @property
     def start_iso(self) -> str:
@@ -1593,8 +1595,9 @@ class DefaultSlot(models.Model):
     def end_simplified(self) -> str:
         """
         Property: Simplified version of the end timetstamp (weekday, hour, minute) as string
+        (localized according to the currently active language)
         """
-        return self.end.astimezone(self.event.timezone).strftime('%a %H:%M')
+        return date_format(self.end.astimezone(self.event.timezone), format='D G:i', use_l10n=True)
 
     @property
     def end_iso(self) -> str:
