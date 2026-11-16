@@ -1882,3 +1882,7 @@ msgstr ""
 "Wähle die primären Kategorien für die als nächstes hinzugefügten "
 "Standardslots. Bestehende Slots behalten ihre Kategorien (lösche sie und "
 "füge sie neu hinzu, um ihre Kategorien zu ändern)."
+
+#: AKModel/templates/AKModel/event_hidden_icon.html:1
+msgid "Hidden event (not shown on the overview page)"
+msgstr "Verborgenes Event (wird nicht auf der Übersichtsseite angezeigt)"
