@@ -29,6 +29,90 @@
 
     {% include "AKModel/load_fullcalendar.html" %}
 
+    <style>
+        body {
+            /* Height of the ticker for recent changes (if present), the remaining space is used for the plan */
+            --ticker-height: 0vh;
+            overflow: hidden;
+        }
+
+        body.with-change-ticker {
+            --ticker-height: 6vh;
+        }
+
+        /* Ticker for recently added or moved AK slots, font size chosen to be readable on a projector */
+        .change-ticker {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: var(--ticker-height);
+            display: flex;
+            align-items: center;
+            font-size: 3.2vh;
+            line-height: 1;
+            color: #fff;
+            background-color: #b71540; /* Same red as used for highlighting changes in the plan */
+        }
+
+        .change-ticker-label {
+            flex: 0 0 auto;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 1vh;
+            padding: 0 1.5vw;
+            font-weight: bold;
+            background-color: #7a0e2b;
+        }
+
+        .change-ticker-viewport {
+            flex: 1 1 auto;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .change-ticker-track {
+            display: inline-flex;
+        }
+
+        .change-ticker-content {
+            display: inline-block;
+            padding-left: 1.5vw;
+        }
+
+        .change-ticker-item + .change-ticker-item::before {
+            content: "\2022";
+            margin: 0 1.5vw;
+        }
+
+        /* Marquee mode (activated via JS if the changes do not fit into one line):
+        Content is duplicated and the track moves by the width of one copy, resulting in a seamless loop */
+        .change-ticker-track.scrolling {
+            animation: change-ticker-scroll linear infinite;
+        }
+
+        .change-ticker-track.scrolling .change-ticker-content {
+            padding-left: 0;
+            padding-right: 6vw;
+        }
+
+        @keyframes change-ticker-scroll {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .change-ticker-track.scrolling {
+                animation: none;
+            }
+        }
+    </style>
+
     {% get_current_language as LANGUAGE_CODE %}
 
     {{ akslots_encoded | json_script:"data-events" }}
@@ -80,6 +164,25 @@
                 $('.fc-scroller').scrollLeft($('.fc-timeline-now-indicator-line').position().left);
             }
 
+            // == Ticker for recent changes ==
+
+            // Scroll the ticker content (marquee-like) if it does not fit into one line
+            const tickerViewport = document.querySelector('.change-ticker-viewport');
+            if (tickerViewport) {
+                const track = tickerViewport.querySelector('.change-ticker-track');
+                const content = track.querySelector('.change-ticker-content');
+                if (content.scrollWidth > tickerViewport.clientWidth) {
+                    // Duplicate content for a seamless loop (copy is hidden for screen readers)
+                    const copy = content.cloneNode(true);
+                    copy.setAttribute('aria-hidden', 'true');
+                    track.appendChild(copy);
+                    track.classList.add('scrolling');
+                    // Constant speed independent of the amount of changes, scaled with the screen size
+                    const pixelsPerSecond = window.innerHeight * 0.12;
+                    track.style.animationDuration = (content.offsetWidth / pixelsPerSecond) + 's';
+                }
+            }
+
             // == Auto Reload ==
 
             // function from: https://stackoverflow.com/questions/5448545/how-to-retrieve-get-parameters-from-javascript/
@@ -120,9 +223,9 @@
         });
     </script>
 </head>
-<body>
+<body{% if akslots_changed %} class="with-change-ticker"{% endif %}>
 {% timezone event.timezone %}
-    <div class="row" style="height:100vh;margin:0;padding:1vh;">
+    <div class="row" style="height:calc(100vh - var(--ticker-height));margin:0;padding:1vh;">
         <div class="col-md-3">
             <h1>Plan: {{ event }}</h1>
 
@@ -136,14 +239,37 @@
                 {% include "AKPlan/slots_table.html" %}
             {% endwith %}
         </div>
-        <div class="col-md-9" style="height:98vh;">
+        <div class="col-md-9" style="height:calc(98vh - var(--ticker-height));">
             <div id="planCalendar"></div>
         </div>
     </div>
-    <div style="position: absolute;bottom: 1vh;left:1vw;background-color: #FFFFFF;padding: 1vh;">
+    <div style="position: absolute;bottom: calc(1vh + var(--ticker-height));left:1vw;background-color: #FFFFFF;padding: 1vh;">
         <input type="checkbox" name="autoreload" id="cbxAutoReload"> <label
             for="cbxAutoReload">{% trans "Reload page automatically?" %}</label>
     </div>
+
+    {% if akslots_changed %}
+        <div class="change-ticker">
+            <div class="change-ticker-label">
+                {% fa6_icon "clock-rotate-left" "fas" %} {% trans "Recently changed" %}:
+            </div>
+            <div class="change-ticker-viewport">
+                <div class="change-ticker-track">
+                    <span class="change-ticker-content">
+                        {% for akslot in akslots_changed %}
+                            <span class="change-ticker-item">
+                                <b>{{ akslot.ak.name }}</b>:
+                                {{ akslot.start | date:"D H:i" }} - {{ akslot.end | time:"H:i" }}
+                                {% if akslot.room %},
+                                    {{ akslot.room }}
+                                {% endif %}
+                            </span>
+                        {% endfor %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endtimezone %}
 
 </body>
