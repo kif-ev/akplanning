@@ -157,6 +157,10 @@ class AvailabilitiesFormMixin(forms.Form):
 
         for rawavail in rawavailabilities:
             self._validate_availability(rawavail)
+            # Skip availabilities lying completely outside the event timeframe:
+            # Clamping start and end to the timeframe results in an empty or even negative timespan for them
+            if rawavail['end'] <= rawavail['start']:
+                continue
             availabilities.append(Availability(event_id=self.event.id, **rawavail))
         if not availabilities and required:
             raise forms.ValidationError(_('Please fill in your availabilities!'))
