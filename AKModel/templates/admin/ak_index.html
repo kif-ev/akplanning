@@ -9,7 +9,7 @@
         <ul>
             {% for event in active_events %}
                 <li>
-                    <a href="{% url 'admin:AKModel_event_change' event.pk %}">{{ event }}</a>
+                    {% include "AKModel/event_hidden_icon.html" %}<a href="{% url 'admin:AKModel_event_change' event.pk %}">{{ event }}</a>
                     ({{ event.start|timezone:event.timezone|date:"d.m.y" }} -
                     {{ event.end|timezone:event.timezone|date:"d.m.y" }}) &middot;
                     <a href="{% url 'admin:event_status' event_slug=event.slug %}">{% trans "Status" %}</a> &middot;

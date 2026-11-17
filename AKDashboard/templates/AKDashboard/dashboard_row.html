@@ -2,7 +2,7 @@
 {% load tags_AKModel %}
 {% load fontawesome_6 %}
 
-<h2><a href="{% url 'dashboard:dashboard_event' slug=event.slug %}">{{ event.name }}</a></h2>
+<h2>{% include "AKModel/event_hidden_icon.html" %}<a href="{% url 'dashboard:dashboard_event' slug=event.slug %}">{{ event.name }}</a></h2>
 <h4 class="text-muted">
     {% if event.place %}
         <b>{{ event.place }} &middot;</b>
