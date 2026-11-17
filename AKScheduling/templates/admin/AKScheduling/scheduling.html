@@ -41,6 +41,44 @@
 
             }
 
+            /* Semi-transparent layer covering the sidebar while dragging a slot in the calendar,
+               showing that dropping the slot there will unschedule it.
+               Position and size are set via JavaScript to only cover the part of the sidebar that is currently visible
+               in the browser window (to ensure the icon is visible even if the content of the sidebar is very long) */
+            #unschedule-drop-overlay {
+                display: none;
+                position: fixed;
+                z-index: 10;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 1rem;
+                padding: 1rem;
+                text-align: center;
+                color: #127ba3;
+                background-color: rgba(255, 255, 255, 0.75);
+                border: 3px dashed #127ba3;
+                border-radius: 0.5rem;
+                /* Do not interfere with dragging (dropping is detected via the pointer position) */
+                pointer-events: none;
+                transition: background-color 0.15s, color 0.15s;
+            }
+
+            #unschedule-drop-overlay.visible {
+                display: flex;
+            }
+
+            #unschedule-drop-overlay .unschedule-drop-icon {
+                font-size: 6rem;
+                line-height: 1;
+            }
+
+            /* Pointer is above the overlay: dropping now will unschedule the slot */
+            #unschedule-drop-overlay.visible.hover {
+                color: #fff;
+                background-color: rgba(18, 123, 163, 0.75);
+            }
+
             .fc-v-event, .tooltip {
                 white-space: pre-line;
             }
@@ -75,10 +113,113 @@
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 // Place slots by dropping placeholders on calendar
-                var containerEl = document.getElementById('unscheduled-slots');
-                new FullCalendar.Draggable(containerEl, {
+                // (also works for slots added to the list later on, e.g., when unscheduling them)
+                const unscheduledSlotsEl = document.getElementById('unscheduled-slots');
+                new FullCalendar.Draggable(unscheduledSlotsEl, {
                     itemSelector: '.unscheduled-slot',
                 });
+
+                // Layer shown above the sidebar while dragging a slot in the calendar, dropping a slot there unschedules it
+                // (covers the sidebar content independent of the selected tab,
+                // hence this also works while the violations tab is shown)
+                const unscheduleDropOverlayEl = document.getElementById('unschedule-drop-overlay');
+                const sidebarContentEl = document.getElementById('sidebarContent');
+
+                // Let the overlay cover only the part of the sidebar content that is currently visible in the browser
+                // window, such that the icon in its center is always visible and the drop area is restricted to that part
+                function positionUnscheduleDropOverlay() {
+                    const rect = sidebarContentEl.getBoundingClientRect();
+                    const top = Math.max(rect.top, 0);
+                    const bottom = Math.min(rect.bottom, window.innerHeight);
+                    const left = Math.max(rect.left, 0);
+                    const right = Math.min(rect.right, window.innerWidth);
+                    // Size is zero if the sidebar is not visible at all (no unscheduling possible then)
+                    Object.assign(unscheduleDropOverlayEl.style, {
+                        top: top + 'px',
+                        left: left + 'px',
+                        height: Math.max(bottom - top, 0) + 'px',
+                        width: Math.max(right - left, 0) + 'px',
+                    });
+                }
+
+                // Check whether the position of the given (mouse/touch) event is inside the drop target for unscheduling
+                // (only works while the overlay is shown, since its size is zero otherwise)
+                function isOverUnscheduleDropTarget(jsEvent) {
+                    // Touch events do not have coordinates themselves, use the touch point that was released
+                    const point = jsEvent.changedTouches ? jsEvent.changedTouches[0] : jsEvent;
+                    const rect = unscheduleDropOverlayEl.getBoundingClientRect();
+                    return point.clientX >= rect.left && point.clientX <= rect.right
+                        && point.clientY >= rect.top && point.clientY <= rect.bottom;
+                }
+
+                function highlightUnscheduleDropTarget(jsEvent) {
+                    unscheduleDropOverlayEl.classList.toggle('hover', isOverUnscheduleDropTarget(jsEvent));
+                }
+
+                // Remove a slot from the schedule and show it in the list of unscheduled slots again
+                function unscheduleEvent(event) {
+                    $.ajax({
+                        url: '{% url "model:scheduling-event-list" event_slug=event.slug %}' + event.extendedProps.slotID + "/unschedule/",
+                        type: 'POST',
+                        success: function (response) {
+                            // Add to list first to make sure the slot does not vanish completely in case of errors
+                            addUnscheduledSlot(event);
+                            event.remove();
+                            reloadCVs();
+                        },
+                        error: function (response) {
+                            alert("{% trans 'Could not unschedule slot' %}: " + event.extendedProps.shortName);
+                        }
+                    });
+                }
+
+                // Create an entry for the given (calendar) event in the list of unscheduled slots
+                // (in the same format as the entries rendered by the template)
+                function addUnscheduledSlot(event) {
+                    const props = event.extendedProps;
+                    const color = event.backgroundColor || '#000000';
+                    // Use the current length of the event (it may have been resized in the calendar),
+                    // rounded to two decimal places like the duration stored in the database
+                    const duration = event.end
+                        ? Math.round((event.end - event.start) / 1000 / 60 / 60 * 100) / 100
+                        : props.slotDuration;
+                    const slotEl = $('<div class="unscheduled-slot badge"></div>')
+                        .css('background-color', color)
+                        // Same format as rendered by the template, see there
+                        .attr('data-event', JSON.stringify({
+                            title: props.shortName,
+                            duration: {hours: duration},
+                            constraint: 'roomAvailable',
+                            description: props.description,
+                            slotID: String(props.slotID),
+                            backgroundColor: color,
+                            url: event.url,
+                            shortName: props.shortName,
+                            ownersList: props.ownersList,
+                            slotDuration: duration,
+                            trackId: props.trackId,
+                            trackName: props.trackName,
+                        }))
+                        .attr('data-details', props.description)
+                        .append(document.createTextNode(props.shortName + ' (' + duration.toLocaleString('{{ LANGUAGE_CODE }}') + ' h)'))
+                        .append('<br>')
+                        .append(document.createTextNode(props.ownersList));
+                    slotEl.tooltip({title: props.description, trigger: 'hover'});
+
+                    // Add to the list of the slot's track (create that list if it does not exist yet)
+                    const trackId = props.trackId === null ? '' : String(props.trackId);
+                    let trackEl = $(unscheduledSlotsEl).children('.unscheduled-track').filter(function () {
+                        return $(this).attr('data-track') === trackId;
+                    });
+                    if (trackEl.length === 0) {
+                        trackEl = $('<div class="unscheduled-track"></div>').attr('data-track', trackId);
+                        if (props.trackName) {
+                            trackEl.append($('<h5 class="mt-2"></h5>').text(props.trackName));
+                        }
+                        $(unscheduledSlotsEl).append(trackEl);
+                    }
+                    trackEl.append(slotEl);
+                }
 
                 // Calendar
                 var planEl = document.getElementById('planCalendar');
@@ -100,6 +241,9 @@
                     // Adapt to user selected locale
                     locale: '{{ LANGUAGE_CODE }}',
                     initialView: 'resourceTimelineEventVert',
+                    // Allow placing slots in steps of 15 minutes in all views
+                    // (even if the grid is coarser, e.g., to match default slots that do not align with it)
+                    snapDuration: '00:15',
                     views: {
                         resourceTimelineDayHoriz: {
                             type: 'resourceTimelineDay',
@@ -155,6 +299,27 @@
                     // React to event changes (moving or change of duration)
                     eventChange: updateEvent,
                     eventReceive: updateEvent,
+                    // Allow unscheduling slots by dragging them back to the list of unscheduled slots
+                    eventDragStart: function (info) {
+                        positionUnscheduleDropOverlay();
+                        unscheduleDropOverlayEl.classList.add('visible');
+                        document.addEventListener('mousemove', highlightUnscheduleDropTarget);
+                        // The visible part of the sidebar changes when scrolling (the page) or resizing the window
+                        // while dragging (capture to also get scroll events of elements, they do not bubble)
+                        window.addEventListener('scroll', positionUnscheduleDropOverlay, true);
+                        window.addEventListener('resize', positionUnscheduleDropOverlay);
+                    },
+                    eventDragStop: function (info) {
+                        document.removeEventListener('mousemove', highlightUnscheduleDropTarget);
+                        window.removeEventListener('scroll', positionUnscheduleDropOverlay, true);
+                        window.removeEventListener('resize', positionUnscheduleDropOverlay);
+                        // Check before hiding the overlay (it has no size afterwards)
+                        const unschedule = isOverUnscheduleDropTarget(info.jsEvent);
+                        unscheduleDropOverlayEl.classList.remove('visible', 'hover');
+                        if (unschedule) {
+                            unscheduleEvent(info.event);
+                        }
+                    },
                     editable: true,
                     selectable: true,
                     drop: function (info) {
@@ -240,7 +405,7 @@
 
                             table_html += '<tr class="' + muted_html + '"><td class="nowrap">' + icon_html;
                             table_html += "</td><td class='small'>" + response[i].type_display + "</td></tr>";
-                            table_html += "<tr class='" + muted_html + "'><td colspan='2' class='small'>" + response[i].details + "</td></tr>"
+                            table_html += "<tr class='" + muted_html + "'><td colspan='2' class='small'>" + response[i].details + cvResolutionHtml(response[i]) + "</td></tr>"
                         }
                     } else {
                         // Update violations table
@@ -359,24 +524,35 @@
                     </li>
                 </ul>
                 <div id="sidebarContent" class="tab-content">
+                    <div id="unschedule-drop-overlay">
+                        <span class="unschedule-drop-icon">{% fa6_icon "calendar-xmark" "far" %}</span>
+                        <span class="fw-bold">{% trans "Drop here to unschedule" %}</span>
+                    </div>
                     <div class="tab-pane fade show active" id="unscheduled-slots"
                          style="height: 80vh;overflow-y: scroll;">
                         {% regroup slots_unscheduled by ak.track as slots_unscheduled_by_track_list %}
                         {% for track_slots in slots_unscheduled_by_track_list %}
+                            <div class="unscheduled-track" data-track="{{ track_slots.grouper.pk|unlocalize }}">
                             {% if track_slots.grouper %}
                                 <h5 class="mt-2">{{ track_slots.grouper }}</h5>
                             {% endif %}
                             {% for slot in track_slots.list %}
+                                {% comment %}
+                                    data-event is used to create the calendar event when dropping the slot on the
+                                    calendar. It includes all extended properties also provided by the events API,
+                                    since they are needed when unscheduling the slot again later
+                                {% endcomment %}
                                 <div class="unscheduled-slot badge"
                                      style='background-color: {% with slot.ak.category.color as color %}
                                          {% if color %}{{ color }}{% else %}#000000;{% endif %}{% endwith %}'
                                         {% with slot.ak.details as details %}
-                                     data-event='{ "title": "{{ slot.ak.short_name }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}", "url": "{% url "admin:AKModel_akslot_change" slot.pk %}"}'
+                                     data-event='{ "title": "{{ slot.ak.short_name|escapejs }}", "duration": {"hours": "{{ slot.duration|unlocalize }}"}, "constraint": "roomAvailable", "description": "{{ details | escapejs }}", "slotID": "{{ slot.pk }}", "backgroundColor": "{{ slot.ak.category.color }}", "url": "{% url "admin:AKModel_akslot_change" slot.pk %}", "shortName": "{{ slot.ak.short_name|escapejs }}", "ownersList": "{{ slot.ak.owners_list|escapejs }}", "slotDuration": {{ slot.duration|unlocalize }}, "trackId": {{ slot.ak.track_id|default_if_none:"null"|unlocalize }}, "trackName": "{{ slot.ak.track.name|default_if_none:""|escapejs }}"}'
                                      data-details="{{ details }}">{{ slot.ak.short_name }}
                                             ({{ slot.duration }} h)<br>{{ slot.ak.owners_list }}
                                         {% endwith %}
                                 </div>
                             {% endfor %}
+                            </div>
                         {% endfor %}
                     </div>
                     <div class="tab-pane fade" id="violations">

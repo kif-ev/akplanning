@@ -873,14 +873,16 @@ class AK(models.Model):
     def details(self):
         """
         Generate a detailed string representation, e.g., for usage in scheduling
+
+        The availabilities are accessed via the reverse relation (``self.availabilities.all()``), hence they can be
+        loaded for multiple AKs at once using ``prefetch_related``. To avoid an additional query for the event of
+        every availability (needed for its timezone), prefetch them together with their event, i.e.,
+        ``Prefetch('availabilities', queryset=Availability.objects.select_related('event'))``
+
         :return: string representation of that AK with all details
         :rtype: str
         """
-        # local import to prevent cyclic import
-        # pylint: disable=import-outside-toplevel
-        from AKModel.availability.models import Availability
-        availabilities = ', \n'.join(f'{a.simplified}' for a in Availability.objects.select_related('event')
-                                     .filter(ak=self))
+        availabilities = ', \n'.join(f'{a.simplified}' for a in self.availabilities.all())
         detail_string = f"""{self.name}{" (R)" if self.reso else ""}:
 
         {self.owners_list}
@@ -1390,6 +1392,11 @@ class ConstraintViolation(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_('Timestamp'), help_text=_('Time of creation'))
     manually_resolved = models.BooleanField(verbose_name=_('Manually Resolved'), default=False,
                                             help_text=_('Mark this violation manually as resolved'))
+    resolution_reason = models.TextField(verbose_name=_('Resolution Reason'), blank=True,
+                                         help_text=_('Why this violation was marked as manually resolved (optional)'))
+    resolved_by = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True,
+                                    related_name='+', verbose_name=_('Resolved by'),
+                                    help_text=_('User who marked this violation as manually resolved'))
 
     fields = ['ak_owner', 'room', 'requirement', 'category', 'comment']
     fields_mm = ['_aks', '_ak_slots']

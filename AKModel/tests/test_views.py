@@ -624,3 +624,47 @@ class ModelViewTests(BasicViewTests, TestCase):
                 404,
                 msg="API root view did not return 404 for invalid event slug",
         )
+
+    def test_cv_mark_resolved_with_reason(self):
+        """
+        Test that marking constraint violations as resolved stores the (optional) reason and the user
+        """
+        self.client.force_login(self.admin_user)
+        url = reverse('admin:cv-mark-resolved')
+
+        # Confirmation page asks for the reason
+        response = self.client.get(url, {'pks': '1,2'})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('resolution_reason', response.context['form'].fields)
+
+        response = self.client.post(f"{url}?pks=1,2", {'pks': '1,2', 'resolution_reason': 'Discussed with AK owners'})
+        self.assertRedirects(response, reverse('admin:AKModel_constraintviolation_changelist'))
+        for cv in ConstraintViolation.objects.filter(pk__in=[1, 2]):
+            self.assertTrue(cv.manually_resolved)
+            self.assertEqual(cv.resolution_reason, 'Discussed with AK owners')
+            self.assertEqual(cv.resolved_by, self.admin_user)
+        self.assertFalse(ConstraintViolation.objects.get(pk=3).manually_resolved)
+
+        # Reason is optional
+        response = self.client.post(f"{url}?pks=3", {'pks': '3'})
+        self.assertRedirects(response, reverse('admin:AKModel_constraintviolation_changelist'))
+        cv = ConstraintViolation.objects.get(pk=3)
+        self.assertTrue(cv.manually_resolved)
+        self.assertEqual(cv.resolution_reason, '')
+        self.assertEqual(cv.resolved_by, self.admin_user)
+
+    def test_cv_mark_resolved_redirects_to_next(self):
+        """
+        Test that marking constraint violations as resolved returns to the page given as "next" (if it is local)
+        """
+        self.client.force_login(self.admin_user)
+        url = reverse('admin:cv-mark-resolved')
+        cv_list_url = reverse('admin:constraint-violations', kwargs={'slug': 'kif42'})
+
+        response = self.client.post(f"{url}?pks=1&next={cv_list_url}", {'pks': '1'})
+        self.assertRedirects(response, cv_list_url)
+        self.assertTrue(ConstraintViolation.objects.get(pk=1).manually_resolved)
+
+        # External URLs are ignored
+        response = self.client.post(f"{url}?pks=2&next=https://example.com/", {'pks': '2'})
+        self.assertRedirects(response, reverse('admin:AKModel_constraintviolation_changelist'))
