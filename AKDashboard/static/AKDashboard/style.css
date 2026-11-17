@@ -49,3 +49,38 @@
     color: #555555;
     font-weight: bold;
 }
+
+.event-fact {
+    transition: transform 0.15s ease-in-out;
+}
+
+.event-fact:hover {
+    transform: scale(1.03);
+}
+
+.event-fact-icon {
+    font-size: 2.5rem;
+}
+
+.event-fact-value {
+    font-size: 1.6rem;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+.event-fact-title {
+    font-size: 1.05rem;
+}
+
+.event-fact-ranking li {
+    margin-bottom: 0.4em;
+}
+
+.event-fact-ranking li:first-child .event-fact-ranking-name {
+    font-size: 1.3rem;
+}
+
+.event-fact-rank,
+.event-fact-ranking-name {
+    font-weight: bold;
+}
