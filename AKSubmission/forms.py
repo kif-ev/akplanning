@@ -4,6 +4,7 @@ Submission-specific forms
 
 import itertools
 import re
+from decimal import Decimal, InvalidOperation
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -12,6 +13,67 @@ from django.utils.translation import gettext_lazy as _
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
 from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKRequirement, AKSlot, AKType
+
+
+def clean_slot_duration(raw_duration, event):
+    """
+    Clean/convert user input for the duration of a slot
+
+    Handle different duration formats (h:mm and decimal comma instead of point), clamp durations longer than the
+    event to the event length (see :attr:`AKModel.models.Event.max_slot_duration`), round to the precision of
+    :attr:`AKModel.models.AKSlot.duration` and check the result against the validators of that field
+
+    :param raw_duration: raw input, either with ":", "," or "."
+    :param event: event the slot will belong to
+    :return: tuple of the normalized duration (in hours) and a flag whether the duration had to be clamped
+    :rtype: (Decimal, bool)
+    :raises ValidationError: if the input cannot be converted into a meaningful duration
+    """
+    invalid = ValidationError(
+            _('"%(duration)s" is not a valid duration'),
+            code='invalid',
+            params={'duration': raw_duration},
+    )
+    duration_field = AKSlot._meta.get_field('duration')
+
+    # Parse input into a Decimal (in hours)
+    try:
+        if ":" in raw_duration:
+            # Format h:mm (e.g., "1:30"), splitting fails with ValueError if there is more than one ":",
+            # int() fails with ValueError for non-numeric parts.
+            # Minutes are converted using Decimal to avoid float inaccuracies (e.g., 20 / 60)
+            h, m = raw_duration.split(":")
+            duration = int(h) + Decimal(int(m)) / 60
+        else:
+            # Decimal number, allow decimal comma (e.g., "1,5") in addition to decimal point.
+            # Decimal() raises InvalidOperation (not ValueError) for strings that are no number
+            duration = Decimal(raw_duration.replace(",", "."))
+    except (ValueError, InvalidOperation) as exc:
+        raise invalid from exc
+    # Decimal also accepts "nan" and "inf" (and variants like "Infinity"), is_finite() is false for those.
+    # Zero and negative values are no meaningful durations either
+    if not duration.is_finite() or duration <= 0:
+        raise invalid
+
+    # Clamp durations longer than the event to the event length
+    clamped = duration > event.max_slot_duration
+    if clamped:
+        duration = event.max_slot_duration
+
+    # Round to the number of decimal places of the duration field (e.g., 1:20 = 1.3333... -> 1.33),
+    # since the field validators would reject values with more decimal places.
+    # Decimal(1).scaleb(-n) is 10^-n, i.e., 0.01 for two decimal places, and quantize() rounds to the
+    # exponent of that value. This cannot fail, since the value is now between 0 and the event length
+    duration = duration.quantize(Decimal(1).scaleb(-duration_field.decimal_places))
+
+    # Apply the checks defined in the model (e.g., the minimum duration, which also rejects tiny values
+    # that were rounded to 0 above)
+    try:
+        duration_field.run_validators(duration)
+    except ValidationError as exc:
+        raise invalid from exc
+
+    return duration, clamped
 
 
 class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
@@ -58,6 +120,8 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.initial = {**self.initial, **kwargs['initial']}
+        # Will be filled during cleaning: raw durations that exceeded the event length and were clamped
+        self.clamped_durations = []
         # Use better multiple select input for owners, conflicts and prerequisites
         if "owners" in self.fields:
             self.fields["owners"].widget.attrs = {'class': 'chosen-select'}
@@ -80,43 +144,18 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
         if "owners" in self.fields:
             self.fields['owners'].queryset = AKOwner.objects.filter(event=self.initial.get('event'))
 
-    @staticmethod
-    def _clean_duration(duration):
-        """
-        Clean/convert input format for the duration(s) of the slot(s)
-
-        Handle different duration formats (h:mm and decimal comma instead of point)
-
-        :param duration: raw input, either with ":", "," or "."
-        :return: normalized duration (point-separated hour float)
-        """
-        if ":" in duration:
-            h, m = duration.split(":")
-            duration = int(h) + int(m) / 60
-        if "," in str(duration):
-            duration = float(duration.replace(",", "."))
-
-        try:
-            duration = float(duration)
-        except ValueError as exc:
-            raise ValidationError(
-                    _('"%(duration)s" is not a valid duration'),
-                    code='invalid',
-                    params={'duration': duration},
-            ) from exc
-
-        return duration
-
     def clean(self):
         """
         Normalize/clean inputs
 
         Generate a (not yet used) short name if field was left blank,
-        create a list of normalized slot durations
+        create a list of normalized slot durations (durations longer than the event are clamped to the event length
+        and remembered in :attr:`clamped_durations`)
 
         :return: cleaned inputs
         """
         cleaned_data = super().clean()
+        self.clamped_durations = []
 
         # Generate short name if not given
         short_name = self.cleaned_data["short_name"]
@@ -139,8 +178,28 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
             cleaned_data["short_name"] = short_name
 
         # Get durations from raw durations field
-        if "durations" in cleaned_data:
-            cleaned_data["durations"] = [self._clean_duration(d) for d in self.cleaned_data["durations"].split()]
+        # (if the event is invalid, the form is invalid anyway and durations cannot be clamped)
+        if "durations" in cleaned_data and "event" in cleaned_data:
+            durations = []
+            errors = []
+            # Every (non-empty) line is one duration, invalid lines are reported as a whole
+            lines = [line.strip() for line in self.cleaned_data["durations"].splitlines()]
+            for d in filter(None, lines):
+                try:
+                    duration, clamped = clean_slot_duration(d, cleaned_data["event"])
+                except ValidationError as e:
+                    errors.append(e)
+                    continue
+                # Remember clamped durations to be able to inform the user
+                if clamped:
+                    self.clamped_durations.append(d)
+                durations.append(duration)
+            if errors:
+                # Mark the durations field as invalid (this also removes it from cleaned_data)
+                # such that the user has to fix all invalid lines before the AK can be saved
+                self.add_error("durations", errors)
+            else:
+                cleaned_data["durations"] = durations
         return cleaned_data
 
 
@@ -216,7 +275,14 @@ class AKOwnerForm(forms.ModelForm):
 class AKDurationForm(forms.ModelForm):
     """
     Form to add an additional slot to a given AK
+
+    Accepts the same duration formats as :class:`AKSubmissionForm` and clamps durations longer than the event
+    to the event length (see :func:`clean_slot_duration`)
     """
+
+    # Use a text field to allow the same input formats as in the submission form (e.g., "1:30" or "1,5")
+    duration = forms.CharField(label=AKSlot._meta.get_field('duration').verbose_name,
+                               help_text=AKSlot._meta.get_field('duration').help_text)
 
     class Meta:
         model = AKSlot
@@ -225,6 +291,32 @@ class AKDurationForm(forms.ModelForm):
             'ak': forms.HiddenInput,
             'event': forms.HiddenInput
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Will be filled during cleaning: raw duration if it exceeded the event length and was clamped
+        self.clamped_durations = []
+
+    def clean(self):
+        """
+        Normalize/clean duration input (see :func:`clean_slot_duration`)
+
+        :return: cleaned inputs
+        """
+        cleaned_data = super().clean()
+        self.clamped_durations = []
+        # (if the event is invalid, the form is invalid anyway and the duration cannot be clamped)
+        if "duration" in cleaned_data and "event" in cleaned_data:
+            raw_duration = cleaned_data["duration"]
+            try:
+                duration, clamped = clean_slot_duration(raw_duration, cleaned_data["event"])
+            except ValidationError as e:
+                self.add_error("duration", e)
+            else:
+                cleaned_data["duration"] = duration
+                if clamped:
+                    self.clamped_durations.append(raw_duration)
+        return cleaned_data
 
 
 class AKOrgaMessageForm(forms.ModelForm):

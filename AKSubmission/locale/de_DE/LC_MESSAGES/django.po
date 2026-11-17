@@ -498,6 +498,15 @@ msgstr "Event inaktiv. Hinzufügen/Bearbeiten nicht möglich."
 msgid "AK successfully created"
 msgstr "AK erfolgreich angelegt"
 
+#: AKSubmission/views.py:339
+#, python-format
+msgid ""
+"The following durations were longer than the event and were shortened to the "
+"length of the event (%(max_duration)s hours): %(durations)s"
+msgstr ""
+"Die folgenden Dauern waren länger als die Veranstaltung und wurden auf deren "
+"Länge (%(max_duration)s Stunden) gekürzt: %(durations)s"
+
 #: AKSubmission/views.py:441
 msgid "AK successfully updated"
 msgstr "AK erfolgreich aktualisiert"

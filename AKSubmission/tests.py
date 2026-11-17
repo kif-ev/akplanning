@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 
 from AKModel.models import AK, AKSlot, Event
 from AKModel.tests.test_views import BasicViewTests
-from AKSubmission.forms import AKSubmissionForm
+from AKSubmission.forms import AKDurationForm, AKSubmissionForm
 
 
 class ModelViewTests(BasicViewTests, TestCase):
@@ -274,3 +274,159 @@ class ModelViewTests(BasicViewTests, TestCase):
         form2 = AKSubmissionForm(data={'name': 'Test AK', 'event': event2}, instance=None, initial={"event": event2})
         self.assertNotIn('types', form2.fields,
                          msg="Requirements field should not be present for events without types")
+
+    def test_duration_validation_in_submission_form(self):
+        """
+        Test that the durations field only accepts lines that can be converted into meaningful durations
+        and that durations longer than the event are clamped to the length of the event
+        """
+        def durations_form(durations, event):
+            form = AKSubmissionForm(data={'name': 'Test AK', 'event': event.pk, 'durations': durations,
+                                          'availabilities': '{"availabilities": []}'},
+                                    instance=None, initial={"event": event})
+            form.is_valid()
+            return form
+
+        event = Event.get_by_slug('kif42')
+
+        for valid, expected in [("2", [2]), ("1.5", [1.5]), ("1,5", [1.5]), ("1:30", [1.5]),
+                                ("2\n1.5\n0:45", [2, 1.5, 0.75]), ("2\r\n\r\n 1,5 \n", [2, 1.5])]:
+            form = durations_form(valid, event)
+            self.assertIsNone(form.errors.get('durations'), msg=f"Valid durations '{valid}' were rejected")
+            self.assertEqual(form.cleaned_data['durations'], expected,
+                             msg=f"Durations '{valid}' were not correctly converted")
+
+        for invalid in ["abc", "two", "1:ab", "1:2:3", "1,2,3", "nan", "inf", "-inf", "0", "-1", "2\nabc\n1.5",
+                        "1 2", "1,5 h", "1 - 2 Stunden", "Unbekannt", "-1e30", "0.001"]:
+            self.assertIsNotNone(durations_form(invalid, event).errors.get('durations'),
+                                 msg=f"Invalid durations '{invalid}' were accepted")
+
+        # All invalid lines should be reported at once, each as a whole line
+        self.assertEqual(durations_form("abc\n2\n1,5 h\nweiß ich noch nicht", event).errors['durations'],
+                         ['"abc" is not a valid duration', '"1,5 h" is not a valid duration',
+                          '"weiß ich noch nicht" is not a valid duration'])
+
+        # Durations longer than the event (kif42 lasts four days, i.e., 96 hours) are clamped to the event length
+        for too_long in ["97", "100", "1000", "200:00", "96,5", "1e30"]:
+            form = durations_form(too_long, event)
+            self.assertIsNone(form.errors.get('durations'), msg=f"Too long duration '{too_long}' was rejected")
+            self.assertEqual(form.cleaned_data['durations'], [96],
+                             msg=f"Too long duration '{too_long}' was not clamped to the event length")
+            self.assertEqual(form.clamped_durations, [too_long],
+                             msg=f"Clamping of too long duration '{too_long}' was not recorded")
+
+        # Durations within the event length are not recorded as clamped
+        self.assertEqual(durations_form("2\n96", event).clamped_durations, [])
+
+        # Clamping only affects the lines that contain durations that are too long, also for short events
+        short_event = Event.objects.create(name='Short event',
+                                           slug='short',
+                                           start=event.start,
+                                           end=event.start + timedelta(hours=3, minutes=30),
+                                           active=True)
+        form = durations_form("1:30\n5\n3.5", short_event)
+        self.assertIsNone(form.errors.get('durations'))
+        self.assertEqual(form.cleaned_data['durations'], [1.5, 3.5, 3.5],
+                         msg="Durations were not correctly clamped to the length of a short event")
+        self.assertEqual(form.clamped_durations, ["5"])
+
+        # Without a valid event, the form is invalid (durations cannot be checked against the event length)
+        form = AKDurationForm(data={'ak': 1, 'event': -1, 'duration': "1e30"})
+        self.assertFalse(form.is_valid())
+        self.assertIn('event', form.errors)
+
+    def test_submission_with_too_long_durations(self):
+        """
+        Test that slots with durations longer than the event are shortened to the event length when submitting an AK
+        and that the user is warned about this
+        """
+        submit_url = reverse_lazy(f"{self.APP_NAME}:submit_ak", kwargs={'event_slug': 'kif42', 'owner_slug': 'a'})
+        data = {'name': 'AK with long slots', 'owners': [1], 'category': 4, 'event': 2, 'types': [1],
+                'description': 'Test description', 'goal': 'Test goal',
+                'availabilities': '{"availabilities": []}'}
+
+        # Durations within the event length -> slots saved as given, no warning
+        response = self.client.post(submit_url, data | {'durations': "2\n1:30"})
+        ak = AK.objects.get(name='AK with long slots')
+        self.assertRedirects(response, ak.detail_url, msg_prefix="AK submission failed")
+        self.assertEqual(sorted(s.duration for s in ak.akslot_set.all()), [1.5, 2])
+        self._assert_message(response, "AK successfully created")
+
+        # Too long durations -> slots clamped to event length (kif42 lasts 96 hours), user is warned
+        response = self.client.post(submit_url, data | {'name': 'AK with too long slots', 'durations': "2\n100\n200:00"})
+        ak = AK.objects.get(name='AK with too long slots')
+        self.assertRedirects(response, ak.detail_url, msg_prefix="AK submission with too long durations failed")
+        self.assertEqual(sorted(s.duration for s in ak.akslot_set.all()), [2, 96, 96],
+                         msg="Too long durations were not clamped to the event length when saving slots")
+        self._assert_message(response, "The following durations were longer than the event and were shortened to "
+                                       "the length of the event (96 hours): 100, 200:00")
+
+    def test_slot_duration_handling(self):
+        """
+        Test that adding and editing slots handles durations like the submission form
+        (same input formats, invalid values rejected, too long durations clamped to the event length with a warning)
+        """
+        ak_args = {'event_slug': 'kif42', 'pk': 1}
+        detail_url = reverse_lazy(f"{self.APP_NAME}:ak_detail", kwargs=ak_args)
+        create_url = reverse_lazy(f"{self.APP_NAME}:akslot_add", kwargs=ak_args)
+        clamp_message = ("The following durations were longer than the event and were shortened to the length of "
+                         "the event (96 hours): {}")
+
+        # Alternative input formats are accepted
+        for raw, expected in [("1:30", 1.5), ("1,5", 1.5), ("2", 2)]:
+            response = self.client.post(create_url, {'ak': 1, 'event': 2, 'duration': raw})
+            self.assertRedirects(response, detail_url, msg_prefix=f"Adding slot with duration '{raw}' failed")
+            self._assert_message(response, "AK Slot successfully added")
+            self.assertEqual(AKSlot.objects.filter(ak=1).order_by('pk').last().duration, expected)
+
+        # Invalid durations are rejected and no slot is created
+        count_slots = AKSlot.objects.filter(ak=1).count()
+        for invalid in ["abc", "1:ab", "nan", "inf", "0", "-1"]:
+            response = self.client.post(create_url, {'ak': 1, 'event': 2, 'duration': invalid})
+            self.assertEqual(response.status_code, 200, msg=f"Invalid duration '{invalid}' was accepted")
+            self.assertIn('duration', response.context['form'].errors)
+        self.assertEqual(AKSlot.objects.filter(ak=1).count(), count_slots, msg="Slot with invalid duration created")
+
+        # Too long durations are clamped to the event length and the user is warned
+        response = self.client.post(create_url, {'ak': 1, 'event': 2, 'duration': "200"})
+        self.assertRedirects(response, detail_url, msg_prefix="Adding slot with too long duration failed")
+        self._assert_message(response, clamp_message.format("200"))
+        slot = AKSlot.objects.filter(ak=1).order_by('pk').last()
+        self.assertEqual(slot.duration, 96)
+
+        # The same applies when editing a slot
+        edit_url = reverse_lazy(f"{self.APP_NAME}:akslot_edit", kwargs={'event_slug': 'kif42', 'pk': slot.pk})
+        response = self.client.post(edit_url, {'ak': 1, 'event': 2, 'duration': "0:45"})
+        self.assertRedirects(response, detail_url, msg_prefix="Editing slot failed")
+        self._assert_message(response, "AK Slot successfully updated")
+        self.assertEqual(AKSlot.objects.get(pk=slot.pk).duration, 0.75)
+
+        response = self.client.post(edit_url, {'ak': 1, 'event': 2, 'duration': "abc"})
+        self.assertEqual(response.status_code, 200, msg="Invalid duration was accepted when editing a slot")
+        self.assertEqual(AKSlot.objects.get(pk=slot.pk).duration, 0.75)
+
+        response = self.client.post(edit_url, {'ak': 1, 'event': 2, 'duration': "100:00"})
+        self.assertRedirects(response, detail_url, msg_prefix="Editing slot with too long duration failed")
+        self._assert_message(response, clamp_message.format("100:00"))
+        self.assertEqual(AKSlot.objects.get(pk=slot.pk).duration, 96)
+
+    def test_wish_to_ak_default_slot_clamped(self):
+        """
+        Test that the default slot created when a wish becomes an AK is not longer than the event
+        """
+        # Shorten event such that the default slot length (2 hours) exceeds the event length
+        event = Event.get_by_slug('kif42')
+        event.end = event.start + timedelta(hours=1, minutes=30)
+        event.save()
+
+        wish = AK.objects.get(pk=3)
+        wish.akslot_set.all().delete()
+        edit_url = reverse_lazy(f"{self.APP_NAME}:ak_edit", kwargs={'event_slug': 'kif42', 'pk': wish.pk})
+        response = self.client.post(edit_url, {
+            'name': wish.name, 'short_name': wish.short_name, 'description': wish.description, 'goal': wish.goal,
+            'category': wish.category.pk, 'owners': [2], 'event': event.pk, 'types': [1],
+            'availabilities': '{"availabilities": []}',
+        })
+        self.assertRedirects(response, wish.detail_url, msg_prefix="Turning wish into AK failed")
+        self.assertEqual([s.duration for s in AK.objects.get(pk=3).akslot_set.all()], [1.5],
+                         msg="Default slot was not clamped to the event length")
