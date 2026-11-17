@@ -392,11 +392,25 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
     def get_success_url(self):
         return self.request.path
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["categories"] = [
+            {"id": c.id, "name": c.name}
+            for c in AKCategory.objects.filter(event=self.event).order_by("name")
+        ]
+        return context
+
     def get_initial(self):
         initial = super().get_initial()
         default_slots = [
-            {"id": s.id, "start": s.start_iso, "end": s.end_iso, "allDay": False}
-            for s in self.event.defaultslot_set.all()
+            {
+                "id": s.id,
+                "start": s.start_iso,
+                "end": s.end_iso,
+                "allDay": False,
+                "categories": [c.id for c in s.primary_categories.all()],
+            }
+            for s in self.event.defaultslot_set.prefetch_related("primary_categories")
         ]
         initial['availabilities'] = json.dumps({
             'availabilities': default_slots
@@ -411,6 +425,7 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
         updated_count = 0
 
         previous_slot_ids = set(s.id for s in self.event.defaultslot_set.all())
+        event_categories = {c.id: c for c in AKCategory.objects.filter(event=self.event)}
 
         # Loop over inputs and update or add slots
         for slot in default_slots_raw:
@@ -439,10 +454,20 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
                         updated_count += 1
             else:
                 # Create new entries
-                DefaultSlot.objects.create(
+                new_slot = DefaultSlot.objects.create(
                         start=start,
                         end=end,
                         event=self.event
+                )
+                # Assign primary categories (only those belonging to this event, ignore invalid entries)
+                category_ids = set()
+                for c_id in slot.get("categories", []):
+                    try:
+                        category_ids.add(int(c_id))
+                    except (TypeError, ValueError):
+                        continue
+                new_slot.primary_categories.set(
+                        [event_categories[c_id] for c_id in category_ids if c_id in event_categories]
                 )
                 created_count += 1
 
