@@ -95,7 +95,7 @@ class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
                     a.save()
 
                 for req in req_list:
-                    if raw_room[req.name].lower().strip() == 'x':
+                    if  req.name in raw_room and raw_room[req.name].lower().strip() == 'x':
                         r.properties.add(req)
                 created_count += 1
             except django.db.Error as e:
