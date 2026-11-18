@@ -100,6 +100,7 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
                   'description',
                   'goal',
                   'info',
+                  'results',
                   'category',
                   'types',
                   'reso',
@@ -115,6 +116,7 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
             'requirements': forms.CheckboxSelectMultiple,
             'types': forms.CheckboxSelectMultiple,
             'event': forms.HiddenInput,
+            'results': forms.Textarea(attrs={'rows': 4}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -207,13 +209,13 @@ class AKSubmissionForm(AKForm):
     """
     Form for Submitting new AKs
 
-    Is a special variant of :class:`AKForm` that does not allow to manually edit wiki and protocol links and enforces
-    the generation of at least one slot.
+    Is a special variant of :class:`AKForm` that does not allow to manually edit wiki links or enter results
+    (which only exist after the AK took place) and enforces the generation of at least one slot.
     """
 
     class Meta(AKForm.Meta):
         # Exclude fields again that were previously included in the parent class
-        exclude = ['link']  # pylint: disable=modelform-uses-exclude
+        exclude = ['link', 'results']  # pylint: disable=modelform-uses-exclude
         widgets = AKForm.Meta.widgets | {
             'types': forms.CheckboxSelectMultiple(attrs={'checked': 'checked'}),
         }
@@ -247,12 +249,12 @@ class AKWishForm(AKForm):
     Form for submitting or editing wishes
 
     Is a special variant of :class:`AKForm` that does not allow to specify owner(s) or
-    manually edit wiki and protocol links
+    manually edit wiki and protocol links or enter results
     """
 
     class Meta(AKForm.Meta):
         # Exclude fields again that were previously included in the parent class
-        exclude = ['owners', 'link', 'protocol_link', 'durations']  # pylint: disable=modelform-uses-exclude
+        exclude = ['owners', 'link', 'protocol_link', 'durations', 'results']  # pylint: disable=modelform-uses-exclude
         widgets = AKForm.Meta.widgets | {
             'types': forms.CheckboxSelectMultiple(attrs={'checked': 'checked'}),
         }
