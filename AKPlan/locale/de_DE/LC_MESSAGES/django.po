@@ -143,3 +143,7 @@ msgstr "Keine AKs"
 #: AKPlan/views.py:66
 msgid "Invalid type filter"
 msgstr "Ungültiger Typ-Filter"
+
+#: AKPlan/templates/AKPlan/plan_wall.html:254
+msgid "Recently changed"
+msgstr "Kürzlich geändert"

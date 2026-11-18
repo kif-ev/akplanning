@@ -12,7 +12,7 @@ from django.views.generic import DetailView, ListView
 
 from AKModel.metaviews.admin import FilterByEventSlugMixin
 from AKModel.models import AKSlot, AKTrack, AKType, Room
-from AKPlan.templatetags.tags_AKPlan import highlight_change_colors
+from AKPlan.templatetags.tags_AKPlan import highlight_change_colors, recently_changed
 
 
 class PlanIndexView(FilterByEventSlugMixin, ListView):
@@ -229,6 +229,8 @@ class PlanScreenView(PlanIndexView):
     but no navigation elements and trys to use the available space as best as possible
     such that no scrolling is needed.
 
+    Recently added or moved slots (that did not end yet) are announced in a ticker at the bottom of the page.
+
     The view contains a frontend functionality for auto-reload.
     """
     template_name = "AKPlan/plan_wall.html"
@@ -264,6 +266,11 @@ class PlanScreenView(PlanIndexView):
         # Show rooms as flat list without hierarchy (location only as part of the room title)
         for r in context["rooms_encoded"]:
             del r['parentId']
+
+        # Recently added or moved slots that did not end yet
+        # (ordered by start time of the slots which is also the default order of AKSlots, so no need to reorder)
+        now = timezone.now()
+        context["akslots_changed"] = [s for s in context["akslots"] if s.end > now and recently_changed(s)]
 
         context["start"] = self.start
         context["end"] = self.event.end
