@@ -301,6 +301,9 @@
         {% if ak.info %}
             <p><strong>{% trans "Further Info:" %}</strong>{{ ak.info|linebreaks }}</p>
         {% endif %}
+        {% if ak.results %}
+            <p><strong>{% trans "Results:" %}</strong>{{ ak.results|linebreaks }}</p>
+        {% endif %}
     </div>
 
     {% if not ak.wish %}

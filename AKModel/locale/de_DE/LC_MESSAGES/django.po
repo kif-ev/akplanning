@@ -1886,3 +1886,15 @@ msgstr ""
 #: AKModel/templates/AKModel/event_hidden_icon.html:1
 msgid "Hidden event (not shown on the overview page)"
 msgstr "Verborgenes Event (wird nicht auf der Übersichtsseite angezeigt)"
+
+#: AKModel/models.py:806
+msgid "Results"
+msgstr "Ergebnisse"
+
+#: AKModel/models.py:807
+msgid ""
+"Summary of the topics and results of the AK in 3-5 sentences (used for "
+"documentation, e.g., for funding reports)"
+msgstr ""
+"Zusammenfassung der Themen und Ergebnisse des AKs in 3-5 Sätzen (wird zur "
+"Dokumentation verwendet, z.B. für Förderberichte)"

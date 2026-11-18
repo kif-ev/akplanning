@@ -802,6 +802,9 @@ class AK(models.Model):
             'and/or goal (e.g. Reso, solution, collection of ideas, document, exchange) in a few words'))
     info = models.TextField(blank=True, verbose_name=_('Further Information'),
                             help_text=_('Anything else about the AK, e.g. links, stories, detailed description'))
+    results = models.TextField(blank=True, verbose_name=_('Results'),
+                               help_text=_('Summary of the topics and results of the AK in 3-5 sentences '
+                                           '(used for documentation, e.g., for funding reports)'))
 
     owners = models.ManyToManyField(to=AKOwner, blank=True, verbose_name=_('Owners'),
                                     help_text=_('Those organizing the AK'))

@@ -558,3 +558,7 @@ msgstr "Nachricht an die Organisator*innen erfolgreich gespeichert"
 
 #~ msgid "test_english"
 #~ msgstr "test_deutsch"
+
+#: AKSubmission/templates/AKSubmission/ak_detail.html:305
+msgid "Results:"
+msgstr "Ergebnisse:"
