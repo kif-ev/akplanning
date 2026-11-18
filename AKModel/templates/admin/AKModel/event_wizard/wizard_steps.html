@@ -1,13 +1,24 @@
 {% load i18n %}
 
-<h2>{% trans "New event wizard" %}</h2>
+<h2>{{ wizard_title }}</h2>
 
 <div>
-    <ul class="pagination pagination-sm">
-        {% for step in wizard_steps %}
-            <li class="page-item {% if forloop.counter == wizard_step %}active{% else %}disabled{% endif %}">
-                <a class="page-link" href="#">{{ step }}</a>
-            </li>
+    <ul class="pagination pagination-sm flex-wrap">
+        {% for step in wizard_step_entries %}
+            {% if forloop.counter == wizard_step %}
+                <li class="page-item active" aria-current="step">
+                    <span class="page-link">{{ step.text }}</span>
+                </li>
+            {% elif step.url %}
+                {# Previous steps that can be accessed directly #}
+                <li class="page-item">
+                    <a class="page-link" href="{{ step.url }}">{{ step.text }}</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">{{ step.text }}</span>
+                </li>
+            {% endif %}
         {% endfor %}
     </ul>
 </div>

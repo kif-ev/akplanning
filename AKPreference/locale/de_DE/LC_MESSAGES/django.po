@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-25 12:41+0000\n"
+"POT-Creation-Date: 2026-11-18 11:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,16 +16,51 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: AKPreference/admin.py:62
 msgid "Count of saved preferences"
 msgstr "Anzahl gespeicherter Präferenzen"
 
-#: AKPreference/admin.py:78 AKPreference/views.py:295
+#: AKPreference/admin.py:78 AKPreference/views.py:300
 msgid "Anonymize participants"
 msgstr "Teilnehmende anonymisieren"
 
-#: AKPreference/models.py:13 AKPreference/models.py:99
+#: AKPreference/forms.py:123
+msgid "There is no time in which you are available and this AK can take place."
+msgstr ""
+"Es gibt keinen Zeitraum, in dem du verfügbar bist und dieser AK stattfinden "
+"kann."
+
+#: AKPreference/forms.py:125
+#, python-brace-format
+msgid ""
+"You are only available for {overlap} at a time when this AK can take place, "
+"but its longest slot takes {slot}."
+msgstr ""
+"Du bist nur {overlap} lang zu einer Zeit verfügbar, zu der dieser AK "
+"stattfinden kann, sein längster Slot dauert aber {slot}."
+
+#: AKPreference/forms.py:134
+#, python-format
+msgid ""
+"Your availabilities do not allow you to attend %(count)d AK you marked as "
+"required. Please choose another preference for it or adjust your "
+"availabilities."
+msgid_plural ""
+"Your availabilities do not allow you to attend %(count)d AKs you marked as "
+"required. Please choose other preferences for them or adjust your "
+"availabilities."
+msgstr[0] ""
+"Deine Verfügbarkeiten erlauben es dir nicht, an %(count)d AK teilzunehmen, "
+"für den du dich als notwendig markiert hast. Bitte wähle dafür eine andere "
+"Präferenz oder passe deine Verfügbarkeiten an."
+msgstr[1] ""
+"Deine Verfügbarkeiten erlauben es dir nicht, an %(count)d AKs teilzunehmen, "
+"für die du dich als notwendig markiert hast. Bitte wähle dafür andere "
+"Präferenzen oder passe deine Verfügbarkeiten an."
+
+#: AKPreference/models.py:13 AKPreference/models.py:100
 #: AKPreference/templates/admin/AKPreference/participant.html:9
 msgid "Participant"
 msgstr "Teilnehmende*r"
@@ -51,11 +86,11 @@ msgstr "Institution"
 msgid "Uni etc."
 msgstr "Uni etc."
 
-#: AKPreference/models.py:21 AKPreference/models.py:96
+#: AKPreference/models.py:21 AKPreference/models.py:97
 msgid "Event"
 msgstr "Event"
 
-#: AKPreference/models.py:22 AKPreference/models.py:97
+#: AKPreference/models.py:22 AKPreference/models.py:98
 msgid "Associated event"
 msgstr "Zugehöriges Event"
 
@@ -82,57 +117,57 @@ msgstr ""
 msgid "Anonymous {pk}"
 msgstr "Anonym {pk}"
 
-#: AKPreference/models.py:91
+#: AKPreference/models.py:92
 msgid "AK Preference"
 msgstr "AK Präferenz"
 
-#: AKPreference/models.py:92
+#: AKPreference/models.py:93
 msgid "AK Preferences"
 msgstr "AK-Präferenzen"
 
-#: AKPreference/models.py:100
+#: AKPreference/models.py:101
 msgid "Participant this preference belongs to"
 msgstr "Teilnehmer*in, zu dem*der die Präferenz gehört"
 
-#: AKPreference/models.py:102
+#: AKPreference/models.py:103
 #: AKPreference/templates/admin/AKPreference/participant.html:31
 msgid "AK"
 msgstr "AK"
 
-#: AKPreference/models.py:103
+#: AKPreference/models.py:104
 msgid "AK this preference belongs to"
 msgstr "AK zu dem die Präferenz gehört"
 
-#: AKPreference/models.py:109
+#: AKPreference/models.py:110
 msgid "Ignore"
 msgstr "Ignorieren"
 
-#: AKPreference/models.py:110
+#: AKPreference/models.py:111
 msgid "Interested"
 msgstr "Interessiert"
 
-#: AKPreference/models.py:111
+#: AKPreference/models.py:112
 msgid "Great interest"
 msgstr "Großes Interesse"
 
-#: AKPreference/models.py:112
+#: AKPreference/models.py:113
 msgid "Required"
 msgstr "Erforderlich"
 
-#: AKPreference/models.py:114
+#: AKPreference/models.py:115
 #: AKPreference/templates/admin/AKPreference/participant.html:32
 msgid "Preference"
 msgstr "Präferenz"
 
-#: AKPreference/models.py:115
+#: AKPreference/models.py:116
 msgid "Preference level for the AK"
 msgstr "Präferenz-Level für diesen AK"
 
-#: AKPreference/models.py:119
+#: AKPreference/models.py:120
 msgid "Timestamp"
 msgstr "Zeitpunkt"
 
-#: AKPreference/models.py:119
+#: AKPreference/models.py:120
 msgid "Time of creation"
 msgstr "Erstellungszeitpunkt"
 
@@ -181,7 +216,7 @@ msgid "Confirm"
 msgstr "Bestätigen"
 
 #: AKPreference/templates/AKPreference/poll_delete.html:41
-#: AKPreference/templates/AKPreference/poll_preferences.html:75
+#: AKPreference/templates/AKPreference/poll_preferences.html:83
 #: AKPreference/templates/AKPreference/poll_start.html:51
 msgid "Cancel"
 msgstr "Abbrechen"
@@ -208,16 +243,20 @@ msgstr "Persönliche Informationen aktualisieren"
 msgid "Delete saved information &amp; preferences"
 msgstr "Gespeicherte Informationen &amp; Präferenzen löschen"
 
-#: AKPreference/templates/AKPreference/poll_preferences.html:46
-#: AKPreference/templates/AKPreference/poll_preferences.html:62
+#: AKPreference/templates/AKPreference/poll_preferences.html:39
+msgid "Adjust your availabilities"
+msgstr "Verfügbarkeiten anpassen"
+
+#: AKPreference/templates/AKPreference/poll_preferences.html:54
+#: AKPreference/templates/AKPreference/poll_preferences.html:70
 msgid "Intends to submit a resolution"
 msgstr "Beabsichtigt eine Resolution einzureichen"
 
-#: AKPreference/templates/AKPreference/poll_preferences.html:51
+#: AKPreference/templates/AKPreference/poll_preferences.html:59
 msgid "Responsible"
 msgstr "Verantwortlich"
 
-#: AKPreference/templates/AKPreference/poll_preferences.html:71
+#: AKPreference/templates/AKPreference/poll_preferences.html:79
 msgid "Save"
 msgstr "Speichern"
 
@@ -230,15 +269,6 @@ msgid "This participant does not have any preferences currently"
 msgstr "Diese*r Teilnehmende*r hat noch keine Präferenzen."
 
 #: AKPreference/templates/admin/AKPreference/status/preference_overview.html:7
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                <h3>Participant</h3>\n"
-#| "                "
-#| msgid_plural ""
-#| "\n"
-#| "                <h3>Participants</h3>\n"
-#| "            "
 msgid ""
 "\n"
 "                <h3>Participant</h3>\n"
@@ -250,22 +280,13 @@ msgid_plural ""
 msgstr[0] ""
 "\n"
 "                <h3>Teilnehmende*r</h3>\n"
-"                "
+"            "
 msgstr[1] ""
 "\n"
 "                <h3>Teilnehmende</h3>\n"
 "            "
 
 #: AKPreference/templates/admin/AKPreference/status/preference_overview.html:17
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                <h3>Poll Entry</h3>\n"
-#| "                "
-#| msgid_plural ""
-#| "\n"
-#| "                <h3>Poll Entries</h3>\n"
-#| "            "
 msgid ""
 "\n"
 "                <h3>Poll Entry</h3>\n"
@@ -277,14 +298,13 @@ msgid_plural ""
 msgstr[0] ""
 "\n"
 "                <h3>Präferenzeintrag</h3>\n"
-"                "
+"            "
 msgstr[1] ""
 "\n"
 "                <h3>Präferenzeinträge</h3>\n"
 "            "
 
 #: AKPreference/views.py:50
-#, fuzzy
 msgid "Preference poll is not active"
 msgstr "Präferenzabfrage ist nicht aktiv"
 
@@ -324,11 +344,11 @@ msgstr "Deine Informationen und Präferenzen wurden gelöscht."
 msgid "Description: "
 msgstr "Beschreibung: "
 
-#: AKPreference/views.py:279
+#: AKPreference/views.py:284
 msgid "Preference Poll Summary"
 msgstr "Zusammenfassung AK-Präferenzen"
 
-#: AKPreference/views.py:297
+#: AKPreference/views.py:302
 msgid ""
 "The following participants will be anonymized by removing their name and "
 "institution. This cannot be undone!"
@@ -336,39 +356,6 @@ msgstr ""
 "Die folgenden Teilnehmen werden anonymisiert, indem ihr Name und ihre "
 "Institution entfernt werden. Das kann nicht rückgängig gemacht werden!"
 
-#: AKPreference/views.py:299
+#: AKPreference/views.py:304
 msgid "Participants successfully anonymized."
 msgstr "Teilnehmende erfolgreich anonymisiert"
-
-#~ msgid "Enter Interest:"
-#~ msgstr "Interessiert"
-
-#~ msgid "Write to organizers of this event for questions and comments"
-#~ msgstr "Fragen oder Kommentare? Schreib den Orgas dieses Events eine Mail"
-
-#~ msgid "Your AK preferences"
-#~ msgstr "Deine AK Präferenzen"
-
-#~ msgid "Please enter your preferences."
-#~ msgstr "Trage bitte deine Präferenzen zu den AKs ein."
-
-#~ msgid "Careful: after saving your preferences, you cannot edit them again!"
-#~ msgstr ""
-#~ "Achtung: Nach dem Abschicken kannst du deine Präferenzen nicht noch "
-#~ "einmal editieren!"
-
-#~ msgid "Submit"
-#~ msgstr "Eintragen"
-
-#~ msgid "Reset Form"
-#~ msgstr "Formular leeren"
-
-#~ msgid "AK preferences were registered successfully"
-#~ msgstr "AK-Präferenzen erfolgreich registriert"
-
-#~ msgid ""
-#~ "Something went wrong. Your preferences were not saved. Please try again "
-#~ "or contact the organizers."
-#~ msgstr ""
-#~ "Etwas ging schief. Deine Präferenzen konnten nicht gespeichert werden. "
-#~ "Versuche es bitte erneut oder kontaktiere die Orgas."

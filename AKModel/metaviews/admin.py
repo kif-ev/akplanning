@@ -6,7 +6,6 @@ from django.db.models import Model
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
 from AKModel.forms import AdminIntermediateActionForm, AdminIntermediateForm
@@ -145,27 +144,47 @@ class WizardViewMixin:
     Mixin to create wizard-like views.
     This visualizes the progress of the user in the creation process and provides the interlinking to the next step
 
-    In the current implementation, the steps of the wizard are hardcoded here,
-    hence this mixin can only be used for the event creation wizard
+    A concrete wizard should define a subclass of this mixin that specifies ``wizard_title`` and the list of
+    ``wizard_steps`` (see e.g. :class:`AKModel.views.event_wizard.NewEventWizardMixin`).
+    Each view of the wizard then uses that subclass and specifies its (1-based) position in the wizard
+    as ``wizard_step``.
+    Wizards whose steps can be revisited can override :meth:`get_wizard_step_url`,
+    previous steps are then linked in the navigation.
     """
 
     # pylint: disable=too-few-public-methods
+    wizard_title: str
+    wizard_steps: list[str]
+    wizard_step: int
+
+    def get_wizard_step_url(self, step: int) -> str | None:
+        """
+        Get the URL of the given (1-based) step of the wizard
+
+        :param step: step to get the URL for
+        :return: URL or None if the step cannot be accessed directly (default)
+        """
+        # pylint: disable=unused-argument
+        return None
+
     def get_context_data(self, **kwargs):
         """
         Extend context
         """
         context = super().get_context_data(**kwargs)
+        context["wizard_title"] = self.wizard_title
         context["wizard_step"] = self.wizard_step
-        context["wizard_steps"] = [
-            _("Start"),
-            _("Settings"),
-            _("Event created, Prepare Import"),
-            _("Import categories & requirements"),
-            _("Activate?"),
-            _("Finish")
-        ]
+        context["wizard_steps"] = self.wizard_steps
         context["wizard_step_text"] = context["wizard_steps"][self.wizard_step - 1]
         context["wizard_steps_total"] = len(context["wizard_steps"])
+        # Steps for the navigation, previous steps are linked if they can be accessed directly
+        context["wizard_step_entries"] = [
+            {
+                "text": text,
+                "url": self.get_wizard_step_url(step) if step < self.wizard_step else None,
+            }
+            for step, text in enumerate(self.wizard_steps, 1)
+        ]
         return context
 
 

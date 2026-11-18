@@ -3,7 +3,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, Prefetch
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import DetailView, ListView, UpdateView
+from django.views.generic import DetailView, ListView, TemplateView, UpdateView
 
 from AKModel.availability.models import Availability
 from AKModel.metaviews import status_manager
@@ -12,6 +12,7 @@ from AKModel.metaviews.status import TemplateStatusWidget
 from AKModel.models import AK, AKCategory, AKSlot, AKTrack, Event
 from AKScheduling.checks import aks_not_in_default_schedules, aks_too_big, aks_with_unfulfillable_requirements
 from AKScheduling.forms import AKAddSlotForm, AKInterestForm
+from AKScheduling.stats import scheduling_statistics, statistics_line_chart
 
 
 class UnscheduledSlotsAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
@@ -80,6 +81,23 @@ class TrackAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context["aks_without_track"] = self.event.ak_set.select_related('category').filter(track=None)
+        return context
+
+
+class SchedulingStatisticsAdminView(AdminViewMixin, EventSlugMixin, TemplateView):
+    """
+    Admin view: Scheduling statistics
+
+    Shows the number of scheduled AK slots per default slot (overall and per category) as table and line chart
+    as well as the number of slots outside of default slots (see :mod:`AKScheduling.stats`)
+    """
+    template_name = "admin/AKScheduling/statistics.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = f"{_('Scheduling statistics')}: {self.event}"
+        context["stats"] = scheduling_statistics(self.event)
+        context["chart"] = statistics_line_chart(context["stats"])
         return context
 
 

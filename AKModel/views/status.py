@@ -120,6 +120,10 @@ class EventAKsWidget(TemplateStatusWidget):
                     "text": _("AKs requiring special attention"),
                     "url": reverse_lazy("admin:special-attention", kwargs={"slug": context["event"].slug}),
                 },
+                {
+                    "text": _("Scheduling statistics"),
+                    "url": reverse_lazy("admin:scheduling_statistics", kwargs={"event_slug": context["event"].slug}),
+                },
             ])
             if context["event"].ak_set.count() > 0:
                 actions.append({

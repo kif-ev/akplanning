@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 00:24+0100\n"
+"POT-Creation-Date: 2026-11-18 19:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -64,6 +64,10 @@ msgstr ""
 "Verfügbarer Platz zu dicht an Interesse (Interesse: %(interest)d, Kapazität: "
 "%(capacity)d)"
 
+#: AKScheduling/stats.py:137
+msgid "All categories"
+msgstr "Alle Kategorien"
+
 #: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:11
 msgid "Constraint Violations for"
 msgstr ""
@@ -118,7 +122,8 @@ msgstr "Seit"
 msgid "Event Status"
 msgstr "Event-Status"
 
-#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:120 AKScheduling/views.py:58
+#: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:120
+#: AKScheduling/templates/admin/AKScheduling/statistics.html:66 AKScheduling/views.py:59
 msgid "Scheduling"
 msgstr "Scheduling"
 
@@ -261,6 +266,65 @@ msgstr "AKs, die zu groß sind"
 msgid "No rooms configured"
 msgstr "Keine Räume konfiguriert"
 
+#: AKScheduling/templates/admin/AKScheduling/statistics.html:6 AKScheduling/views.py:98
+msgid "Scheduling statistics"
+msgstr "Planungsstatistik"
+
+#: AKScheduling/templates/admin/AKScheduling/statistics.html:10
+msgid ""
+"Number of scheduled AK slots per default slot. A slot is counted for the "
+"default slot it starts in."
+msgstr ""
+"Anzahl der eingeplanten AK-Slots pro Standardslot. Ein Slot wird für den "
+"Standardslot gezählt, in dem er beginnt."
+
+#: AKScheduling/templates/admin/AKScheduling/statistics.html:17
+msgid "There are no default slots for this event."
+msgstr "Für dieses Event gibt es keine Standardslots."
+
+#: AKScheduling/templates/admin/AKScheduling/statistics.html:18
+msgid "Edit Default Slots"
+msgstr "Standardslots bearbeiten"
+
+#: AKScheduling/templates/admin/AKScheduling/statistics.html:29
+msgid "Default slot"
+msgstr "Standardslot"
+
+#: AKScheduling/templates/admin/AKScheduling/statistics.html:30
+msgid "Total"
+msgstr "Gesamt"
+
+#: AKScheduling/templates/admin/AKScheduling/statistics.html:38
+msgid "Sum"
+msgstr "Summe"
+
+#: AKScheduling/templates/admin/AKScheduling/statistics.html:54
+msgid "Outside of default slots"
+msgstr "Außerhalb von Standardslots"
+
+#: AKScheduling/templates/admin/AKScheduling/statistics.html:69
+msgid "Status"
+msgstr "Status"
+
+#: AKScheduling/templates/admin/AKScheduling/statistics_chart.html:13
+msgid "Number of AKs per default slot"
+msgstr "Anzahl der AKs pro Standardslot"
+
+#: AKScheduling/templates/admin/AKScheduling/statistics_summary.html:7
+#, python-format
+msgid "Scheduled AK slots: %(count)s"
+msgstr "Eingeplante AK-Slots: %(count)s"
+
+#: AKScheduling/templates/admin/AKScheduling/statistics_summary.html:12
+#, python-format
+msgid "AKs with intention to submit a resolution: %(count)s"
+msgstr "AKs mit Resolutionsabsicht: %(count)s"
+
+#: AKScheduling/templates/admin/AKScheduling/statistics_summary.html:14
+#, python-format
+msgid "AK slots outside of default slots: %(count)s"
+msgstr "AK-Slots außerhalb von Standardslots: %(count)s"
+
 #: AKScheduling/templates/admin/AKScheduling/status/cvs.html:6
 #, fuzzy
 #| msgid ""
@@ -288,7 +352,7 @@ msgstr[1] ""
 "            <h3>Constraintverletzungen</h3>\n"
 "        "
 
-#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:7 AKScheduling/views.py:27
+#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:7 AKScheduling/views.py:28
 msgid "Unscheduled AK Slots"
 msgstr "Noch nicht geschedulte AK-Slots"
 
@@ -296,31 +360,31 @@ msgstr "Noch nicht geschedulte AK-Slots"
 msgid "Count"
 msgstr "Anzahl"
 
-#: AKScheduling/views.py:99
+#: AKScheduling/views.py:117
 msgid "Constraint violations for"
 msgstr "Constraintverletzungen für"
 
-#: AKScheduling/views.py:114
+#: AKScheduling/views.py:132
 msgid "AKs requiring special attention for"
 msgstr "AKs die besondere Aufmerksamkeit erfordern für"
 
-#: AKScheduling/views.py:166
+#: AKScheduling/views.py:184
 msgid "Interest updated"
 msgstr "Interesse aktualisiert"
 
-#: AKScheduling/views.py:180
+#: AKScheduling/views.py:198
 msgid "Enter interest"
 msgstr "Interesse eingeben"
 
-#: AKScheduling/views.py:224
+#: AKScheduling/views.py:242
 msgid "Wishes"
 msgstr "Wünsche"
 
-#: AKScheduling/views.py:242
+#: AKScheduling/views.py:260
 msgid "Cleanup: Delete unscheduled slots for wishes"
 msgstr "Aufräumen: Noch nicht geplante Slots für Wünsche löschen"
 
-#: AKScheduling/views.py:249
+#: AKScheduling/views.py:267
 #, python-brace-format
 msgid ""
 "The following {count} unscheduled slots of wishes will be deleted:\n"
@@ -332,15 +396,15 @@ msgstr ""
 "\n"
 " {slots}"
 
-#: AKScheduling/views.py:256
+#: AKScheduling/views.py:274
 msgid "Unscheduled slots for wishes successfully deleted"
 msgstr "Noch nicht geplante Slots für Wünsche erfolgreich gelöscht"
 
-#: AKScheduling/views.py:270
+#: AKScheduling/views.py:288
 msgid "Create default availabilities for AKs"
 msgstr "Standardverfügbarkeiten für AKs anlegen"
 
-#: AKScheduling/views.py:277
+#: AKScheduling/views.py:295
 #, python-brace-format
 msgid ""
 "The following {count} AKs don't have any availability information. Create "
@@ -353,16 +417,16 @@ msgstr ""
 "\n"
 " {aks}"
 
-#: AKScheduling/views.py:297
+#: AKScheduling/views.py:315
 #, python-brace-format
 msgid "Could not create default availabilities for AK: {ak}"
 msgstr "Konnte keine Verfügbarkeit anlegen für AK: {ak}"
 
-#: AKScheduling/views.py:302
+#: AKScheduling/views.py:320
 #, python-brace-format
 msgid "Created default availabilities for {count} AKs"
 msgstr "Standardverfügbarkeiten für {count} AKs angelegt"
 
-#: AKScheduling/views.py:313
+#: AKScheduling/views.py:331
 msgid "Constraint Violations"
 msgstr "Constraintverletzungen"

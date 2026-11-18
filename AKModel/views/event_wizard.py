@@ -11,7 +11,23 @@ from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, WizardViewMi
 from AKModel.models import Event
 
 
-class NewEventWizardStartView(AdminViewMixin, WizardViewMixin, CreateView):
+class NewEventWizardMixin(WizardViewMixin):
+    """
+    Mixin for all views of the new event wizard (defines title and steps of the wizard)
+    """
+    # pylint: disable=too-few-public-methods
+    wizard_title = _("New event wizard")
+    wizard_steps = [
+        _("Start"),
+        _("Settings"),
+        _("Event created, Prepare Import"),
+        _("Import categories & requirements"),
+        _("Activate?"),
+        _("Finish")
+    ]
+
+
+class NewEventWizardStartView(AdminViewMixin, NewEventWizardMixin, CreateView):
     """
     Wizard view: Entry/Start
 
@@ -24,7 +40,7 @@ class NewEventWizardStartView(AdminViewMixin, WizardViewMixin, CreateView):
     wizard_step = 1
 
 
-class NewEventWizardSettingsView(AdminViewMixin, WizardViewMixin, CreateView):
+class NewEventWizardSettingsView(AdminViewMixin, NewEventWizardMixin, CreateView):
     """
     Wizard view: Event settings
 
@@ -49,7 +65,7 @@ class NewEventWizardSettingsView(AdminViewMixin, WizardViewMixin, CreateView):
         return reverse_lazy("admin:new_event_wizard_prepare_import", kwargs={"event_slug": self.object.slug})
 
 
-class NewEventWizardPrepareImportView(WizardViewMixin, EventSlugMixin, FormView):
+class NewEventWizardPrepareImportView(NewEventWizardMixin, EventSlugMixin, FormView):
     """
     Wizard view: Choose event to copy configuration elements from
 
@@ -68,7 +84,7 @@ class NewEventWizardPrepareImportView(WizardViewMixin, EventSlugMixin, FormView)
                         import_slug=form.cleaned_data["import_event"].slug)
 
 
-class NewEventWizardImportView(EventSlugMixin, WizardViewMixin, FormView):
+class NewEventWizardImportView(EventSlugMixin, NewEventWizardMixin, FormView):
     """
     Wizard view: Select configuration elements to copy
 
@@ -109,7 +125,7 @@ class NewEventWizardImportView(EventSlugMixin, WizardViewMixin, FormView):
         return redirect("admin:new_event_wizard_activate", slug=self.event.slug)
 
 
-class NewEventWizardActivateView(WizardViewMixin, UpdateView):
+class NewEventWizardActivateView(NewEventWizardMixin, UpdateView):
     """
     Wizard view: Allow activating the event
 
@@ -130,7 +146,7 @@ class NewEventWizardActivateView(WizardViewMixin, UpdateView):
         return reverse_lazy("admin:new_event_wizard_finish", kwargs={"slug": self.object.slug})
 
 
-class NewEventWizardFinishView(WizardViewMixin, DetailView):
+class NewEventWizardFinishView(NewEventWizardMixin, DetailView):
     """
     Wizard view: Confirmation and summary
 

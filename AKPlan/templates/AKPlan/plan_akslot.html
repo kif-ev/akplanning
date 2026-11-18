@@ -65,6 +65,16 @@
                         display: 'background'
                     },
                 {% endfor %}
+                {# Default slots (only passed by some views, e.g., for admins), visualized like in the scheduler #}
+                {% for default_slot in default_slots %}
+                    {
+                        start: '{{ default_slot.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                        end: '{{ default_slot.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                        backgroundColor: '#69b6d4',
+                        display: 'background',
+                        groupId: 'defaultSlot'
+                    },
+                {% endfor %}
             ],
             schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
         });

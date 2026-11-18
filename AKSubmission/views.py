@@ -283,6 +283,10 @@ class AKDetailView(EventSlugMixin, DetailView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context["availabilities"] = Availability.objects.filter(ak=context["ak"])
+        # Show default slots intended for the category of this AK as background events in the calendar for admins
+        # (like in the scheduler)
+        if self.request.user.is_staff:
+            context["default_slots"] = self.event.defaultslot_set.filter(primary_categories=context["ak"].category)
 
         current_timestamp = datetime.now().astimezone(self.event.timezone)
 
