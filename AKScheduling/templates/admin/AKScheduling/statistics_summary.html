@@ -1,0 +1,19 @@
+{% load i18n %}
+{% comment %}
+    Summary of the scheduling statistics (expects the statistics as "stats", see AKScheduling.stats)
+{% endcomment %}
+<ul>
+    <li>
+        {% blocktrans with count=stats.scheduled_total %}Scheduled AK slots: {{ count }}{% endblocktrans %}
+        {% if stats.scheduled_by_category %}
+            ({% for entry in stats.scheduled_by_category %}{{ entry.category }}: {{ entry.count }}{% if not forloop.last %}, {% endif %}{% endfor %})
+        {% endif %}
+    </li>
+    <li>{% blocktrans with count=stats.reso_total %}AKs with intention to submit a resolution: {{ count }}{% endblocktrans %}</li>
+    <li class="{% if stats.outside_total %}text-warning-emphasis{% endif %}">
+        {% blocktrans with count=stats.outside_total %}AK slots outside of default slots: {{ count }}{% endblocktrans %}
+        {% if stats.outside_by_category %}
+            ({% for entry in stats.outside_by_category %}{{ entry.category }}: {{ entry.count }}{% if not forloop.last %}, {% endif %}{% endfor %})
+        {% endif %}
+    </li>
+</ul>

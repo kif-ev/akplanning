@@ -1,0 +1,71 @@
+{% extends "admin/base_site.html" %}
+
+{% load i18n %}
+{% load fontawesome_6 %}
+
+{% block title %}{{ event }}: {% trans "Scheduling statistics" %}{% endblock %}
+
+{% block content %}
+    <p>
+        {% blocktrans %}Number of scheduled AK slots per default slot. A slot is counted for the default slot it starts in.{% endblocktrans %}
+    </p>
+
+    {% if stats.rows %}
+        {% include "admin/AKScheduling/statistics_chart.html" %}
+    {% else %}
+        <div class="alert alert-warning">
+            {% trans "There are no default slots for this event." %}
+            <a href="{% url 'admin:default-slots-editor' event_slug=event.slug %}">{% trans "Edit Default Slots" %}</a>
+        </div>
+    {% endif %}
+
+    {% include "admin/AKScheduling/statistics_summary.html" %}
+
+    {% if stats.rows %}
+        <div class="table-responsive">
+            <table class="table table-sm table-striped">
+                <thead>
+                <tr>
+                    <th>{% trans "Default slot" %}</th>
+                    <th>{% trans "Total" %}</th>
+                    {% for category in stats.categories %}
+                        <th><span style="color: {{ category.color }};">&#9632;</span> {{ category.category }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="table-secondary fw-bold">
+                    <td>{% trans "Sum" %}</td>
+                    <td>{{ stats.scheduled_total }}</td>
+                    {% for count in stats.scheduled_per_category %}
+                        <td>{{ count }}</td>
+                    {% endfor %}
+                </tr>
+                {% for row in stats.rows %}
+                    <tr>
+                        <td><a href="{% url 'admin:AKModel_defaultslot_change' row.default_slot.pk %}">{{ row.label }}</a></td>
+                        <td><b>{{ row.total }}</b></td>
+                        {% for count in row.per_category %}
+                            <td>{{ count }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                <tr class="table-warning">
+                    <td>{% trans "Outside of default slots" %}</td>
+                    <td><b>{{ stats.outside_total }}</b></td>
+                    {% for count in stats.outside_per_category %}
+                        <td>{{ count }}</td>
+                    {% endfor %}
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    <a href="{% url 'admin:schedule' event_slug=event.slug %}" class="btn btn-primary">
+        {% fa6_icon "calendar-days" "fas" %} {% trans "Scheduling" %}
+    </a>
+    <a href="{% url 'admin:event_status' event.slug %}" class="btn btn-info">
+        {% fa6_icon "info" "fas" %} {% trans "Status" %}
+    </a>
+{% endblock %}

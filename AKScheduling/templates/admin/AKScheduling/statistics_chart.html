@@ -1,0 +1,52 @@
+{% load i18n l10n %}
+{% comment %}
+    Line chart of the number of scheduled AK slots per default slot (overall and per category)
+    Expects the chart geometry as "chart" (see AKScheduling.stats.statistics_line_chart)
+
+    All numeric values are rendered with "localize off": Localized formatting (e.g., "1,5" instead of "1.5" in
+    German) would corrupt the SVG coordinates and the "rotate(...)" transform used for the x axis labels below.
+{% endcomment %}
+{% if chart %}
+    <div class="mb-3">
+    {% localize off %}
+        <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" class="w-100 border rounded" role="img"
+             aria-label="{% trans "Number of AKs per default slot" %}" style="max-height: 420px;">
+            {# Grid lines and y axis labels #}
+            {% for tick in chart.y_ticks %}
+                <line x1="{{ chart.left }}" x2="{{ chart.right }}" y1="{{ tick.y }}" y2="{{ tick.y }}"
+                      stroke="#dee2e6" stroke-width="1"/>
+                <text x="{{ chart.left|add:"-6" }}" y="{{ tick.y }}" text-anchor="end" dominant-baseline="middle"
+                      font-size="11" fill="#6c757d">{{ tick.text }}</text>
+            {% endfor %}
+            {# Axes #}
+            <line x1="{{ chart.left }}" x2="{{ chart.left }}" y1="{{ chart.top }}" y2="{{ chart.bottom }}"
+                  stroke="#6c757d"/>
+            <line x1="{{ chart.left }}" x2="{{ chart.right }}" y1="{{ chart.bottom }}" y2="{{ chart.bottom }}"
+                  stroke="#6c757d"/>
+            {# x axis labels (default slots) #}
+            {% for label in chart.x_labels %}
+                <text x="{{ label.x }}" y="{{ label.y }}" text-anchor="end" font-size="10" fill="#495057"
+                      transform="rotate(-35 {{ label.x }} {{ label.y }})">{{ label.text }}</text>
+            {% endfor %}
+            {# Lines (one for all categories, one per category) #}
+            {% for line in chart.series %}
+                <polyline points="{{ line.points }}" fill="none" stroke="{{ line.color }}"
+                          stroke-width="{{ line.width }}" stroke-linejoin="round"/>
+                {% for dot in line.dots %}
+                    <circle cx="{{ dot.x }}" cy="{{ dot.y }}" r="{{ line.width|add:"1" }}" fill="{{ line.color }}">
+                        <title>{{ dot.title }}</title>
+                    </circle>
+                {% endfor %}
+            {% endfor %}
+        </svg>
+    {% endlocalize %}
+        <div class="d-flex flex-wrap gap-3 mt-1 small">
+            {% for line in chart.series %}
+                <span class="d-inline-flex align-items-center gap-1">
+                    <span style="display:inline-block;width:1.5em;height:{{ line.width }}px;background-color:{{ line.color }};"></span>
+                    {% if forloop.first %}<b>{{ line.name }}</b>{% else %}{{ line.name }}{% endif %}
+                </span>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
