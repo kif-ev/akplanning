@@ -4,8 +4,9 @@ First, it imports all default settings, then overrides respective ones.
 Secrets are stored in and imported from an additional file, not set under version control.
 """
 
-import AKPlanning.settings_secrets as secrets
+from split_settings.tools import include, optional
 
+import AKPlanning.settings_secrets as secrets
 # noinspection PyUnresolvedReferences
 from AKPlanning.settings import *
 
@@ -47,3 +48,7 @@ MAILERS = {
 }
 
 # TODO: caching
+
+### LOCAL OVERRIDES ###
+# Include local settings (again) so they take precedence over the production defaults defined above
+include(optional("settings/*.py"))
