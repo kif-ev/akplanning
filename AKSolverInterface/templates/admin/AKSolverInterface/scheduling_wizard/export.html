@@ -1,0 +1,89 @@
+{% extends "admin/AKSolverInterface/scheduling_wizard/base.html" %}
+
+{% load tz %}
+{% load i18n %}
+{% load fontawesome_6 %}
+{% load django_bootstrap5 %}
+
+{% block wizard_extrahead %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Only render (and highlight) the indented JSON when the box is opened for the first time
+            // to keep the page fast for large exports
+            const details = document.getElementById("details_export_json");
+            if (!details) return;
+            details.addEventListener("toggle", function () {
+                if (!details.open || details.dataset.rendered) return;
+                const pre = document.createElement("pre");
+                pre.className = "prettyprint border rounded p-2 mb-0";
+                pre.textContent = document.getElementById("textarea_export_json").value;
+                details.appendChild(pre);
+                details.dataset.rendered = "true";
+                if (typeof prettyPrint === "function") prettyPrint();
+            });
+        });
+
+        function to_clipboard() {
+            const exportTextarea = document.getElementById("textarea_export_json");
+            exportTextarea.select();
+            navigator.clipboard.writeText(exportTextarea.value);
+        }
+
+        // Download the already generated export as file (no need to serialize the data again on the server)
+        function download_export() {
+            const exportTextarea = document.getElementById("textarea_export_json");
+            const blob = new Blob([exportTextarea.value], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "{{ event.slug|escapejs }}-solver-input.json";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+{% endblock %}
+
+{% block wizard_content %}
+    <form method="POST" class="post-form clearfix">{% csrf_token %}
+        {% bootstrap_form form exclude="ignore_slot_category_mismatches" %}
+        <div class="{% if not show_ignore_slot_category_mismatches_field %}d-none{% endif %}">
+            {% bootstrap_field form.ignore_slot_category_mismatches %}
+        </div>
+        <button type="submit" class="save btn btn-primary float-end">
+            {% fa6_icon "check" 'fas' %} {% trans "Generate/Update Export" %}
+        </button>
+
+        <button type="reset" class="btn btn-danger">
+            {% fa6_icon "undo-alt" 'fas' %} {% trans "Reset Form" %}
+        </button>
+    </form>
+
+    {% if json_data_oneline %}
+        <div class="mt-3 mb-3">
+            <label for="export_single_line" class="form-label">{% translate 'Exported JSON:' %}</label>
+            <input readonly type="text" name="export_single_line" class="form-control form-control-sm"
+                   value="{{ json_data_oneline }}" style="font-family:var(--font-family-monospace);">
+        </div>
+
+        <div class="mb-3">
+            <div class="clearfix mb-1">
+                <div class="float-end">
+                    <button class="btn btn-outline-primary" onclick="to_clipboard()">
+                        {% fa6_icon "copy" %} {% translate 'Copy' %}
+                    </button>
+                    <button class="btn btn-primary" onclick="download_export()">
+                        {% fa6_icon "download" "fas" %} {% translate 'Download' %}
+                    </button>
+                </div>
+                <label class="form-label">{% translate 'Exported JSON (indented for better readability):' %}</label>
+            </div>
+            {# Source for copy, download and the formatted view (rendered on demand when the box is opened) #}
+            <textarea class="d-none" id="textarea_export_json">{{ json_data }}</textarea>
+            <details id="details_export_json" class="border rounded p-2">
+                <summary>{% translate 'Show formatted JSON' %}</summary>
+            </details>
+        </div>
+    {% endif %}
+{% endblock %}

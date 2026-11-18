@@ -72,7 +72,7 @@ class JSONExportTest(TestCase):
     def set_up_event(self, event: Event) -> None:
         """Set up by retrieving json export and initializing data."""
 
-        export_url = reverse("admin:ak_json_export", kwargs={"event_slug": event.slug})
+        export_url = reverse("admin:scheduling_wizard_export", kwargs={"event_slug": event.slug})
 
         form = JSONExportControlForm(event=event)
 
@@ -88,7 +88,9 @@ class JSONExportTest(TestCase):
         self.assertEqual(response.status_code, 200, "Export not working at all")
 
         soup = BeautifulSoup(response.content, features="lxml")
-        self.export_dict = json.loads(soup.find("pre").string)
+        # The formatted JSON is only rendered on demand in the browser, the full export is always contained
+        # in the (hidden) textarea used for copying and downloading
+        self.export_dict = json.loads(soup.find("textarea", id="textarea_export_json").string)
 
         self.export_objects["aks"] = {ak["id"]: ak for ak in self.export_dict["aks"]}
         self.export_objects["rooms"] = {

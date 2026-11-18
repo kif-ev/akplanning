@@ -1,0 +1,47 @@
+{% extends "admin/AKSolverInterface/scheduling_wizard/base.html" %}
+
+{% load i18n %}
+{% load fontawesome_6 %}
+
+{% block wizard_content %}
+    <p>
+        {% blocktrans %}Checking for each AK whether there is at least one room that fulfills all of its requirements.{% endblocktrans %}
+    </p>
+
+    <div class="card border-{{ status }} mb-3">
+        <div class="card-header d-flex align-items-center gap-2">
+            {% include "admin/AKSolverInterface/scheduling_wizard/status_icon.html" %}
+            <b>{% trans "AKs that have requirements not met by any room" %}</b>
+        </div>
+        <div class="card-body">
+            {% if aks_unfulfillable_requirements %}
+                <p>
+                    {% blocktrans count count=aks_unfulfillable_requirements|length with total=aks_with_requirements_count %}{{ count }} of {{ total }} AKs with requirements cannot be placed in any room:{% plural %}{{ count }} of {{ total }} AKs with requirements cannot be placed in any room:{% endblocktrans %}
+                </p>
+                <ul>
+                    {% for ak in aks_unfulfillable_requirements %}
+                        <li>
+                            {% include "admin/AKSolverInterface/scheduling_wizard/ak_links.html" %}
+                            <span class="text-muted">({{ ak.category }})</span>
+                            <ul>
+                                {% for req in ak.requirements.all %}
+                                    <li>{{ req }}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <p class="mb-0">
+                    {% trans "These AKs cannot be scheduled automatically unless their requirements are changed or a room fulfilling all of them is added." %}
+                </p>
+            {% else %}
+                {% blocktrans count count=aks_with_requirements_count %}The requirements of the {{ count }} AK with requirements can be met by at least one room.{% plural %}The requirements of all {{ count }} AKs with requirements can be met by at least one room.{% endblocktrans %}
+            {% endif %}
+        </div>
+    </div>
+
+    <a href="{% url 'admin:AKModel_room_changelist' %}?event__id__exact={{ event.pk }}"
+       class="btn btn-sm btn-outline-dark mb-3">
+        {% fa6_icon "pen" "fas" %} {% trans "Edit rooms" %}
+    </a>
+{% endblock %}

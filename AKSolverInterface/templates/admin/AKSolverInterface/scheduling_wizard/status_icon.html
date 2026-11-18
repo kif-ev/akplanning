@@ -1,0 +1,1 @@
+{% load fontawesome_6 %}<span class="text-{{ status }}">{% if status == "success" %}{% fa6_icon "circle-check" "fas" %}{% elif status == "warning" %}{% fa6_icon "triangle-exclamation" "fas" %}{% else %}{% fa6_icon "circle-xmark" "fas" %}{% endif %}</span>

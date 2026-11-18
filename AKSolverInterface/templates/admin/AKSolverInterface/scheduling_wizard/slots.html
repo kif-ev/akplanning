@@ -1,0 +1,54 @@
+{% extends "admin/AKSolverInterface/scheduling_wizard/base.html" %}
+
+{% load i18n %}
+{% load fontawesome_6 %}
+
+{% block wizard_content %}
+    <p>
+        {% blocktrans %}Checking for each AK whether its availability overlaps with a default slot for at least the duration of its longest slot.{% endblocktrans %}
+    </p>
+
+    {% if not has_default_slots %}
+        <div class="alert alert-warning">
+            {% trans "There are no default slots for this event, hence this check was skipped. AKs could be scheduled at any time between start and end of the event (including nights)." %}
+            <a href="{% url 'admin:default-slots-editor' event_slug=event.slug %}">{% trans "Edit Default Slots" %}</a>
+        </div>
+    {% else %}
+        {% if status == "success" %}
+            <div class="alert alert-success">
+                {% trans "All AKs fit into at least one default slot of their category." %}
+            </div>
+        {% endif %}
+
+        {% if aks_no_slot %}
+            <div class="card border-danger mb-3">
+                <div class="card-header d-flex align-items-center gap-2">
+                    {% include "admin/AKSolverInterface/scheduling_wizard/status_icon.html" with status="danger" %}
+                    <b>{% trans "AKs that cannot be placed in any default slot" %}</b>
+                </div>
+                <div class="card-body">
+                    <p>{% trans "The availability of these AKs does not overlap long enough with any default slot (regardless of its categories). They cannot be scheduled automatically." %}</p>
+                    {% include "admin/AKSolverInterface/scheduling_wizard/slot_ak_list.html" with entries=aks_no_slot %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if aks_no_category_matching_slot %}
+            <div class="card border-warning mb-3">
+                <div class="card-header d-flex align-items-center gap-2">
+                    {% include "admin/AKSolverInterface/scheduling_wizard/status_icon.html" with status="warning" %}
+                    <b>{% trans "AKs that only fit into default slots of other categories" %}</b>
+                </div>
+                <div class="card-body">
+                    <p>{% trans "These AKs can only be placed in default slots that are not intended for their category. Change the availabilities, the categories of the default slots, or ignore the category for these AKs when exporting." %}</p>
+                    {% include "admin/AKSolverInterface/scheduling_wizard/slot_ak_list.html" with entries=aks_no_category_matching_slot %}
+                </div>
+            </div>
+        {% endif %}
+
+        <a href="{% url 'admin:default-slots-editor' event_slug=event.slug %}"
+           class="btn btn-sm btn-outline-dark mb-3">
+            {% fa6_icon "pen" "fas" %} {% trans "Edit Default Slots" %}
+        </a>
+    {% endif %}
+{% endblock %}

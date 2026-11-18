@@ -11,6 +11,6 @@ class ModelViewTests(BasicViewTests, TestCase):
     fixtures = ["model.json"]
 
     VIEWS_STAFF_ONLY = [
-        ("admin:ak_json_export", {"event_slug": "kif42"}),
-        ("admin:ak_schedule_json_import", {"event_slug": "kif42"}),
+        ("admin:scheduling_wizard_export", {"event_slug": "kif42"}),
+        ("admin:scheduling_wizard_import", {"event_slug": "kif42"}),
     ]

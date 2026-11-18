@@ -18,8 +18,17 @@
         {% endif %}
         <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
         <style>
+            /* Override the admin link colors with the text color of the respective button variant */
             a.btn {
-                color: #FFFFFF;
+                color: var(--bs-btn-color);
+            }
+
+            a.btn:hover {
+                color: var(--bs-btn-hover-color);
+            }
+
+            a.btn:active {
+                color: var(--bs-btn-active-color);
             }
 
             .block-header {

@@ -65,7 +65,7 @@
     <a href="{% url 'admin:schedule' event_slug=event.slug %}" class="btn btn-primary">
         {% fa6_icon "calendar-days" "fas" %} {% trans "Scheduling" %}
     </a>
-    <a href="{% url 'admin:event_status' event.slug %}" class="btn btn-info">
+    <a href="{% url 'admin:event_status' event.slug %}" class="btn btn-outline-dark">
         {% fa6_icon "info" "fas" %} {% trans "Status" %}
     </a>
 {% endblock %}

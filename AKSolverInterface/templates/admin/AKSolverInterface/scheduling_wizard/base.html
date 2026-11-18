@@ -1,0 +1,60 @@
+{% extends "admin/base_site.html" %}
+{% load tags_AKModel %}
+
+{% load i18n %}
+{% load fontawesome_6 %}
+
+{% comment %}
+    Base template for all steps of the automatic scheduling workflow
+
+    Shows the wizard header and the navigation (back to previous step/status page, continue to next step,
+    re-run and skip for check steps).
+    Steps fill the block wizard_content (and optionally wizard_extrahead).
+    Continuing can be prevented by setting wizard_can_continue to False.
+{% endcomment %}
+
+{% block title %}{{ event }}: {{ wizard_title }}: {{ wizard_step_text }}{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {% block wizard_extrahead %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+    {% include "admin/AKModel/event_wizard/wizard_steps.html" %}
+
+    {% block wizard_content %}{% endblock %}
+
+    <div class="mt-3 clearfix">
+        <div class="float-end">
+            {% if wizard_is_check_step %}
+                <a href="{{ request.path }}" class="btn btn-outline-primary">
+                    {% fa6_icon "rotate" "fas" %} {% trans "Re-run checks" %}
+                </a>
+                <a href="{{ wizard_skip_checks_url }}" class="btn btn-outline-danger">
+                    {% fa6_icon "forward-fast" "fas" %} {% trans "Skip checks" %}
+                </a>
+            {% endif %}
+            {% if wizard_next_url %}
+                {% if wizard_can_continue is False %}
+                    <button class="btn btn-primary" disabled>
+                        {% fa6_icon "forward" "fas" %} {% trans "Continue" %}
+                    </button>
+                {% else %}
+                    <a href="{{ wizard_next_url }}" class="btn btn-primary">
+                        {% fa6_icon "forward" "fas" %} {% trans "Continue" %}
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        {% if wizard_prev_url %}
+            <a href="{{ wizard_prev_url }}" class="btn btn-outline-dark">
+                {% fa6_icon "backward" "fas" %} {% trans "Back" %}
+            </a>
+        {% endif %}
+        <a href="{% url 'admin:event_status' event.slug %}" class="btn btn-outline-dark">
+            {% fa6_icon "info" "fas" %} {% trans "Status" %}
+        </a>
+    </div>
+{% endblock %}

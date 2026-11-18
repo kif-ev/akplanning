@@ -1,0 +1,23 @@
+{% extends "admin/AKSolverInterface/scheduling_wizard/base.html" %}
+
+{% load i18n %}
+{% load django_bootstrap5 %}
+{% load fontawesome_6 %}
+
+{% block wizard_content %}
+    {% if preview %}
+        <p>
+            {{ preview|linebreaksbr }}
+        </p>
+    {% endif %}
+
+    <form enctype="multipart/form-data" method="post" class="clearfix">{% csrf_token %}
+        {% bootstrap_form form %}
+
+        <div class="float-end">
+            <button type="submit" class="save btn btn-primary" value="Submit">
+                {% fa6_icon "check" 'fas' %} {% trans "Confirm" %}
+            </button>
+        </div>
+    </form>
+{% endblock %}

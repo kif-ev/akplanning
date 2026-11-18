@@ -38,7 +38,8 @@ msgstr "Ende"
 msgid "Duration"
 msgstr "Dauer"
 
-#: AKScheduling/forms.py:27 AKScheduling/forms.py:28 AKScheduling/templates/admin/AKScheduling/scheduling.html:345
+#: AKScheduling/forms.py:27 AKScheduling/forms.py:28
+#: AKScheduling/templates/admin/AKScheduling/scheduling.html:345
 msgid "Room"
 msgstr "Raum"
 
@@ -70,7 +71,7 @@ msgstr "Alle Kategorien"
 
 #: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:11
 msgid "Constraint Violations for"
-msgstr ""
+msgstr "Constraintverletzungen für"
 
 #: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:44
 msgid "Mark as resolved"
@@ -123,7 +124,8 @@ msgid "Event Status"
 msgstr "Event-Status"
 
 #: AKScheduling/templates/admin/AKScheduling/constraint_violations.html:120
-#: AKScheduling/templates/admin/AKScheduling/statistics.html:66 AKScheduling/views.py:59
+#: AKScheduling/templates/admin/AKScheduling/statistics.html:66
+#: AKScheduling/views.py:59
 msgid "Scheduling"
 msgstr "Scheduling"
 
@@ -239,7 +241,7 @@ msgstr "AK-Wünsche mit Slots"
 
 #: AKScheduling/templates/admin/AKScheduling/special_attention.html:51
 msgid "Delete slots for wishes"
-msgstr ""
+msgstr "Slots für Wünsche löschen"
 
 #: AKScheduling/templates/admin/AKScheduling/special_attention.html:53
 msgid "AKs without slots"
@@ -266,7 +268,8 @@ msgstr "AKs, die zu groß sind"
 msgid "No rooms configured"
 msgstr "Keine Räume konfiguriert"
 
-#: AKScheduling/templates/admin/AKScheduling/statistics.html:6 AKScheduling/views.py:98
+#: AKScheduling/templates/admin/AKScheduling/statistics.html:6
+#: AKScheduling/views.py:98
 msgid "Scheduling statistics"
 msgstr "Planungsstatistik"
 
@@ -326,15 +329,6 @@ msgid "AK slots outside of default slots: %(count)s"
 msgstr "AK-Slots außerhalb von Standardslots: %(count)s"
 
 #: AKScheduling/templates/admin/AKScheduling/status/cvs.html:6
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "            <h3>Constraint Violation</h3>\n"
-#| "            "
-#| msgid_plural ""
-#| "\n"
-#| "            <h3>Constraint Violations</h3>\n"
-#| "        "
 msgid ""
 "\n"
 "            <h3>Constraint Violation</h3>\n"
@@ -346,13 +340,14 @@ msgid_plural ""
 msgstr[0] ""
 "\n"
 "            <h3>Constraintverletzung</h3>\n"
-"            "
+"        "
 msgstr[1] ""
 "\n"
 "            <h3>Constraintverletzungen</h3>\n"
 "        "
 
-#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:7 AKScheduling/views.py:28
+#: AKScheduling/templates/admin/AKScheduling/unscheduled.html:7
+#: AKScheduling/views.py:28
 msgid "Unscheduled AK Slots"
 msgstr "Noch nicht geschedulte AK-Slots"
 
