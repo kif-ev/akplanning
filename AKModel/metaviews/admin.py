@@ -148,12 +148,24 @@ class WizardViewMixin:
     ``wizard_steps`` (see e.g. :class:`AKModel.views.event_wizard.NewEventWizardMixin`).
     Each view of the wizard then uses that subclass and specifies its (1-based) position in the wizard
     as ``wizard_step``.
+    Wizards whose steps can be revisited can override :meth:`get_wizard_step_url`,
+    previous steps are then linked in the navigation.
     """
 
     # pylint: disable=too-few-public-methods
     wizard_title: str
     wizard_steps: list[str]
     wizard_step: int
+
+    def get_wizard_step_url(self, step: int) -> str | None:
+        """
+        Get the URL of the given (1-based) step of the wizard
+
+        :param step: step to get the URL for
+        :return: URL or None if the step cannot be accessed directly (default)
+        """
+        # pylint: disable=unused-argument
+        return None
 
     def get_context_data(self, **kwargs):
         """
@@ -165,6 +177,14 @@ class WizardViewMixin:
         context["wizard_steps"] = self.wizard_steps
         context["wizard_step_text"] = context["wizard_steps"][self.wizard_step - 1]
         context["wizard_steps_total"] = len(context["wizard_steps"])
+        # Steps for the navigation, previous steps are linked if they can be accessed directly
+        context["wizard_step_entries"] = [
+            {
+                "text": text,
+                "url": self.get_wizard_step_url(step) if step < self.wizard_step else None,
+            }
+            for step, text in enumerate(self.wizard_steps, 1)
+        ]
         return context
 
 
