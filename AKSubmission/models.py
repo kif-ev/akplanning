@@ -23,7 +23,11 @@ def orga_message_saved_handler(sender, instance: AKOrgaMessage, created, **kwarg
                 settings.DEFAULT_FROM_EMAIL,
                 [instance.ak.event.contact_email]
         )
-        mail.send(fail_silently=True)
+        try:
+            mail.send()
+        except OSError:
+            # Do not fail on SMTP errors
+            pass
 
 
 @receiver(post_save, sender=AKSlot)
@@ -42,4 +46,8 @@ def slot_created_handler(sender, instance: AKSlot, created, **kwargs):  # pylint
                 settings.DEFAULT_FROM_EMAIL,
                 [instance.ak.event.contact_email]
         )
-        mail.send(fail_silently=True)
+        try:
+            mail.send()
+        except OSError:
+            # Do not fail on SMTP errors
+            pass

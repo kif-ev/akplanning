@@ -252,7 +252,11 @@ CONTENT_SECURITY_POLICY = {
 
 # Emails
 SEND_MAILS = True
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+MAILERS = {
+    'default': {
+        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+    },
+}
 
 # Documentation
 
