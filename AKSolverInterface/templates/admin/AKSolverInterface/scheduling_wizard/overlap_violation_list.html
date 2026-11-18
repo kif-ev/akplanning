@@ -1,0 +1,28 @@
+{% load i18n %}{% load fontawesome_6 %}
+<table class="table table-sm mb-0">
+    <thead>
+    <tr>
+        <th>{% trans "Participant" %}</th>
+        <th>{% trans "AK" %}</th>
+        <th>{% trans "Longest slot" %}</th>
+        <th>{{ window_label }}</th>
+        <th>{% trans "Preference" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for violation in violations %}
+        <tr>
+            <td class="breakWord">{% include "admin/AKSolverInterface/scheduling_wizard/participant_link.html" with participant=violation.preference.participant %}</td>
+            <td>{% include "admin/AKSolverInterface/scheduling_wizard/ak_links.html" with ak=violation.preference.ak %}</td>
+            <td>{{ violation.longest_slot }}</td>
+            <td class="text-danger">{{ violation.longest_window }}</td>
+            <td>
+                <a href="{% url "admin:AKPreference_akpreference_change" object_id=violation.preference.pk %}"
+                   title="{% trans "Edit preference in admin" %}">
+                    {{ violation.preference.get_preference_display }} {% fa6_icon "pen-to-square" %}
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

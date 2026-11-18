@@ -163,12 +163,17 @@ class EventAKsWidget(TemplateStatusWidget):
         if apps.is_installed("AKSolverInterface"):
             actions.extend([
                 {
+                    "text": _("Automatic Scheduling Workflow"),
+                    "url": reverse_lazy("admin:scheduling_wizard_checks",
+                                        kwargs={"event_slug": context["event"].slug}),
+                },
+                {
                     "text": _("Export AKs as JSON"),
-                    "url": reverse_lazy("admin:ak_json_export", kwargs={"event_slug": context["event"].slug}),
+                    "url": reverse_lazy("admin:scheduling_wizard_export", kwargs={"event_slug": context["event"].slug}),
                 },
                 {
                     "text": _("Import AK schedule from JSON"),
-                    "url": reverse_lazy("admin:ak_schedule_json_import", kwargs={"event_slug": context["event"].slug}),
+                    "url": reverse_lazy("admin:scheduling_wizard_import", kwargs={"event_slug": context["event"].slug}),
                 },
             ])
         return actions

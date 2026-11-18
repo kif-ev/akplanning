@@ -1341,16 +1341,13 @@ msgid "Cancel"
 msgstr "Abbrechen"
 
 #: AKModel/templates/admin/AKModel/ak_delete_confirmation.html:5
-#, fuzzy, python-format
-#| msgid ""
-#| "Are you sure you want to delete the %(object_name)s “%(escaped_object)s”? "
-#| "All of the following related items will be deleted:"
+#, python-format
 msgid ""
 "Are you sure you want to delete the %(object_name)s “\n"
 "        %(escaped_object)s”? All of the following related items will be "
 "deleted:"
 msgstr ""
-"Wollen Sie die %(object_name)s “%(escaped_object)s”? wirklich löschen?Alle "
+"Wollen Sie %(object_name)s “%(escaped_object)s” wirklich löschen? Alle "
 "der folgenden verwandten Objekte werden gelöscht:"
 
 #: AKModel/templates/admin/AKModel/ak_delete_confirmation.html:8
@@ -1471,10 +1468,7 @@ msgid "Open Web Carousel"
 msgstr "Web Präsentation öffnen"
 
 #: AKModel/templates/admin/AKModel/message_delete.html:8
-#, fuzzy, python-format
-#| msgid ""
-#| "Are you sure you want to delete all orga messages for %(event)s? This "
-#| "will permanently delete %(message_count)s message(s):"
+#, python-format
 msgid ""
 "Are you sure you want to delete all orga messages for\n"
 "        %(event)s? This will permanently delete %(message_count)s message(s):"

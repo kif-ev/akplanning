@@ -1,0 +1,23 @@
+{% load i18n %}
+<table class="table table-sm mb-0">
+    <thead>
+    <tr>
+        <th>{% trans "AK" %}</th>
+        <th>{% trans "Category" %}</th>
+        <th>{% trans "Slots" %}</th>
+        <th>{% trans "Availabilities" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for entry in entries %}
+        <tr>
+            <td>{% include "admin/AKSolverInterface/scheduling_wizard/ak_links.html" with ak=entry.ak %}</td>
+            <td>{{ entry.ak.category }}</td>
+            <td>{{ entry.slot_lengths|join:", " }}</td>
+            <td>
+                {% for availability in entry.availability_lengths %}{% if availability.invalid %}<span class="text-danger" title="{% trans "End is not after start" %}">{% trans "invalid" %}</span>{% else %}{{ availability.length }}{% endif %}{% if not forloop.last %}, {% endif %}{% empty %}<span class="text-danger">{% trans "None" %}</span>{% endfor %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

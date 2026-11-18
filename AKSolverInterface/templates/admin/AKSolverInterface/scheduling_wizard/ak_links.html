@@ -1,0 +1,4 @@
+{% load i18n %}{% load fontawesome_6 %}<a href="{{ ak.detail_url }}">{{ ak }}</a>
+<a href="{{ ak.edit_url }}" title="{% trans "Edit" %}">{% fa6_icon "pen-to-square" %}</a>
+<a class="link-warning" href="{% url "admin:AKModel_ak_change" object_id=ak.pk %}"
+   title="{% trans "Edit in admin" %}">{% fa6_icon "pen-to-square" %}</a>

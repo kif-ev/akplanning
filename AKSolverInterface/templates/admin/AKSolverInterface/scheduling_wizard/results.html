@@ -1,0 +1,66 @@
+{% extends "admin/AKSolverInterface/scheduling_wizard/base.html" %}
+
+{% load i18n %}
+{% load fontawesome_6 %}
+
+{% block wizard_content %}
+    {# Results of the last import (stored in the session by the import step) #}
+    <div class="card border-{% if import_result %}success{% else %}secondary{% endif %} mb-3">
+        <div class="card-header d-flex align-items-center gap-2">
+            {% if import_result %}
+                {% include "admin/AKSolverInterface/scheduling_wizard/status_icon.html" with status="success" %}
+            {% endif %}
+            <b>{% trans "Import" %}</b>
+        </div>
+        <div class="card-body">
+            {% if import_result %}
+                <p>
+                    {% blocktrans count count=import_result.total %}{{ count }} slot was scheduled by the import.{% plural %}{{ count }} slots were scheduled by the import.{% endblocktrans %}
+                </p>
+                {% if import_result.per_category %}
+                    <table class="table table-sm mb-0 w-auto">
+                        <thead>
+                        <tr>
+                            <th>{% trans "Category" %}</th>
+                            <th>{% trans "Scheduled slots" %}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for entry in import_result.per_category %}
+                            <tr>
+                                <td>{{ entry.category }}</td>
+                                <td>{{ entry.count }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            {% else %}
+                {% trans "No schedule was imported for this event in this session yet." %}
+                <a href="{{ wizard_prev_url }}">{% trans "Go to import" %}</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if scheduling_installed %}
+        {# Scheduling statistics (same chart and numbers as on the statistics page of AKScheduling) #}
+        <div class="card mb-3">
+            <div class="card-header"><b>{% trans "Scheduling statistics" %}</b></div>
+            <div class="card-body">
+                {% include "admin/AKScheduling/statistics_chart.html" %}
+                {% include "admin/AKScheduling/statistics_summary.html" %}
+                <a href="{% url 'admin:scheduling_statistics' event_slug=event.slug %}" class="btn btn-primary">
+                    {% fa6_icon "chart-line" "fas" %} {% trans "Open scheduling statistics" %}
+                </a>
+                <a href="{% url 'admin:schedule' event_slug=event.slug %}" class="btn btn-outline-primary">
+                    {% fa6_icon "calendar-days" "fas" %} {% trans "Scheduling" %}
+                </a>
+            </div>
+        </div>
+    {% elif import_result %}
+        <div class="text-center btn-success disabled mt-3 mb-3" style="font-size: 6em;">
+            {% fa6_icon "check-circle" "fas" %}
+        </div>
+        <h5 class="text-center">{% trans "The schedule was imported successfully." %}</h5>
+    {% endif %}
+{% endblock %}

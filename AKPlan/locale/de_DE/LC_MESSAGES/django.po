@@ -59,7 +59,7 @@ msgstr "Raum"
 
 #: AKPlan/templates/AKPlan/plan_index.html:142
 msgid "Categories"
-msgstr ""
+msgstr "Kategorien"
 
 #: AKPlan/templates/AKPlan/plan_index.html:156
 #: AKPlan/templates/AKPlan/plan_room.html:50

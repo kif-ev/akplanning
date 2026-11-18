@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-12 23:05+0100\n"
+"POT-Creation-Date: 2026-11-18 11:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -181,119 +181,113 @@ msgstr "AK \"%(ak)s\" gelöscht."
 msgid "AK \"%(ak)s\" (re-)scheduled."
 msgstr "AK \"%(ak)s\" (um-)geplant."
 
-#: AKDashboard/views.py:211 AKDashboard/views.py:213
+#: AKDashboard/views.py:249 AKDashboard/views.py:251
 msgid "Plan published"
 msgstr "Plan veröffentlicht"
 
-#: AKDashboard/views.py:211
+#: AKDashboard/views.py:249
 msgid "Yes"
 msgstr "Ja"
 
-#: AKDashboard/views.py:220
+#: AKDashboard/views.py:258
 msgid "AKs"
 msgstr "AKs"
 
-#: AKDashboard/views.py:221
+#: AKDashboard/views.py:259
 msgid "AK Wishes"
 msgstr "AK-Wünsche"
 
-#: AKDashboard/views.py:231
+#: AKDashboard/views.py:269
 #, python-format
 msgid "That is %(days)s days without a break"
 msgstr "Das sind %(days)s Tage ohne Pause"
 
-#: AKDashboard/views.py:232
+#: AKDashboard/views.py:270
 msgid "Hours of AKs in total"
 msgstr "Stunden AKs insgesamt"
 
-#: AKDashboard/views.py:250
+#: AKDashboard/views.py:288
 #, python-format
 msgid "%(count)s AK: %(aks)s"
 msgid_plural "%(count)s AKs: %(aks)s"
 msgstr[0] "%(count)s AK: %(aks)s"
 msgstr[1] "%(count)s AKs: %(aks)s"
 
-#: AKDashboard/views.py:253
+#: AKDashboard/views.py:291
 #, python-format
 msgid "%(count)s AK each – %(aks)s"
 msgid_plural "%(count)s AKs each – %(aks)s"
 msgstr[0] "je %(count)s AK – %(aks)s"
 msgstr[1] "je %(count)s AKs – %(aks)s"
 
-#: AKDashboard/views.py:255
+#: AKDashboard/views.py:293
 msgid "Most AKs by one person"
 msgstr "Person(en) mit den meisten AKs"
 
-#: AKDashboard/views.py:259
+#: AKDashboard/views.py:297
 msgid "Average length of AK owner names"
 msgstr "Durchschnittliche Länge der Namen von AK-Leitungen"
 
-#: AKDashboard/views.py:261
+#: AKDashboard/views.py:299
 msgid "character"
 msgid_plural "characters"
 msgstr[0] "Zeichen"
 msgstr[1] "Zeichen"
 
-#: AKDashboard/views.py:277
+#: AKDashboard/views.py:304
 #, python-format
 msgid "%(count)s AK owner"
 msgid_plural "%(count)s AK owners"
 msgstr[0] "%(count)s AK-Leitung"
 msgstr[1] "%(count)s AK-Leitungen"
 
-#: AKDashboard/views.py:279
+#: AKDashboard/views.py:306
 msgid "Different institutions"
 msgstr "Verschiedene Institutionen"
 
-#: AKDashboard/views.py:280
+#: AKDashboard/views.py:307
 msgid "Institutions with the most AK owners"
 msgstr "Institutionen mit den meisten AK-Leitungen"
 
-#: AKDashboard/views.py:293 AKDashboard/views.py:297
+#: AKDashboard/views.py:320 AKDashboard/views.py:324
 #, python-format
 msgid "%(count)s AK"
 msgid_plural "%(count)s AKs"
 msgstr[0] "%(count)s AK"
 msgstr[1] "%(count)s AKs"
 
-#: AKDashboard/views.py:295
+#: AKDashboard/views.py:322
 msgid "Most popular category"
 msgstr "Beliebteste Kategorie"
 
-#: AKDashboard/views.py:298
+#: AKDashboard/views.py:325
 msgid "AKs per category"
 msgstr "AKs pro Kategorie"
 
-#: AKDashboard/views.py:309
+#: AKDashboard/views.py:336
 #, python-format
 msgid "%(count)s character"
 msgid_plural "%(count)s characters"
 msgstr[0] "%(count)s Zeichen"
 msgstr[1] "%(count)s Zeichen"
 
-#: AKDashboard/views.py:311
+#: AKDashboard/views.py:338
 msgid "Shortest AK name"
 msgstr "Kürzester AK-Name"
 
-#: AKDashboard/views.py:312
+#: AKDashboard/views.py:339
 msgid "Longest AK name"
 msgstr "Längster AK-Name"
 
-#: AKDashboard/views.py:332
+#: AKDashboard/views.py:359
 #, python-format
 msgid "%(hours)s hours of AKs"
 msgstr "%(hours)s Stunden AKs"
 
-#: AKDashboard/views.py:334
+#: AKDashboard/views.py:361
 msgid "Rooms"
 msgstr "Räume"
 
-#: AKDashboard/views.py:335
+#: AKDashboard/views.py:362
 msgid "Busiest rooms"
 msgstr "Meistgenutzte Räume"
-
-#~ msgid "Current AKs"
-#~ msgstr "Aktuelle AKs"
-
-#~ msgid "AK Wall"
-#~ msgstr "AK-Wall"

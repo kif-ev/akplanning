@@ -1,0 +1,44 @@
+{% extends "admin/AKSolverInterface/scheduling_wizard/base.html" %}
+
+{% load i18n %}
+{% load fontawesome_6 %}
+
+{% block wizard_content %}
+    <p>{% blocktrans with event=event.name %}Checking whether {{ event }} is ready for automatic scheduling.{% endblocktrans %}</p>
+
+    {% for check in checks %}
+        <div class="card border-{{ check.status }} mb-3">
+            <div class="card-header d-flex align-items-center gap-2">
+                {% include "admin/AKSolverInterface/scheduling_wizard/status_icon.html" with status=check.status %}
+                <b>{{ check.title }}</b>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                    <span>{{ check.message }}</span>
+                    {% if check.link_url %}
+                        <a href="{{ check.link_url }}" class="btn btn-sm btn-outline-dark">
+                            {% fa6_icon "pen" "fas" %} {{ check.link_text }}
+                        </a>
+                    {% endif %}
+                </div>
+                {% if check.entries %}
+                    <ul class="mt-2 mb-0">
+                        {% for entry in check.entries %}
+                            <li><a href="{{ entry.url }}">{{ entry.text }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+
+    {% if checks_passed %}
+        <div class="alert alert-success">
+            {% trans "All required checks passed." %}
+        </div>
+    {% else %}
+        <div class="alert alert-danger">
+            {% trans "Please fix the problems above before continuing with automatic scheduling." %}
+        </div>
+    {% endif %}
+{% endblock %}

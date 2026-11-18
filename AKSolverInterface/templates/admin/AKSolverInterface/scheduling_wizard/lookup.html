@@ -1,0 +1,145 @@
+{% extends "admin/AKSolverInterface/scheduling_wizard/base.html" %}
+
+{% load i18n %}
+{% load fontawesome_6 %}
+
+{% block wizard_extrahead %}
+    {{ lookup_data|json_script:"lookup-data" }}
+    {{ lookup_labels|json_script:"lookup-labels" }}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // All objects that can be looked up, serialized on the server (no API calls needed)
+            const lookupData = JSON.parse(document.getElementById('lookup-data').textContent);
+            const labels = JSON.parse(document.getElementById('lookup-labels').textContent);
+            const typeLabels = {
+                ak: labels.ak,
+                slot: labels.slot,
+                room: labels.room,
+                timeslot: labels.timeslot,
+                participant: labels.participant,
+            };
+            const notFoundText = labels.not_found;
+            const form = document.getElementById('lookupForm');
+            const results = document.getElementById('lookupResults');
+
+            function element(tag, className, text) {
+                const el = document.createElement(tag);
+                if (className) el.className = className;
+                if (text !== undefined) el.textContent = text;
+                return el;
+            }
+
+            // Render a field value: either text or a list of references to other objects that can be looked up
+            function renderValue(value) {
+                if (!Array.isArray(value)) return document.createTextNode(value);
+                const container = element('span');
+                value.forEach(function (ref, index) {
+                    if (index > 0) container.appendChild(document.createTextNode(', '));
+                    const link = element('a', 'link-primary', ref.label);
+                    link.href = '#';
+                    link.title = typeLabels[ref.type] + ' ' + ref.id;
+                    link.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        document.getElementById('lookup-' + ref.type).value = ref.id;
+                        lookup();
+                    });
+                    container.appendChild(link);
+                });
+                return container;
+            }
+
+            function renderResult(type, id) {
+                const obj = (lookupData[type] || {})[id];
+                const card = element('div', 'card mb-3 ' + (obj ? 'border-primary' : 'border-danger'));
+                card.appendChild(element('div', 'card-header fw-bold', typeLabels[type] + ' ' + id));
+                const body = element('div', 'card-body');
+                card.appendChild(body);
+
+                if (!obj) {
+                    body.appendChild(element('span', 'text-danger', notFoundText));
+                    return card;
+                }
+
+                body.appendChild(element('h5', 'card-title', obj.title));
+                const list = element('dl', 'row mb-2');
+                obj.fields.forEach(function (field) {
+                    list.appendChild(element('dt', 'col-sm-3', field[0]));
+                    const dd = element('dd', 'col-sm-9');
+                    dd.appendChild(renderValue(field[1]));
+                    list.appendChild(dd);
+                });
+                body.appendChild(list);
+
+                const links = element('div', 'd-flex flex-wrap gap-2');
+                obj.links.forEach(function (link) {
+                    const a = element('a', 'btn btn-sm btn-outline-dark', link.text);
+                    a.href = link.url;
+                    a.target = '_blank';
+                    links.appendChild(a);
+                });
+                body.appendChild(links);
+                return card;
+            }
+
+            function lookup() {
+                results.replaceChildren();
+                Object.keys(typeLabels).forEach(function (type) {
+                    const id = document.getElementById('lookup-' + type).value.trim();
+                    if (id !== '') results.appendChild(renderResult(type, id));
+                });
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                lookup();
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block wizard_content %}
+    <p>
+        {% blocktrans %}Look up the objects behind the IDs used in the export and in the output of the solver to investigate the causes of solving issues.{% endblocktrans %}
+    </p>
+    <ul class="small text-muted">
+        <li>{% trans "AK: AK id in the info of the AK slots (django_ak_id)." %}</li>
+        <li>{% trans "AK slot: id of the AK slots, also used for conflicts, dependencies, and preferences of participants (ak_id) as well as in the solver output." %}</li>
+        <li>{% trans "Timeslot: id of the timeslots in the blocks (and in the solver output), the default slots containing it are shown." %}</li>
+        <li>{% trans "Participant: also includes the dummy participants created for AK owners (assuming the preferences were exported)." %}</li>
+    </ul>
+
+    {% if timeslot_error %}
+        <div class="alert alert-danger">
+            {% trans "Timeslots could not be generated:" %} {{ timeslot_error }}
+        </div>
+    {% endif %}
+
+    <form id="lookupForm" class="d-flex flex-wrap align-items-end gap-2 mb-3">
+        <div>
+            <label for="lookup-ak" class="form-label">{{ lookup_labels.ak }}</label>
+            <input type="text" inputmode="numeric" class="form-control" id="lookup-ak">
+        </div>
+        <div>
+            <label for="lookup-slot" class="form-label">{{ lookup_labels.slot }}</label>
+            <input type="text" inputmode="numeric" class="form-control" id="lookup-slot">
+        </div>
+        <div>
+            <label for="lookup-room" class="form-label">{{ lookup_labels.room }}</label>
+            <input type="text" inputmode="numeric" class="form-control" id="lookup-room">
+        </div>
+        <div>
+            <label for="lookup-timeslot" class="form-label">{{ lookup_labels.timeslot }}</label>
+            <input type="text" inputmode="numeric" class="form-control" id="lookup-timeslot">
+        </div>
+        <div>
+            <label for="lookup-participant" class="form-label">{{ lookup_labels.participant }}</label>
+            <input type="text" inputmode="numeric" class="form-control" id="lookup-participant">
+        </div>
+        <button type="submit" class="btn btn-primary" title="{% trans "Search" %}">
+            {% fa6_icon "magnifying-glass" "fas" %}
+        </button>
+    </form>
+
+    <div id="lookupResults"></div>
+{% endblock %}

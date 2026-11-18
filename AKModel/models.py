@@ -465,6 +465,23 @@ class Event(models.Model):
             the AK schedule. The json data is assumed to be constructed
             following the output specification of the KoMa conference optimizer, cf.
             https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
+        :return: number of slots that were updated (see :meth:`schedule_from_json_with_slots`)
+        """
+        return len(self.schedule_from_json_with_slots(
+                schedule, check_for_data_inconsistency=check_for_data_inconsistency
+        ))
+
+    @transaction.atomic
+    def schedule_from_json_with_slots(
+            self, schedule: str | dict[str, Any], *, check_for_data_inconsistency: bool = True
+    ) -> list["AKSlot"]:
+        """Load AK schedule from a json string and return the slots that were updated.
+
+        :param schedule: A string that can be decoded to json, describing
+            the AK schedule. The json data is assumed to be constructed
+            following the output specification of the KoMa conference optimizer, cf.
+            https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
+        :return: list of all slots that were scheduled/updated by this import (fixed slots are not changed)
         """
         if isinstance(schedule, str):
             schedule = json.loads(schedule)
@@ -487,7 +504,7 @@ class Event(models.Model):
             for timeslot in block
         }
 
-        slots_updated = 0
+        slots_updated = []
         for scheduled_slot in schedule["scheduled_aks"]:
             scheduled_slot["timeslot_ids"] = list(map(int, scheduled_slot["timeslot_ids"]))
             slot = AKSlot.objects.get(id=int(scheduled_slot["ak_id"]))
@@ -541,7 +558,7 @@ class Event(models.Model):
                 slot.room = Room.objects.get(id=int(scheduled_slot["room_id"]))
                 slot.start = start_timeslot.start
                 slot.save()
-                slots_updated += 1
+                slots_updated.append(slot)
 
         return slots_updated
 
