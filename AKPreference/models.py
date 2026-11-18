@@ -54,6 +54,7 @@ class EventParticipant(models.Model):
                 event=self.event,
                 participant=self,
                 preference=AKPreference.PreferenceLevel.REQUIRED,
+                ak__trashed_at__isnull=True,
         )
 
         if (
@@ -72,11 +73,11 @@ class EventParticipant(models.Model):
 
     @property
     def export_preferences(self):
-        """Preferences of this participant with positive score."""
+        """Preferences of this participant with positive score (ignoring trashed AKs)."""
         return (
             AKPreference.objects
             .filter(
-                    participant=self, preference__gt=0
+                    participant=self, preference__gt=0, ak__trashed_at__isnull=True
             )
             .order_by()
             .select_related('ak')

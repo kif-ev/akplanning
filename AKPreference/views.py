@@ -244,6 +244,11 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
             f.fields["preference"].help_text = (
                     _("Description: ") + ak.description
             )
+            # Also update the bound field: When the form is re-displayed after validation errors,
+            # the bound field was already created (and cached) during validation using the old label
+            bound_field = f["preference"]
+            bound_field.label = f.fields["preference"].label
+            bound_field.help_text = f.fields["preference"].help_text
             f.ak_obj = ak
         return context
 
