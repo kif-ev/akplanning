@@ -1,11 +1,11 @@
 import itertools
 import json
+import math
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_DOWN
 from typing import Any, Generator, Iterable
 
-import math
 from django.apps import apps
 from django.conf import settings
 from django.core.validators import MinValueValidator, RegexValidator
@@ -1102,15 +1102,19 @@ class Room(models.Model):
         """
         return "; ".join(str(p) for p in self.properties.all())
 
-    def get_time_constraints(self) -> list[str]:
-        """Construct list of required time constraint labels."""
+    def get_time_constraints(self, availabilities: list | None = None) -> list[str]:
+        """Construct list of required time constraint labels.
+
+        :param availabilities: optional availabilities to use instead of the stored ones
+        """
         # local import to prevent cyclic import
         # pylint: disable=import-outside-toplevel
         from AKModel.availability.models import Availability
 
+        avails = self.availabilities.all() if availabilities is None else availabilities
         # check if room is available for the whole event
         # -> no time constraint needs to be introduced
-        if Availability.is_event_covered(self.event, self.availabilities.all()):
+        if Availability.is_event_covered(self.event, avails):
             time_constraints = []
         else:
             time_constraints = [f"availability-room-{self.pk}"]
@@ -1247,18 +1251,36 @@ class AKSlot(models.Model):
         return room_constraints
 
     def get_time_constraints(self, export_scheduled_aks_as_fixed: bool = False,
-                             aks_to_ignore_category_for: set[AK] = None) -> list[str]:
-        """Construct list of required time constraint labels."""
+                             aks_to_ignore_category_for: set[AK] = None,
+                             ak_availabilities: dict[int, list] | None = None,
+                             person_availabilities: dict[int, list] | None = None) -> list[str]:
+        """Construct list of required time constraint labels.
+
+        :param ak_availabilities: optional mapping of AK pks to availabilities to use instead of the stored ones
+        :param person_availabilities: optional mapping of AKOwner pks to availabilities to use
+            instead of the stored ones. In contrast to stored availabilities, an empty list
+            means that the owner is not available at all.
+        """
         # local import to prevent cyclic import
         # pylint: disable=import-outside-toplevel
         from AKModel.availability.models import Availability
 
         if aks_to_ignore_category_for is None:
             aks_to_ignore_category_for = set()
+        if ak_availabilities is None:
+            ak_availabilities = {}
+        if person_availabilities is None:
+            person_availabilities = {}
 
         def _owner_time_constraints(owner: AKOwner):
-            owner_avails = owner.availabilities.all()
-            if not owner_avails or Availability.is_event_covered(self.event, owner_avails):
+            if owner.pk in person_availabilities:
+                owner_avails = person_availabilities[owner.pk]
+            else:
+                owner_avails = owner.availabilities.all()
+                if not owner_avails:
+                    # no stored availabilities -> owner is available for the whole event
+                    return []
+            if Availability.is_event_covered(self.event, owner_avails):
                 return []
             return [f"availability-person-{owner.pk}"]
 
@@ -1266,7 +1288,8 @@ class AKSlot(models.Model):
         # -> no time constraint needs to be introduced
         if (export_scheduled_aks_as_fixed or self.fixed) and self.start is not None:
             time_constraints = [f"fixed-akslot-{self.id}"]
-        elif not Availability.is_event_covered(self.event, self.ak.availabilities.all()):
+        elif not Availability.is_event_covered(self.event,
+                                               ak_availabilities.get(self.ak.pk, self.ak.availabilities.all())):
             time_constraints = [f"availability-ak-{self.ak.pk}"]
         else:
             time_constraints = []

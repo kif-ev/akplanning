@@ -24,11 +24,15 @@ msgstr "Fixiere alle schon terminierten Slots für den Solver."
 
 #: AKSolverInterface/forms.py:22
 msgid ""
-"In the solver export, all assigned times and room to slots are handled as if "
-"the slot were fixed."
+"Slots that are already scheduled are not exported. Instead, their owners, "
+"required participants, rooms and conflicting AKs are unavailable at their "
+"time, dependent AKs are unavailable until their end and prerequisite AKs "
+"from their start."
 msgstr ""
-"Im Solver Export werden all zugewiesenen Zeiten und Räume der Slots "
-"gehandhabt als ob sie fixiert wären."
+"Schon terminierte Slots werden nicht exportiert. Stattdessen sind ihre "
+"AK-Leitungen, benötigten Teilnehmenden, Räume und kollidierenden AKs zu "
+"ihrer Zeit nicht verfügbar, abhängige AKs bis zu ihrem Ende und "
+"vorausgesetzte AKs ab ihrem Beginn."
 
 #: AKSolverInterface/forms.py:29
 msgid "Export participants' preferences"

@@ -273,6 +273,27 @@ class Availability(models.Model):
             result = cls._pair_intersection(result, availset)
         return result
 
+    @classmethod
+    def difference(
+            cls, availabilities: List['Availability'], removals: List['Availability']
+    ) -> List['Availability']:
+        """Return the minimal list of Availabilities which are covered by the
+        given availabilities but not by any of the removals."""
+        result = cls.union(list(availabilities))
+        for removal in cls.union(list(removals)):
+            remaining = []
+            for avail in result:
+                if not avail.overlaps(removal, strict=True):
+                    remaining.append(avail)
+                    continue
+                # keep the parts before and after the removed timeframe
+                if avail.start < removal.start:
+                    remaining.append(Availability(event_id=avail.event_id, start=avail.start, end=removal.start))
+                if removal.end < avail.end:
+                    remaining.append(Availability(event_id=avail.event_id, start=removal.end, end=avail.end))
+            result = remaining
+        return result
+
     @property
     def simplified(self):
         """
