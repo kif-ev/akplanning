@@ -212,14 +212,7 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, SchedulingWizardMixin, Fo
                             | Q(ak__types__isnull=True)
                     )
 
-                queryset = queryset.distinct().all()
-                if not queryset.exists():
-                    messages.warning(
-                            self.request,
-                            _("No AKSlots are exported"),
-                    )
-
-                return queryset
+                return queryset.distinct().all()
 
             def _filter_rooms_cb(queryset: QuerySet) -> QuerySet:
                 queryset = queryset.all()
@@ -244,6 +237,9 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, SchedulingWizardMixin, Fo
             )
             serialized_event_data = serialized_event.data
 
+            # check after serialization, as scheduled slots might have been removed during it
+            if not serialized_event_data["aks"]:
+                messages.warning(self.request, _("No AKSlots are exported"))
             if not serialized_event_data["timeslots"]["blocks"]:
                 messages.warning(self.request, _("No timeslots are exported"))
             context["json_data_oneline"] = json.dumps(serialized_event_data, ensure_ascii=False)

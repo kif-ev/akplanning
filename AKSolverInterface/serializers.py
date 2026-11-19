@@ -1,4 +1,6 @@
+from collections import defaultdict
 from collections.abc import Callable
+from datetime import datetime, timezone
 
 from django.apps import apps
 from django.db.models.query import QuerySet
@@ -14,6 +16,85 @@ def _apply_filter_cb_to_queryset(
     """Applies filter callback if queryset is a QuerySet object."""
     # check if queryset is actually a queryset (and not e.g. an empty list)
     return cb(queryset) if isinstance(queryset, QuerySet) else queryset
+
+
+def _compute_availabilities_without_scheduled_slots(
+        event: Event, scheduled_slots: QuerySet,
+) -> dict[str, dict[int, list]]:
+    """Compute availabilities adjusted for scheduled slots that are removed from the export.
+
+    As removed slots are no longer visible to the solver, their effects are encoded
+    by removing the time of each removed slot from the availabilities of
+    the owners of its AK, all participants required for its AK,
+    its AK itself (other slots of it), all AKs in conflict with it (both ways)
+    and the room it is scheduled in.
+    Furthermore, AKs that have the AK of a removed slot as prerequisite
+    lose all availabilities until the end of that slot and
+    prerequisites of the AK of a removed slot lose all availabilities from the start of that slot.
+
+    :return: dict with keys 'ak', 'room', 'person' and 'participant', each mapping the pks
+        of all affected objects to their adjusted availabilities.
+        Unaffected objects are not contained.
+    """
+    # pylint: disable=import-outside-toplevel,too-many-locals
+    from AKModel.availability.models import Availability
+
+    removals = {key: defaultdict(list) for key in ["ak", "room", "person", "participant"]}
+
+    for slot in scheduled_slots.select_related("ak"):
+        slot_avail = Availability(event=event, start=slot.start, end=slot.end)
+        ak = slot.ak
+
+        if slot.room_id is not None:
+            removals["room"][slot.room_id].append(slot_avail)
+
+        for owner_pk in ak.owners.values_list("pk", flat=True):
+            removals["person"][owner_pk].append(slot_avail)
+
+        if apps.is_installed("AKPreference"):
+            # pylint: disable=import-outside-toplevel
+            from AKPreference.models import AKPreference
+
+            required_participant_pks = AKPreference.objects.filter(
+                    event=event, ak=ak, preference=AKPreference.PreferenceLevel.REQUIRED,
+            ).values_list("participant_id", flat=True)
+            for participant_pk in required_participant_pks:
+                removals["participant"][participant_pk].append(slot_avail)
+
+        conflicting_ak_pks = {ak.pk}
+        conflicting_ak_pks |= set(ak.conflicts.values_list("pk", flat=True))
+        conflicting_ak_pks |= set(ak.conflict.values_list("pk", flat=True))
+        for ak_pk in conflicting_ak_pks:
+            removals["ak"][ak_pk].append(slot_avail)
+
+        until_slot_end = Availability(event=event, start=datetime.min.replace(tzinfo=timezone.utc), end=slot.end)
+        for ak_pk in AK.objects.filter(prerequisites=ak).values_list("pk", flat=True):
+            removals["ak"][ak_pk].append(until_slot_end)
+
+        from_slot_start = Availability(event=event, start=slot.start, end=datetime.max.replace(tzinfo=timezone.utc))
+        for ak_pk in ak.prerequisites.values_list("pk", flat=True):
+            removals["ak"][ak_pk].append(from_slot_start)
+
+    def _stored_availabilities(**kwargs) -> list:
+        return list(Availability.objects.filter(event=event, **kwargs))
+
+    # For AKs and rooms, no availabilities mean no availability at all
+    availabilities = {
+        key: {
+            pk: Availability.difference(_stored_availabilities(**{field: pk}), avails)
+            for pk, avails in removals[key].items()
+        }
+        for key, field in [("ak", "ak_id"), ("room", "room_id")]
+    }
+    # For persons and participants, no availabilities mean availability for the whole event
+    for key, field in [("person", "person_id"), ("participant", "participant_id")]:
+        availabilities[key] = {}
+        for pk, avails in removals[key].items():
+            stored = _stored_availabilities(**{field: pk}) or [
+                Availability(event=event, start=event.start, end=event.end)
+            ]
+            availabilities[key][pk] = Availability.difference(stored, avails)
+    return availabilities
 
 
 class ExportRoomInfoSerializer(serializers.ModelSerializer):
@@ -39,11 +120,20 @@ class ExportRoomSerializer(serializers.ModelSerializer):
     https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
     """
 
-    time_constraints = StringListField(source="get_time_constraints", read_only=True)
+    time_constraints = serializers.SerializerMethodField()
     fulfilled_room_constraints = StringListField(
             source="get_fulfilled_room_constraints", read_only=True
     )
     info = ExportRoomInfoSerializer(source="*")
+
+    def get_time_constraints(self, room: Room) -> list[str]:
+        """Get serialized representation for time_constraints.
+
+        Uses adjusted availabilities passed via the context key
+        `room_availabilities` (mapping room pks to availabilities) if present.
+        """
+        room_availabilities = self.context.get("room_availabilities", {})
+        return room.get_time_constraints(availabilities=room_availabilities.get(room.pk))
 
     class Meta:
         model = Room
@@ -138,10 +228,14 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
     info = ExportAKSlotInfoSerializer(source="*")
     properties = ExportAKSlotPropertiesSerializer(source="*")
 
-    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False, aks_to_ignore_category_for, **kwargs):
+    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False, aks_to_ignore_category_for,
+                 ak_availabilities: dict[int, list] | None = None,
+                 person_availabilities: dict[int, list] | None = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
         self.aks_to_ignore_category_for = aks_to_ignore_category_for
+        self.ak_availabilities = ak_availabilities
+        self.person_availabilities = person_availabilities
 
     def get_room_constraints(self, slot: AKSlot):
         """Get serialized representation for room_constraints.
@@ -159,7 +253,9 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
         """
         return slot.get_time_constraints(
                 export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
-                aks_to_ignore_category_for=self.aks_to_ignore_category_for
+                aks_to_ignore_category_for=self.aks_to_ignore_category_for,
+                ak_availabilities=self.ak_availabilities,
+                person_availabilities=self.person_availabilities,
         )
 
     class Meta:
@@ -184,10 +280,14 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
 
 class ExportFilteredAKSlotSerializer(serializers.BaseSerializer):
     def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False,
-                 aks_to_ignore_category_for, **kwargs):
+                 aks_to_ignore_category_for,
+                 ak_availabilities: dict[int, list] | None = None,
+                 person_availabilities: dict[int, list] | None = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
         self.aks_to_ignore_category_for = aks_to_ignore_category_for
+        self.ak_availabilities = ak_availabilities
+        self.person_availabilities = person_availabilities
 
     def create(self, validated_data):
         raise ValueError("`ExportFilteredAKSlotSerializer` is read-only.")
@@ -210,6 +310,8 @@ class ExportFilteredAKSlotSerializer(serializers.BaseSerializer):
                 export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
                 many=True,
                 aks_to_ignore_category_for=self.aks_to_ignore_category_for,
+                ak_availabilities=self.ak_availabilities,
+                person_availabilities=self.person_availabilities,
         ).data
 
         for slot_dict in serialized_slots:
@@ -242,12 +344,14 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
             slots_qs: QuerySet = None,
             filter_participants_cb: Callable[[QuerySet], QuerySet],
             export_preferences: bool = True,
+            participant_availabilities: dict[int, list] | None = None,
             **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.filter_participants_cb = filter_participants_cb
         self.slots_qs = slots_qs
         self.export_preferences = export_preferences
+        self.participant_availabilities = participant_availabilities or {}
 
     def create(self, validated_data):
         raise ValueError("`ExportParticipantAndDummiesSerializer` is read-only.")
@@ -273,7 +377,11 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
             from AKPreference.serializers import ExportParticipantSerializer
 
             participants = _apply_filter_cb_to_queryset(self.filter_participants_cb, event.participants)
-            real_participants = ExportParticipantSerializer(participants, many=True).data
+            real_participants = ExportParticipantSerializer(
+                    participants,
+                    many=True,
+                    context={"participant_availabilities": self.participant_availabilities},
+            ).data
 
             if EventParticipant.objects.exists():
                 next_participant_pk = EventParticipant.objects.latest("pk").pk + 1
@@ -337,9 +445,11 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
     https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
     """
 
-    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False, **kwargs):
+    def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False,
+                 availability_overrides: dict[str, dict[int, list]] | None = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
+        self.availability_overrides = availability_overrides or {}
 
     def create(self, validated_data):
         raise ValueError("`ExportTimeslotBlockSerializer` is read-only.")
@@ -418,6 +528,12 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
             for participant in event.participants
         }
 
+        # replace stored availabilities by adjusted ones (e.g., due to scheduled slots removed from the export)
+        ak_availabilities.update(self.availability_overrides.get("ak", {}))
+        room_availabilities.update(self.availability_overrides.get("room", {}))
+        person_availabilities.update(self.availability_overrides.get("person", {}))
+        participant_availabilities.update(self.availability_overrides.get("participant", {}))
+
         block_names = []
         for block_idx, block in enumerate(blocks):
             current_block = []
@@ -484,15 +600,17 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
                 )
 
                 # add fulfilled time constraints for all AKSlots fixed to happen during timeslot
-                time_constraints.extend(
-                        [
-                            f"fixed-akslot-{slot.id}"
-                            for slot in AKSlot.objects.filter(
-                                event=event, fixed=True
-                        ).exclude(start__isnull=True)
-                            if _check_akslot_fixed_in_timeslot(slot, timeslot.avail)
-                        ]
-                )
+                # (not needed if scheduled slots are fixed, as they are then not exported at all)
+                if not self.export_scheduled_aks_as_fixed:
+                    time_constraints.extend(
+                            [
+                                f"fixed-akslot-{slot.id}"
+                                for slot in AKSlot.objects.filter(
+                                    event=event, fixed=True
+                            ).exclude(start__isnull=True)
+                                if _check_akslot_fixed_in_timeslot(slot, timeslot.avail)
+                            ]
+                    )
 
                 time_constraints.extend(timeslot.constraints)
                 time_constraints.extend(block_timeconstraints)
@@ -571,23 +689,43 @@ class ExportEventSerializer(serializers.BaseSerializer):
         event = instance
 
         info = ExportEventInfoSerializer(event)
-        timeslots = ExportTimeslotBlockSerializer(event)
         # we support filtering of Rooms and AKSlots
+        slots_qs = _apply_filter_cb_to_queryset(self.filter_slots_cb, event.slots)
+
+        availability_overrides = {}
+        if self.export_scheduled_aks_as_fixed:
+            # Scheduled slots are not exported at all, instead the availabilities
+            # of all affected objects are reduced accordingly.
+            # This includes scheduled slots that are excluded by the filters.
+            availability_overrides = _compute_availabilities_without_scheduled_slots(
+                    event, event.slots.filter(start__isnull=False),
+            )
+            if isinstance(slots_qs, QuerySet):
+                slots_qs = slots_qs.filter(start__isnull=True)
+
+        timeslots = ExportTimeslotBlockSerializer(
+                event,
+                export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
+                availability_overrides=availability_overrides,
+        )
         rooms = ExportRoomSerializer(
                 _apply_filter_cb_to_queryset(self.filter_rooms_cb, event.rooms),
                 many=True,
+                context={"room_availabilities": availability_overrides.get("room", {})},
         )
-        slots_qs = _apply_filter_cb_to_queryset(self.filter_slots_cb, event.slots)
         slots = ExportFilteredAKSlotSerializer(
                 slots_qs,
                 export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
                 aks_to_ignore_category_for=self.aks_to_ignore_category_for,
+                ak_availabilities=availability_overrides.get("ak"),
+                person_availabilities=availability_overrides.get("person"),
         )
         participants = ExportParticipantAndDummiesSerializer(
                 event,
                 slots_qs=slots_qs,
                 filter_participants_cb=self.filter_participants_cb,
                 export_preferences=self.export_preferences,
+                participant_availabilities=availability_overrides.get("participant"),
         )
 
         return {

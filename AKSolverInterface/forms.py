@@ -19,8 +19,9 @@ class JSONExportControlForm(forms.Form):
     export_scheduled_aks_as_fixed = forms.BooleanField(
             label=_("Fixate all scheduled slots for the solver"),
             help_text=_(
-                    "In the solver export, all assigned times and room to slots are handled "
-                    "as if the slot were fixed."
+                    "Slots that are already scheduled are not exported. Instead, their owners, "
+                    "required participants, rooms and conflicting AKs are unavailable at their time, "
+                    "dependent AKs are unavailable until their end and prerequisite AKs from their start."
             ),
             required=False,
     )

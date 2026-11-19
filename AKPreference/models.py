@@ -43,13 +43,24 @@ class EventParticipant(models.Model):
         """
         return "Availability".objects.filter(participant=self)
 
-    def get_time_constraints(self) -> list[str]:
-        """Construct list of required time constraint labels."""
+    def get_time_constraints(self, availabilities: list | None = None) -> list[str]:
+        """Construct list of required time constraint labels.
+
+        :param availabilities: optional availabilities to use instead of the stored ones.
+            In contrast to stored availabilities, an empty list means that the participant
+            is not available at all.
+        """
         # local import to prevent cyclic import
         # pylint: disable=import-outside-toplevel
         from AKModel.availability.models import Availability
 
-        avails = self.availabilities.all()
+        if availabilities is None:
+            avails = self.availabilities.all()
+            if not avails:
+                # no stored availabilities -> participant is available for the whole event
+                return []
+        else:
+            avails = availabilities
         participant_required_prefs = AKPreference.objects.filter(
                 event=self.event,
                 participant=self,
@@ -58,8 +69,7 @@ class EventParticipant(models.Model):
         )
 
         if (
-                avails
-                and not Availability.is_event_covered(self.event, avails)
+                not Availability.is_event_covered(self.event, avails)
                 and participant_required_prefs.exists()
         ):
             # participant has restricted availability and is actually required for AKs

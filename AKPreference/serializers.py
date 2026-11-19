@@ -86,9 +86,20 @@ class ExportParticipantSerializer(serializers.ModelSerializer):
     """
 
     room_constraints = StringListField(source="get_room_constraints")
-    time_constraints = StringListField(source="get_time_constraints")
+    time_constraints = serializers.SerializerMethodField()
     preferences = ExportAKPreferencePerSlotSerializer(source="export_preferences")
     info = ExportParticipantInfoSerializer(source="*")
+
+    def get_time_constraints(self, participant: EventParticipant) -> list[str]:
+        """Get serialized representation for time_constraints.
+
+        Uses adjusted availabilities passed via the context key
+        `participant_availabilities` (mapping participant pks to availabilities) if present.
+        """
+        participant_availabilities = self.context.get("participant_availabilities", {})
+        return participant.get_time_constraints(
+                availabilities=participant_availabilities.get(participant.pk),
+        )
 
     class Meta:
         model = EventParticipant
