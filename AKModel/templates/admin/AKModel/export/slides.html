@@ -7,7 +7,8 @@
 {% block title %}{{ event }}: {{ title }}{% endblock %}
 
 {% block content %}
-    <div class="no-print mb-4">
+    {# Limit width for better readability, smaller screens still use the full width #}
+    <div class="no-print mb-4" style="max-width: 50rem;">
         <h2>{{ event_name }}</h2>
         <p class="text-muted">
             {% trans "Choose the slide filters. You can either export a PDF (legacy) or publish/open the web carousel." %}

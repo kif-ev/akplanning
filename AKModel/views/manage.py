@@ -10,7 +10,9 @@ from django.core import signing
 from django.db.models.functions import Now
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, ListView, TemplateView
 from django_tex.core import render_template_with_context, run_tex_in_directory
@@ -36,9 +38,95 @@ def _parse_selected_ids(values):
     return [int(value) for value in values if str(value).strip() != ""]
 
 
+def _serialize_datetime(value):
+    """
+    Serialize an (optional) datetime for the signed slide config (which only supports JSON types)
+
+    :param value: datetime to serialize or None
+    :return: ISO representation of the datetime or None
+    :rtype: str | None
+    """
+    return value.isoformat() if value else None
+
+
+def _parse_config_datetime(value):
+    """
+    Parse an (optional) datetime from the signed slide config, counterpart to :func:`_serialize_datetime`
+
+    :param value: ISO representation of a datetime, None or missing (configs created before the timespan filter)
+    :return: parsed datetime or None
+    :rtype: datetime.datetime | None
+    """
+    return parse_datetime(value) if value else None
+
+
+def _truncate_to_minute(value):
+    """
+    Remove seconds and microseconds from a datetime
+
+    Needed to compare user input with event start and end, since the date picker does not support seconds
+
+    :param value: datetime to truncate
+    :return: truncated datetime
+    :rtype: datetime.datetime
+    """
+    return value.replace(second=0, microsecond=0)
+
+
+def _ak_has_slot_in_timespan(ak, timespan_start, timespan_end):
+    """
+    Check whether an AK has at least one scheduled slot overlapping with the given timespan
+
+    Slots only touching the timespan (e.g., ending exactly at its start) do not count as overlapping.
+    Unscheduled slots (without start) are ignored.
+
+    :param ak: AK to check (slots should be prefetched to prevent additional queries)
+    :type ak: AK
+    :param timespan_start: start of the timespan
+    :type timespan_start: datetime.datetime
+    :param timespan_end: end of the timespan
+    :type timespan_end: datetime.datetime
+    :return: True if at least one slot overlaps the timespan, False otherwise
+    :rtype: bool
+    """
+    return any(slot.start is not None and slot.start < timespan_end and slot.end > timespan_start
+               for slot in ak.akslot_set.all())
+
+
 def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids, types_all_selected_only,
-                                categories_ids):
-    """Build the context used by both the admin config and the public slides page."""
+                                categories_ids, timespan_start=None, timespan_end=None):
+    """
+    Build the context used by both the admin config and the public slides page.
+
+    If the given timespan deviates from the event's start and end, only AKs with at least one slot in that timespan
+    are included and the timespan is shown on the title slide. When the timespan covers the whole event (default),
+    no filtering is applied, so AKs that are not scheduled yet are still included (e.g., when presenting AKs
+    before the scheduling is done).
+    """
+    # Default to the full event if no (or only a partial) timespan was given
+    timespan_start = timespan_start or event.start
+    timespan_end = timespan_end or event.end
+    # Compare with minute precision since the date picker does not allow to input seconds
+    timespan_changed = (_truncate_to_minute(timespan_start) != _truncate_to_minute(event.start)
+                        or _truncate_to_minute(timespan_end) != _truncate_to_minute(event.end))
+    timespan_string = ""
+    if timespan_changed:
+        # Use the simplified format (weekday + time, e.g. "Fri 14:00") also used for slots
+        timespan_string = (f"{_('Timespan')}: "
+                           f"{date_format(timespan_start.astimezone(event.timezone), format='D G:i', use_l10n=True)}"
+                           f" - "
+                           f"{date_format(timespan_end.astimezone(event.timezone), format='D G:i', use_l10n=True)}")
+
+    def include_ak(ak):
+        """
+        Filter predicate: Should the given AK be included in the slides?
+
+        Respects the presentation mode (only AKs that should directly or indirectly be presented)
+        and the timespan (only if it deviates from the full event)
+        """
+        if presentation_mode and not (ak.present or (ak.present is None and ak.category.present_by_default)):
+            return False
+        return not timespan_changed or _ak_has_slot_in_timespan(ak, timespan_start, timespan_end)
 
     def build_ak_list_with_next_aks(ak_list):
         """
@@ -64,9 +152,8 @@ def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids
         categories = AKCategory.objects.filter(id__in=categories_ids)
 
     # Get all relevant AKs (wishes separately, and either all AKs or only those who should directly or indirectly
-    # be presented when restriction setting was chosen)
-    categories_with_aks = event.get_categories_with_aks(filter_func=lambda
-        ak: not presentation_mode or (ak.present or (ak.present is None and ak.category.present_by_default)),
+    # be presented when restriction setting was chosen, optionally restricted to the chosen timespan)
+    categories_with_aks = event.get_categories_with_aks(filter_func=include_ak,
                                                         types=types,
                                                         types_all_selected_only=types_all_selected_only,
                                                         sort_func=lambda ak: ak.wish,
@@ -76,6 +163,7 @@ def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids
         'kind': 'title',
         'event_name': event.name,
         'subtitle': _("AKs") + " " + types_filter_string,
+        'timespan': timespan_string,
     }]
     for category, ak_list in categories_with_aks:
         ak_list_with_next = build_ak_list_with_next_aks(ak_list)
@@ -102,6 +190,7 @@ def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids
                                 categories_with_aks],
         'slides': slides,
         'subtitle': _("AKs") + " " + types_filter_string,
+        'timespan': timespan_string,
         'result_presentation_mode': presentation_mode,
         'show_types': show_types,
     }
@@ -127,7 +216,11 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
     def get_form(self, form_class=None):
         # Filter type choices to those of the current event
         # or completely hide the field if no types are specified for this event
+        # Use the timezone of the event to display and parse the timespan fields
+        timezone.activate(self.event.timezone)
         form = super().get_form(form_class)
+        # Default timespan: the whole event
+        form.initial['timespan'] = (self.event.start, self.event.end)
         form.fields['categories'].choices = [
             (ak_category.id, ak_category.name) for ak_category in self.event.akcategory_set.all()
         ]
@@ -144,12 +237,15 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
 
     def _build_public_url(self, form):
         public_url = reverse("model:ak_slides_public", kwargs={"event_slug": self.event.slug})
+        timespan_start, timespan_end = form.cleaned_data["timespan"]
         config = signing.dumps({
             "num_next": form.cleaned_data["num_next"],
             "presentation_mode": form.cleaned_data["presentation_mode"],
             "types": form.cleaned_data["types"],
             "types_all_selected_only": form.cleaned_data["types_all_selected_only"],
             "categories": form.cleaned_data["categories"],
+            "timespan_start": _serialize_datetime(timespan_start),
+            "timespan_end": _serialize_datetime(timespan_end),
         })
         return f"{public_url}?{urlencode({'config': config})}"
 
@@ -161,6 +257,8 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
                 types_ids=_parse_selected_ids(form.cleaned_data["types"]),
                 types_all_selected_only=form.cleaned_data["types_all_selected_only"],
                 categories_ids=_parse_selected_ids(form.cleaned_data["categories"]),
+                timespan_start=form.cleaned_data["timespan"][0],
+                timespan_end=form.cleaned_data["timespan"][1],
         )
         context['translations'] = {
             'symbols': _("Symbols"),
@@ -217,6 +315,8 @@ class PublishedSlidesView(EventSlugMixin, TemplateView):
                 types_all_selected_only=bool(self.config_data.get("types_all_selected_only", False)),
                 categories_ids=_parse_selected_ids(
                         self.config_data["categories"]) if "categories" in self.config_data else None,
+                timespan_start=_parse_config_datetime(self.config_data.get("timespan_start")),
+                timespan_end=_parse_config_datetime(self.config_data.get("timespan_end")),
         ))
         return context
 

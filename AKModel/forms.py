@@ -14,11 +14,66 @@ from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.models import AK, AKCategory, AKRequirement, AKTrack, AKType, DefaultSlot, Event, Room
 
 
-class DateTimeInput(forms.DateInput):
+class DateTimeInput(forms.DateTimeInput):
     """
     Simple widget for datetime input fields using the HTML5 datetime-local input type
+
+    This uses the browser's native date picker instead of a JS library
+    (loading such libraries from a CDN is blocked by the content security policy).
     """
     input_type = 'datetime-local'
+
+    def __init__(self, attrs=None, **kwargs):
+        # datetime-local inputs only accept initial values in ISO format (without seconds and timezone)
+        kwargs.setdefault("format", "%Y-%m-%dT%H:%M")
+        super().__init__(attrs, **kwargs)
+
+
+class TimespanWidget(forms.MultiWidget):
+    """
+    Widget to input a timespan as two datetime pickers (start and end) displayed in one row
+    """
+    template_name = "AKModel/widgets/timespan.html"
+
+    def __init__(self, attrs=None):
+        widgets = [
+            DateTimeInput(attrs={"aria-label": _("Timespan start")}),
+            DateTimeInput(attrs={"aria-label": _("Timespan end")}),
+        ]
+        super().__init__(widgets, attrs)
+
+    def decompress(self, value):
+        # The compressed value is a (start, end) tuple, see TimespanField
+        return list(value) if value else [None, None]
+
+
+class TimespanField(forms.MultiValueField):
+    """
+    Form field for an optional timespan, consisting of a start and an end datetime
+
+    The cleaned value is a (start, end) tuple. Both parts may be None if they were left empty.
+    """
+    widget = TimespanWidget
+
+    def __init__(self, **kwargs):
+        fields = (forms.DateTimeField(required=False), forms.DateTimeField(required=False))
+        super().__init__(fields=fields, require_all_fields=False, **kwargs)
+
+    def prepare_value(self, value):
+        # Let the datetime subfields prepare their values,
+        # this converts timezone-aware datetimes to the current timezone for display
+        if isinstance(value, (list, tuple)):
+            return [field.prepare_value(v) for field, v in zip(self.fields, value)]
+        return value
+
+    def compress(self, data_list):
+        # All parts empty: no timespan given
+        if not data_list:
+            return None, None
+        start, end = data_list
+        if start and end and start >= end:
+            raise ValidationError(_("The end of the timespan must be after its start"), code="invalid_timespan")
+        return start, end
 
 
 class NewEventWizardStartForm(forms.ModelForm):
@@ -183,7 +238,9 @@ class SlideExportForm(AdminIntermediateForm):
 
     The user can select how many upcoming AKs are displayed at the footer to inform people that it is their turn soon,
     whether the AK list should be restricted to those AKs that where marked for presentation, and whether ther should
-    be a symbol and empty space to take notes on for wishes
+    be a symbol and empty space to take notes on for wishes.
+    Additionally, the slides can be restricted to AKs that have at least one slot in a given timespan.
+    The initial values of this timespan (start and end of the event) are set by the view.
     """
     num_next = forms.IntegerField(
             min_value=0,
@@ -208,6 +265,11 @@ class SlideExportForm(AdminIntermediateForm):
             label=_("Only show AKs with all selected types?"),
             help_text=_("If checked, only AKs that have all selected types will be shown in the slides. "
                         "If unchecked, AKs with at least one of the selected types will be shown."),
+            required=False)
+    timespan = TimespanField(
+            label=_("Timespan"),
+            help_text=_("Only include AKs with at least one slot overlapping this timespan. "
+                        "Default: Whole event, then also unscheduled slots are shown."),
             required=False)
     presentation_mode = forms.TypedChoiceField(
             initial=False,

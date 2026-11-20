@@ -2,10 +2,12 @@ import json
 import traceback
 from typing import List
 from unittest.mock import patch
+from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.base import Message
+from django.core import signing
 from django.test import TestCase
 from django.urls import reverse, reverse_lazy
 
@@ -551,6 +553,192 @@ class ModelViewTests(BasicViewTests, TestCase):
                     expected_count,
                     msg=f"{config['name']}: wrong AK count in pdf export",
             )
+
+    def _slide_export_base_data(self, event):
+        """Create form data for the slide export including all categories and types of the given event."""
+        data = {
+            "num_next": 3,
+            "presentation_mode": "False",
+            "categories": [str(category.pk) for category in event.akcategory_set.all()],
+        }
+        if event.aktype_set.exists():
+            data["types"] = [str(ak_type.pk) for ak_type in event.aktype_set.all()]
+        return data
+
+    def _run_slide_exports(self, data):
+        """
+        Run web and PDF slide export with the given form data (LaTeX compilation is mocked)
+
+        :return: tuple of the response of the published web slides and the context used to render the PDF
+        """
+        export_url = reverse_lazy("admin:ak_slide_export", kwargs={"event_slug": "kif42"})
+
+        web_response = self.client.post(export_url, data={**data, "export_mode": "web"})
+        self.assertEqual(web_response.status_code, 302, "Web slide export did not redirect")
+        published_response = self.client.get(web_response["Location"])
+        self.assertEqual(published_response.status_code, 200, "Published slides not working")
+
+        captured_context = {}
+
+        def capture_context(_template_name, context):
+            captured_context.update(context)
+            return "\\documentclass{article}\\begin{document}x\\end{document}"
+
+        with patch("AKModel.views.manage.render_template_with_context", side_effect=capture_context), \
+                patch("AKModel.views.manage.run_tex_in_directory", return_value=b"%PDF-1.4"), \
+                patch("AKModel.views.manage.os.remove"):
+            pdf_response = self.client.post(export_url, data={**data, "export_mode": "pdf"})
+        self.assertEqual(pdf_response.status_code, 200, "PDF slide export failed")
+
+        return published_response, captured_context
+
+    def test_slide_export_timespan_defaults_to_event(self):
+        """
+        The timespan is one grouped field with two date pickers (start and end) and a joint label,
+        it defaults to start and end of the event (in its timezone).
+        """
+        self.client.force_login(self.admin_user)
+        event = Event.objects.get(slug="kif42")
+        export_url = reverse_lazy("admin:ak_slide_export", kwargs={"event_slug": "kif42"})
+
+        response = self.client.get(export_url)
+        self.assertEqual(response.status_code, 200)
+        form = response.context["form"]
+        self.assertEqual(form.initial["timespan"], (event.start, event.end))
+
+        content = response.content.decode("utf-8")
+        self.assertEqual(content.count('type="datetime-local"'), 2, "Timespan fields do not use a date picker")
+        self.assertIn('name="timespan_0"', content)
+        self.assertIn('name="timespan_1"', content)
+        # Django does not link labels of multi widgets to a single input, the inputs have aria-labels instead
+        self.assertEqual(content.count('<label class="form-label">Timespan</label>'), 1,
+                         "Timespan inputs do not share one label")
+        self.assertIn('aria-label="Timespan start"', content)
+        self.assertIn('aria-label="Timespan end"', content)
+        self.assertIn('timespan-widget', content, "Timespan inputs not grouped")
+        # Event starts 2020-11-06T17:51:26Z and ends 2020-11-10T17:51:27Z, i.e., 18:51 in Europe/Berlin
+        self.assertIn('value="2020-11-06T18:51"', content, "Timespan start not prefilled with event start")
+        self.assertIn('value="2020-11-10T18:51"', content, "Timespan end not prefilled with event end")
+
+    def test_slide_export_timespan_filters_aks(self):
+        """
+        Only AKs with at least one slot overlapping the chosen timespan are included in web and PDF export,
+        the chosen timespan is shown on the title page (in simplified format) if it deviates from the event's timespan.
+
+        Slots of kif42 (Europe/Berlin): AK 1 Fri 19:30-21:30, AK 2 Sun 13:30-15:30, AK 3 unscheduled,
+        AK 4 Sat 17:00-19:00 and Sun 19:30-21:30. The event ends Tue 18:51.
+        """
+        self.client.force_login(self.admin_user)
+        event = Event.objects.get(slug="kif42")
+        base_data = self._slide_export_base_data(event)
+
+        configurations = [
+            {
+                "name": "default_timespan_includes_unscheduled",
+                "timespan_start": "2020-11-06T18:51",
+                "timespan_end": "2020-11-10T18:51",
+                "expected_aks": {1, 2, 3, 4},
+                "expected_timespan": "",
+            },
+            {
+                "name": "empty_timespan_uses_default",
+                "timespan_start": "",
+                "timespan_end": "",
+                "expected_aks": {1, 2, 3, 4},
+                "expected_timespan": "",
+            },
+            {
+                "name": "sunday",
+                "timespan_start": "2020-11-08T00:00",
+                "timespan_end": "2020-11-08T23:59",
+                "expected_aks": {2, 4},
+                "expected_timespan": "Timespan: Sun 0:00 - Sun 23:59",
+            },
+            {
+                "name": "saturday",
+                "timespan_start": "2020-11-07T00:00",
+                "timespan_end": "2020-11-07T23:59",
+                "expected_aks": {4},
+                "expected_timespan": "Timespan: Sat 0:00 - Sat 23:59",
+            },
+            {
+                "name": "partial_overlap",
+                "timespan_start": "2020-11-06T21:00",
+                "timespan_end": "2020-11-06T22:00",
+                "expected_aks": {1},
+                "expected_timespan": "Timespan: Fri 21:00 - Fri 22:00",
+            },
+            {
+                "name": "only_touching_slot_start",
+                "timespan_start": "2020-11-06T18:00",
+                "timespan_end": "2020-11-06T19:30",
+                "expected_aks": set(),
+                "expected_timespan": "Timespan: Fri 18:00 - Fri 19:30",
+            },
+            {
+                "name": "only_start_given_ends_with_event",
+                "timespan_start": "2020-11-08T00:00",
+                "timespan_end": "",
+                "expected_aks": {2, 4},
+                "expected_timespan": "Timespan: Sun 0:00 - Tue 18:51",
+            },
+        ]
+
+        for config in configurations:
+            published_response, pdf_context = self._run_slide_exports({
+                **base_data,
+                "timespan_0": config["timespan_start"],
+                "timespan_1": config["timespan_end"],
+            })
+
+            web_aks = {slide["ak"].pk for slide in published_response.context["slides"] if slide["kind"] == "ak"}
+            self.assertEqual(web_aks, config["expected_aks"], msg=f"{config['name']}: wrong AKs in web export")
+            pdf_aks = {ak.pk for _, ak_list in pdf_context["categories_with_aks"] for ak, _ in ak_list}
+            self.assertEqual(pdf_aks, config["expected_aks"], msg=f"{config['name']}: wrong AKs in pdf export")
+
+            title_slide = published_response.context["slides"][0]
+            self.assertEqual(title_slide["kind"], "title")
+            self.assertEqual(title_slide["timespan"], config["expected_timespan"],
+                             msg=f"{config['name']}: wrong timespan on web title slide")
+            self.assertEqual(pdf_context["timespan"], config["expected_timespan"],
+                             msg=f"{config['name']}: wrong timespan on pdf title page")
+            if config["expected_timespan"]:
+                self.assertIn(config["expected_timespan"], published_response.content.decode("utf-8"),
+                              msg=f"{config['name']}: timespan not rendered on web title slide")
+
+    def test_slide_export_timespan_end_before_start_invalid(self):
+        """A timespan ending before (or at) its start is rejected."""
+        self.client.force_login(self.admin_user)
+        event = Event.objects.get(slug="kif42")
+        export_url = reverse_lazy("admin:ak_slide_export", kwargs={"event_slug": "kif42"})
+
+        for timespan_end in ["2020-11-07T23:00", "2020-11-08T00:00"]:
+            response = self.client.post(export_url, data={
+                **self._slide_export_base_data(event),
+                "export_mode": "web",
+                "timespan_0": "2020-11-08T00:00",
+                "timespan_1": timespan_end,
+            })
+            self.assertEqual(response.status_code, 200, "Invalid timespan did not re-render the form")
+            self.assertIn("timespan", response.context["form"].errors)
+
+    def test_slide_export_web_view_config_without_timespan(self):
+        """Signed carousel configs created before the timespan filter existed still include all AKs."""
+        event = Event.objects.get(slug="kif42")
+        config = signing.dumps({
+            "num_next": 3,
+            "presentation_mode": False,
+            "types": [str(ak_type.pk) for ak_type in event.aktype_set.all()],
+            "types_all_selected_only": False,
+            "categories": [str(category.pk) for category in event.akcategory_set.all()],
+        })
+        public_url = reverse_lazy("model:ak_slides_public", kwargs={"event_slug": "kif42"})
+
+        response = self.client.get(f"{public_url}?{urlencode({'config': config})}")
+        self.assertEqual(response.status_code, 200)
+        web_aks = {slide["ak"].pk for slide in response.context["slides"] if slide["kind"] == "ak"}
+        self.assertEqual(web_aks, set(AK.objects.filter(event=event).values_list("pk", flat=True)))
+        self.assertEqual(response.context["slides"][0]["timespan"], "")
 
     def test_list_api_views(self):
         """
