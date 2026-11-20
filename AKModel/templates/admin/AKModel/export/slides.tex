@@ -5,7 +5,8 @@
 \usepackage{fontawesome5}
 
 \title{ {{- title -}} }
-\subtitle{ {{- subtitle -}} }
+{# Show timespan as second line of the subtitle, but only if it deviates from the full event #}
+\subtitle{ {{- subtitle -}} {%- if timespan %} \\ {{ timespan | latex_escape_utf8 }}{% endif -%} }
 \date{\today}
 
 \begin{document}

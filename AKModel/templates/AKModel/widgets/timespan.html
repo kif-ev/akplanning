@@ -1,0 +1,12 @@
+{# Render start and end input of a timespan side by side: [start] - [end] #}
+{# If there is not enough space for both date pickers, "- [end]" wraps into a second line #}
+{% spaceless %}
+<div class="d-flex flex-wrap align-items-center gap-2 timespan-widget">
+    {% for widget in widget.subwidgets %}
+        <div class="d-flex flex-grow-1 align-items-center gap-2" style="flex-basis: 13rem;">
+            {% if not forloop.first %}<span>-</span>{% endif %}
+            {% include widget.template_name %}
+        </div>
+    {% endfor %}
+</div>
+{% endspaceless %}

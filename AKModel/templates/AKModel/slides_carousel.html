@@ -126,6 +126,10 @@
                                         class="slide-card w-100 p-4 p-md-5 d-flex flex-column justify-content-center text-center">
                                     <h1 class="display-3 mb-4">{{ slide.event_name }}</h1>
                                     <p class="lead mb-4">{{ slide.subtitle }}</p>
+                                    {# Only set if the timespan deviates from the full event #}
+                                    {% if slide.timespan %}
+                                        <p class="slide-timespan mb-4">{{ slide.timespan }}</p>
+                                    {% endif %}
                                     {% if categories_with_aks %}
                                         <div class="category-links mt-4">
                                             {% for category, ak_list_with_next in categories_with_aks %}
