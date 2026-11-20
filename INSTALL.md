@@ -121,21 +121,22 @@ The feature is disabled until it is configured:
 
     ```python
     # Wikis protocols may be written to, by hostname used in the wiki links of the AKs.
-    # article_path is the path pages are served under (default: /wiki/),
-    # username is the login name of the bot password (user name and bot name separated by @)
+    # article_path is the path pages are served under (default: /wiki/)
     PROTOCOL_MIGRATION_WIKIS = {
         "wiki.example.com": {
             "api_url": "https://wiki.example.com/w/api.php",
             "article_path": "/wiki/",
-            "username": "User@AKPlanning",
         },
     }
     ```
 
-1. add the bot password to ``AKPlanning/settings_secrets.py``, using the API URL of the wiki as key:
+1. add the credentials of the bot password to ``AKPlanning/settings_secrets.py``, using the API URL of the wiki as key
+   (the username is the login name of the bot password, i.e., user name and bot name separated by @):
 
     ```python
-   PROTOCOL_MIGRATION_WIKI_PASSWORDS = {"https://wiki.example.com/w/api.php": "..."}
+    PROTOCOL_MIGRATION_WIKI_CREDENTIALS = {
+        "https://wiki.example.com/w/api.php": {"username": "User@AKPlanning", "password": "..."},
+    }
     ```
 
 1. restart uwsgi

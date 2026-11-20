@@ -7,7 +7,7 @@ converted to MediaWiki syntax using pandoc (bundled with pypandoc_binary) and wr
 
 Protocols may be stored on any HedgeDoc instance. Since protocol links are entered by users, downloads are restricted
 to public addresses (see :func:`fetch_public`). Which wikis are supported is configured in the settings, see
-``PROTOCOL_MIGRATION_WIKIS`` and ``PROTOCOL_MIGRATION_WIKI_PASSWORDS``.
+``PROTOCOL_MIGRATION_WIKIS`` and ``PROTOCOL_MIGRATION_WIKI_CREDENTIALS``.
 """
 import ipaddress
 import logging
@@ -282,9 +282,9 @@ class MediaWikiClient:
     expired logins are detected and renewed automatically.
     """
 
-    def __init__(self, wiki: dict, password: str = ""):
+    def __init__(self, wiki: dict, username: str = "", password: str = ""):
         self.api_url = wiki["api_url"]
-        self.username = wiki.get("username", "")
+        self.username = username
         self.password = password
         self.session = requests.Session()
         self.session.headers["User-Agent"] = USER_AGENT
@@ -426,8 +426,10 @@ def migrate_protocol(ak: AK, wiki_clients: dict[str, MediaWikiClient]) -> Migrat
             raise MigrationError(MigrationStatus.INVALID_WIKI_LINK, ak.link)
         wiki, title = wiki_page
         if wiki["api_url"] not in wiki_clients:
-            # Passwords are kept separate from the (non-secret) wiki configuration, see settings_secrets.py
-            client = MediaWikiClient(wiki, password=settings.PROTOCOL_MIGRATION_WIKI_PASSWORDS.get(wiki["api_url"], ""))
+            # Credentials are kept separate from the (non-secret) wiki configuration, see settings_secrets.py
+            credentials = settings.PROTOCOL_MIGRATION_WIKI_CREDENTIALS.get(wiki["api_url"], {})
+            client = MediaWikiClient(wiki, username=credentials.get("username", ""),
+                                     password=credentials.get("password", ""))
             client.restore_session()
             wiki_clients[wiki["api_url"]] = client
         client = wiki_clients[wiki["api_url"]]

@@ -15,11 +15,12 @@ from AKModel.protocol_migration import convert_to_mediawiki, download_protocol, 
     MigrationError, MigrationResult, MigrationStatus, PinnedAddressAdapter, resolve_public_address
 from AKModel.views.ak import AKMigrateProtocolsView
 
-WIKI = {"api_url": "https://wiki.example.com/w/api.php", "username": "Bot@AKPlanning"}
+WIKI = {"api_url": "https://wiki.example.com/w/api.php"}
+WIKI_USERNAME = "Bot@AKPlanning"
 WIKI_PASSWORD = "secret"
 MIGRATION_SETTINGS = {
     "PROTOCOL_MIGRATION_WIKIS": {"wiki.example.com": WIKI},
-    "PROTOCOL_MIGRATION_WIKI_PASSWORDS": {WIKI["api_url"]: WIKI_PASSWORD},
+    "PROTOCOL_MIGRATION_WIKI_CREDENTIALS": {WIKI["api_url"]: {"username": WIKI_USERNAME, "password": WIKI_PASSWORD}},
 }
 
 
@@ -237,7 +238,7 @@ class MediaWikiClientTests(TestCase):
 
     def setUp(self):
         cache.clear()
-        self.client_ = MediaWikiClient(WIKI, password=WIKI_PASSWORD)
+        self.client_ = MediaWikiClient(WIKI, username=WIKI_USERNAME, password=WIKI_PASSWORD)
         # Most tests do not care about the login, see test_login for that
         self.client_.csrf_token = "CSRF"
         self.client_.session = MagicMock()
@@ -348,7 +349,7 @@ class MediaWikiClientTests(TestCase):
         self.assertEqual(self.client_.csrf_token, "CSRF")
         data = self.post.call_args.kwargs["data"]
         self.assertEqual(data["action"], "login")
-        self.assertEqual(data["lgname"], WIKI["username"])
+        self.assertEqual(data["lgname"], WIKI_USERNAME)
         self.assertEqual(data["lgpassword"], WIKI_PASSWORD)
         self.assertEqual(data["lgtoken"], "LOGIN")
 
@@ -369,13 +370,13 @@ class MediaWikiClientTests(TestCase):
             self.client_.session.cookies.set("wiki_session", "abc")
             self.client_.login()
 
-        client = MediaWikiClient(WIKI, password=WIKI_PASSWORD)
+        client = MediaWikiClient(WIKI, username=WIKI_USERNAME, password=WIKI_PASSWORD)
         client.restore_session()
         self.assertEqual(client.csrf_token, "CSRF")
         self.assertEqual(client.session.cookies.get("wiki_session"), "abc")
 
         # Logins of other users must not be reused
-        other = MediaWikiClient({**WIKI, "username": "Other@AKPlanning"})
+        other = MediaWikiClient(WIKI, username="Other@AKPlanning")
         other.restore_session()
         self.assertIsNone(other.csrf_token)
 
@@ -672,7 +673,7 @@ class MigrateProtocolsTests(TestCase):
             client_class.return_value.get_page.return_value = (False, "", None, "2026-01-02T00:00:00Z")
             results = migrate_protocols(aks)
 
-        client_class.assert_called_once_with(WIKI, password=WIKI_PASSWORD)
+        client_class.assert_called_once_with(WIKI, username=WIKI_USERNAME, password=WIKI_PASSWORD)
         self.assertEqual([r.ak for r in results], aks)
         self.assertTrue(all(r.success for r in results))
         titles = [c.args[0] for c in client_class.return_value.write_page.call_args_list]

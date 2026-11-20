@@ -259,14 +259,14 @@ MAILERS = {
 }
 
 # Migration of AK protocols from HedgeDoc to MediaWiki (admin action on AKs)
-# Wikis protocols may be written to, by (lowercase) hostname. Credentials should be bot passwords
-# (see Special:BotPasswords, grants needed: basic rights, edit existing pages, create pages), e.g.,
-# {"wiki.example.com": {"api_url": "https://wiki.example.com/w/api.php", "article_path": "/wiki/",
-#                       "username": "User@AKPlanning"}}
+# Wikis protocols may be written to, by (lowercase) hostname, e.g.,
+# {"wiki.example.com": {"api_url": "https://wiki.example.com/w/api.php", "article_path": "/wiki/"}}
 PROTOCOL_MIGRATION_WIKIS = {}
-# Bot passwords for the wikis above, by API URL, e.g., {"https://wiki.example.com/w/api.php": "..."}
+# Credentials for the wikis above, by API URL. Should be bot passwords (see Special:BotPasswords, grants needed:
+# basic rights, edit existing pages, create pages), e.g.,
+# {"https://wiki.example.com/w/api.php": {"username": "...", "password": "..."}}
 # Do not set them here but in settings_secrets.py (used in production)
-PROTOCOL_MIGRATION_WIKI_PASSWORDS = {}
+PROTOCOL_MIGRATION_WIKI_CREDENTIALS = {}
 
 # Documentation
 
