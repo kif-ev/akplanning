@@ -15,13 +15,23 @@ variables:
 
 default:
   image: python:3.15
-  cache:
+  # The virtualenv is built by the installation job only, all other jobs just use it
+  # Key it on the installed requirements to never use a virtualenv built for other requirements
+  cache: &venv_cache
+    key:
+      files:
+        - requirements/core.txt
+        - requirements/mysql.txt
     paths:
       - .cache/pip
       - venv/
+    policy: pull
 
 installation:
   stage: setup
+  cache:
+    <<: *venv_cache
+    policy: pull-push
   services:
     - mysql
   script:
