@@ -1,5 +1,6 @@
 from django import forms
 from django.apps import apps
+from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin import action, display, RelatedFieldListFilter, SimpleListFilter
 from django.contrib.admin.utils import unquote
@@ -21,8 +22,8 @@ from AKModel.forms import RoomFormWithAvailabilities
 from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKRequirement, AKSlot, AKTrack, AKType, \
     ConstraintViolation, DefaultSlot, Event, Room
 from AKModel.urls import get_admin_urls_event, get_admin_urls_event_wizard
-from AKModel.views.ak import AKAssignTrackView, AKMoveToTrashView, AKResetInterestCounterView, AKResetInterestView, \
-    AKRestoreFromTrashView
+from AKModel.views.ak import AKAssignTrackView, AKMigrateProtocolsView, AKMigrateProtocolView, AKMoveToTrashView, \
+    AKResetInterestCounterView, AKResetInterestView, AKRestoreFromTrashView
 from AKModel.views.manage import AvailabilitiesApplyOffsetView, ClearScheduleView, CVMarkResolvedView, \
     CVSetLevelViolationView, CVSetLevelWarningView, DefaultSlotCategoryBulkAssignmentView, SlotsApplyOffsetView
 
@@ -373,8 +374,8 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
                    ]
     list_editable = ['short_name', 'track', 'interest_counter']
     ordering = ['pk']
-    actions = ['wiki_export', 'reset_interest', 'reset_interest_counter', 'assign_track', 'move_to_trash',
-               'restore_from_trash']
+    actions = ['wiki_export', 'migrate_protocols', 'reset_interest', 'reset_interest_counter', 'assign_track',
+               'move_to_trash', 'restore_from_trash']
     readonly_fields = ['ak_details_link', 'trashed_at']
     list_display_links = ['name']
     form = AKAdminForm
@@ -452,6 +453,13 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
         self.message_user(request, _("Cannot export AKs from more than one event at the same time."), messages.ERROR)
         return redirect('admin:AKModel_ak_changelist')
 
+    def get_actions(self, request, *args, **kwargs):
+        actions = super().get_actions(request, *args, **kwargs)
+        # Protocol migration is only possible if wikis are configured
+        if not settings.PROTOCOL_MIGRATION_WIKIS:
+            actions.pop("migrate_protocols", None)
+        return actions
+
     def get_urls(self):
         """
         Add additional URLs/views
@@ -463,9 +471,23 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
             path('assign-track/', AKAssignTrackView.as_view(), name="ak-assign-track"),
             path('move-to-trash/', AKMoveToTrashView.as_view(), name="ak-move-to-trash"),
             path('restore-from-trash/', AKRestoreFromTrashView.as_view(), name="ak-restore-from-trash"),
+            path('migrate-protocols/', self.admin_site.admin_view(AKMigrateProtocolsView.as_view()),
+                 name="ak-migrate-protocols"),
+            path('migrate-protocols/<int:pk>/', self.admin_site.admin_view(AKMigrateProtocolView.as_view()),
+                 name="ak-migrate-protocol"),
         ]
         urls.extend(super().get_urls())
         return urls
+
+    @action(description=_("Migrate protocols to wiki"), permissions=["change"])
+    def migrate_protocols(self, request, queryset):
+        """
+        Action: Migrate protocols from HedgeDoc to the (still empty) wiki pages of the given AKs
+        Will use a typical admin confirmation view flow and show a report afterwards
+        """
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(
+                f"{reverse_lazy('admin:ak-migrate-protocols')}?pks={','.join(str(pk) for pk in selected)}")
 
     @action(description=_("Reset interest in AKs"))
     def reset_interest(self, request, queryset):

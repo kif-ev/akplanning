@@ -4,8 +4,6 @@ First, it imports all default settings, then overrides respective ones.
 Secrets are stored in and imported from an additional file, not set under version control.
 """
 
-from split_settings.tools import include, optional
-
 import AKPlanning.settings_secrets as secrets
 # noinspection PyUnresolvedReferences
 from AKPlanning.settings import *
@@ -35,6 +33,9 @@ DATABASES = {
         }
     }
 }
+
+### PROTOCOL MIGRATION ###
+PROTOCOL_MIGRATION_WIKI_CREDENTIALS = getattr(secrets, "PROTOCOL_MIGRATION_WIKI_CREDENTIALS", {})
 
 ### EMAILS ###
 SEND_MAILS = True

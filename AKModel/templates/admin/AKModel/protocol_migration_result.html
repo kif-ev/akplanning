@@ -1,0 +1,91 @@
+{% extends "admin/base_site.html" %}
+
+{% load i18n %}
+{% load fontawesome_6 %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <p id="migration-running">
+        {% fa6_icon "spinner" "fas" %}
+        {% trans "Migration in progress. Please keep this page open until all protocols are processed." %}
+    </p>
+    <p id="migration-finished" class="d-none">
+        {% fa6_icon "check" "fas" %}
+        {% blocktrans trimmed with total_count=aks|length %}Successfully migrated <span id="migration-success-count">0</span> of
+            {{ total_count }} protocols.{% endblocktrans %}
+    </p>
+
+    <table class="table" id="migration-results">
+        <thead>
+        <tr>
+            <th>{% trans "AK" %}</th>
+            <th>{% trans "Protocol Link" %}</th>
+            <th>{% trans "Web Link" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th>{% trans "Details" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ak in aks %}
+            <tr data-url="{% url 'admin:ak-migrate-protocol' ak.pk %}">
+                <td><a href="{% url 'admin:AKModel_ak_change' ak.pk %}">{{ ak }}</a></td>
+                <td>{% if ak.protocol_link %}
+                    <a href="{{ ak.protocol_link }}" target="_blank" rel="noopener">{{ ak.protocol_link }}</a>{% else %}
+                    -{% endif %}</td>
+                <td>{% if ak.link %}<a href="{{ ak.link }}" target="_blank" rel="noopener">{{ ak.link }}</a>{% else %}
+                    -{% endif %}</td>
+                <td class="migration-status">{% trans "Pending" %}</td>
+                <td class="migration-detail"></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'admin:AKModel_ak_changelist' %}" class="btn btn-info">
+        {% fa6_icon "arrow-left" "fas" %} {% trans "Back to AK list" %}
+    </a>
+
+    {% trans "In progress" as in_progress_text %}
+    {% trans "Request failed" as request_failed_text %}
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Migrate one AK after another (one request each) to not run into timeouts for large selections
+            const csrftoken = "{{ csrf_token|escapejs }}";
+            const successCount = document.getElementById("migration-success-count");
+            const warnBeforeLeaving = (e) => e.preventDefault();
+            window.addEventListener("beforeunload", warnBeforeLeaving);
+
+            for (const row of document.querySelectorAll("#migration-results tr[data-url]")) {
+                const statusCell = row.querySelector(".migration-status");
+                const detailCell = row.querySelector(".migration-detail");
+                statusCell.textContent = "{{ in_progress_text|escapejs }}";
+                try {
+                    const response = await fetch(row.dataset.url, {
+                        method: "POST",
+                        headers: {"X-CSRFToken": csrftoken},
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    const result = await response.json();
+                    statusCell.textContent = result.label;
+                    detailCell.textContent = result.detail;
+                    row.classList.add(result.success ? "table-success" : "table-warning");
+                    if (result.success) {
+                        successCount.textContent = Number(successCount.textContent) + 1;
+                    }
+                } catch (e) {
+                    // Keep going, a failure for one AK should not stop the migration of the others
+                    statusCell.textContent = "{{ request_failed_text|escapejs }}";
+                    detailCell.textContent = e.message;
+                    row.classList.add("table-danger");
+                }
+            }
+
+            window.removeEventListener("beforeunload", warnBeforeLeaving);
+            document.getElementById("migration-running").classList.add("d-none");
+            document.getElementById("migration-finished").classList.remove("d-none");
+        });
+    </script>
+{% endblock %}
