@@ -105,6 +105,56 @@ is not stored in any repository or similar, and disable DEBUG mode (``settings.p
 1. restart uwsgi ``sudo systemctl restart uwsgi``
 1. execute the update script ``./Utils/update.sh --prod``
 
+### Optional: Protocol migration from HedgeDoc to MediaWiki
+
+AK protocols written in HedgeDoc (linked in the ``protocol_link`` field of an AK) can be copied to the wiki page of
+the AK (``link`` field). Each protocol is downloaded as markdown, converted to MediaWiki syntax using pandoc (bundled
+with the python requirement ``pypandoc_binary``) and written to the wiki page, but only if that page does not exist
+yet or is still empty. Existing content is never overwritten.
+
+The feature is disabled until it is configured:
+
+1. in the wiki, create a bot password for the account that should perform the edits (``Special:BotPasswords``) with the
+   grants *Basic rights*, *Edit existing pages* and *Create, edit, and move pages*
+1. configure the wikis in a local settings file, e.g., ``AKPlanning/settings/protocols.py``
+   (files in that folder are included by the production settings):
+
+    ```python
+    # Wikis protocols may be written to, by hostname used in the wiki links of the AKs.
+    # article_path is the path pages are served under (default: /wiki/),
+    # username is the login name of the bot password (user name and bot name separated by @)
+    PROTOCOL_MIGRATION_WIKIS = {
+        "wiki.example.com": {
+            "api_url": "https://wiki.example.com/w/api.php",
+            "article_path": "/wiki/",
+            "username": "User@AKPlanning",
+        },
+    }
+    ```
+
+1. add the bot password to ``AKPlanning/settings_secrets.py``, using the API URL of the wiki as key:
+
+    ```python
+   PROTOCOL_MIGRATION_WIKI_PASSWORDS = {"https://wiki.example.com/w/api.php": "..."}
+    ```
+
+1. restart uwsgi
+
+Protocols can be migrated from any HedgeDoc instance, but only from public notes. Since protocol links are entered
+by users and downloaded by the server, only ``https`` links on the default port are accepted, and only if the host
+resolves to public IP addresses (to prevent requests to the server itself or internal networks). Downloads must be
+served as markdown (as HedgeDoc does) and are limited to 5 MB.
+
+To migrate protocols, select the AKs in the AK list of the admin interface and choose the action *Migrate protocols to
+wiki* (only shown to users allowed to change AKs). After confirmation, the protocols are
+migrated one AK after another while the page shows the outcome for each AK (keep the page open until it is
+finished). AKs are skipped (with a reason) if a link is missing or invalid, the protocol is empty or the wiki page
+already has content, hence the migration can safely be repeated. Each successful migration is recorded in the admin
+history of the AK.
+
+Wiki logins are cached for 30 minutes to avoid logging in again for each AK. Without a cache configured in the
+Django settings (``CACHES``), each uwsgi process keeps its own in-memory cache.
+
 ## Deployment Setup using Docker
 
 This project also provides a docker file for easy deployment.

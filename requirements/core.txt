@@ -20,3 +20,5 @@ django-docs==0.3.3
 fontawesomefree==6.6.0  # Makes static files (css, fonts) available locally
 tzdata==2026.6
 jsonschema==4.26.0
+requests==2.34.2
+pypandoc_binary==1.17  # Provides pandoc (bundled) to convert protocols to MediaWiki syntax

@@ -1,12 +1,18 @@
 from django.contrib import messages
+from django.contrib.admin.models import CHANGE, LogEntry
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django.views import View
 from django.views.generic import DetailView, ListView
 
 from AKModel.forms import TrackAssignmentForm
 from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, FilterByEventSlugMixin, IntermediateAdminActionView, \
     IntermediateAdminView
 from AKModel.models import AK, AKOrgaMessage, AKRequirement, AKSlot, AKTrack, Event
+from AKModel.protocol_migration import migrate_protocols
 
 
 class AKRequirementOverview(AdminViewMixin, FilterByEventSlugMixin, ListView):
@@ -200,3 +206,71 @@ class AKResetInterestCounterView(IntermediateAdminActionView):
 
     def action(self, form):
         self.entities.update(interest_counter=0)
+
+
+class AKMigrateProtocolsView(PermissionRequiredMixin, IntermediateAdminActionView):
+    """
+    View: Confirmation page to migrate protocols of AKs from HedgeDoc to their (still empty) MediaWiki pages.
+    After confirmation, a report page is shown that migrates the protocols one AK after another
+    (see :class:`AKMigrateProtocolView`) and shows the outcome for each AK
+
+    Confirmation functionality provided by :class:`AKModel.metaviews.admin.IntermediateAdminView`,
+    migration logic see :mod:`AKModel.protocol_migration`
+    """
+    title = _("Migrate protocols to wiki")
+    model = AK
+    # Writing to the wiki should require the same permission as editing the AKs
+    permission_required = "AKModel.change_ak"
+    confirmation_message = _("Migrate the protocols of the following AKs from HedgeDoc to their wiki pages? "
+                             "Only empty wiki pages will be filled")
+    result_template_name = "admin/AKModel/protocol_migration_result.html"
+
+    def get_preview(self):
+        self.entities = self.get_queryset()
+        joined_entities = '\n'.join(f"{ak}: {ak.protocol_link or '-'} → {ak.link or '-'}" for ak in self.entities)
+        return f"{self.confirmation_message}:\n\n{joined_entities}"
+
+    def action(self, form):
+        """
+        Nothing to do here, the protocols are migrated one AK after another from the result page
+        (one request per AK to not run into timeouts for large selections), see :class:`AKMigrateProtocolView`
+        """
+
+    def form_valid(self, form):
+        self.entities = self.get_queryset(pks=form.cleaned_data['pks'])
+        context = self.get_context_data(form=form)
+        context["aks"] = self.entities.order_by("pk")
+        return render(self.request, self.result_template_name, context)
+
+
+class AKMigrateProtocolView(PermissionRequiredMixin, View):
+    """
+    View: Migrate the protocol of a single AK from HedgeDoc to its (still empty) MediaWiki page
+    and return the outcome as JSON
+
+    Called by the result page of :class:`AKMigrateProtocolsView` for each selected AK
+    """
+    http_method_names = ["post"]
+    permission_required = "AKModel.change_ak"
+    success_message = _("Protocol migrated to wiki")
+
+    def post(self, request, pk):
+        """
+        Perform the migration
+        """
+        ak = get_object_or_404(AK, pk=pk)
+        result = migrate_protocols([ak])[0]
+        # Only log AKs whose wiki page was actually written
+        if result.success:
+            LogEntry.objects.log_actions(
+                    user_id=request.user.id,
+                    queryset=AK.objects.filter(pk=ak.pk),
+                    action_flag=CHANGE,
+                    change_message=self.success_message
+            )
+        return JsonResponse({
+            "status": result.status.value,
+            "label": str(result.status.label),
+            "success": result.success,
+            "detail": result.detail,
+        })
