@@ -744,18 +744,26 @@ class EventAKMessagesWidget(TemplateStatusWidget):
     """
     Status page widget: AK Messages
 
-    A widget to display information about AK-related messages sent to organizers for the given event
+    A widget to display information about AK-related messages sent to organizers for the given event.
+    Only unresolved messages are listed, resolved ones are only counted (and accessible through the admin)
     """
     required_context_type = "event"
     title = _("Messages")
-    template_name = "admin/AKModel/render_ak_messages.html"
+    template_name = "admin/AKModel/status/event_ak_messages.html"
 
     def get_context_data(self, context) -> dict:
-        context["ak_messages"] = AKOrgaMessage.objects.filter(ak__event=context["event"])
+        event_messages = AKOrgaMessage.objects.filter(ak__event=context["event"])
+        context["ak_messages"] = event_messages.filter(resolved=False).select_related("ak", "event")
+        context["resolved_ak_messages_count"] = event_messages.filter(resolved=True).count()
         return context
 
     def render_actions(self, context: {}) -> list[dict]:
         return [
+            {
+                "text": _("Show all messages"),
+                "url": f"{reverse_lazy('admin:AKModel_akorgamessage_changelist')}"
+                       f"?ak__event__id__exact={context['event'].pk}",
+            },
             {
                 "text": _("Delete all messages"),
                 "url": reverse_lazy("admin:ak_delete_orga_messages", kwargs={"event_slug": context["event"].slug}),

@@ -1,0 +1,14 @@
+{% load i18n %}
+
+{% if ak_messages %}
+    {% include "admin/AKModel/render_ak_messages.html" with show_resolve_buttons=True %}
+{% else %}
+    <p class="text-secondary">{% trans "No unresolved messages" %}</p>
+{% endif %}
+
+<p>
+    {% trans "Resolved messages" %}:
+    <a href="{% url 'admin:AKModel_akorgamessage_changelist' %}?ak__event__id__exact={{ event.pk }}&resolved__exact=1">
+        {{ resolved_ak_messages_count }}
+    </a>
+</p>

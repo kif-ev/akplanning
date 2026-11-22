@@ -1,4 +1,5 @@
 import json
+import re
 import traceback
 from typing import List
 from urllib.parse import urlencode
@@ -954,3 +955,38 @@ class ModelViewTests(BasicViewTests, TestCase):
         # External URLs are ignored
         response = self.client.post(f"{url}?pks=2&next=https://example.com/", {'pks': '2'})
         self.assertRedirects(response, reverse('admin:AKModel_constraintviolation_changelist'))
+
+    def test_orga_messages_status_widget_and_mark_resolved(self):
+        """
+        Test that the status page only lists unresolved orga messages (and counts the resolved ones)
+        and that messages can be marked as resolved from there
+        """
+        self.client.force_login(self.admin_user)
+        event = Event.objects.get(slug="kif42")
+        ak = event.ak_set.first()
+        open_message = AKOrgaMessage.objects.create(ak=ak, event=event, text="Open orga message")
+        AKOrgaMessage.objects.create(ak=ak, event=event, text="Resolved orga message", resolved=True)
+        status_url = reverse('admin:event_status', kwargs={'event_slug': event.slug})
+        mark_resolved_url = reverse('admin:akorgamessage-mark-resolved')
+        resolved_list_url = (f"{reverse('admin:AKModel_akorgamessage_changelist')}"
+                             f"?ak__event__id__exact={event.pk}&resolved__exact=1")
+
+        response = self.client.get(status_url)
+        self.assertContains(response, "Open orga message")
+        self.assertNotContains(response, "Resolved orga message")
+        self.assertContains(response, f"{mark_resolved_url}?pks={open_message.pk}&next={status_url}")
+        self.assertRegex(response.content.decode(), rf'href="{re.escape(resolved_list_url)}">\s*1\s*</a>')
+
+        # Confirmation page shows the message
+        response = self.client.get(mark_resolved_url, {'pks': open_message.pk})
+        self.assertContains(response, "Open orga message")
+
+        response = self.client.post(f"{mark_resolved_url}?pks={open_message.pk}&next={status_url}",
+                                    {'pks': open_message.pk})
+        self.assertRedirects(response, status_url)
+        open_message.refresh_from_db()
+        self.assertTrue(open_message.resolved)
+
+        response = self.client.get(status_url)
+        self.assertNotContains(response, "Open orga message")
+        self.assertRegex(response.content.decode(), rf'href="{re.escape(resolved_list_url)}">\s*2\s*</a>')

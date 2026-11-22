@@ -1854,6 +1854,30 @@ msgstr "AK-Organachrichten löschen"
 msgid "AK Orga Messages successfully deleted"
 msgstr "AK-Organachrichten erfolgreich gelöscht"
 
+#: admin.py views/ak.py
+msgid "Mark AK Orga Messages as resolved"
+msgstr "AK-Organachrichten als erledigt markieren"
+
+#: views/ak.py
+msgid "The following AK Orga Messages will be marked as resolved"
+msgstr "Die folgenden AK-Organachrichten werden als erledigt markiert"
+
+#: views/ak.py
+msgid "AK Orga Messages marked as resolved"
+msgstr "AK-Organachrichten als erledigt markiert"
+
+#: templates/admin/AKModel/render_ak_messages.html
+msgid "Mark message as resolved"
+msgstr "Nachricht als erledigt markieren"
+
+#: templates/admin/AKModel/status/event_ak_messages.html
+msgid "No unresolved messages"
+msgstr "Keine unerledigten Nachrichten"
+
+#: templates/admin/AKModel/status/event_ak_messages.html
+msgid "Resolved messages"
+msgstr "Erledigte Nachrichten"
+
 #: views/ak.py:122
 msgid "Interest of the following AKs will be set to not filled (-1):"
 msgstr "Interesse an den folgenden AKs wird auf nicht ausgefüllt (-1) gesetzt:"

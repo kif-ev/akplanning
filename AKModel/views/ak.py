@@ -95,7 +95,7 @@ class AKMessageDeleteView(EventSlugMixin, IntermediateAdminView):
         """
         Get all orga messages for the given event
         """
-        return AKOrgaMessage.objects.filter(ak__event=event)
+        return AKOrgaMessage.objects.filter(ak__event=event).select_related("ak", "event")
 
     def get_success_url(self):
         return reverse_lazy('admin:event_status', kwargs={'slug': self.event.slug})
@@ -109,6 +109,30 @@ class AKMessageDeleteView(EventSlugMixin, IntermediateAdminView):
         self.get_orga_messages_for_event(self.event).delete()
         messages.add_message(self.request, messages.SUCCESS, _("AK Orga Messages successfully deleted"))
         return super().form_valid(form)
+
+
+class AKMessageMarkResolvedView(IntermediateAdminActionView):
+    """
+    View: Confirmation page to mark one or multiple confidential AK-related messages to orga as resolved
+
+    Confirmation functionality provided by :class:`AKModel.metaviews.admin.IntermediateAdminActionView`
+    """
+    template_name = "admin/AKModel/message_mark_resolved.html"
+    title = _("Mark AK Orga Messages as resolved")
+    model = AKOrgaMessage
+    confirmation_message = _("The following AK Orga Messages will be marked as resolved")
+    success_message = _("AK Orga Messages marked as resolved")
+
+    def get_queryset(self, pks=None):
+        return super().get_queryset(pks).select_related("ak", "event")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["ak_messages"] = self.entities
+        return context
+
+    def action(self, form):
+        self.entities.update(resolved=True)
 
 
 class AKResetInterestView(IntermediateAdminActionView):

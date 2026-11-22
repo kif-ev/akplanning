@@ -22,8 +22,8 @@ from AKModel.forms import RoomFormWithAvailabilities
 from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKRequirement, AKSlot, AKTrack, AKType, \
     ConstraintViolation, DefaultSlot, Event, Room
 from AKModel.urls import get_admin_urls_event, get_admin_urls_event_wizard
-from AKModel.views.ak import AKAssignTrackView, AKMigrateProtocolsView, AKMigrateProtocolView, AKMoveToTrashView, \
-    AKResetInterestCounterView, AKResetInterestView, AKRestoreFromTrashView
+from AKModel.views.ak import AKAssignTrackView, AKMessageMarkResolvedView, AKMigrateProtocolsView, \
+    AKMigrateProtocolView, AKMoveToTrashView, AKResetInterestCounterView, AKResetInterestView, AKRestoreFromTrashView
 from AKModel.views.manage import AvailabilitiesApplyOffsetView, ClearScheduleView, CVMarkResolvedView, \
     CVSetLevelViolationView, CVSetLevelWarningView, DefaultSlotCategoryBulkAssignmentView, SlotsApplyOffsetView
 
@@ -745,8 +745,31 @@ class AKOrgaMessageAdmin(admin.ModelAdmin):
     Admin interface for AKOrgaMessages
     """
     list_display = ['timestamp', 'ak', 'text', 'resolved']
-    list_filter = ['ak__event']
+    list_filter = ['ak__event', 'resolved']
     readonly_fields = ['timestamp', 'ak', 'text']
+    actions = ['mark_resolved']
+
+    def get_urls(self):
+        """
+        Add additional URLs/views
+        Currently used to mark messages as resolved
+        """
+        urls = [
+            path('mark-resolved/', self.admin_site.admin_view(AKMessageMarkResolvedView.as_view()),
+                 name="akorgamessage-mark-resolved"),
+        ]
+        urls.extend(super().get_urls())
+        return urls
+
+    @action(description=_("Mark AK Orga Messages as resolved"))
+    def mark_resolved(self, request, queryset):
+        """
+        Action: Mark messages as resolved
+        Will use a typical admin confirmation view flow
+        """
+        selected = queryset.values_list('pk', flat=True)
+        return HttpResponseRedirect(
+                f"{reverse_lazy('admin:akorgamessage-mark-resolved')}?pks={','.join(str(pk) for pk in selected)}")
 
 
 class ConstraintViolationAdminForm(forms.ModelForm):
