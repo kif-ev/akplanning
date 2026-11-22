@@ -19,15 +19,15 @@ default:
   # The virtualenv is built by the installation job only, all other jobs just use it
   # Key it on the core requirements to not mix up virtualenvs for different requirements
   # (GitLab supports at most two files here, hence all jobs additionally check a fingerprint of all inputs, see below)
-  cache: &venv_cache
-    key:
-      files:
-        - requirements/core.txt
-        - requirements/mysql.txt
-    paths:
-      - .cache/pip
-      - venv/
-    policy: pull
+  cache:
+    - &venv_cache
+      key:
+        files:
+          - requirements/core.txt
+          - requirements/mysql.txt
+      paths:
+        - venv/
+      policy: pull
 
 # Fingerprint of everything the virtualenv is built from (Python version, setup script, all requirements)
 # and its location (scripts in the virtualenv contain absolute paths, which differ, e.g., between concurrent runner slots)
@@ -52,8 +52,14 @@ default:
 installation:
   stage: setup
   cache:
-    <<: *venv_cache
-    policy: pull-push
+    - <<: *venv_cache
+      policy: pull-push
+    # Downloaded packages only speed up rebuilding the virtualenv, hence no other job needs them
+    # (pip's cache is content-addressed, so one cache can safely be shared by all requirements)
+    - key: pip
+      paths:
+        - .cache/pip
+      policy: pull-push
   script:
     - python -V  # Print out python version for debugging
     - apt-get -qq update
