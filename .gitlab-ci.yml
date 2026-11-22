@@ -16,6 +16,8 @@ variables:
 default:
   # Python version of the production deployment, image includes uv and build dependencies (e.g., for mysqlclient)
   image: ghcr.io/astral-sh/uv:python3.13-trixie
+  # Allow GitLab to cancel pipelines made redundant by newer commits on the same branch
+  interruptible: true
   # The virtualenv is built by the installation job only, all other jobs just use it
   # Key it on the core requirements to not mix up virtualenvs for different requirements
   # (GitLab supports at most two files here, hence all jobs additionally check a fingerprint of all inputs, see below)
@@ -175,6 +177,8 @@ doc:
 pages:
   stage: deploy
   image: alpine:latest
+  # Do not cancel a running deployment
+  interruptible: false
   # Only publishes the lint results, hence neither needs the virtualenv nor the artifacts of other jobs
   cache: [ ]
   needs:
