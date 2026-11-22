@@ -109,10 +109,9 @@ lint:
     - echo undefined > public/badges/$CI_JOB_NAME.score
     - source venv/bin/activate
     - pip install -r requirements/lint.txt
-    - pylint --load-plugins pylint_django --django-settings-module=AKPlanning.settings_ci --rcfile pylintrc --exit-zero --output-format=text AK* | tee /tmp/pylint.txt
+    # Analyze only once and write all reports at the same time (text to stdout, the others to their files)
+    - pylint --load-plugins pylint_django --django-settings-module=AKPlanning.settings_ci --rcfile pylintrc --exit-zero --output-format=text,pylint_gitlab.GitlabCodeClimateReporter:codeclimate.json,pylint_gitlab.GitlabPagesHtmlReporter:public/lint/index.html AK* | tee /tmp/pylint.txt
     - sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' /tmp/pylint.txt > public/badges/$CI_JOB_NAME.score
-    - pylint --load-plugins pylint_django --django-settings-module=AKPlanning.settings_ci --rcfile pylintrc --exit-zero --output-format=pylint_gitlab.GitlabCodeClimateReporter AK* > codeclimate.json
-    - pylint --load-plugins pylint_django --django-settings-module=AKPlanning.settings_ci --rcfile pylintrc --exit-zero --output-format=pylint_gitlab.GitlabPagesHtmlReporter AK* > public/lint/index.html
   after_script:
     - |
       echo "Linting score: $(cat public/badges/$CI_JOB_NAME.score)"
