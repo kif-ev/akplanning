@@ -100,24 +100,32 @@ test:
     - mysql
   stage: test
   script:
-    - apt-get -qq update
-    - apt-get -qq install -y --no-install-recommends default-mysql-client
-    - mysql --version
+    # Wait for MySQL and allow the test user to create the test database
+    # (uses the MySQL driver of the virtualenv to not install a MySQL client in every run)
     - |
-      for i in {1..30}; do
-        if mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -h mysql --skip-ssl -e "SELECT 1" > /dev/null 2>&1; then
-          echo "MySQL is ready"
-          break
-        fi
-        echo "Waiting for MySQL... ($i/30)"
-        sleep 2
-      done
-    - |
-      mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -h mysql --skip-ssl --execute="\
-        CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';\
-        GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_USER}'@'%' WITH GRANT OPTION;\
-        FLUSH PRIVILEGES;\
-      "
+      python - <<'EOF'
+      import os
+      import time
+
+      import MySQLdb
+
+      for attempt in range(1, 31):
+          try:
+              connection = MySQLdb.connect(host="mysql", user="root", password=os.environ["MYSQL_ROOT_PASSWORD"])
+              break
+          except MySQLdb.OperationalError as error:
+              print(f"Waiting for MySQL... ({attempt}/30): {error}")
+              time.sleep(2)
+      else:
+          raise SystemExit("MySQL did not become ready")
+      print(f"MySQL {connection.get_server_info()} is ready")
+
+      cursor = connection.cursor()
+      user, password = os.environ["MYSQL_USER"], os.environ["MYSQL_PASSWORD"]
+      cursor.execute("CREATE USER IF NOT EXISTS %s@'%%' IDENTIFIED BY %s", (user, password))
+      cursor.execute("GRANT ALL PRIVILEGES ON *.* TO %s@'%%' WITH GRANT OPTION", (user,))
+      cursor.execute("FLUSH PRIVILEGES")
+      EOF
     - coverage run --source='.' manage.py test --settings AKPlanning.settings_ci
   after_script:
     # Runs in a separate shell, hence the virtualenv activated in before_script is not active here
