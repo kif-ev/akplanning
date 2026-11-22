@@ -14,31 +14,79 @@ variables:
   MYSQL_HOST: "mysql"
 
 default:
-  image: python:3.15
+  # Python version of the production deployment, image includes uv and build dependencies (e.g., for mysqlclient)
+  image: ghcr.io/astral-sh/uv:python3.13-trixie
+  # Allow GitLab to cancel pipelines made redundant by newer commits on the same branch
+  interruptible: true
   # The virtualenv is built by the installation job only, all other jobs just use it
-  # Key it on the installed requirements to never use a virtualenv built for other requirements
-  cache: &venv_cache
-    key:
-      files:
-        - requirements/core.txt
-        - requirements/mysql.txt
-    paths:
-      - .cache/pip
-      - venv/
-    policy: pull
+  # Key it on the core requirements to not mix up virtualenvs for different requirements
+  # (GitLab supports at most two files here, hence all jobs additionally check a fingerprint of all inputs, see below)
+  cache:
+    - &venv_cache
+      key:
+        files:
+          - requirements/core.txt
+          - requirements/mysql.txt
+      paths:
+        - venv/
+      policy: pull
+
+# Fingerprint of everything the virtualenv is built from (Python version, setup script, all requirements)
+# Its location is deliberately not part of it, as it differs, e.g., between concurrent runner slots
+.venv_fingerprint:
+  script:
+    - VENV_FINGERPRINT=$( (python -VV; cat Utils/setup.sh requirements.txt requirements/*.txt) | sha256sum | cut -d ' ' -f 1)
+
+# Use the virtualenv independent of its location: activate and the installed scripts (e.g., coverage) contain
+# the absolute path it was built at, hence only use its Python and run tools as modules (python -m ...)
+.venv_use:
+  script:
+    - export PATH="$CI_PROJECT_DIR/venv/bin:$PATH"
+
+# Jobs using the virtualenv built by the installation job
+.venv:
+  needs:
+    - installation
+  before_script:
+    - !reference [ .venv_fingerprint, script ]
+    # The cache may have been overwritten in the meantime (e.g., by a concurrent pipeline with a different configuration)
+    - |
+      if [ "$(cat venv/.fingerprint 2>/dev/null)" != "$VENV_FINGERPRINT" ]; then
+        echo "Cached virtualenv does not match the configuration of this pipeline, please retry the installation job"
+        exit 1
+      fi
+    - !reference [ .venv_use, script ]
 
 installation:
   stage: setup
   cache:
-    <<: *venv_cache
-    policy: pull-push
-  services:
-    - mysql
+    - <<: *venv_cache
+      policy: pull-push
+    # Downloaded packages only speed up rebuilding the virtualenv, hence no other job needs them
+    # (pip's cache is content-addressed, so one cache can safely be shared by all requirements)
+    - key: pip
+      paths:
+        - .cache/pip
+      policy: pull-push
   script:
     - python -V  # Print out python version for debugging
     - apt-get -qq update
-    - apt-get -qq install -y python3-virtualenv python3-dev python3-pip gettext
-    - ./Utils/setup.sh --ci
+    - apt-get -qq install -y --no-install-recommends gettext
+    # Only reuse a cached virtualenv built from the same configuration, rebuild it from scratch otherwise
+    - !reference [ .venv_fingerprint, script ]
+    - |
+      if [ "$(cat venv/.fingerprint 2>/dev/null)" = "$VENV_FINGERPRINT" ]; then
+        echo "Reusing cached virtualenv"
+        export PATH="$CI_PROJECT_DIR/venv/bin:$PATH"
+        # Translations are compiled from the repository and hence always needed
+        DJANGO_SETTINGS_MODULE=AKPlanning.settings_ci python manage.py compilemessages -l de_DE --ignore venv --ignore .cache
+      else
+        echo "Building virtualenv"
+        # Install virtualenv for the Python of the image (the Debian package would use the system Python instead)
+        pip install virtualenv
+        ./Utils/setup.sh --ci
+        echo "$VENV_FINGERPRINT" > venv/.fingerprint
+      fi
   artifacts:
     # Compiled translations are not part of the repository but needed by later jobs (e.g., tests)
     paths:
@@ -49,46 +97,55 @@ installation:
     expire_in: 1 day
 
 migrations:
-  needs:
-    - installation
+  extends: .venv
   stage: test
   script:
-    - source venv/bin/activate
+    # Uses the default settings (SQLite) on purpose, as checking for missing migrations needs no MySQL service
     - ./manage.py makemigrations --dry-run --check
 
 test:
-  needs:
-    - installation
+  extends: .venv
   services:
-    - mysql
+    # Pinned to the LTS release, the alias has to match MYSQL_HOST
+    - name: mysql:8.4
+      alias: mysql
   stage: test
   script:
-    - source venv/bin/activate
-    - apt-get -qq update
-    - apt-get -qq install -y default-mysql-client default-libmysqlclient-dev
-    - pip install pytest-cov
-    - pip install -r requirements/test.txt
-    - pip install -r requirements/mysql.txt
-    - mysql --version
+    # Wait for MySQL and allow the test user to create the test database
+    # (uses the MySQL driver of the virtualenv to not install a MySQL client in every run)
     - |
-      for i in {1..30}; do
-        if mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -h mysql --skip-ssl -e "SELECT 1" > /dev/null 2>&1; then
-          echo "MySQL is ready"
-          break
-        fi
-        echo "Waiting for MySQL... ($i/30)"
-        sleep 2
-      done
-    - |
-      mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -h mysql --skip-ssl --execute="\
-        CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';\
-        GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_USER}'@'%' WITH GRANT OPTION;\
-        FLUSH PRIVILEGES;\
-      "
-    - coverage run --source='.' manage.py test --settings AKPlanning.settings_ci
+      python - <<'EOF'
+      import os
+      import time
+
+      import MySQLdb
+
+      for attempt in range(1, 31):
+          try:
+              connection = MySQLdb.connect(host=os.environ["MYSQL_HOST"], user="root", password=os.environ["MYSQL_ROOT_PASSWORD"])
+              break
+          except MySQLdb.OperationalError as error:
+              print(f"Waiting for MySQL... ({attempt}/30): {error}")
+              time.sleep(2)
+      else:
+          raise SystemExit("MySQL did not become ready")
+      print(f"MySQL {connection.get_server_info()} is ready")
+
+      cursor = connection.cursor()
+      user, password = os.environ["MYSQL_USER"], os.environ["MYSQL_PASSWORD"]
+      cursor.execute("CREATE USER IF NOT EXISTS %s@'%%' IDENTIFIED BY %s", (user, password))
+      cursor.execute("GRANT ALL PRIVILEGES ON *.* TO %s@'%%' WITH GRANT OPTION", (user,))
+      cursor.execute("FLUSH PRIVILEGES")
+      EOF
+    - python -m coverage run --source='.' manage.py test --settings AKPlanning.settings_ci
   after_script:
-    - coverage report
-    - coverage xml
+    # Runs in a separate shell, hence the virtualenv set up in before_script is not used here
+    # Skip the reports if the tests did not even start (e.g., failing setup), as they would only hide the actual error
+    - |
+      if [ -f .coverage ]; then
+        venv/bin/python -m coverage report
+        venv/bin/python -m coverage xml
+      fi
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     reports:
@@ -96,20 +153,22 @@ test:
         coverage_format: cobertura
         path: coverage.xml
       junit: unit.xml
+    # Test results are most relevant for failing runs
+    when: always
 
 lint:
-  needs:
-    - installation
+  extends: .venv
   stage: test
   script:
     - mkdir -p public/badges public/lint
     - echo undefined > public/badges/$CI_JOB_NAME.score
-    - source venv/bin/activate
-    - pip install -r requirements/lint.txt
-    - pylint --load-plugins pylint_django --django-settings-module=AKPlanning.settings_ci --rcfile pylintrc --exit-zero --output-format=text AK* | tee /tmp/pylint.txt
-    - sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' /tmp/pylint.txt > public/badges/$CI_JOB_NAME.score
-    - pylint --load-plugins pylint_django --django-settings-module=AKPlanning.settings_ci --rcfile pylintrc --exit-zero --output-format=pylint_gitlab.GitlabCodeClimateReporter AK* > codeclimate.json
-    - pylint --load-plugins pylint_django --django-settings-module=AKPlanning.settings_ci --rcfile pylintrc --exit-zero --output-format=pylint_gitlab.GitlabPagesHtmlReporter AK* > public/lint/index.html
+    # Fail if pylint itself fails (e.g., crashes), not only if tee fails
+    - set -o pipefail
+    # Analyze only once and write all reports at the same time (text to stdout, the others to their files)
+    - python -m pylint --load-plugins pylint_django --django-settings-module=AKPlanning.settings_ci --rcfile pylintrc --exit-zero --output-format=text,pylint_gitlab.GitlabCodeClimateReporter:codeclimate.json,pylint_gitlab.GitlabPagesHtmlReporter:public/lint/index.html AK* | tee /tmp/pylint.txt
+    # Keep the placeholder if pylint did not report a score
+    - sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' /tmp/pylint.txt > /tmp/pylint.score
+    - if [ -s /tmp/pylint.score ]; then mv /tmp/pylint.score public/badges/$CI_JOB_NAME.score; fi
   after_script:
     - |
       echo "Linting score: $(cat public/badges/$CI_JOB_NAME.score)"
@@ -121,26 +180,29 @@ lint:
     when: always
 
 doc:
-  needs:
-    - installation
+  extends: .venv
   stage: test
   script:
-    - source venv/bin/activate
-    - pip install -r requirements/docs.txt
     - cd docs
-    - make html
+    - make html SPHINXBUILD="python -m sphinx"
   artifacts:
     paths:
       - docs/_build/html
+    expire_in: 1 week
 
 pages:
   stage: deploy
-  image: alpine:latest
+  image: alpine:3.22
+  # Do not cancel a running deployment
+  interruptible: false
+  # Only publishes the lint results, hence needs neither the virtualenv nor any artifacts besides those of lint
+  cache: [ ]
+  needs:
+    - lint
   script:
     - echo
   artifacts:
     paths:
       - public
-  only:
-    refs:
-      - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

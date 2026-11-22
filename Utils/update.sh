@@ -32,7 +32,7 @@ fi
 
 ./manage.py migrate
 ./manage.py collectstatic --noinput
-./manage.py compilemessages -l de_DE
+./manage.py compilemessages -l de_DE --ignore venv --ignore .cache
 
 # remove leftovers from previous models that no longer exist
 ./manage.py remove_stale_contenttypes --include-stale-apps

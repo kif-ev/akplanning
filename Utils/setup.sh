@@ -15,8 +15,8 @@ source venv/bin/activate
 pip install --upgrade setuptools pip wheel
 
 if [ "$1" = "--ci" ]; then
-  pip install -r requirements/core.txt
-  pip install -r requirements/mysql.txt
+  # Everything needed by any CI job (tests, linting, documentation), so the jobs can share the cached virtualenv
+  pip install -r requirements.txt -r requirements/mysql.txt -r requirements/lint.txt
   export DJANGO_SETTINGS_MODULE=AKPlanning.settings_ci
 else
   pip install -r requirements.txt
@@ -28,12 +28,14 @@ if [ "$1" = "--prod" ]; then
   export DJANGO_SETTINGS_MODULE=AKPlanning.settings_production
 fi
 
-# Setup database
-python manage.py migrate
+# Setup database and static files (but not for CI use, every job sets up what it needs itself)
+if [ "$1" != "--ci" ]; then
+    python manage.py migrate
+    python manage.py collectstatic --noinput
+fi
 
-# Prepare static files and translations
-python manage.py collectstatic --noinput
-python manage.py compilemessages -l de_DE
+# Prepare translations
+python manage.py compilemessages -l de_DE --ignore venv --ignore .cache
 
 # Create superuser
 # Credentials are entered interactively on CLI (but not for ci use)
