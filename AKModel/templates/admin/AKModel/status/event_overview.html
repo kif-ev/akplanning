@@ -8,8 +8,9 @@
     <div class="form-check form-switch mt-2 mb-2">
         <input type="checkbox" class="form-check-input" id="planPublishedSwitch"
                {% if not event.plan_hidden %}checked{% endif %}
-               onclick="location.href='
-                       {% if event.plan_hidden %}{% url 'admin:plan-publish' %}{% else %}{% url 'admin:plan-unpublish' %}{% endif %}?pks={{ event.pk }}';">
+               data-url="
+                       {% if event.plan_hidden %}{% url 'admin:plan-publish' %}{% else %}{% url 'admin:plan-unpublish' %}{% endif %}?pks={{ event.pk }}"
+               onclick="location.href = this.dataset.url;">
         <label class="form-check-label" for="planPublishedSwitch">{% trans "Plan published?" %}</label>
     </div>
 {% endtimezone %}
