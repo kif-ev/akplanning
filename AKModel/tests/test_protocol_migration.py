@@ -636,7 +636,7 @@ class ProtocolDownloadAndConversionTests(TestCase):
         with patch("AKModel.protocol_migration.pypandoc.convert_text", return_value="= Protokoll =") as convert:
             self.assertEqual(convert_to_mediawiki("# Protokoll"), "= Protokoll =")
         convert.assert_called_once_with("# Protokoll", "mediawiki", format="gfm+hard_line_breaks-gfm_auto_identifiers",
-                                        sandbox=True)
+                                        sandbox=True, extra_args=["--eol=lf"])
 
     def test_convert_failed(self):
         """

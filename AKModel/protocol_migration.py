@@ -266,8 +266,10 @@ def convert_to_mediawiki(markdown: str) -> str:
         # Sandbox pandoc since the protocols are untrusted input (prevents access to local files and network)
         # HedgeDoc renders single line breaks as such (unlike plain GitHub flavored markdown).
         # Heading identifiers would be written as explicit anchors, but MediaWiki generates them itself
+        # Enfordce LF line endings
+        # (even on Windows where it would otherwise use CRLF)
         return pypandoc.convert_text(markdown, "mediawiki", format="gfm+hard_line_breaks-gfm_auto_identifiers",
-                                     sandbox=True)
+                                     sandbox=True, extra_args=["--eol=lf"])
     except (OSError, RuntimeError) as e:
         raise MigrationError(MigrationStatus.CONVERSION_FAILED, str(e).strip()) from e
 
