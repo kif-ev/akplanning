@@ -161,11 +161,14 @@ doc:
 pages:
   stage: deploy
   image: alpine:latest
+  # Only publishes the lint results, hence neither needs the virtualenv nor the artifacts of other jobs
+  cache: [ ]
+  needs:
+    - lint
   script:
     - echo
   artifacts:
     paths:
       - public
-  only:
-    refs:
-      - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
