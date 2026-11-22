@@ -115,8 +115,9 @@ test:
       "
     - coverage run --source='.' manage.py test --settings AKPlanning.settings_ci
   after_script:
-    - coverage report
-    - coverage xml
+    # Runs in a separate shell, hence the virtualenv activated in before_script is not active here
+    - venv/bin/coverage report
+    - venv/bin/coverage xml
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     reports:
