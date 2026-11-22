@@ -184,6 +184,21 @@ def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids
                 'next_aks': next_aks,
             })
 
+    # Legend for the title slide, only containing the pictograms that are actually used on the AK slides
+    # (conditions mirror those in the slide template)
+    ak_slides = [slide for slide in slides if slide['kind'] == 'ak']
+    legend_entries = [
+        ("magic", _("Wish"), any(s['ak'].wish for s in ak_slides)),
+        ("scroll", _("Resolution Intention"), any(s['ak'].reso for s in ak_slides)),
+        ("user", _("Owners"), any(not s['ak'].wish for s in ak_slides)),
+        ("list", _("Types"), show_types and any(s['ak'].types_list for s in ak_slides)),
+        ("clock", _("Duration(s)"),
+         not presentation_mode and any(s['ak'].durations_list for s in ak_slides)),
+        ("bullseye", _("Design/Goal"), any(s['ak'].goal for s in ak_slides)),
+        ("angles-right", _("Upcoming AKs"), any(s['next_aks'] for s in ak_slides)),
+    ]
+    legend = [(icon, label) for icon, label, used in legend_entries if used]
+
     return {
         'title': event.name,
         'event_name': event.name,
@@ -194,6 +209,7 @@ def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids
         'timespan': timespan_string,
         'result_presentation_mode': presentation_mode,
         'show_types': show_types,
+        'legend': legend,
     }
 
 
