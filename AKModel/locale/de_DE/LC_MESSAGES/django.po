@@ -2167,3 +2167,7 @@ msgstr "Zu Anforderungen gehörige AKs anzeigen"
 #: views/status.py:217
 msgid "Event Status"
 msgstr "Eventstatus"
+
+#: views/manage.py
+msgid "Upcoming AKs"
+msgstr "Nachfolgende AKs"

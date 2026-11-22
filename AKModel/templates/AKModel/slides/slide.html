@@ -26,6 +26,13 @@
                 {% endfor %}
             </div>
         {% endif %}
+        {% if legend %}
+            <div class="slide-legend mt-5 small text-muted">
+                {% for icon, label in legend %}
+                    <span class="me-4 text-nowrap">{% fa6_icon icon 'fas' %} {{ label }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
     </article>
 {% elif slide.kind == 'chapter' %}
     <article
