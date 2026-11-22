@@ -28,11 +28,13 @@ if [ "$1" = "--prod" ]; then
   export DJANGO_SETTINGS_MODULE=AKPlanning.settings_production
 fi
 
-# Setup database
-python manage.py migrate
+# Setup database and static files (but not for CI use, every job sets up what it needs itself)
+if [ "$1" != "--ci" ]; then
+    python manage.py migrate
+    python manage.py collectstatic --noinput
+fi
 
-# Prepare static files and translations
-python manage.py collectstatic --noinput
+# Prepare translations
 python manage.py compilemessages -l de_DE
 
 # Create superuser

@@ -53,8 +53,6 @@ installation:
   cache:
     <<: *venv_cache
     policy: pull-push
-  services:
-    - mysql
   script:
     - python -V  # Print out python version for debugging
     - apt-get -qq update
