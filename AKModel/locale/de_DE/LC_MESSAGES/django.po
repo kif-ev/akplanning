@@ -365,6 +365,14 @@ msgstr "Nein"
 msgid "Restrict AKs to those that asked for chance to be presented?"
 msgstr "AKs auf solche, die um eine Vorstellung gebeten haben, einschränken?"
 
+#: forms.py:281
+msgid "Include wishes?"
+msgstr "Wünsche einbeziehen?"
+
+#: forms.py:285
+msgid "Should AK wishes be included in the slides?"
+msgstr "Sollen AK-Wünsche in den Folien enthalten sein?"
+
 #: forms.py:286 models.py:1606
 msgid "Default Slots"
 msgstr "Standardslots"

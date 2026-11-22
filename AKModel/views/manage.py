@@ -89,7 +89,7 @@ def _ak_has_slot_in_timespan(ak, timespan_start, timespan_end):
 
 
 def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids, types_all_selected_only,
-                                categories_ids, timespan_start=None, timespan_end=None):
+                                categories_ids, include_wishes=True, timespan_start=None, timespan_end=None):
     """
     Build the context used by both the admin config and the public slides page.
 
@@ -97,6 +97,9 @@ def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids
     are included and the timespan is shown on the title slide. When the timespan covers the whole event (default),
     no filtering is applied, so AKs that are not scheduled yet are still included (e.g., when presenting AKs
     before the scheduling is done).
+
+    Whether wishes are included is controlled solely by ``include_wishes``, i.e., wishes are neither removed by the
+    presentation mode nor by the timespan (category and type filters still apply).
     """
     # Default to the full event if no (or only a partial) timespan was given
     timespan_start = timespan_start or event.start
@@ -116,9 +119,12 @@ def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids
         """
         Filter predicate: Should the given AK be included in the slides?
 
-        Respects the presentation mode (only AKs that should directly or indirectly be presented)
+        Wishes are included or excluded depending only on the explicit wish setting. For all other AKs,
+        respects the presentation mode (only AKs that should directly or indirectly be presented)
         and the timespan (only if it deviates from the full event)
         """
+        if ak.wish:
+            return include_wishes
         if presentation_mode and not (ak.present or (ak.present is None and ak.category.present_by_default)):
             return False
         return not timespan_changed or _ak_has_slot_in_timespan(ak, timespan_start, timespan_end)
@@ -236,6 +242,7 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
         config = signing.dumps({
             "num_next": form.cleaned_data["num_next"],
             "presentation_mode": form.cleaned_data["presentation_mode"],
+            "include_wishes": form.cleaned_data["include_wishes"],
             "types": form.cleaned_data["types"],
             "types_all_selected_only": form.cleaned_data["types_all_selected_only"],
             "categories": form.cleaned_data["categories"],
@@ -273,6 +280,7 @@ class PublishedSlidesView(EventSlugMixin, TemplateView):
                 event=self.event,
                 num_next=int(self.config_data.get("num_next", 3)),
                 presentation_mode=bool(self.config_data.get("presentation_mode", False)),
+                include_wishes=bool(self.config_data.get("include_wishes", True)),
                 types_ids=_parse_selected_ids(self.config_data["types"]) if "types" in self.config_data else None,
                 types_all_selected_only=bool(self.config_data.get("types_all_selected_only", False)),
                 categories_ids=_parse_selected_ids(
