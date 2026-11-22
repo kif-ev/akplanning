@@ -106,8 +106,9 @@ migrations:
 test:
   extends: .venv
   services:
-    # Pinned to the LTS release, the alias has to match MYSQL_HOST
-    - name: mysql:26.10
+    # Same LTS release as the production deployment (MariaDB, which also understands the MYSQL_* variables),
+    # the alias has to match MYSQL_HOST
+    - name: mariadb:11.8
       alias: mysql
   stage: test
   script:
@@ -120,12 +121,13 @@ test:
 
       import MySQLdb
 
-      for attempt in range(1, 31):
+      # The first start of the service initializes the database without networking, which can take a while
+      for attempt in range(1, 91):
           try:
               connection = MySQLdb.connect(host=os.environ["MYSQL_HOST"], user="root", password=os.environ["MYSQL_ROOT_PASSWORD"])
               break
           except MySQLdb.OperationalError as error:
-              print(f"Waiting for MySQL... ({attempt}/30): {error}")
+              print(f"Waiting for MySQL... ({attempt}/90): {error}")
               time.sleep(2)
       else:
           raise SystemExit("MySQL did not become ready")

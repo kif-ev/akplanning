@@ -4,5 +4,17 @@
     "fileMatch": [
       "(^|/)requirements(/.*)?.txt$"
     ]
-  }
+  },
+  "packageRules": [
+    {
+      "description": "Keep the CI database on the LTS release of the production deployment (see .gitlab-ci.yml), newer releases have to be adopted together with production",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "mariadb"
+      ],
+      "allowedVersions": "<11.9"
+    }
+  ]
 }
