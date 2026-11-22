@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load fontawesome_6 %}
+
+{% block title %}{{ event_name }}: {{ subtitle|default:_('AKs') }}{% endblock %}
+
+{% block imports %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'AKModel/css/slides_carousel.css' %}">
+    <link rel="stylesheet" href="{% static 'AKModel/css/slides_pdf.css' %}">
+    <script>
+        // The PDF is created by the browser (print and save as PDF), hence directly open the print dialog
+        // as soon as all fonts (including the icons) are loaded
+        window.addEventListener('load', function () {
+            document.fonts.ready.then(function () {
+                window.print();
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block language-switcher %}
+{% endblock %}
+
+{% block content %}
+    <div class="slides-pdf-toolbar no-print">
+        <span>{% trans "Use the print dialog of your browser to save the slides as PDF." %}</span>
+        <button type="button" class="btn btn-primary" onclick="window.print()">
+            {% fa6_icon "file-pdf" 'fas' %} {% trans "Print / Save as PDF" %}
+        </button>
+    </div>
+
+    <main class="slides-pdf">
+        {% for slide in slides %}
+            <section class="pdf-slide">
+                {% include "AKModel/slides/slide.html" with pdf_export=True %}
+            </section>
+        {% empty %}
+            <section class="pdf-slide">
+                <article class="slide-card w-100 p-5 d-flex flex-column justify-content-center text-center text-muted">
+                    <h2>{{ event_name }}</h2>
+                    <p>{% trans "No AKs match the selected filters." %}</p>
+                </article>
+            </section>
+        {% endfor %}
+    </main>
+{% endblock %}

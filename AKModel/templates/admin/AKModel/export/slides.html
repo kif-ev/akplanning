@@ -11,7 +11,7 @@
     <div class="no-print mb-4" style="max-width: 50rem;">
         <h2>{{ event_name }}</h2>
         <p class="text-muted">
-            {% trans "Choose the slide filters. You can either export a PDF (legacy) or publish/open the web carousel." %}
+            {% trans "Choose the slide filters. You can either export a PDF (saved via the print dialog of your browser) or publish/open the web carousel." %}
         </p>
 
         <form method="post" class="mb-4">
@@ -19,7 +19,7 @@
             {% bootstrap_form form %}
             <input type="hidden" name="export_mode" value="{{ default_export_mode|default:'pdf' }}">
             <div class="d-flex gap-2 flex-wrap">
-                <button type="submit" name="export_mode" value="pdf" class="save btn btn-primary">
+                <button type="submit" name="export_mode" value="pdf" formtarget="_blank" class="save btn btn-primary">
                     {% fa6_icon "file-pdf" 'fas' %} {% trans "Export PDF" %}
                 </button>
                 <button type="submit" name="export_mode" value="web" formtarget="_blank" class="save btn btn-success">

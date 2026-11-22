@@ -1,7 +1,5 @@
 import datetime
 import json
-import os
-import tempfile
 from itertools import zip_longest
 from urllib.parse import urlencode
 
@@ -15,8 +13,6 @@ from django.utils.dateparse import parse_datetime
 from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, ListView, TemplateView
-from django_tex.core import render_template_with_context, run_tex_in_directory
-from django_tex.response import PDFResponse
 
 from AKModel.availability.models import Availability
 from AKModel.forms import CVMarkResolvedForm, DefaultSlotCategoriesForm, DefaultSlotEditorForm, ShiftByOffsetForm, \
@@ -200,12 +196,12 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
     """
     View: Export slides to present AKs
 
-    Over a form to choose some settings for the export and then render the slide content in the browser or as PDF
+    Over a form to choose some settings for the export and then show the slides in the web carousel or in a print view
+    of the carousel slides, which can be saved as PDF by the browser
     """
     title = _('Export AK Slides')
     form_class = SlideExportForm
     template_name = 'admin/AKModel/export/slides.html'
-    tex_template_name = 'admin/AKModel/export/slides.tex'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -235,8 +231,8 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
             form.fields['types_all_selected_only'].widget = form.fields['types_all_selected_only'].hidden_widget()
         return form
 
-    def _build_public_url(self, form):
-        public_url = reverse("model:ak_slides_public", kwargs={"event_slug": self.event.slug})
+    def _build_public_url(self, form, url_name="model:ak_slides_public"):
+        public_url = reverse(url_name, kwargs={"event_slug": self.event.slug})
         timespan_start, timespan_end = form.cleaned_data["timespan"]
         config = signing.dumps({
             "num_next": form.cleaned_data["num_next"],
@@ -249,45 +245,12 @@ class ExportSlidesView(EventSlugMixin, IntermediateAdminView):
         })
         return f"{public_url}?{urlencode({'config': config})}"
 
-    def _build_pdf_response(self, form):
-        context = _build_slide_export_context(
-                event=self.event,
-                num_next=form.cleaned_data["num_next"],
-                presentation_mode=form.cleaned_data["presentation_mode"],
-                types_ids=_parse_selected_ids(form.cleaned_data["types"]),
-                types_all_selected_only=form.cleaned_data["types_all_selected_only"],
-                categories_ids=_parse_selected_ids(form.cleaned_data["categories"]),
-                timespan_start=form.cleaned_data["timespan"][0],
-                timespan_end=form.cleaned_data["timespan"][1],
-        )
-        context['translations'] = {
-            'symbols': _("Symbols"),
-            'who': _("Who?"),
-            'duration': _("Duration(s)"),
-            'reso': _("Reso intention?"),
-            'wish': _("Wish"),
-            'types': _("Types"),
-            'goal': _("Design/Goal"),
-        }
-
-        source = render_template_with_context(self.tex_template_name, context)
-
-        # Perform real compilation (run latex twice for correct page numbers)
-        with tempfile.TemporaryDirectory() as tempdir:
-            run_tex_in_directory(source, tempdir, template_name=self.tex_template_name)
-            os.remove(f'{tempdir}/texput.tex')
-            pdf = run_tex_in_directory(source, tempdir, template_name=self.tex_template_name)
-
-        # Show PDF file to the user (with a filename containing a timestamp to prevent confusions about the right
-        # version to use when generating multiple versions of the slides, e.g., because owners did last-minute changes
-        # to their AKs
-        timestamp = datetime.datetime.now(tz=self.event.timezone).strftime("%Y-%m-%d_%H_%M")
-        return PDFResponse(pdf, filename=f'{self.event.slug}_ak_slides_{timestamp}.pdf')
-
     def form_valid(self, form):
-        if self.request.POST.get("export_mode", self.request.GET.get("export_mode", "pdf")) == "web":
+        export_mode = self.request.POST.get("export_mode", self.request.GET.get("export_mode", "pdf"))
+        if export_mode == "web":
             return HttpResponseRedirect(self._build_public_url(form))
-        return self._build_pdf_response(form)
+        # The PDF is created by the browser from the print view of the web carousel slides
+        return HttpResponseRedirect(self._build_public_url(form, url_name="model:ak_slides_pdf"))
 
 
 class PublishedSlidesView(EventSlugMixin, TemplateView):
@@ -319,6 +282,16 @@ class PublishedSlidesView(EventSlugMixin, TemplateView):
                 timespan_end=_parse_config_datetime(self.config_data.get("timespan_end")),
         ))
         return context
+
+
+class PublishedSlidesPDFView(PublishedSlidesView):
+    """
+    Print view of the public slides for an event
+
+    Shows all slides of the web carousel below each other, laid out as 16:9 pages when printing,
+    so they can be saved as PDF using the print dialog of the browser (without any server-side PDF rendering)
+    """
+    template_name = "AKModel/slides_pdf.html"
 
 
 class CVMarkResolvedView(IntermediateAdminActionView):

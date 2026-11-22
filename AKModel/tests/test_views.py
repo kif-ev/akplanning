@@ -1,7 +1,6 @@
 import json
 import traceback
 from typing import List
-from unittest.mock import patch
 from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
@@ -451,6 +450,46 @@ class ModelViewTests(BasicViewTests, TestCase):
         expected_redirect = str(reverse_lazy("admin:ak_slide_export", kwargs={"event_slug": event.slug}))
         self.assertEqual(response["Location"], expected_redirect)
 
+    def test_slide_export_pdf(self):
+        """
+        Test PDF export based on the web carousel
+        This ensures the export redirects to a public print view containing one page per slide of the web carousel.
+        """
+        self.client.force_login(self.admin_user)
+        event = Event.objects.get(slug="kif42")
+        export_url = reverse_lazy("admin:ak_slide_export", kwargs={"event_slug": "kif42"})
+        data = self._slide_export_base_data(event)
+
+        response = self.client.post(export_url, data={**data, "export_mode": "pdf"})
+        self.assertEqual(response.status_code, 302, "PDF slide export did not redirect to the print view")
+        pdf_url = str(reverse_lazy("model:ak_slides_pdf", kwargs={"event_slug": "kif42"}))
+        self.assertTrue(response["Location"].startswith(pdf_url),
+                        msg=f"Unexpected redirect target: {response['Location']}")
+
+        self.client.logout()
+        pdf_response = self.client.get(response["Location"])
+        self.assertEqual(pdf_response.status_code, 200, "Slide print view not working at all")
+        content = pdf_response.content.decode("utf-8")
+        self.assertIn("window.print()", content)
+
+        # Compare with the slides of the web carousel for the same configuration
+        self.client.force_login(self.admin_user)
+        web_response = self.client.post(export_url, data={**data, "export_mode": "web"})
+        slides = self.client.get(web_response["Location"]).context["slides"]
+        self.assertEqual(content.count('class="pdf-slide"'), len(slides),
+                         "Slide print view should contain one page per slide")
+        for slide in slides:
+            if slide["kind"] == "ak":
+                self.assertIn(slide["ak"].name, content)
+
+    def test_slide_export_pdf_invalid_config_redirects_to_export(self):
+        """Invalid signed configs for the slide print view should send users back to the export page."""
+        pdf_url = reverse_lazy("model:ak_slides_pdf", kwargs={"event_slug": "kif42"})
+        response = self.client.get(f"{pdf_url}?config=definitely-not-a-valid-signature")
+        self.assertEqual(response.status_code, 302, "Invalid slide config did not redirect")
+        self.assertEqual(response["Location"],
+                         str(reverse_lazy("admin:ak_slide_export", kwargs={"event_slug": "kif42"})))
+
     def test_slide_export_modes_include_expected_ak_count_for_configurations(self):
         """Both web and PDF exports include the expected number of AKs for multiple filter configurations."""
         self.client.force_login(self.admin_user)
@@ -535,21 +574,13 @@ class ModelViewTests(BasicViewTests, TestCase):
             if config["types_all_selected_only"]:
                 pdf_data["types_all_selected_only"] = "on"
 
-            captured_context = {}
-
-            def capture_context(_template_name, context):
-                captured_context.update(context)
-                return "\\documentclass{article}\\begin{document}x\\end{document}"
-
-            with patch("AKModel.views.manage.render_template_with_context", side_effect=capture_context), \
-                    patch("AKModel.views.manage.run_tex_in_directory", return_value=b"%PDF-1.4"), \
-                    patch("AKModel.views.manage.os.remove"):
-                pdf_response = self.client.post(export_url, data=pdf_data)
-
-            self.assertEqual(pdf_response.status_code, 200, msg=f"{config['name']}: pdf export failed")
-            self.assertIn("application/pdf", pdf_response["Content-Type"])
+            pdf_response = self.client.post(export_url, data=pdf_data)
+            self.assertEqual(pdf_response.status_code, 302, msg=f"{config['name']}: pdf export did not redirect")
+            self.client.logout()
+            print_response = self.client.get(pdf_response["Location"])
+            self.client.force_login(self.admin_user)
             self.assertEqual(
-                    sum(len(ak_list) for _, ak_list in captured_context["categories_with_aks"]),
+                    len([slide for slide in print_response.context["slides"] if slide["kind"] == "ak"]),
                     expected_count,
                     msg=f"{config['name']}: wrong AK count in pdf export",
             )
@@ -567,9 +598,9 @@ class ModelViewTests(BasicViewTests, TestCase):
 
     def _run_slide_exports(self, data):
         """
-        Run web and PDF slide export with the given form data (LaTeX compilation is mocked)
+        Run web and PDF slide export with the given form data
 
-        :return: tuple of the response of the published web slides and the context used to render the PDF
+        :return: tuple of the responses of the published web slides and the print view used to create the PDF
         """
         export_url = reverse_lazy("admin:ak_slide_export", kwargs={"event_slug": "kif42"})
 
@@ -578,19 +609,12 @@ class ModelViewTests(BasicViewTests, TestCase):
         published_response = self.client.get(web_response["Location"])
         self.assertEqual(published_response.status_code, 200, "Published slides not working")
 
-        captured_context = {}
+        pdf_response = self.client.post(export_url, data={**data, "export_mode": "pdf"})
+        self.assertEqual(pdf_response.status_code, 302, "PDF slide export did not redirect")
+        print_response = self.client.get(pdf_response["Location"])
+        self.assertEqual(print_response.status_code, 200, "Slide print view not working")
 
-        def capture_context(_template_name, context):
-            captured_context.update(context)
-            return "\\documentclass{article}\\begin{document}x\\end{document}"
-
-        with patch("AKModel.views.manage.render_template_with_context", side_effect=capture_context), \
-                patch("AKModel.views.manage.run_tex_in_directory", return_value=b"%PDF-1.4"), \
-                patch("AKModel.views.manage.os.remove"):
-            pdf_response = self.client.post(export_url, data={**data, "export_mode": "pdf"})
-        self.assertEqual(pdf_response.status_code, 200, "PDF slide export failed")
-
-        return published_response, captured_context
+        return published_response, print_response
 
     def test_slide_export_timespan_defaults_to_event(self):
         """
@@ -685,7 +709,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         ]
 
         for config in configurations:
-            published_response, pdf_context = self._run_slide_exports({
+            published_response, print_response = self._run_slide_exports({
                 **base_data,
                 "timespan_0": config["timespan_start"],
                 "timespan_1": config["timespan_end"],
@@ -693,15 +717,15 @@ class ModelViewTests(BasicViewTests, TestCase):
 
             web_aks = {slide["ak"].pk for slide in published_response.context["slides"] if slide["kind"] == "ak"}
             self.assertEqual(web_aks, config["expected_aks"], msg=f"{config['name']}: wrong AKs in web export")
-            pdf_aks = {ak.pk for _, ak_list in pdf_context["categories_with_aks"] for ak, _ in ak_list}
+            pdf_aks = {slide["ak"].pk for slide in print_response.context["slides"] if slide["kind"] == "ak"}
             self.assertEqual(pdf_aks, config["expected_aks"], msg=f"{config['name']}: wrong AKs in pdf export")
 
             title_slide = published_response.context["slides"][0]
             self.assertEqual(title_slide["kind"], "title")
             self.assertEqual(title_slide["timespan"], config["expected_timespan"],
                              msg=f"{config['name']}: wrong timespan on web title slide")
-            self.assertEqual(pdf_context["timespan"], config["expected_timespan"],
-                             msg=f"{config['name']}: wrong timespan on pdf title page")
+            self.assertEqual(print_response.context["slides"][0]["timespan"], config["expected_timespan"],
+                             msg=f"{config['name']}: wrong timespan on pdf title slide")
             if config["expected_timespan"]:
                 self.assertIn(config["expected_timespan"], published_response.content.decode("utf-8"),
                               msg=f"{config['name']}: timespan not rendered on web title slide")

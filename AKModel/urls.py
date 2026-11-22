@@ -9,7 +9,7 @@ from AKModel.views.ak import AKCSVExportView, AKMessageDeleteView, AKRequirement
 from AKModel.views.event_wizard import NewEventWizardActivateView, NewEventWizardFinishView, NewEventWizardImportView, \
     NewEventWizardPrepareImportView, NewEventWizardSettingsView, NewEventWizardStartView
 from AKModel.views.manage import AKsByUserView, DefaultSlotEditorView, ExportSlidesView, PlanPublishView, \
-    PlanUnpublishView, PollPublishView, PollUnpublishView, PublishedSlidesView
+    PlanUnpublishView, PollPublishView, PollUnpublishView, PublishedSlidesPDFView, PublishedSlidesView
 from AKModel.views.room import RoomBatchCreationView
 from AKModel.views.status import EventStatusView
 
@@ -58,6 +58,7 @@ if apps.is_installed("AKSolverInterface"):
 event_specific_paths = [
     path('api/', include(api_router.urls), name='api'),
     path('slides/', PublishedSlidesView.as_view(), name='ak_slides_public'),
+    path('slides/pdf/', PublishedSlidesPDFView.as_view(), name='ak_slides_pdf'),
 ]
 event_specific_paths.extend(extra_paths)
 
