@@ -544,6 +544,10 @@ msgstr "AK-Slot erfolgreich angelegt"
 msgid "Messages"
 msgstr "Nachrichten"
 
+#: AKSubmission/views.py
+msgid "Show all messages"
+msgstr "Alle Nachrichten anzeigen"
+
 #: AKSubmission/views.py:760
 msgid "Delete all messages"
 msgstr "Alle Nachrichten löschen"

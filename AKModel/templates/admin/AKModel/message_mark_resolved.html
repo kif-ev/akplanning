@@ -1,0 +1,7 @@
+{% extends "admin/AKModel/action_intermediate.html" %}
+
+{% block action_preview %}
+    <p>{{ view.confirmation_message }}:</p>
+
+    {% include "admin/AKModel/render_ak_messages.html" %}
+{% endblock %}

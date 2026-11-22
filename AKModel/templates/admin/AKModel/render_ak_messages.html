@@ -1,21 +1,28 @@
+{% load i18n %}
 {% load tz %}
 {% load fontawesome_6 %}
 
-{% timezone event.timezone %}
-    <table class="table table-striped">
-        {% for message in ak_messages %}
-            <tr>
-                <td>
-            <span class="text-secondary float-end">
-                {{ message.timestamp|date:"Y-m-d H:i:s" }}
-            </span>
-                    <h5><a href="{{ message.ak.detail_url }}">
-                        {% if message.resolved %}{% fa6_icon "check-circle" %} {% endif %}
-                        {{ message.ak }}
-                    </a></h5>
-                    <p>{{ message.text }}</p>
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
-{% endtimezone %}
+<table class="table table-striped">
+    {% for message in ak_messages %}
+        <tr>
+            <td>
+                <span class="text-secondary float-end">
+                    {% timezone message.event.timezone %}
+                        {{ message.timestamp|date:"d.m.Y H:i" }}
+                    {% endtimezone %}
+                    {% if show_resolve_buttons and not message.resolved %}
+                        <a href="{% url 'admin:akorgamessage-mark-resolved' %}?pks={{ message.pk }}&next={{ request.path|urlencode }}"
+                           class="btn btn-sm btn-success ms-2" title="{% trans "Mark message as resolved" %}">
+                            {% fa6_icon "check" "fas" %}
+                        </a>
+                    {% endif %}
+                </span>
+                <h5><a href="{{ message.ak.detail_url }}">
+                    {% if message.resolved %}{% fa6_icon "check-circle" %} {% endif %}
+                    {{ message.ak }}
+                </a></h5>
+                <p>{{ message.text }}</p>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
