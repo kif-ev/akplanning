@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-20 15:47+0000\n"
+"POT-Creation-Date: 2026-11-22 11:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,11 +26,11 @@ msgstr "Status"
 msgid "Toggle plan visibility"
 msgstr "Plansichtbarkeit ändern"
 
-#: admin.py:127 admin.py:156 views/manage.py:436
+#: admin.py:127 admin.py:156 views/manage.py:409
 msgid "Publish plan"
 msgstr "Plan veröffentlichen"
 
-#: admin.py:130 admin.py:164 views/manage.py:449
+#: admin.py:130 admin.py:164 views/manage.py:422
 msgid "Unpublish plan"
 msgstr "Plan verbergen"
 
@@ -38,23 +38,23 @@ msgstr "Plan verbergen"
 msgid "Toggle poll visibility"
 msgstr "Sichtbarkeit der Abfrage ändern"
 
-#: admin.py:145 admin.py:173 views/manage.py:462
+#: admin.py:145 admin.py:173 views/manage.py:435
 msgid "Publish preference poll"
 msgstr "Präferenzen-Abfrage veröffentlichen"
 
-#: admin.py:148 admin.py:181 views/manage.py:475
+#: admin.py:148 admin.py:181 views/manage.py:448
 msgid "Unpublish preference poll"
 msgstr "Präferenzen-Abfrage verbergen"
 
 #: admin.py:225 models.py:876 models.py:1419 models.py:1460
-#: templates/AKModel/slides_carousel.html:7
+#: templates/AKModel/slides_carousel.html:7 templates/AKModel/slides_pdf.html:6
 #: templates/admin/AKModel/aks_by_user.html:24
-#: templates/admin/AKModel/status/event_aks.html:10 views/manage.py:165
-#: views/manage.py:192 views/status.py:102
+#: templates/admin/AKModel/status/event_aks.html:10 views/manage.py:161
+#: views/manage.py:188 views/status.py:102
 msgid "AKs"
 msgstr "AKs"
 
-#: admin.py:293 views/manage.py:268
+#: admin.py:293
 msgid "Wish"
 msgstr "AK-Wunsch"
 
@@ -138,15 +138,15 @@ msgstr "Slots um Offset verschieben"
 msgid "Shift availabilities by offset"
 msgstr "Verfügbarkeiten um Offset verschieben"
 
-#: admin.py:803 views/manage.py:330
+#: admin.py:803 views/manage.py:303
 msgid "Mark Constraint Violations as manually resolved"
 msgstr "Markiere Constraintverletzungen als manuell behoben"
 
-#: admin.py:812 views/manage.py:346
+#: admin.py:812 views/manage.py:319
 msgid "Set Constraint Violations to level \"violation\""
 msgstr "Constraintverletzungen auf Level \"Violation\" setzen"
 
-#: admin.py:821 views/manage.py:359
+#: admin.py:821 views/manage.py:332
 msgid "Set Constraint Violations to level \"warning\""
 msgstr "Constraintverletzungen auf Level \"Warning\" setzen"
 
@@ -335,7 +335,7 @@ msgstr ""
 "die Folien aufgenommen. Wenn nicht ausgewählt werden AKs, die mindestens "
 "einen der spezifizierten Typen erfüllen, in die Folien aufgenommen."
 
-#: forms.py:270 views/manage.py:115
+#: forms.py:270 views/manage.py:111
 msgid "Timespan"
 msgstr "Zeitraum"
 
@@ -858,7 +858,7 @@ msgstr "Kurzbeschreibung"
 msgid "1-2 sentences of AK description"
 msgstr "1-2 repräsentative Sätze, die den AK beschreiben"
 
-#: models.py:817 templates/AKModel/slides_carousel.html:192 views/manage.py:270
+#: models.py:817 templates/AKModel/slides/slide.html:78
 msgid "Design/Goal"
 msgstr "Art/Ziel"
 
@@ -914,7 +914,7 @@ msgstr "Protokolllink"
 msgid "Link to protocol"
 msgstr "Link zum Protokoll"
 
-#: models.py:833 templates/AKModel/slides_carousel.html:149
+#: models.py:833 templates/AKModel/slides/slide.html:35
 msgid "Category"
 msgstr "Kategorie"
 
@@ -922,8 +922,7 @@ msgstr "Kategorie"
 msgid "Category of the AK"
 msgstr "Kategorie des AKs"
 
-#: models.py:835 models.py:914 templates/AKModel/slides_carousel.html:178
-#: views/manage.py:269
+#: models.py:835 models.py:914 templates/AKModel/slides/slide.html:64
 msgid "Types"
 msgstr "Typen"
 
@@ -1359,29 +1358,39 @@ msgstr "Verwaltung"
 msgid "Hidden event (not shown on the overview page)"
 msgstr "Verborgenes Event (wird nicht auf der Übersichtsseite angezeigt)"
 
-#: templates/AKModel/slides_carousel.html:171 views/manage.py:265
+#: templates/AKModel/slides/slide.html:57
 msgid "Who?"
 msgstr "Wer?"
 
-#: templates/AKModel/slides_carousel.html:185 views/manage.py:266
+#: templates/AKModel/slides/slide.html:71
 msgid "Duration(s)"
 msgstr "Dauer(n)"
 
-#: templates/AKModel/slides_carousel.html:204
+#: templates/AKModel/slides/slide.html:95
 msgid "Next:"
 msgstr "Danach:"
 
-#: templates/AKModel/slides_carousel.html:224
+#: templates/AKModel/slides_carousel.html:132
+#: templates/AKModel/slides_pdf.html:46
 msgid "No AKs match the selected filters."
 msgstr "Keine AKs passen zu den ausgewählten Filtern."
 
-#: templates/AKModel/slides_carousel.html:235
+#: templates/AKModel/slides_carousel.html:143
 msgid "Previous"
 msgstr "Davor"
 
-#: templates/AKModel/slides_carousel.html:240
+#: templates/AKModel/slides_carousel.html:148
 msgid "Next"
 msgstr "Danach"
+
+#: templates/AKModel/slides_pdf.html:31
+msgid "Use the print dialog of your browser to save the slides as PDF."
+msgstr ""
+"Nutze den Druckdialog deines Browsers, um die Folien als PDF zu speichern."
+
+#: templates/AKModel/slides_pdf.html:33
+msgid "Print / Save as PDF"
+msgstr "Drucken / Als PDF speichern"
 
 #: templates/AKModel/user.html:23
 msgid "Hello"
@@ -1528,11 +1537,12 @@ msgstr "Schritt"
 
 #: templates/admin/AKModel/export/slides.html:14
 msgid ""
-"Choose the slide filters. You can either export a PDF (legacy) or publish/"
-"open the web carousel."
+"Choose the slide filters. You can either export a PDF (saved via the print "
+"dialog of your browser) or publish/open the web carousel."
 msgstr ""
-"Wähle Filter für die Folien. Du kannst entweder ein PDf exportieren oder die "
-"WebAnsicht publizieren/anzeigen."
+"Wähle Filter für die Folien. Du kannst entweder ein PDF exportieren (über "
+"den Druckdialog deines Browsers) oder die Web-Präsentation publizieren/"
+"anzeigen."
 
 #: templates/admin/AKModel/export/slides.html:23
 msgid "Export PDF"
@@ -1788,143 +1798,135 @@ msgstr "'%(obj)s' kopiert"
 msgid "Could not copy '%(obj)s' (%(error)s)"
 msgstr "'%(obj)s' konnte nicht kopiert werden (%(error)s)"
 
-#: views/manage.py:148
+#: views/manage.py:144
 msgid "Type(s)"
 msgstr "Typ(en)"
 
-#: views/manage.py:205 views/status.py:158
+#: views/manage.py:202 views/status.py:158
 msgid "Export AK Slides"
 msgstr "AK-Folien exportieren"
 
-#: views/manage.py:264
-msgid "Symbols"
-msgstr "Symbole"
-
-#: views/manage.py:267
-msgid "Reso intention?"
-msgstr "Resolutionsabsicht?"
-
-#: views/manage.py:303
+#: views/manage.py:266
 msgid "Invalid export config, please try again."
 msgstr "Keine valide Exportkonfiguration. Bitte starte den Export noch einmal."
 
-#: views/manage.py:333
+#: views/manage.py:306
 msgid "The following Constraint Violations will be marked as manually resolved"
 msgstr ""
 "Die folgenden Constraintverletzungen werden als manuell behoben markiert."
 
-#: views/manage.py:334
+#: views/manage.py:307
 msgid "Constraint Violations marked as resolved"
 msgstr "Constraintverletzungen als manuell behoben markiert"
 
-#: views/manage.py:348
+#: views/manage.py:321
 msgid "The following Constraint Violations will be set to level 'violation'"
 msgstr ""
 "Die folgenden Constraintverletzungen werden auf das Level \"Violation\" "
 "gesetzt."
 
-#: views/manage.py:349
+#: views/manage.py:322
 msgid "Constraint Violations set to level 'violation'"
 msgstr "Constraintverletzungen auf Level \"Violation\" gesetzt"
 
-#: views/manage.py:361
+#: views/manage.py:334
 msgid "The following Constraint Violations will be set to level 'warning'"
 msgstr ""
 "Die folgenden Constraintverletzungen werden auf das Level 'warning' gesetzt."
 
-#: views/manage.py:362
+#: views/manage.py:335
 msgid "Constraint Violations set to level 'warning'"
 msgstr "Constraintverletzungen auf Level \"Warning\" gesetzt"
 
-#: views/manage.py:372
+#: views/manage.py:345
 msgid "Clear schedule"
 msgstr "Planung zurücksetzen"
 
-#: views/manage.py:374
+#: views/manage.py:347
 msgid "Clear schedule. The following scheduled AKSlots will be reset"
 msgstr "Die Planung (Start, Räume) der folgenden AKs wird zurückgesetzt"
 
-#: views/manage.py:375
+#: views/manage.py:348
 msgid "Schedule cleared"
 msgstr "Planung zurückgesetzt"
 
-#: views/manage.py:396
+#: views/manage.py:369
 msgid "Shift availabilities"
 msgstr "Verfügbarkeiten verschieben"
 
-#: views/manage.py:398
+#: views/manage.py:371
 msgid "Shift the following availabilities by the specified offset"
 msgstr "Die folgenden Verfügbarkeiten um den gegebenen Offset verschieben"
 
-#: views/manage.py:399
+#: views/manage.py:372
 msgid "Availabilities shifted"
 msgstr "Verfügbarkeiten verschoben"
 
-#: views/manage.py:415
+#: views/manage.py:388
 msgid "Shift slots"
 msgstr "Slots verschieben"
 
-#: views/manage.py:417
+#: views/manage.py:390
 msgid "Shift the following AKSlots by the specified offset"
 msgstr "Die folgenden Slots um den gegebenen Offset verschieben"
 
-#: views/manage.py:418
+#: views/manage.py:391
 msgid "Slots shifted"
 msgstr "Slots verschoben"
 
-#: views/manage.py:438
+#: views/manage.py:411
 msgid "Publish the plan(s) of:"
 msgstr "Den Plan/die Pläne veröffentlichen von:"
 
-#: views/manage.py:439
+#: views/manage.py:412
 msgid "Plan published"
 msgstr "Plan veröffentlicht"
 
-#: views/manage.py:451
+#: views/manage.py:424
 msgid "Unpublish the plan(s) of:"
 msgstr "Den Plan/die Pläne verbergen von:"
 
-#: views/manage.py:452
+#: views/manage.py:425
 msgid "Plan unpublished"
 msgstr "Plan verborgen"
 
-#: views/manage.py:464
+#: views/manage.py:437
 msgid "Publish the poll(s) of:"
 msgstr "Die Präferenzen-Abfrage(n) veröffentlichen von:"
 
-#: views/manage.py:465
+#: views/manage.py:438
 msgid "Preference poll published"
 msgstr "Präferenzen-Abfrage veröffentlicht"
 
-#: views/manage.py:477
+#: views/manage.py:450
 msgid "Unpublish the preference poll(s) of:"
 msgstr "Die Präferenzen-Abfrage(n) verbergen von:"
 
-#: views/manage.py:478
+#: views/manage.py:451
 msgid "Preference poll unpublished"
 msgstr "Präferenzen-Abfrage verborgen"
 
-#: views/manage.py:490 views/status.py:138
+#: views/manage.py:463 views/status.py:138
 msgid "Edit Default Slots"
 msgstr "Standardslots bearbeiten"
 
-#: views/manage.py:543
+#: views/manage.py:516
 #, python-brace-format
 msgid "Could not update slot {id} since it does not belong to {event}"
 msgstr ""
 "Konnte  Slot {id} nicht bearbeiten, da er nicht zum Event {event} gehört"
 
-#: views/manage.py:584
+#: views/manage.py:557
 #, python-brace-format
 msgid "Updated {u} slot(s). created {c} new slot(s) and deleted {d} slot(s)"
 msgstr ""
 "{u} Slot(s) aktualisiert, {c} Slot(s) hinzugefügt und {d} Slot(s) gelöscht"
 
-#: views/manage.py:594
+#: views/manage.py:567
 msgid "Assign primary categories to default slots"
 msgstr "Primäre Kategorien für Standardslots festlegen"
 
-#: views/manage.py:596
+#: views/manage.py:569
 msgid ""
 "Assign primary categories in bulk for the following slots, this will reset "
 "all existing categories. Selected slots:"
@@ -1932,7 +1934,7 @@ msgstr ""
 "Primäre Kategorien für die folgenden Standardslots zuweisen, das wird alle "
 "existierenden Kategorien zurücksetzen. Ausgewählte Slots:"
 
-#: views/manage.py:598
+#: views/manage.py:571
 msgid "Categories assigned"
 msgstr "Kategorien festgelegt"
 

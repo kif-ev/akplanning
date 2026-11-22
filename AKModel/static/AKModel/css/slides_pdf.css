@@ -1,0 +1,116 @@
+/* Print layout of the web carousel slides, used to save them as PDF in the browser (one slide per 16:9 page) */
+
+@page {
+    size: 320mm 180mm;
+    margin: 0;
+}
+
+/* Hide the page footer, it would otherwise end up on an additional page */
+body > div.container:has(#footer) {
+    display: none !important;
+}
+
+.slides-pdf {
+    font-size: 15pt;
+}
+
+.pdf-slide {
+    width: 320mm;
+    height: 180mm;
+    padding: 8mm 10mm;
+    box-sizing: border-box;
+    overflow: hidden;
+    background: #fff;
+}
+
+/* No shadows in print */
+.slides-pdf .slide-card {
+    box-shadow: none;
+}
+
+/* Fixed sizes instead of the viewport based ones of the carousel */
+.slides-pdf h1 {
+    font-size: 44pt;
+}
+
+.slides-pdf h2 {
+    font-size: 30pt;
+    line-height: 1.2;
+}
+
+.slides-pdf .lead {
+    font-size: 22pt;
+}
+
+.slides-pdf .slide-meta {
+    font-size: 16pt;
+}
+
+.slides-pdf .slide-body {
+    font-size: 18pt;
+    line-height: 1.35;
+    overflow: hidden;
+}
+
+.slides-pdf .slide-footer {
+    font-size: 13pt;
+}
+
+.slides-pdf .btn-category-link {
+    font-size: 16pt;
+}
+
+.slides-pdf .slide-heading .text-end {
+    white-space: nowrap;
+}
+
+/* Preview on screen: slides below each other on a grey background */
+@media screen {
+    body {
+        background: #e9ecef;
+    }
+
+    .slides-pdf-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .slides-pdf {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        overflow-x: auto;
+    }
+
+    .pdf-slide {
+        flex-shrink: 0;
+        box-shadow: 0 .125rem .5rem rgba(0, 0, 0, .15);
+    }
+}
+
+@media print {
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .pdf-slide {
+        break-after: page;
+        page-break-after: always;
+    }
+
+    .pdf-slide:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+}
