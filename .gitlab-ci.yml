@@ -18,6 +18,7 @@ default:
   image: ghcr.io/astral-sh/uv:python3.13-trixie
   # The virtualenv is built by the installation job only, all other jobs just use it
   # Key it on the installed requirements to never use a virtualenv built for other requirements
+  # (GitLab supports at most two files here, hence all jobs additionally check a fingerprint of all inputs, see below)
   cache: &venv_cache
     key:
       files:
@@ -27,6 +28,25 @@ default:
       - .cache/pip
       - venv/
     policy: pull
+
+# Fingerprint of everything the virtualenv is built from (Python version, setup script, requirements)
+.venv_fingerprint:
+  script:
+    - VENV_FINGERPRINT=$( (python -VV; cat Utils/setup.sh requirements/core.txt requirements/mysql.txt) | sha256sum | cut -d ' ' -f 1)
+
+# Jobs using the virtualenv built by the installation job
+.venv:
+  needs:
+    - installation
+  before_script:
+    - !reference [ .venv_fingerprint, script ]
+    # The cache may have been overwritten in the meantime (e.g., by a concurrent pipeline with a different configuration)
+    - |
+      if [ "$(cat venv/.fingerprint 2>/dev/null)" != "$VENV_FINGERPRINT" ]; then
+        echo "Cached virtualenv does not match the configuration of this pipeline, please retry the installation job"
+        exit 1
+      fi
+    - source venv/bin/activate
 
 installation:
   stage: setup
@@ -39,9 +59,21 @@ installation:
     - python -V  # Print out python version for debugging
     - apt-get -qq update
     - apt-get -qq install -y --no-install-recommends gettext
-    # Install virtualenv for the Python of the image (the Debian package would use the system Python instead)
-    - pip install virtualenv
-    - ./Utils/setup.sh --ci
+    # Only reuse a cached virtualenv built from the same configuration, rebuild it from scratch otherwise
+    - !reference [ .venv_fingerprint, script ]
+    - |
+      if [ "$(cat venv/.fingerprint 2>/dev/null)" = "$VENV_FINGERPRINT" ]; then
+        echo "Reusing cached virtualenv"
+        source venv/bin/activate
+        # Translations are compiled from the repository and hence always needed
+        DJANGO_SETTINGS_MODULE=AKPlanning.settings_ci python manage.py compilemessages -l de_DE
+      else
+        echo "Building virtualenv"
+        # Install virtualenv for the Python of the image (the Debian package would use the system Python instead)
+        pip install virtualenv
+        ./Utils/setup.sh --ci
+        echo "$VENV_FINGERPRINT" > venv/.fingerprint
+      fi
   artifacts:
     # Compiled translations are not part of the repository but needed by later jobs (e.g., tests)
     paths:
@@ -52,21 +84,17 @@ installation:
     expire_in: 1 day
 
 migrations:
-  needs:
-    - installation
+  extends: .venv
   stage: test
   script:
-    - source venv/bin/activate
     - ./manage.py makemigrations --dry-run --check
 
 test:
-  needs:
-    - installation
+  extends: .venv
   services:
     - mysql
   stage: test
   script:
-    - source venv/bin/activate
     - apt-get -qq update
     - apt-get -qq install -y --no-install-recommends default-mysql-client
     - pip install pytest-cov
@@ -101,13 +129,11 @@ test:
       junit: unit.xml
 
 lint:
-  needs:
-    - installation
+  extends: .venv
   stage: test
   script:
     - mkdir -p public/badges public/lint
     - echo undefined > public/badges/$CI_JOB_NAME.score
-    - source venv/bin/activate
     - pip install -r requirements/lint.txt
     # Analyze only once and write all reports at the same time (text to stdout, the others to their files)
     - pylint --load-plugins pylint_django --django-settings-module=AKPlanning.settings_ci --rcfile pylintrc --exit-zero --output-format=text,pylint_gitlab.GitlabCodeClimateReporter:codeclimate.json,pylint_gitlab.GitlabPagesHtmlReporter:public/lint/index.html AK* | tee /tmp/pylint.txt
@@ -123,11 +149,9 @@ lint:
     when: always
 
 doc:
-  needs:
-    - installation
+  extends: .venv
   stage: test
   script:
-    - source venv/bin/activate
     - pip install -r requirements/docs.txt
     - cd docs
     - make html
