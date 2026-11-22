@@ -2,9 +2,6 @@
 Central and admin forms
 """
 
-import csv
-import io
-
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
@@ -12,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.models import AK, AKCategory, AKRequirement, AKTrack, AKType, DefaultSlot, Event, Room
+from AKModel.room_import import decode_csv_bytes
 
 
 class DateTimeInput(forms.DateTimeInput):
@@ -300,7 +298,8 @@ class RoomBatchCreationForm(AdminIntermediateForm):
     Form for room batch creation
 
     Allows to input a list of room details and choose whether default availabilities should be generated for these
-    rooms. Will check that the input follows a CSV format with at least a name column present.
+    rooms. Makes sure exactly one input (file or text) is used and provides the decoded data as ``csv_text``,
+    the detailed validation of the content happens in :func:`AKModel.room_import.parse_rooms_csv`.
     """
     create_default_availabilities = forms.BooleanField(
             label=_('Default availabilities?'),
@@ -324,11 +323,10 @@ class RoomBatchCreationForm(AdminIntermediateForm):
 
     def clean(self):
         """
-        Validate and transform the input for the imported
-        Treat the input as CSV and turn it into a dict containing the relevant information.
+        Make sure exactly one kind of input was used and provide its (decoded) content as ``csv_text``
 
-        :return: a dict containing the raw room information
-        :rtype: dict[str, str]
+        :return: cleaned data
+        :rtype: dict
         """
         cleaned_data = super().clean()
         if cleaned_data.get("csv_file") and cleaned_data.get("csv_data"):
@@ -346,21 +344,22 @@ class RoomBatchCreationForm(AdminIntermediateForm):
             self.add_error("csv_data", err)
             self.add_error("csv_file", err)
 
+        elif cleaned_data.get("csv_file"):
+            with cleaned_data["csv_file"].open() as csv_file:
+                cleaned_data["csv_text"] = decode_csv_bytes(csv_file.read())
         else:
-            if self.cleaned_data.get("csv_file"):
-                with self.cleaned_data["csv_file"].open() as csv_file:
-                    raw = csv_file.read().decode('utf-8')
-                rooms_raw_dict = csv.DictReader(io.StringIO(raw), delimiter=";")
-            else:
-                rooms_raw_text = self.cleaned_data["csv_data"]
-                rooms_raw_dict = csv.DictReader(io.StringIO(rooms_raw_text), delimiter=";")
-
-            if "name" not in rooms_raw_dict.fieldnames:
-                raise forms.ValidationError(_("CSV must contain a name column"))
-
-            cleaned_data['rooms'] = rooms_raw_dict
+            cleaned_data["csv_text"] = cleaned_data["csv_data"]
 
         return cleaned_data
+
+
+class RoomBatchImportConfirmForm(AdminIntermediateForm):
+    """
+    Form to confirm a room batch import after its preview was shown,
+    holds the data entered in :class:`RoomBatchCreationForm`
+    """
+    csv_data = forms.CharField(widget=forms.HiddenInput, strip=False)
+    create_default_availabilities = forms.BooleanField(widget=forms.HiddenInput, required=False)
 
 
 class ShiftByOffsetForm(AdminIntermediateActionForm):

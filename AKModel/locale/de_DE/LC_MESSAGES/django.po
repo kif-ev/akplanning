@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-22 11:29+0000\n"
+"POT-Creation-Date: 2026-11-22 15:12+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10,6 +10,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: admin.py:103 admin.py:113
 #: templates/admin/AKModel/event_wizard/activate.html:35
@@ -252,80 +253,80 @@ msgstr "Teilnehmer*in, deren Verfügbarkeit hier abgebildet wird"
 msgid "Availabilities"
 msgstr "Verfügbarkeiten"
 
-#: forms.py:40
+#: forms.py:38
 msgid "Timespan start"
 msgstr "Beginn des Zeitraums"
 
-#: forms.py:41
+#: forms.py:39
 msgid "Timespan end"
 msgstr "Ende des Zeitraums"
 
-#: forms.py:75
+#: forms.py:73
 msgid "The end of the timespan must be after its start"
 msgstr "Das Ende des Zeitraums muss nach seinem Beginn liegen"
 
-#: forms.py:138
+#: forms.py:136
 msgid "Copy ak requirements and ak categories of existing event"
 msgstr "AK-Anforderungen und AK-Kategorien eines existierenden Events kopieren"
 
-#: forms.py:139
+#: forms.py:137
 msgid "You can choose what to copy in the next step"
 msgstr ""
 "Im nächsten Schritt kann ausgewählt werden, was genau kopiert werden soll"
 
-#: forms.py:153
+#: forms.py:151
 msgid "Copy ak categories"
 msgstr "AK-Kategorien kopieren"
 
-#: forms.py:160
+#: forms.py:158
 msgid "Copy ak requirements"
 msgstr "AK-Anforderungen kopieren"
 
-#: forms.py:167
+#: forms.py:165
 msgid "Copy types"
 msgstr "Typen kopieren"
 
-#: forms.py:193
+#: forms.py:191
 msgid "Copy dashboard buttons"
 msgstr "Dashboard-Buttons kopieren"
 
-#: forms.py:228 models.py:1439
+#: forms.py:226 models.py:1439
 msgid "Resolution Reason"
 msgstr "Begründung für Behebung"
 
-#: forms.py:229
+#: forms.py:227
 msgid "Why are these violations resolved or acceptable? (optional)"
 msgstr "Warum sind diese Verletzungen behoben oder akzeptabel? (optional)"
 
-#: forms.py:249
+#: forms.py:247
 msgid "# next AKs"
 msgstr "# nächste AKs"
 
-#: forms.py:250
+#: forms.py:248
 msgid "How many next AKs should be shown on a slide?"
 msgstr "Wie viele nächste AKs sollen auf einer Folie angezeigt werden?"
 
-#: forms.py:252 models.py:704
+#: forms.py:250 models.py:704
 msgid "AK Categories"
 msgstr "AK-Kategorien"
 
-#: forms.py:253
+#: forms.py:251
 msgid "Which categories should be included in the slides?"
 msgstr "Welche Kategorien sollen in den Folien enthalten sein?"
 
-#: forms.py:258 models.py:785
+#: forms.py:256 models.py:785
 msgid "AK Types"
 msgstr "AK-Typen"
 
-#: forms.py:259
+#: forms.py:257
 msgid "Which AK types should be included in the slides?"
 msgstr "Welche AK-Typen sollen in den Folien enthalten sein?"
 
-#: forms.py:265
+#: forms.py:263
 msgid "Only show AKs with all selected types?"
 msgstr "Nur AKs mit dem ausgewählten Typ anzeigen?"
 
-#: forms.py:266
+#: forms.py:264
 msgid ""
 "If checked, only AKs that have all selected types will be shown in the "
 "slides. If unchecked, AKs with at least one of the selected types will be "
@@ -335,11 +336,11 @@ msgstr ""
 "die Folien aufgenommen. Wenn nicht ausgewählt werden AKs, die mindestens "
 "einen der spezifizierten Typen erfüllen, in die Folien aufgenommen."
 
-#: forms.py:270 views/manage.py:111
+#: forms.py:268 views/manage.py:111
 msgid "Timespan"
 msgstr "Zeitraum"
 
-#: forms.py:271
+#: forms.py:269
 msgid ""
 "Only include AKs with at least one slot overlapping this timespan. Default: "
 "Whole event, then also unscheduled slots are shown."
@@ -348,27 +349,27 @@ msgstr ""
 "überschneidet. Standard: Gesamte Veranstaltung, dann werden auch nicht "
 "eingeplante Slots angezeigt."
 
-#: forms.py:276
+#: forms.py:274
 msgid "Presentation only?"
 msgstr "Nur Vorstellung?"
 
-#: forms.py:278
+#: forms.py:276
 msgid "Yes"
 msgstr "Ja"
 
-#: forms.py:278
+#: forms.py:276
 msgid "No"
 msgstr "Nein"
 
-#: forms.py:280
+#: forms.py:278
 msgid "Restrict AKs to those that asked for chance to be presented?"
 msgstr "AKs auf solche, die um eine Vorstellung gebeten haben, einschränken?"
 
-#: forms.py:288 models.py:1606
+#: forms.py:286 models.py:1606
 msgid "Default Slots"
 msgstr "Standardslots"
 
-#: forms.py:290
+#: forms.py:288
 msgid ""
 "Click and drag to add default slots, double-click to delete. Or use the "
 "start and end inputs to add entries to the calendar view."
@@ -377,19 +378,19 @@ msgstr ""
 "Einträge zu löschen. Oder Start- und End-Eingabe verwenden, um der "
 "Kalenderansicht neue Einträge hinzuzufügen."
 
-#: forms.py:306
+#: forms.py:305
 msgid "Default availabilities?"
 msgstr "Standardverfügbarkeiten?"
 
-#: forms.py:307
+#: forms.py:306
 msgid "Create default availabilities for all rooms?"
 msgstr "Standardverfügbarkeiten für alle Räume anlegen?"
 
-#: forms.py:311
+#: forms.py:310
 msgid "New rooms"
 msgstr "Neue Räume"
 
-#: forms.py:312
+#: forms.py:311
 msgid ""
 "Enter room details in CSV format. Required column is \"name\", optional "
 "columns are \"location\", \"capacity\", \"url\" for online/hybrid rooms. "
@@ -403,54 +404,50 @@ msgstr ""
 "der Anforderung sein, falls die Anforderung erfüllt wird muss der Wert 'x' "
 "sein. Trennzeichen: Semikolon"
 
-#: forms.py:321
+#: forms.py:320
 msgid "File with csv data"
 msgstr "Datei mit csv Daten"
 
-#: forms.py:322
+#: forms.py:321
 msgid "File with csv data for room creation"
 msgstr "Datei mit csv Daten für den Raumimport"
 
-#: forms.py:336
+#: forms.py:334
 msgid "Please enter data as a file OR via text, not both."
 msgstr "Bitte gib die Daten als Text ODER Datei an, nicht beides."
 
-#: forms.py:343
+#: forms.py:341 room_import.py:257
 msgid "No data entered. Please enter data as a file or via text."
 msgstr ""
 "Keine Daten bereitgestellt. Bitte gib die Daten als Datei oder Text ein."
 
-#: forms.py:359
-msgid "CSV must contain a name column"
-msgstr "CSV muss eine name-Spalte enthalten"
-
-#: forms.py:371
+#: forms.py:370
 msgid "Offset (hours)"
 msgstr "Offset (in Stunden)"
 
-#: forms.py:372
+#: forms.py:371
 msgid ""
 "Specify the offset in hours by which the selected entities should be shifted."
 msgstr ""
 "Offset in Stunden angeben, um den die Objekte verschoben werden sollen."
 
-#: forms.py:382
+#: forms.py:381
 msgid "Existing track"
 msgstr "Existierender Track"
 
-#: forms.py:383
+#: forms.py:382
 msgid "Select the track to assign the selected AKs to."
 msgstr "Track auswählen, der den gewählten AKs zugewiesen werden soll."
 
-#: forms.py:387
+#: forms.py:386
 msgid "New track"
 msgstr "Neuer Track"
 
-#: forms.py:388
+#: forms.py:387
 msgid "Alternatively, enter a new track name"
 msgstr "Alternativ Namen für einen neuen Track eingeben"
 
-#: forms.py:405
+#: forms.py:404
 msgid ""
 "Selected AKs belong to different events. Please select only AKs from the "
 "same event."
@@ -458,7 +455,7 @@ msgstr ""
 "Die ausgewählten AKs gehören zu unterschiedlichen Events. Bitte nur AKs vom "
 "selben Event auswählen."
 
-#: forms.py:415
+#: forms.py:414
 msgid ""
 "No track selected. Please choose an existing track or specify the name of a "
 "new one."
@@ -466,7 +463,7 @@ msgstr ""
 "Kein Track ausgewählt. Bitte einen existierenden Track auswählen oder den "
 "Namen für einen neuen angeben."
 
-#: forms.py:424
+#: forms.py:423
 msgid ""
 "Please choose either an existing track or specify the name of a new one, not "
 "both."
@@ -474,21 +471,21 @@ msgstr ""
 "Bitte entweder einen existierenden Track oder den Namen für einen neuen "
 "eingeben, aber nicht beides."
 
-#: forms.py:435
+#: forms.py:434
 msgid "A track with this name already exists. Please choose a different name."
 msgstr ""
 "Ein Track mit diesem Namen existiert bereits. Bitte einen anderen Namen "
 "wählen."
 
-#: forms.py:492 models.py:1615
+#: forms.py:491 models.py:1615
 msgid "Primary categories"
 msgstr "Primäre Kategorien"
 
-#: forms.py:493
+#: forms.py:492
 msgid "Categories that should be assigned to these slots primarily"
 msgstr "Kategorieren, die diesen Slots primär zugewiesen werden sollen"
 
-#: forms.py:511
+#: forms.py:510
 msgid ""
 "Selected default slots belong to different events. Please select only "
 "default slots from the same event."
@@ -506,6 +503,7 @@ msgstr "Muss mindestens einen Buchstaben oder eine Ziffer enthalten"
 
 #: models.py:133 models.py:691 models.py:729 models.py:756 models.py:778
 #: models.py:811 models.py:1065
+#: templates/admin/AKModel/import_rooms_preview.html:48
 msgid "Name"
 msgstr "Name"
 
@@ -1037,7 +1035,7 @@ msgstr "Voraussetzungen"
 msgid "Name or number of the room"
 msgstr "Name oder Nummer des Raums"
 
-#: models.py:1066
+#: models.py:1066 templates/admin/AKModel/import_rooms_preview.html:49
 msgid "Location"
 msgstr "Ort"
 
@@ -1045,7 +1043,7 @@ msgstr "Ort"
 msgid "Name or number of the location"
 msgstr "Name oder Nummer des Ortes"
 
-#: models.py:1068
+#: models.py:1068 templates/admin/AKModel/import_rooms_preview.html:50
 msgid "Capacity"
 msgstr "Kapazität"
 
@@ -1053,7 +1051,7 @@ msgstr "Kapazität"
 msgid "Maximum number of people (-1 for unlimited)."
 msgstr "Maximale Personenzahl (-1 wenn unbeschränkt)."
 
-#: models.py:1070
+#: models.py:1070 templates/admin/AKModel/import_rooms_preview.html:54
 msgid "Properties"
 msgstr "Eigenschaften"
 
@@ -1350,6 +1348,58 @@ msgstr "Kommunikation mit dem Wiki fehlgeschlagen"
 msgid "Unexpected error"
 msgstr "Unerwarteter Fehler"
 
+#: room_import.py:141
+#, python-brace-format
+msgid "Column '{column}' appears more than once"
+msgstr "Spalte '{column}' kommt mehrfach vor"
+
+#: room_import.py:149
+#, python-brace-format
+msgid ""
+"Column '{column}' is neither a room field nor a requirement of this event "
+"and will be ignored"
+msgstr "Spalte '{column}' ist weder ein Raumfeld noch eine Anforderung dieses Events und wird ignoriert"
+
+#: room_import.py:153
+msgid "CSV must contain a name column"
+msgstr "CSV muss eine name-Spalte enthalten"
+
+#: room_import.py:169
+#, python-brace-format
+msgid "Capacity '{capacity}' is not a whole number"
+msgstr "Kapazität '{capacity}' ist keine ganze Zahl"
+
+#: room_import.py:171
+msgid "Capacity must be a positive number or -1 (unlimited)"
+msgstr "Kapazität muss eine positive Zahl oder -1 (unbegrenzt) sein"
+
+#: room_import.py:189
+#, python-brace-format
+msgid ""
+"Value '{value}' for requirement '{requirement}' not understood, use 'x' or "
+"leave empty"
+msgstr "Wert '{value}' für Anforderung '{requirement}' nicht verstanden, verwende 'x' oder lasse das Feld leer"
+
+#: room_import.py:212
+msgid "Name must not be empty"
+msgstr "Name darf nicht leer sein"
+
+#: room_import.py:221
+#, python-brace-format
+msgid "'{url}' is not a valid URL"
+msgstr "'{url}' ist keine gültige URL"
+
+#: room_import.py:230
+msgid "Room appears more than once in the data"
+msgstr "Raum kommt mehrfach in den Daten vor"
+
+#: room_import.py:271
+#, python-brace-format
+msgid ""
+"Line {line} contains more cells than there are columns, additional cells "
+"will be ignored"
+msgstr "Zeile {line} enthält mehr Zellen als es Spalten gibt, zusätzliche Zellen werden ignoriert"
+
 #: site.py:15 site.py:16
 msgid "Administration"
 msgstr "Verwaltung"
@@ -1410,7 +1460,6 @@ msgid "Logout"
 msgstr "Ausloggen"
 
 #: templates/admin/AKModel/action_intermediate.html:23
-#: templates/admin/AKModel/import_rooms.html:18
 msgid "Confirm"
 msgstr "Bestätigen"
 
@@ -1420,7 +1469,8 @@ msgstr "Bestätigen"
 #: templates/admin/AKModel/event_wizard/settings.html:32
 #: templates/admin/AKModel/event_wizard/start.html:28
 #: templates/admin/AKModel/export/slides.html:29
-#: templates/admin/AKModel/import_rooms.html:22
+#: templates/admin/AKModel/import_rooms.html:28
+#: templates/admin/AKModel/import_rooms_preview.html:83
 #: templates/admin/AKModel/room_create.html:30
 msgid "Cancel"
 msgstr "Abbrechen"
@@ -1552,6 +1602,86 @@ msgstr "PDF Exportieren"
 msgid "Open Web Carousel"
 msgstr "Web Präsentation öffnen"
 
+#: templates/admin/AKModel/import_rooms.html:14
+msgid "Download CSV template"
+msgstr "CSV-Vorlage herunterladen"
+
+#: templates/admin/AKModel/import_rooms.html:16
+msgid ""
+"Contains all columns applicable for this event (including one column per "
+"requirement)."
+msgstr ""
+"Enthält alle für dieses Event relevanten Spalten (inklusive einer Spalte pro "
+"Anforderung)."
+
+#: templates/admin/AKModel/import_rooms.html:24
+msgid "Check data"
+msgstr "Daten prüfen"
+
+#: templates/admin/AKModel/import_rooms_preview.html:12
+msgid "Preview"
+msgstr "Vorschau"
+
+#: templates/admin/AKModel/import_rooms_preview.html:17
+#, python-format
+msgid ""
+"The data contains %(counter)s error. Lines with errors will not be imported."
+msgid_plural ""
+"The data contains %(counter)s errors. Lines with errors will not be imported."
+msgstr[0] "Die Daten enthalten %(counter)s Fehler. Zeilen mit Fehlern werden nicht importiert."
+msgstr[1] "Die Daten enthalten %(counter)s Fehler. Zeilen mit Fehlern werden nicht importiert."
+
+#: templates/admin/AKModel/import_rooms_preview.html:21
+#, python-format
+msgid "Line %(line)s"
+msgstr "Zeile %(line)s"
+
+#: templates/admin/AKModel/import_rooms_preview.html:39
+#, python-format
+msgid "The following room will be created:"
+msgid_plural "The following %(counter)s rooms will be created:"
+msgstr[0] "Der folgende Raum wird angelegt:"
+msgstr[1] "Die folgenden %(counter)s Räume werden angelegt:"
+
+#: templates/admin/AKModel/import_rooms_preview.html:41
+msgid "Default availabilities will be created for all of them."
+msgstr "Für alle werden Standardverfügbarkeiten angelegt."
+
+#: templates/admin/AKModel/import_rooms_preview.html:47
+msgid "Line"
+msgstr "Zeile"
+
+#: templates/admin/AKModel/import_rooms_preview.html:52
+msgid "URL"
+msgstr "URL"
+
+#: templates/admin/AKModel/import_rooms_preview.html:63
+msgid "unlimited"
+msgstr "unbegrenzt"
+
+#: templates/admin/AKModel/import_rooms_preview.html:79
+#, python-format
+msgid "Import %(counter)s room"
+msgid_plural "Import %(counter)s rooms"
+msgstr[0] "%(counter)s Raum importieren"
+msgstr[1] "%(counter)s Räume importieren"
+
+#: templates/admin/AKModel/import_rooms_preview.html:87
+msgid "The data does not contain any room that could be imported."
+msgstr "Die Daten enthalten keinen Raum, der importiert werden könnte."
+
+#: templates/admin/AKModel/import_rooms_preview.html:90
+msgid "Correct data"
+msgstr "Daten korrigieren"
+
+#: templates/admin/AKModel/import_rooms_preview.html:91
+msgid "Correct the data below and check it again."
+msgstr "Korrigiere die Daten unten und prüfe sie erneut."
+
+#: templates/admin/AKModel/import_rooms_preview.html:96
+msgid "Check again"
+msgstr "Erneut prüfen"
+
 #: templates/admin/AKModel/message_delete.html:8
 #, python-format
 msgid ""
@@ -1639,7 +1769,7 @@ msgstr "Ungeplante Slots"
 msgid "No categories yet"
 msgstr "Bisher keine Kategorien"
 
-#: templates/admin/AKModel/status/event_overview.html:13
+#: templates/admin/AKModel/status/event_overview.html:14
 msgid "Plan published?"
 msgstr "Plan veröffentlicht?"
 
@@ -1938,28 +2068,33 @@ msgstr ""
 msgid "Categories assigned"
 msgstr "Kategorien festgelegt"
 
-#: views/room.py:37
+#: views/room.py:39
 #, python-format
 msgid "Created Room '%(room)s'"
 msgstr "Raum '%(room)s' angelegt"
 
-#: views/room.py:52 views/status.py:86
+#: views/room.py:57 views/room.py:94 views/status.py:86
 msgid "Import Rooms from CSV"
 msgstr "Räume aus CSV importieren"
 
-#: views/room.py:103
-#, python-brace-format
-msgid "Could not import room {name}: {e}"
-msgstr "Konnte Raum {name} nicht importieren: {e}"
+#: views/room.py:104 views/room.py:128
+msgid "No rooms imported"
+msgstr "Keine Räume importiert"
 
-#: views/room.py:108
+#: views/room.py:117
+#, python-brace-format
+msgid "Could not import rooms, no rooms were created: {e}"
+msgstr "Räume konnten nicht importiert werden, es wurden keine Räume angelegt: {e}"
+
+#: views/room.py:122
+#, python-brace-format
+msgid "Skipped {count} line(s) with errors"
+msgstr "{count} Zeile(n) mit Fehlern übersprungen"
+
+#: views/room.py:126
 #, python-brace-format
 msgid "Imported {count} room(s)"
 msgstr "{count} Raum/Räume importiert"
-
-#: views/room.py:110
-msgid "No rooms imported"
-msgstr "Keine Räume importiert"
 
 #: views/status.py:16
 msgid "Overview"
@@ -2024,15 +2159,3 @@ msgstr "Zu Anforderungen gehörige AKs anzeigen"
 #: views/status.py:217
 msgid "Event Status"
 msgstr "Eventstatus"
-
-#: templates/admin/AKModel/import_rooms.html
-msgid "Download CSV template"
-msgstr "CSV-Vorlage herunterladen"
-
-#: templates/admin/AKModel/import_rooms.html
-msgid ""
-"Contains all columns applicable for this event (including one column per "
-"requirement)."
-msgstr ""
-"Enthält alle für dieses Event relevanten Spalten (inklusive einer Spalte pro "
-"Anforderung)."

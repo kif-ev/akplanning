@@ -10,7 +10,7 @@ from AKModel.views.event_wizard import NewEventWizardActivateView, NewEventWizar
     NewEventWizardPrepareImportView, NewEventWizardSettingsView, NewEventWizardStartView
 from AKModel.views.manage import AKsByUserView, DefaultSlotEditorView, ExportSlidesView, PlanPublishView, \
     PlanUnpublishView, PollPublishView, PollUnpublishView, PublishedSlidesPDFView, PublishedSlidesView
-from AKModel.views.room import RoomBatchCreationView, RoomCSVTemplateView
+from AKModel.views.room import RoomBatchCreationView, RoomBatchImportConfirmView, RoomCSVTemplateView
 from AKModel.views.status import EventStatusView
 
 # Register basic API views/endpoints
@@ -127,6 +127,8 @@ def get_admin_urls_event(admin_site):
              name="default-slots-editor"),
         path('<slug:event_slug>/importRooms/', admin_site.admin_view(RoomBatchCreationView.as_view()),
              name="room-import"),
+        path('<slug:event_slug>/importRooms/confirm/', admin_site.admin_view(RoomBatchImportConfirmView.as_view()),
+             name="room-import-confirm"),
         path('<slug:event_slug>/importRooms/template/', admin_site.admin_view(RoomCSVTemplateView.as_view()),
              name="room-import-template"),
     ]
