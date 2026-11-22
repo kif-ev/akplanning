@@ -1,13 +1,16 @@
 {% load i18n %}
 
-{% if event.akrequirement_set.count == 0 %}
+{% if not requirements_with_counts %}
     <p class="text-danger">{% trans "No requirements yet" %}</p>
 {% else %}
     <ul>
-        {% for requirement in event.akrequirement_set.all %}
+        {% for requirement in requirements_with_counts %}
             <li>
                 <a href="{% url 'admin:AKModel_akrequirement_change' requirement.pk %}">{{ requirement }}</a>
-                ({{ requirement.ak_set.count }})
+                ({% trans "AKs" %}:
+                <a href="{% url 'admin:AKModel_ak_changelist' %}?event__id__exact={{ event.pk }}&requirements__id__exact={{ requirement.pk }}&trashed=NOT_TRASHED">{{ requirement.ak_count }}</a>,
+                {% trans "Rooms" %}:
+                <a href="{% url 'admin:AKModel_room_changelist' %}?event__id__exact={{ event.pk }}&properties__id__exact={{ requirement.pk }}">{{ requirement.room_count }}</a>)
             </li>
         {% endfor %}
     </ul>

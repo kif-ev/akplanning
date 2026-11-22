@@ -1,4 +1,5 @@
 from django.apps import apps
+from django.db.models import Count, Q
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -190,6 +191,13 @@ class EventRequirementsWidget(TemplateStatusWidget):
     required_context_type = "event"
     title = _("Requirements")
     template_name = "admin/AKModel/status/event_requirements.html"
+
+    def get_context_data(self, context) -> dict:
+        context["requirements_with_counts"] = context["event"].akrequirement_set.annotate(
+                ak_count=Count("ak", filter=Q(ak__trashed_at__isnull=True), distinct=True),
+                room_count=Count("room", distinct=True),
+        )
+        return context
 
     def render_title(self, context: dict[any]) -> str:
         # Store requirements count as instance variable for re-use in body
