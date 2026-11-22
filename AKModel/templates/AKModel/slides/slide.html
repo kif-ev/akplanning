@@ -94,9 +94,10 @@
             <div class="slide-footer pt-3 mt-4 small text-muted">
                 <span class="me-2">{% trans "Next:" %}</span>
                 {% for n_ak in slide.next_aks %}
-                    {% if n_ak and not n_ak.wish %}
+                    {% if n_ak %}
                         <span class="me-3">
                         {% fa6_icon "angles-right" 'fas' %}
+                        {% if n_ak.wish %}{% fa6_icon "magic" 'fas' %} {% endif %}
                         {{ n_ak.name }}
                     </span>
                     {% endif %}
