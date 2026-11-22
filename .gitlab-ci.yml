@@ -30,9 +30,10 @@ default:
     policy: pull
 
 # Fingerprint of everything the virtualenv is built from (Python version, setup script, all requirements)
+# and its location (scripts in the virtualenv contain absolute paths, which differ, e.g., between concurrent runner slots)
 .venv_fingerprint:
   script:
-    - VENV_FINGERPRINT=$( (python -VV; cat Utils/setup.sh requirements.txt requirements/*.txt) | sha256sum | cut -d ' ' -f 1)
+    - VENV_FINGERPRINT=$( (echo "$CI_PROJECT_DIR"; python -VV; cat Utils/setup.sh requirements.txt requirements/*.txt) | sha256sum | cut -d ' ' -f 1)
 
 # Jobs using the virtualenv built by the installation job
 .venv:
