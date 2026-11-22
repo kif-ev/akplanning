@@ -106,8 +106,9 @@ migrations:
 test:
   extends: .venv
   services:
-    # Pinned to the LTS release, the alias has to match MYSQL_HOST
-    - name: mysql:8.4
+    # Same LTS release as the production deployment (MariaDB, which also understands the MYSQL_* variables),
+    # the alias has to match MYSQL_HOST
+    - name: mariadb:11.8
       alias: mysql
   stage: test
   script:

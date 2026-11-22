@@ -7,14 +7,14 @@
   },
   "packageRules": [
     {
-      "description": "Keep the CI MySQL service on the LTS release (see .gitlab-ci.yml), newer releases have to be adopted deliberately",
+      "description": "Keep the CI database on the LTS release of the production deployment (see .gitlab-ci.yml), newer releases have to be adopted together with production",
       "matchDatasources": [
         "docker"
       ],
       "matchPackageNames": [
-        "mysql"
+        "mariadb"
       ],
-      "allowedVersions": "<8.5"
+      "allowedVersions": "<11.9"
     }
   ]
 }
