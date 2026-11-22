@@ -10,10 +10,11 @@ CSRF_COOKIE_SECURE = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': 'mysql',
-        'NAME': 'test',
-        'USER': 'django',
-        'PASSWORD': 'mysql',
+        # Configured by the CI variables (see .gitlab-ci.yml), defaults match them
+        'HOST': os.environ.get('MYSQL_HOST', 'mysql'),
+        'NAME': os.environ.get('MYSQL_DATABASE', 'test'),
+        'USER': os.environ.get('MYSQL_USER', 'django'),
+        'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'mysql'),
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
