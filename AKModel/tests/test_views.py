@@ -956,6 +956,35 @@ class ModelViewTests(BasicViewTests, TestCase):
         response = self.client.post(f"{url}?pks=2&next=https://example.com/", {'pks': '2'})
         self.assertRedirects(response, reverse('admin:AKModel_constraintviolation_changelist'))
 
+    def test_status_page_requirement_counts(self):
+        """
+        Test that the requirements widget on the status page shows (and links) the number of AKs (excluding trashed
+        ones) and rooms having each requirement
+        """
+        self.client.force_login(self.admin_user)
+        event = Event.objects.get(slug="kif42")
+        AK.objects.get(pk=4).move_to_trash()
+        ak_list_url = reverse('admin:AKModel_ak_changelist')
+        room_list_url = reverse('admin:AKModel_room_changelist')
+
+        response = self.client.get(reverse('admin:event_status', kwargs={'event_slug': event.slug}))
+        for requirement_pk, ak_count, room_count in [(3, 1, 1), (4, 1, 1), (5, 0, 0)]:
+            self.assertContains(
+                    response,
+                    f'href="{ak_list_url}?event__id__exact={event.pk}&requirements__id__exact={requirement_pk}'
+                    f'&trashed=NOT_TRASHED">{ak_count}</a>')
+            self.assertContains(
+                    response,
+                    f'href="{room_list_url}?event__id__exact={event.pk}&properties__id__exact={requirement_pk}">'
+                    f'{room_count}</a>')
+
+        # The linked admin lists show exactly the counted entities
+        response = self.client.get(ak_list_url, {'event__id__exact': event.pk, 'requirements__id__exact': 3,
+                                                 'trashed': 'NOT_TRASHED'})
+        self.assertEqual(response.context['cl'].result_count, 1)
+        response = self.client.get(room_list_url, {'event__id__exact': event.pk, 'properties__id__exact': 3})
+        self.assertEqual(response.context['cl'].result_count, 1)
+
     def test_orga_messages_status_widget_and_mark_resolved(self):
         """
         Test that the status page only lists unresolved orga messages (and counts the resolved ones)
