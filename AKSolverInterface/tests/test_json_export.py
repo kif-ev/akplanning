@@ -1,10 +1,10 @@
 import json
+import math
 from collections import defaultdict
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 from itertools import chain
 
-import math
 from bs4 import BeautifulSoup
 from django.contrib.auth import get_user_model
 from django.forms import ModelMultipleChoiceField
@@ -27,7 +27,7 @@ from AKSolverInterface.forms import JSONExportControlForm
 from AKSolverInterface.utils import construct_schema_validator
 
 
-class JSONExportTest(TestCase):
+class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
     """Test if JSON export is correct.
 
     It tests if the output conforms to the KoMa specification:

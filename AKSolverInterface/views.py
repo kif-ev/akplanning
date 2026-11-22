@@ -124,11 +124,12 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, SchedulingWizardMixin, Fo
 
     def produce_exceptions(self, form):
         """
-        Identify AKs that cannot be placed (no overlap between availabilities and default slots both in general and matching category). This will then adjust the form accordingly.
+        Identify AKs that cannot be placed (no overlap between availabilities and default slots both in general
+        and matching category). This will then adjust the form accordingly.
         :param form: form to adjust
         """
         qs = self.event.ak_set.filter(category__in=form.cleaned_data["export_categories"])
-        aks_no_default_slot, aks_no_default_slot_for_category = aks_not_in_default_schedules(self.event, qs)
+        aks_no_default_slot, aks_no_category_slot = aks_not_in_default_schedules(self.event, qs)
         if aks_no_default_slot and len(aks_no_default_slot) > 0:
             messages.warning(
                     self.request,
@@ -138,9 +139,9 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, SchedulingWizardMixin, Fo
                             aks_list=", ".join(f"{ak.name}" for ak in aks_no_default_slot)
                     )
             )
-        if aks_no_default_slot_for_category and len(aks_no_default_slot_for_category) > 0:
+        if aks_no_category_slot and len(aks_no_category_slot) > 0:
             form.fields["ignore_slot_category_mismatches"].choices = [
-                (ak.pk, f"{ak.name} ({ak.category})") for ak in aks_no_default_slot_for_category
+                (ak.pk, f"{ak.name} ({ak.category})") for ak in aks_no_category_slot
             ]
             form.fields["ignore_slot_category_mismatches"].initial = form.fields[
                 "ignore_slot_category_mismatches"].choices
@@ -161,6 +162,9 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, SchedulingWizardMixin, Fo
         return self.render_to_response(context)
 
     def try_producing_export(self, context, form):
+        """
+        Try to produce the JSON export for the given form and add it (or the reasons why it failed) to the context
+        """
         try:
             # Find AKs that are not wishes but nevertheless have no slots
             aks_without_slot = AK.objects.annotate(num_owners=Count('owners')).filter(event=self.event,

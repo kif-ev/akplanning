@@ -30,8 +30,7 @@ class JSONExportScheduledSlotsTest(TestCase):
     @staticmethod
     def _timeslots(export: dict):
         for block in export["timeslots"]["blocks"]:
-            for timeslot in block:
-                yield timeslot
+            yield from block
 
     def _timeslot_avail(self, timeslot: dict) -> Availability:
         def _parse(value: str) -> datetime:
@@ -204,6 +203,7 @@ class AvailabilityDifferenceTest(TestCase):
     """Test computing the difference of availabilities."""
 
     def test_difference(self):
+        """Test the difference of availabilities for disjoint, overlapping and contained availabilities."""
         base = datetime(2020, 1, 1, tzinfo=timezone.utc)
 
         def _avail(start_hour: int, end_hour: int) -> Availability:

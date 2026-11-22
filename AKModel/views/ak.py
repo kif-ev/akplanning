@@ -9,8 +9,8 @@ from django.views import View
 from django.views.generic import DetailView, ListView
 
 from AKModel.forms import TrackAssignmentForm
-from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, FilterByEventSlugMixin, IntermediateAdminActionView, \
-    IntermediateAdminView
+from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, FilterByEventSlugMixin, \
+    IntermediateAdminActionView, IntermediateAdminView
 from AKModel.models import AK, AKOrgaMessage, AKRequirement, AKSlot, AKTrack, Event
 from AKModel.protocol_migration import migrate_protocols
 

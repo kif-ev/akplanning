@@ -97,6 +97,7 @@ class PreferenceFormSet(forms.BaseModelFormSet):
         # Override queryset to only show existing preferences of the given participant and category
         # Other options will be added as "extras" in the view
         if not hasattr(self, "_queryset"):
+            # pylint: disable-next=attribute-defined-outside-init
             self._queryset = (super().get_queryset().filter(participant=self.participant, ak__category=self.category)
                               .select_related('ak')
                               .order_by('ak'))

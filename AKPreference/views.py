@@ -199,6 +199,8 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
     """
     template_name = 'AKPreference/poll_preferences.html'
     model = EventParticipant
+    ak_category = None
+    object = None
 
     def dispatch(self, request, *args, **kwargs):
         self.ak_category = get_object_or_404(AKCategory, pk=self.kwargs['category_pk'])
@@ -225,11 +227,11 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
         return forms.modelformset_factory(AKPreference, form=PreferenceForm, formset=PreferenceFormSet,
                                           extra=len(self.initial))
 
-    def get_object(self, queryset=...):
+    def get_object(self, queryset=...):  # pylint: disable=unused-argument
         """
         Override
         """
-        if not hasattr(self, "object") or self.object is None:
+        if self.object is None:
             self.object = EventParticipant.objects.get(uuid=self.request.session[uuid_key(self.event)])
         return self.object
 
@@ -314,6 +316,8 @@ class ParticipantAdminView(AdminViewMixin, DetailView):
     model = EventParticipant
     context_object_name = 'participant'
     template_name = "admin/AKPreference/participant.html"
+    # Colors to highlight the preference levels (indexed by preference level)
+    PREFERENCE_COLORS = ['#555', '#75caeb', '#158cba', '#ff4136']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -331,10 +335,9 @@ class ParticipantAdminView(AdminViewMixin, DetailView):
                         ).values('preference')[:1]
                 )
         )
-        PREFERENCE_COLORS = ['#555', '#75caeb', '#158cba', '#ff4136']
         context["akslots"] = list(context["akslots"])
         for akslot in context["akslots"]:
-            akslot.color = PREFERENCE_COLORS[akslot.preference]
+            akslot.color = self.PREFERENCE_COLORS[akslot.preference]
         context["availabilities"] = Availability.objects.filter(participant=self.object).all()
         context["title_in_cal"] = "akname"
         return context

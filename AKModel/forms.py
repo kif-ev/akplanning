@@ -110,7 +110,7 @@ class NewEventWizardSettingsForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = "__all__"
-        exclude = ['plan_published_at', 'poll_published_at']
+        exclude = ['plan_published_at', 'poll_published_at']  # pylint: disable=modelform-uses-exclude
         widgets = {
             'name': forms.HiddenInput(),
             'slug': forms.HiddenInput(),
@@ -514,7 +514,8 @@ class DefaultSlotCategoriesForm(AdminIntermediateActionForm):
         events = set(slot.event for slot in slots)
         if len(events) > 1:
             err = ValidationError(
-                    _("Selected default slots belong to different events. Please select only default slots from the same event."),
+                    _("Selected default slots belong to different events. "
+                      "Please select only default slots from the same event."),
                     "invalid",
             )
             self.add_error(None, err)

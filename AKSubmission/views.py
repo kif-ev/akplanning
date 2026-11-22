@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
+from math import floor
 
 from django.apps import apps
 from django.conf import settings
@@ -10,7 +11,6 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView
-from math import floor
 
 from AKModel.availability.models import Availability
 from AKModel.metaviews import status_manager

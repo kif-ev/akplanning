@@ -88,11 +88,40 @@ def _ak_has_slot_in_timespan(ak, timespan_start, timespan_end):
                for slot in ak.akslot_set.all())
 
 
+def _build_slide_legend(slides, *, show_types, presentation_mode):
+    """
+    Build the legend for the title slide, only containing the pictograms that are actually used on the AK slides
+    (conditions mirror those in the slide template)
+
+    :param slides: slides as created by ``_build_slide_export_context``
+    :type slides: list[dict]
+    :param show_types: are types shown on the slides?
+    :type show_types: bool
+    :param presentation_mode: are the slides created in presentation mode (without durations)?
+    :type presentation_mode: bool
+    :return: list of tuples consisting of icon name and label
+    :rtype: list[(str, str)]
+    """
+    ak_slides = [slide for slide in slides if slide['kind'] == 'ak']
+    legend_entries = [
+        ("magic", _("Wish"), any(s['ak'].wish for s in ak_slides)),
+        ("scroll", _("Resolution Intention"), any(s['ak'].reso for s in ak_slides)),
+        ("user", _("Owners"), any(not s['ak'].wish for s in ak_slides)),
+        ("list", _("Types"), show_types and any(s['ak'].types_list for s in ak_slides)),
+        ("clock", _("Duration(s)"),
+         not presentation_mode and any(s['ak'].durations_list for s in ak_slides)),
+        ("bullseye", _("Design/Goal"), any(s['ak'].goal for s in ak_slides)),
+        ("angles-right", _("Upcoming AKs"), any(s['next_aks'] for s in ak_slides)),
+    ]
+    return [(icon, label) for icon, label, used in legend_entries if used]
+
+
 def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids, types_all_selected_only,
-                                categories_ids, include_wishes=True, timespan_start=None, timespan_end=None):
+                                categories_ids, include_wishes=True, timespan=(None, None)):
     """
     Build the context used by both the admin config and the public slides page.
 
+    The timespan is given as tuple of start and end (each may be None to use the event's start or end).
     If the given timespan deviates from the event's start and end, only AKs with at least one slot in that timespan
     are included and the timespan is shown on the title slide. When the timespan covers the whole event (default),
     no filtering is applied, so AKs that are not scheduled yet are still included (e.g., when presenting AKs
@@ -102,8 +131,8 @@ def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids
     presentation mode nor by the timespan (category and type filters still apply).
     """
     # Default to the full event if no (or only a partial) timespan was given
-    timespan_start = timespan_start or event.start
-    timespan_end = timespan_end or event.end
+    timespan_start = timespan[0] or event.start
+    timespan_end = timespan[1] or event.end
     # Compare with minute precision since the date picker does not allow to input seconds
     timespan_changed = (_truncate_to_minute(timespan_start) != _truncate_to_minute(event.start)
                         or _truncate_to_minute(timespan_end) != _truncate_to_minute(event.end))
@@ -142,11 +171,9 @@ def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids
     types = None
     types_filter_string = ""
     show_types = event.aktype_set.count() > 0
-    available_type_count = event.aktype_set.count()
-    if types_ids and len(types_ids) < available_type_count:
+    if types_ids and len(types_ids) < event.aktype_set.count():
         types = AKType.objects.filter(id__in=types_ids)
-        names_string = ', '.join(AKType.objects.get(pk=t).name for t in types_ids)
-        types_filter_string = f"[{_('Type(s)')}: {names_string}]"
+        types_filter_string = f"[{_('Type(s)')}: {', '.join(AKType.objects.get(pk=t).name for t in types_ids)}]"
 
     categories = None
     if categories_ids:
@@ -184,21 +211,6 @@ def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids
                 'next_aks': next_aks,
             })
 
-    # Legend for the title slide, only containing the pictograms that are actually used on the AK slides
-    # (conditions mirror those in the slide template)
-    ak_slides = [slide for slide in slides if slide['kind'] == 'ak']
-    legend_entries = [
-        ("magic", _("Wish"), any(s['ak'].wish for s in ak_slides)),
-        ("scroll", _("Resolution Intention"), any(s['ak'].reso for s in ak_slides)),
-        ("user", _("Owners"), any(not s['ak'].wish for s in ak_slides)),
-        ("list", _("Types"), show_types and any(s['ak'].types_list for s in ak_slides)),
-        ("clock", _("Duration(s)"),
-         not presentation_mode and any(s['ak'].durations_list for s in ak_slides)),
-        ("bullseye", _("Design/Goal"), any(s['ak'].goal for s in ak_slides)),
-        ("angles-right", _("Upcoming AKs"), any(s['next_aks'] for s in ak_slides)),
-    ]
-    legend = [(icon, label) for icon, label, used in legend_entries if used]
-
     return {
         'title': event.name,
         'event_name': event.name,
@@ -209,7 +221,7 @@ def _build_slide_export_context(*, event, num_next, presentation_mode, types_ids
         'timespan': timespan_string,
         'result_presentation_mode': presentation_mode,
         'show_types': show_types,
-        'legend': legend,
+        'legend': _build_slide_legend(slides, show_types=show_types, presentation_mode=presentation_mode),
     }
 
 
@@ -283,7 +295,7 @@ class PublishedSlidesView(EventSlugMixin, TemplateView):
         config = request.GET.get("config")
         if config:
             try:
-                self.config_data = signing.loads(config)
+                self.config_data = signing.loads(config)  # pylint: disable=attribute-defined-outside-init
             except signing.BadSignature:
                 messages.warning(request, _('Invalid export config, please try again.'))
                 return HttpResponseRedirect(reverse("admin:ak_slide_export", kwargs={"event_slug": self.event.slug}))
@@ -301,8 +313,8 @@ class PublishedSlidesView(EventSlugMixin, TemplateView):
                 types_all_selected_only=bool(self.config_data.get("types_all_selected_only", False)),
                 categories_ids=_parse_selected_ids(
                         self.config_data["categories"]) if "categories" in self.config_data else None,
-                timespan_start=_parse_config_datetime(self.config_data.get("timespan_start")),
-                timespan_end=_parse_config_datetime(self.config_data.get("timespan_end")),
+                timespan=(_parse_config_datetime(self.config_data.get("timespan_start")),
+                          _parse_config_datetime(self.config_data.get("timespan_end"))),
         ))
         return context
 

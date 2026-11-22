@@ -353,7 +353,8 @@ class ModelViewTests(BasicViewTests, TestCase):
         self._assert_message(response, "AK successfully created")
 
         # Too long durations -> slots clamped to event length (kif42 lasts 96 hours), user is warned
-        response = self.client.post(submit_url, data | {'name': 'AK with too long slots', 'durations': "2\n100\n200:00"})
+        response = self.client.post(submit_url,
+                                    data | {'name': 'AK with too long slots', 'durations': "2\n100\n200:00"})
         ak = AK.objects.get(name='AK with too long slots')
         self.assertRedirects(response, ak.detail_url, msg_prefix="AK submission with too long durations failed")
         self.assertEqual(sorted(s.duration for s in ak.akslot_set.all()), [2, 96, 96],

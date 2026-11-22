@@ -26,6 +26,7 @@ class TrashedAKChecksTest(TestCase):
         self.trashed_ak.move_to_trash()
 
     def test_overlap_check_ignores_trashed(self):
+        """Trashed AKs should not be reported by the check for required preferences without overlap"""
         loose, strict = required_preferences_without_overlap(self.event)
         for violations in (loose, strict or []):
             self.assertNotIn(self.trashed_ak.pk, [v["preference"].ak.pk for v in violations])
@@ -35,10 +36,12 @@ class TrashedAKChecksTest(TestCase):
         self.assertIn(self.trashed_ak.pk, [v["preference"].ak.pk for v in loose])
 
     def test_too_many_slots_check_ignores_trashed(self):
+        """Trashed AKs should not be reported by the check for participants required for too many slots"""
         for violation in participants_required_for_too_many_slots(self.event):
             self.assertNotIn(self.trashed_ak.pk, [p.ak.pk for p in violation["preferences"]])
 
     def test_export_ignores_trashed(self):
+        """Trashed AKs should not influence the export of participants"""
         # Participant with restricted availability, only required for the trashed AK
         AKPreference.objects.filter(participant=self.participant, ak=self.active_ak).delete()
         Availability.objects.create(event=self.event, participant=self.participant,
@@ -51,6 +54,7 @@ class TrashedAKChecksTest(TestCase):
         self.assertTrue(self.participant.export_preferences.exists())
 
     def test_lookup_ignores_trashed(self):
+        """Trashed AKs should not be considered in the participant lookup"""
         fields = dict(lookup_participants(self.event)[str(self.participant.pk)]["fields"])
         self.assertEqual(fields["Preferences"], "1")
         self.assertEqual([ref["id"] for ref in fields["Required for"]], [str(self.active_ak.pk)])

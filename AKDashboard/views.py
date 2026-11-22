@@ -69,8 +69,8 @@ class DashboardEventView(DetailView):
                 # Get the latest x changes (if there are that many),
                 # where x corresponds to the entry threshold configured in the settings
                 # (such that the list will be completely filled even if there are no (newer) plan changes)
-                submission_changes = AK.history.filter(event=context['event'])[
-                    :int(settings.DASHBOARD_RECENT_MAX)]  # pylint: disable=no-member, line-too-long
+                submission_changes = AK.history.filter(event=context['event'])[  # pylint: disable=no-member
+                    :int(settings.DASHBOARD_RECENT_MAX)]
                 # Create textual representation including icons
                 for s in submission_changes:
                     if s.history_type == '+':
@@ -111,7 +111,7 @@ class DashboardEventView(DetailView):
         return context
 
 
-def _fact(icon, title, value, detail="", ranking=None, ranking_title=""):
+def _fact(icon, title, value, detail="", *, ranking=None, ranking_title=""):
     """
     Create the representation of a single fact for the event info page
 

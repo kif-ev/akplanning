@@ -695,6 +695,8 @@ class AvailabilityAdminForm(forms.ModelForm):
     """
 
     def __init__(self, *args, **kwargs):
+        # Local import to prevent cyclic imports
+        # pylint: disable=import-outside-toplevel
         from AKPreference.models import EventParticipant
 
         super().__init__(*args, **kwargs)
