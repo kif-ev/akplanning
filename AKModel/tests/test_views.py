@@ -286,6 +286,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         ("admin:ak_slide_export", {"event_slug": "kif42"}),
         ("admin:default-slots-editor", {"event_slug": "kif42"}),
         ("admin:room-import", {"event_slug": "kif42"}),
+        ("admin:room-import-template", {"event_slug": "kif42"}),
         ("admin:new_event_wizard_start", {}),
     ]
 

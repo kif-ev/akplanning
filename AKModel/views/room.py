@@ -3,15 +3,17 @@ import csv
 import django.db
 from django.apps import apps
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.core.exceptions import ValidationError
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django.views import View
 from django.views.generic import CreateView
 
-from AKModel.availability.models import Availability
-from AKModel.forms import RoomBatchCreationForm, RoomForm
+from AKModel.forms import RoomBatchCreationForm, RoomBatchImportConfirmForm, RoomForm
 from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, IntermediateAdminView
-from AKModel.models import Room
+from AKModel.room_import import import_rooms, parse_rooms_csv
 
 
 class RoomCreationView(AdminViewMixin, CreateView):
@@ -41,71 +43,109 @@ class RoomCreationView(AdminViewMixin, CreateView):
 
 class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
     """
-    Admin action: Allow to create rooms in batch by inputing a CSV-formatted list of room details into a textbox
+    Admin view: Allow to create rooms in batch by inputing a CSV-formatted list of room details
+    into a textbox or uploading a CSV file
 
-    This offers the input form, supports creation of virtual rooms if AKOnline is active, too,
-    and users can specify that default availabilities (from event start to end) should be created for the rooms
-    automatically
+    This is the first step of the import: After submitting, the data is validated and a preview of the rooms to create
+    is shown together with all problems found in the data, the import itself has to be confirmed in a second step
+    (see :class:`RoomBatchImportConfirmView`).
+    Virtual rooms are supported if AKOnline is active, and users can specify that default availabilities
+    (from event start to end) should be created for the rooms automatically
     """
     template_name = "admin/AKModel/import_rooms.html"
     form_class = RoomBatchCreationForm
     title = _("Import Rooms from CSV")
 
+    def form_valid(self, form):
+        text = form.cleaned_data["csv_text"]
+        try:
+            result = parse_rooms_csv(text, self.event)
+        except ValidationError as e:
+            for error in e.messages:
+                form.add_error(None, error)
+            return self.form_invalid(form)
+
+        create_default_availabilities = form.cleaned_data["create_default_availabilities"]
+        # Allow to correct the data directly on the preview page (also when it was uploaded as a file)
+        edit_form = RoomBatchCreationForm(initial={
+            "csv_data": text,
+            "create_default_availabilities": create_default_availabilities,
+        })
+        confirm_form = RoomBatchImportConfirmForm(initial={
+            "csv_data": text,
+            "create_default_availabilities": create_default_availabilities,
+        })
+        return render(self.request, "admin/AKModel/import_rooms_preview.html", self.get_context_data(
+                form=edit_form,
+                confirm_form=confirm_form,
+                result=result,
+                create_default_availabilities=create_default_availabilities,
+        ))
+
+
+class RoomBatchImportConfirmView(EventSlugMixin, IntermediateAdminView):
+    """
+    Admin view: Second step of the room batch import (see :class:`RoomBatchCreationView`)
+
+    Validates the data again (the database could have changed since the preview was shown)
+    and creates all valid rooms in a single transaction
+    """
+    form_class = RoomBatchImportConfirmForm
+    title = _("Import Rooms from CSV")
+
+    def get(self, request, *args, **kwargs):
+        # This view only handles confirmations, start the import from the beginning instead
+        return redirect('admin:room-import', event_slug=self.event.slug)
+
     def get_success_url(self):
         return reverse_lazy('admin:event_status', kwargs={'event_slug': self.event.slug})
 
+    def form_invalid(self, form):
+        messages.add_message(self.request, messages.ERROR, _("No rooms imported"))
+        return redirect('admin:room-import', event_slug=self.event.slug)
+
     def form_valid(self, form):
-        virtual_rooms_support = False
-        create_default_availabilities = form.cleaned_data["create_default_availabilities"]
-        created_count = 0
+        try:
+            result = parse_rooms_csv(form.cleaned_data["csv_data"], self.event)
+        except ValidationError:
+            return self.form_invalid(form)
 
-        rooms_raw_dict: csv.DictReader = form.cleaned_data["rooms"]
+        try:
+            created_count = import_rooms(result, self.event, form.cleaned_data["create_default_availabilities"])
+        except django.db.Error as e:
+            messages.add_message(self.request, messages.ERROR,
+                                 _("Could not import rooms, no rooms were created: {e}").format(e=str(e)))
+            return redirect('admin:room-import', event_slug=self.event.slug)
 
-        # Prepare creation of virtual rooms if there is information (an URL) in the data and the AKOnline app is active
-        if apps.is_installed("AKOnline") and "url" in rooms_raw_dict.fieldnames:
-            virtual_rooms_support = True
-            # pylint: disable=import-outside-toplevel
-            from AKOnline.models import VirtualRoom
-
-        req_list = self.event.akrequirement_set.all().order_by('name')
-
-        # Loop over all inputs
-        for raw_room in rooms_raw_dict:
-            # Gather the relevant information (most fields can be empty)
-            name = raw_room["name"]
-            location = raw_room["location"] if "location" in rooms_raw_dict.fieldnames else ""
-            capacity = raw_room["capacity"] if "capacity" in rooms_raw_dict.fieldnames else -1
-
-            try:
-                # Try to create a room (catches cases where the room name contains keywords or symbols that the
-                # database cannot handle (.e.g., special UTF-8 characters)
-                r = Room.objects.create(name=name,
-                                        location=location,
-                                        capacity=capacity,
-                                        event=self.event)
-
-                # and if necessary an associated virtual room, too
-                if virtual_rooms_support and raw_room["url"] != "":
-                    VirtualRoom.objects.create(room=r,
-                                               url=raw_room["url"])
-
-                # If user requested default availabilities, create them
-                if create_default_availabilities:
-                    a = Availability.with_event_length(event=self.event, room=r)
-                    a.save()
-
-                for req in req_list:
-                    if  req.name in raw_room and raw_room[req.name].lower().strip() == 'x':
-                        r.properties.add(req)
-                created_count += 1
-            except django.db.Error as e:
-                messages.add_message(self.request, messages.WARNING,
-                                     _("Could not import room {name}: {e}").format(name=name, e=str(e)))
-
-        # Inform the user about the rooms created
+        if result.errors:
+            messages.add_message(self.request, messages.WARNING,
+                                 _("Skipped {count} line(s) with errors").format(
+                                         count=len({line for line, _error in result.errors})))
         if created_count > 0:
             messages.add_message(self.request, messages.SUCCESS,
                                  _("Imported {count} room(s)").format(count=created_count))
         else:
             messages.add_message(self.request, messages.WARNING, _("No rooms imported"))
         return super().form_valid(form)
+
+
+class RoomCSVTemplateView(EventSlugMixin, View):
+    """
+    Admin view: Download a CSV template for the room import
+
+    The template contains a header row with all columns applicable for this event,
+    i.e., the basic room fields, "url" if AKOnline is active, and one column per requirement of the event
+    """
+
+    def get(self, request, *args, **kwargs):
+        self._load_event()
+        columns = ["name", "location", "capacity"]
+        if apps.is_installed("AKOnline"):
+            columns.append("url")
+        columns.extend(self.event.akrequirement_set.order_by('name').values_list('name', flat=True))
+
+        response = HttpResponse(content_type="text/csv; charset=utf-8")
+        response["Content-Disposition"] = f'attachment; filename="{self.event.slug}-rooms-template.csv"'
+        # Quote all fields so that column names containing spaces are not split by spreadsheet programs
+        csv.writer(response, delimiter=";", quoting=csv.QUOTE_ALL).writerow(columns)
+        return response

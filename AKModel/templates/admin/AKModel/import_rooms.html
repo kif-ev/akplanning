@@ -9,13 +9,19 @@
 {% block title %}{{ event }}: {{ title }}{% endblock %}
 
 {% block content %}
+    <p>
+        <a href="{% url 'admin:room-import-template' event_slug=event.slug %}" class="btn btn-primary">
+            {% fa6_icon "download" 'fas' %} {% trans "Download CSV template" %}
+        </a>
+        {% trans "Contains all columns applicable for this event (including one column per requirement)." %}
+    </p>
 
     <form enctype="multipart/form-data" method="post">{% csrf_token %}
         {% bootstrap_form form %}
 
         <div class="float-end">
             <button type="submit" class="save btn btn-success" value="Submit">
-                {% fa6_icon "check" 'fas' %} {% trans "Confirm" %}
+                {% fa6_icon "arrow-right" 'fas' %} {% trans "Check data" %}
             </button>
         </div>
         <a href="javascript:history.back()" class="btn btn-info">
