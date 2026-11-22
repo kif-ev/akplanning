@@ -299,10 +299,6 @@ class AvailabilityAutocreateView(EventSlugMixin, IntermediateAdminView):
         )
 
     def form_valid(self, form):
-        # Local import to prevent cyclic imports
-        # pylint: disable=import-outside-toplevel
-        from AKModel.availability.models import Availability
-
         success_count = 0
         for ak in self.event.get_aks_without_availabilities():
             try:

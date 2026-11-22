@@ -307,6 +307,7 @@ class Availability(models.Model):
     @classmethod
     def with_event_length(
             cls,
+            *,
             event: Event,
             person: AKOwner | None = None,
             room: Room | None = None,

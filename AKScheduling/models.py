@@ -353,17 +353,18 @@ def ak_requirements_changed_handler(sender, instance: AK, action: str, **kwargs)
 
 
 @receiver(post_save, sender=AKSlot)
+# TODO Consider rewriting this very long and complex method to resolve several (style) issues:
+# pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
     """
     Signal receiver: AKSlot changed
 
     Changes might affect: Duplicate parallel, Two in room, Resodeadline
     """
+    # pylint: disable=too-many-nested-blocks
     # Skip raw saves (e.g., loaddata/fixtures): the loaded data already contains the matching constraint violations
     if kwargs.get("raw", False):
         return
-    # TODO Consider rewriting this very long and complex method to resolve several (style) issues:
-    # pylint: disable=too-many-nested-blocks,too-many-locals,too-many-branches,too-many-statements
     event = instance.event
 
     # == Check for two parallel slots by one of the owners ==

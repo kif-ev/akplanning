@@ -64,11 +64,11 @@ def aks_too_big(event: Event, qs=None):
     max_room_capacity = biggest_room.capacity
 
     # Loop over all AKs and check whether they fit into at least one room
-    aks_too_big = []
+    too_big = []
     for ak in qs.all():
         if ak.interest > max_room_capacity:
-            aks_too_big.append(ak)
-    return aks_too_big
+            too_big.append(ak)
+    return too_big
 
 
 def aks_not_in_default_schedules(event: Event, qs=None):

@@ -263,7 +263,8 @@ class DashboardEventInfoTests(TestCase):
         event.akowner_set.filter(name='b').update(institution=' uni x ')
 
         facts = self._get_facts()
-        self.assertEqual(facts["Most AKs by one person"], ("a, b", "2 AKs each – a: Test AK fixed slots, Test AK Inhalt; b: AK Wish, Test AK Meta"))
+        self.assertEqual(facts["Most AKs by one person"],
+                         ("a, b", "2 AKs each – a: Test AK fixed slots, Test AK Inhalt; b: AK Wish, Test AK Meta"))
         self.assertEqual(facts["Different institutions"][0], "1")
         # Owners count for their institution, regardless of the number of AKs they offer
         self.assertEqual(facts["Different institutions ranking"], [("Uni X", "2 AK owners")])
@@ -336,7 +337,8 @@ class DashboardEventInfoTests(TestCase):
 
         response = self.client.get(reverse('dashboard:dashboard_event_info', kwargs={'slug': 'kif42'}))
         manual_facts = [(fact['title'], fact['value'], fact['icon']) for fact in response.context['facts']][-2:]
-        self.assertEqual(manual_facts, [("Solver runs", "17", ("cogs", "fas")), ("Coffee", "40 l", ("info-circle", "fas"))])
+        self.assertEqual(manual_facts,
+                         [("Solver runs", "17", ("cogs", "fas")), ("Coffee", "40 l", ("info-circle", "fas"))])
         self.assertContains(response, "Solver runs")
 
     def test_empty_event(self):

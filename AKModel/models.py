@@ -213,7 +213,7 @@ class Event(models.Model):
             event = Event.objects.order_by('start').filter(start__gt=datetime.now().astimezone()).first()
         return event
 
-    def get_categories_with_aks(self, wishes_seperately=False,
+    def get_categories_with_aks(self, *, wishes_seperately=False,
                                 filter_func=lambda ak: True, hide_empty_categories=False,
                                 types=None, types_all_selected_only=False,
                                 sort_func=None, categories=None):
@@ -755,8 +755,8 @@ class AKRequirement(models.Model):
     """
     name = models.CharField(max_length=128, verbose_name=_('Name'), help_text=_('Name of the Requirement'))
     relevant_for_participants = models.BooleanField(default=False, verbose_name=_('Relevant for Participants?'),
-                                                    help_text=_(
-                                                            'Show this requirement when collecting participant preferences'))
+                                                    help_text=_('Show this requirement when collecting '
+                                                                'participant preferences'))
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))
@@ -790,18 +790,31 @@ class AKType(models.Model):
         return self.name
 
 
-class AKManager(models.Manager):
+class AKManager(models.Manager):  # pylint: disable=too-few-public-methods
+    """
+    Default manager for AKs, excluding AKs that were moved to the trash
+    """
     def get_queryset(self):
+        """
+        Get all AKs that are not trashed
+        """
         return super().get_queryset().filter(trashed_at__isnull=True)
 
 
-class AKManagerAll(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset()
+class AKManagerAll(models.Manager):  # pylint: disable=too-few-public-methods
+    """
+    Manager for AKs, including AKs that were moved to the trash
+    """
 
 
-class AKManagerTrashed(models.Manager):
+class AKManagerTrashed(models.Manager):  # pylint: disable=too-few-public-methods
+    """
+    Manager for AKs that were moved to the trash
+    """
     def get_queryset(self):
+        """
+        Get all trashed AKs
+        """
         return super().get_queryset().filter(trashed_at__isnull=False)
 
 
@@ -1133,8 +1146,14 @@ class Room(models.Model):
         return fulfilled_room_constraints
 
 
-class AKSlotManager(models.Manager):
+class AKSlotManager(models.Manager):  # pylint: disable=too-few-public-methods
+    """
+    Default manager for AK slots, excluding slots of AKs that were moved to the trash
+    """
     def get_queryset(self):
+        """
+        Get all slots of AKs that are not trashed
+        """
         return super().get_queryset().filter(ak__trashed_at__isnull=True)
 
 
@@ -1198,8 +1217,9 @@ class AKSlot(models.Model):
         start = self.start.astimezone(self.event.timezone)
         end = self.end.astimezone(self.event.timezone)
 
+        end_format = 'G:i' if start.day == end.day else 'D G:i'
         return (f"{date_format(start, format='D G:i', use_l10n=True)} - "
-                f"{date_format(end, format='G:i', use_l10n=True) if start.day == end.day else date_format(end, format='D G:i', use_l10n=True)}")
+                f"{date_format(end, format=end_format, use_l10n=True)}")
 
     @property
     def end(self):

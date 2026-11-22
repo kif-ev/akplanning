@@ -279,6 +279,12 @@ class ExportAKSlotSerializer(serializers.ModelSerializer):
 
 
 class ExportFilteredAKSlotSerializer(serializers.BaseSerializer):
+    """
+    Read-only export serializer for a queryset of AK slots
+
+    Serializes the slots like :class:`ExportAKSlotSerializer`, but restricts conflicts and dependencies
+    to slots that are part of the given queryset
+    """
     def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False,
                  aks_to_ignore_category_for,
                  ak_availabilities: dict[int, list] | None = None,
