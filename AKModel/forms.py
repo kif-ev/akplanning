@@ -235,8 +235,8 @@ class SlideExportForm(AdminIntermediateForm):
     Form to control the slides generated from the AK list of an event
 
     The user can select how many upcoming AKs are displayed at the footer to inform people that it is their turn soon,
-    whether the AK list should be restricted to those AKs that where marked for presentation, and whether ther should
-    be a symbol and empty space to take notes on for wishes.
+    whether the AK list should be restricted to those AKs that where marked for presentation, and whether wishes
+    should be included (independent of the other filters).
     Additionally, the slides can be restricted to AKs that have at least one slot in a given timespan.
     The initial values of this timespan (start and end of the event) are set by the view.
     """
@@ -276,6 +276,13 @@ class SlideExportForm(AdminIntermediateForm):
             choices=((True, _('Yes')), (False, _('No'))),
             coerce=lambda x: x == "True",
             help_text=_("Restrict AKs to those that asked for chance to be presented?"))
+    include_wishes = forms.TypedChoiceField(
+            initial=True,
+            label=_("Include wishes?"),
+            widget=forms.RadioSelect,
+            choices=((True, _('Yes')), (False, _('No'))),
+            coerce=lambda x: x == "True",
+            help_text=_("Should AK wishes be included in the slides?"))
 
 
 class DefaultSlotEditorForm(AdminIntermediateForm):

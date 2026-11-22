@@ -308,8 +308,9 @@ class ModelViewTests(BasicViewTests, TestCase):
             types = AKType.objects.filter(id__in=type_ids)
 
         categories_with_aks = event.get_categories_with_aks(
-                filter_func=lambda ak: (not data["presentation_mode"])
-                                       or (ak.present or (ak.present is None and ak.category.present_by_default)),
+                filter_func=lambda ak: data["include_wishes"] if ak.wish else (
+                        (not data["presentation_mode"])
+                        or (ak.present or (ak.present is None and ak.category.present_by_default))),
                 types=types,
                 types_all_selected_only=data.get("types_all_selected_only", False),
                 sort_func=lambda ak: ak.wish,
@@ -412,6 +413,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         data = {
             "num_next": 3,
             "presentation_mode": "False",
+            "include_wishes": "True",
             "export_mode": "web",
             "categories": [str(category.pk) for category in event.akcategory_set.all()],
         }
@@ -506,6 +508,7 @@ class ModelViewTests(BasicViewTests, TestCase):
                 "categories": [str(category.pk) for category in event.akcategory_set.all()],
                 "types": [str(ak_type.pk) for ak_type in event.aktype_set.all()],
                 "types_all_selected_only": False,
+                "include_wishes": True,
             },
             {
                 "name": "presentation_only",
@@ -514,6 +517,7 @@ class ModelViewTests(BasicViewTests, TestCase):
                 "categories": [str(category.pk) for category in event.akcategory_set.all()],
                 "types": [str(ak_type.pk) for ak_type in event.aktype_set.all()],
                 "types_all_selected_only": False,
+                "include_wishes": True,
             },
             {
                 "name": "single_category",
@@ -522,6 +526,7 @@ class ModelViewTests(BasicViewTests, TestCase):
                 "categories": [str(event.akcategory_set.get(pk=4).pk)],
                 "types": [str(ak_type.pk) for ak_type in event.aktype_set.all()],
                 "types_all_selected_only": False,
+                "include_wishes": True,
             },
             {
                 "name": "single_type",
@@ -530,6 +535,7 @@ class ModelViewTests(BasicViewTests, TestCase):
                 "categories": [str(category.pk) for category in event.akcategory_set.all()],
                 "types": [str(primary_type.pk)],
                 "types_all_selected_only": False,
+                "include_wishes": True,
             },
             {
                 "name": "all_selected_types_only",
@@ -538,6 +544,25 @@ class ModelViewTests(BasicViewTests, TestCase):
                 "categories": [str(category.pk) for category in event.akcategory_set.all()],
                 "types": [str(primary_type.pk), str(secondary_type.pk)],
                 "types_all_selected_only": True,
+                "include_wishes": True,
+            },
+            {
+                "name": "no_wishes",
+                "num_next": 3,
+                "presentation_mode": False,
+                "categories": [str(category.pk) for category in event.akcategory_set.all()],
+                "types": [str(ak_type.pk) for ak_type in event.aktype_set.all()],
+                "types_all_selected_only": False,
+                "include_wishes": False,
+            },
+            {
+                "name": "presentation_only_without_wishes",
+                "num_next": 3,
+                "presentation_mode": True,
+                "categories": [str(category.pk) for category in event.akcategory_set.all()],
+                "types": [str(ak_type.pk) for ak_type in event.aktype_set.all()],
+                "types_all_selected_only": False,
+                "include_wishes": False,
             },
         ]
 
@@ -547,6 +572,7 @@ class ModelViewTests(BasicViewTests, TestCase):
             web_data = {
                 "num_next": config["num_next"],
                 "presentation_mode": str(config["presentation_mode"]),
+                "include_wishes": str(config["include_wishes"]),
                 "export_mode": "web",
                 "categories": config["categories"],
                 "types": config["types"],
@@ -568,6 +594,7 @@ class ModelViewTests(BasicViewTests, TestCase):
             pdf_data = {
                 "num_next": config["num_next"],
                 "presentation_mode": str(config["presentation_mode"]),
+                "include_wishes": str(config["include_wishes"]),
                 "export_mode": "pdf",
                 "categories": config["categories"],
                 "types": config["types"],
@@ -591,6 +618,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         data = {
             "num_next": 3,
             "presentation_mode": "False",
+            "include_wishes": "True",
             "categories": [str(category.pk) for category in event.akcategory_set.all()],
         }
         if event.aktype_set.exists():
@@ -652,6 +680,7 @@ class ModelViewTests(BasicViewTests, TestCase):
 
         Slots of kif42 (Europe/Berlin): AK 1 Fri 19:30-21:30, AK 2 Sun 13:30-15:30, AK 3 unscheduled,
         AK 4 Sat 17:00-19:00 and Sun 19:30-21:30. The event ends Tue 18:51.
+        AK 3 is a wish and hence included independent of the timespan (since wishes are included).
         """
         self.client.force_login(self.admin_user)
         event = Event.objects.get(slug="kif42")
@@ -676,35 +705,35 @@ class ModelViewTests(BasicViewTests, TestCase):
                 "name": "sunday",
                 "timespan_start": "2020-11-08T00:00",
                 "timespan_end": "2020-11-08T23:59",
-                "expected_aks": {2, 4},
+                "expected_aks": {2, 3, 4},
                 "expected_timespan": "Timespan: Sun 0:00 - Sun 23:59",
             },
             {
                 "name": "saturday",
                 "timespan_start": "2020-11-07T00:00",
                 "timespan_end": "2020-11-07T23:59",
-                "expected_aks": {4},
+                "expected_aks": {3, 4},
                 "expected_timespan": "Timespan: Sat 0:00 - Sat 23:59",
             },
             {
                 "name": "partial_overlap",
                 "timespan_start": "2020-11-06T21:00",
                 "timespan_end": "2020-11-06T22:00",
-                "expected_aks": {1},
+                "expected_aks": {1, 3},
                 "expected_timespan": "Timespan: Fri 21:00 - Fri 22:00",
             },
             {
                 "name": "only_touching_slot_start",
                 "timespan_start": "2020-11-06T18:00",
                 "timespan_end": "2020-11-06T19:30",
-                "expected_aks": set(),
+                "expected_aks": {3},
                 "expected_timespan": "Timespan: Fri 18:00 - Fri 19:30",
             },
             {
                 "name": "only_start_given_ends_with_event",
                 "timespan_start": "2020-11-08T00:00",
                 "timespan_end": "",
-                "expected_aks": {2, 4},
+                "expected_aks": {2, 3, 4},
                 "expected_timespan": "Timespan: Sun 0:00 - Tue 18:51",
             },
         ]
@@ -730,6 +759,50 @@ class ModelViewTests(BasicViewTests, TestCase):
             if config["expected_timespan"]:
                 self.assertIn(config["expected_timespan"], published_response.content.decode("utf-8"),
                               msg=f"{config['name']}: timespan not rendered on web title slide")
+
+    def test_slide_export_include_wishes_independent_of_other_settings(self):
+        """
+        Wishes are included or excluded only depending on the explicit wish setting,
+        neither presentation mode nor timespan influence whether wishes are shown.
+
+        AK 3 is the only wish of kif42 (unscheduled), AKs 1 and 4 should be presented, AK 2 is set to not be presented.
+        """
+        self.client.force_login(self.admin_user)
+        event = Event.objects.get(slug="kif42")
+        wish = AK.objects.get(pk=3)
+        self.assertTrue(wish.wish)
+        # Make sure the wish would be excluded if presentation mode influenced wishes
+        wish.present = False
+        wish.save()
+        # Make sure presentation mode excludes at least one AK that is not a wish
+        AK.objects.filter(pk=2).update(present=False)
+
+        configurations = [
+            {"name": "wishes_default", "include_wishes": "True", "presentation_mode": "False",
+             "timespan": ("", ""), "expected_aks": {1, 2, 3, 4}},
+            {"name": "no_wishes_default", "include_wishes": "False", "presentation_mode": "False",
+             "timespan": ("", ""), "expected_aks": {1, 2, 4}},
+            {"name": "wishes_presentation", "include_wishes": "True", "presentation_mode": "True",
+             "timespan": ("", ""), "expected_aks": {1, 3, 4}},
+            {"name": "no_wishes_presentation", "include_wishes": "False", "presentation_mode": "True",
+             "timespan": ("", ""), "expected_aks": {1, 4}},
+            {"name": "wishes_timespan", "include_wishes": "True", "presentation_mode": "False",
+             "timespan": ("2020-11-08T00:00", "2020-11-08T23:59"), "expected_aks": {2, 3, 4}},
+            {"name": "no_wishes_timespan", "include_wishes": "False", "presentation_mode": "False",
+             "timespan": ("2020-11-08T00:00", "2020-11-08T23:59"), "expected_aks": {2, 4}},
+        ]
+
+        for config in configurations:
+            published_response, print_response = self._run_slide_exports({
+                **self._slide_export_base_data(event),
+                "include_wishes": config["include_wishes"],
+                "presentation_mode": config["presentation_mode"],
+                "timespan_0": config["timespan"][0],
+                "timespan_1": config["timespan"][1],
+            })
+            for response, mode in [(published_response, "web"), (print_response, "pdf")]:
+                aks = {slide["ak"].pk for slide in response.context["slides"] if slide["kind"] == "ak"}
+                self.assertEqual(aks, config["expected_aks"], msg=f"{config['name']}: wrong AKs in {mode} export")
 
     def test_slide_export_timespan_end_before_start_invalid(self):
         """A timespan ending before (or at) its start is rejected."""
