@@ -1226,7 +1226,11 @@ class AKSlot(models.Model):
         """
         Retrieve end time of the AK slot
         """
-        return self.start + timedelta(hours=float(self.duration))
+        # Durations are stored in hours with two decimal places, which cannot represent most minute values
+        # exactly (e.g., 40 minutes are stored as 0.67 hours, i.e., 40:12). Round to full minutes to prevent
+        # artifacts like overlaps with directly following slots (two decimal places are always less than
+        # half a minute away from a full minute, hence the intended value is restored)
+        return self.start + timedelta(minutes=round(float(self.duration) * 60))
 
     @property
     def seconds_since_last_update(self):
