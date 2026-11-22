@@ -36,7 +36,9 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = "{{ event.slug|escapejs }}-solver-input.json";
+            const now = new Date();
+            const time = String(now.getHours()).padStart(2, "0") + String(now.getMinutes()).padStart(2, "0");
+            link.download = "{{ event.slug|escapejs }}-" + time + ".json";
             document.body.appendChild(link);
             link.click();
             link.remove();
