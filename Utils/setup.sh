@@ -15,8 +15,8 @@ source venv/bin/activate
 pip install --upgrade setuptools pip wheel
 
 if [ "$1" = "--ci" ]; then
-  pip install -r requirements/core.txt
-  pip install -r requirements/mysql.txt
+  # Everything needed by any CI job (tests, linting, documentation), so the jobs can share the cached virtualenv
+  pip install -r requirements.txt -r requirements/mysql.txt -r requirements/lint.txt
   export DJANGO_SETTINGS_MODULE=AKPlanning.settings_ci
 else
   pip install -r requirements.txt
