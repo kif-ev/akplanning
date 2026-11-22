@@ -5,7 +5,6 @@ from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.core import signing
-from django.db.models.functions import Now
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
@@ -412,7 +411,7 @@ class PlanPublishView(IntermediateAdminActionView):
     success_message = _('Plan published')
 
     def action(self, form):
-        self.entities.update(plan_published_at=Now(), plan_hidden=False)
+        self.entities.update(plan_published_at=timezone.now(), plan_hidden=False)
 
 
 class PlanUnpublishView(IntermediateAdminActionView):
@@ -438,7 +437,7 @@ class PollPublishView(IntermediateAdminActionView):
     success_message = _('Preference poll published')
 
     def action(self, form):
-        self.entities.update(poll_published_at=Now(), poll_hidden=False)
+        self.entities.update(poll_published_at=timezone.now(), poll_hidden=False)
 
 
 class PollUnpublishView(IntermediateAdminActionView):
