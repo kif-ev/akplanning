@@ -125,6 +125,8 @@ test:
         coverage_format: cobertura
         path: coverage.xml
       junit: unit.xml
+    # Test results are most relevant for failing runs
+    when: always
 
 lint:
   extends: .venv
