@@ -14,7 +14,8 @@ variables:
   MYSQL_HOST: "mysql"
 
 default:
-  image: python:3.15
+  # Python version of the production deployment, image includes uv and build dependencies (e.g., for mysqlclient)
+  image: ghcr.io/astral-sh/uv:python3.13-trixie
   # The virtualenv is built by the installation job only, all other jobs just use it
   # Key it on the installed requirements to never use a virtualenv built for other requirements
   cache: &venv_cache
@@ -37,7 +38,9 @@ installation:
   script:
     - python -V  # Print out python version for debugging
     - apt-get -qq update
-    - apt-get -qq install -y python3-virtualenv python3-dev python3-pip gettext
+    - apt-get -qq install -y --no-install-recommends gettext
+    # Install virtualenv for the Python of the image (the Debian package would use the system Python instead)
+    - pip install virtualenv
     - ./Utils/setup.sh --ci
   artifacts:
     # Compiled translations are not part of the repository but needed by later jobs (e.g., tests)
@@ -65,7 +68,7 @@ test:
   script:
     - source venv/bin/activate
     - apt-get -qq update
-    - apt-get -qq install -y default-mysql-client default-libmysqlclient-dev
+    - apt-get -qq install -y --no-install-recommends default-mysql-client
     - pip install pytest-cov
     - pip install -r requirements/test.txt
     - pip install -r requirements/mysql.txt
