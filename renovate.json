@@ -4,5 +4,17 @@
     "fileMatch": [
       "(^|/)requirements(/.*)?.txt$"
     ]
-  }
+  },
+  "packageRules": [
+    {
+      "description": "Keep the CI MySQL service on the LTS release (see .gitlab-ci.yml), newer releases have to be adopted deliberately",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "mysql"
+      ],
+      "allowedVersions": "<8.5"
+    }
+  ]
 }
