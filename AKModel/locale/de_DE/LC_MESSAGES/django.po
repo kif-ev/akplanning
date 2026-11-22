@@ -2024,3 +2024,15 @@ msgstr "Zu Anforderungen gehörige AKs anzeigen"
 #: views/status.py:217
 msgid "Event Status"
 msgstr "Eventstatus"
+
+#: templates/admin/AKModel/import_rooms.html
+msgid "Download CSV template"
+msgstr "CSV-Vorlage herunterladen"
+
+#: templates/admin/AKModel/import_rooms.html
+msgid ""
+"Contains all columns applicable for this event (including one column per "
+"requirement)."
+msgstr ""
+"Enthält alle für dieses Event relevanten Spalten (inklusive einer Spalte pro "
+"Anforderung)."

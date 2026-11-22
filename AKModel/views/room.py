@@ -3,9 +3,10 @@ import csv
 import django.db
 from django.apps import apps
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django.views import View
 from django.views.generic import CreateView
 
 from AKModel.availability.models import Availability
@@ -109,3 +110,25 @@ class RoomBatchCreationView(EventSlugMixin, IntermediateAdminView):
         else:
             messages.add_message(self.request, messages.WARNING, _("No rooms imported"))
         return super().form_valid(form)
+
+
+class RoomCSVTemplateView(EventSlugMixin, View):
+    """
+    Admin view: Download a CSV template for the room import
+
+    The template contains a header row with all columns applicable for this event,
+    i.e., the basic room fields, "url" if AKOnline is active, and one column per requirement of the event
+    """
+
+    def get(self, request, *args, **kwargs):
+        self._load_event()
+        columns = ["name", "location", "capacity"]
+        if apps.is_installed("AKOnline"):
+            columns.append("url")
+        columns.extend(self.event.akrequirement_set.order_by('name').values_list('name', flat=True))
+
+        response = HttpResponse(content_type="text/csv; charset=utf-8")
+        response["Content-Disposition"] = f'attachment; filename="{self.event.slug}-rooms-template.csv"'
+        # Quote all fields so that column names containing spaces are not split by spreadsheet programs
+        csv.writer(response, delimiter=";", quoting=csv.QUOTE_ALL).writerow(columns)
+        return response
