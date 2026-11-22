@@ -71,7 +71,7 @@ installation:
         echo "Reusing cached virtualenv"
         source venv/bin/activate
         # Translations are compiled from the repository and hence always needed
-        DJANGO_SETTINGS_MODULE=AKPlanning.settings_ci python manage.py compilemessages -l de_DE
+        DJANGO_SETTINGS_MODULE=AKPlanning.settings_ci python manage.py compilemessages -l de_DE --ignore venv --ignore .cache
       else
         echo "Building virtualenv"
         # Install virtualenv for the Python of the image (the Debian package would use the system Python instead)

@@ -35,7 +35,7 @@ if [ "$1" != "--ci" ]; then
 fi
 
 # Prepare translations
-python manage.py compilemessages -l de_DE
+python manage.py compilemessages -l de_DE --ignore venv --ignore .cache
 
 # Create superuser
 # Credentials are entered interactively on CLI (but not for ci use)
