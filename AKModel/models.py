@@ -1249,8 +1249,7 @@ class AKSlot(models.Model):
         :return: true if they overlap, false if not:
         :rtype: bool
         """
-        # TODO Discuss whether we need to check for < instead of <= here
-        return self.start < other.end <= self.end or self.start <= other.start < self.end
+        return self.start < other.end and other.start < self.end
 
     def save(self, *args, force_insert=False, force_update=False, using=None, update_fields=None):
         # Make sure duration is not longer than the event
