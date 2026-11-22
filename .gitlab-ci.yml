@@ -192,7 +192,7 @@ doc:
 
 pages:
   stage: deploy
-  image: alpine:3.22
+  image: alpine:3.24
   # Do not cancel a running deployment
   interruptible: false
   # Only publishes the lint results, hence needs neither the virtualenv nor any artifacts besides those of lint
