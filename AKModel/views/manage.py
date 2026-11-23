@@ -3,9 +3,10 @@ import json
 from itertools import zip_longest
 from urllib.parse import urlencode
 
+from django.conf import settings
 from django.contrib import messages
 from django.core import signing
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -14,8 +15,8 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, ListView, TemplateView
 
 from AKModel.availability.models import Availability
-from AKModel.forms import CVMarkResolvedForm, DefaultSlotCategoriesForm, DefaultSlotEditorForm, ShiftByOffsetForm, \
-    SlideExportForm
+from AKModel.forms import CVMarkResolvedForm, DefaultSlotCategoriesForm, DefaultSlotEditorForm, EventShiftDatesForm, \
+    ShiftByOffsetForm, SlideExportForm
 from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, IntermediateAdminActionView, IntermediateAdminView
 from AKModel.models import AKCategory, AKOwner, AKSlot, AKType, ConstraintViolation, DefaultSlot, Event, \
     StatusTrackingEntry
@@ -472,6 +473,52 @@ class PlanUnpublishView(IntermediateAdminActionView):
         for event in self.entities:
             status_tracker.record_if_registered(event, "scheduling", "publish_plan", Progress.IN_PROGRESS,
                                                 detail=str(self.success_message))
+
+
+class EventShiftDatesView(IntermediateAdminActionView):
+    """
+    Admin action view: Shift an event and all dates and timestamps belonging to it such that it starts at a given date
+
+    This is meant for debugging only (e.g., to simulate a running event with real data)
+    and therefore only available if DEBUG is enabled
+    """
+    title = _('Shift event dates (debugging)')
+    model = Event
+    confirmation_message = _('Shift all dates and timestamps of the following event(s)')
+    success_message = _('Event dates shifted')
+    form_class = EventShiftDatesForm
+
+    def dispatch(self, request, *args, **kwargs):
+        # Never make this available in production
+        if not settings.DEBUG:
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form(self, form_class=None):
+        # Use the timezone of the (first) event to display and parse the new start
+        event = self.get_queryset().first()
+        if event is not None:
+            timezone.activate(event.timezone)
+        form = super().get_form(form_class)
+        if event is not None:
+            form.initial['new_start'] = event.start
+        return form
+
+    def get_preview(self):
+        preview = super().get_preview()
+        affected = []
+        for model, event_field, date_fields in Event.get_date_shift_targets():
+            count = model._base_manager.filter(**{f"{event_field}__in": self.entities}).count()
+            if count > 0:
+                affected.append(f"{model._meta.verbose_name_plural} ({', '.join(date_fields)}): {count}")
+        if affected:
+            preview += "\n\n" + str(_("Affected related objects")) + ":\n" + "\n".join(affected)
+        return preview
+
+    def action(self, form):
+        """Shift each selected event such that it starts at the given date"""
+        for event in self.entities:
+            event.shift_dates(form.cleaned_data['new_start'] - event.start)
 
 
 class PollPublishView(IntermediateAdminActionView):

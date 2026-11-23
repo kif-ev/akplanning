@@ -8,8 +8,8 @@ from AKModel.views.ak import AKCSVExportView, AKMessageDeleteView, AKRequirement
     SlotCSVExportView
 from AKModel.views.event_wizard import NewEventWizardActivateView, NewEventWizardFinishView, NewEventWizardImportView, \
     NewEventWizardPrepareImportView, NewEventWizardSettingsView, NewEventWizardStartView
-from AKModel.views.manage import AKsByUserView, DefaultSlotEditorView, ExportSlidesView, PlanPublishView, \
-    PlanUnpublishView, PollPublishView, PollUnpublishView, PublishedSlidesPDFView, PublishedSlidesView
+from AKModel.views.manage import AKsByUserView, DefaultSlotEditorView, EventShiftDatesView, ExportSlidesView, \
+    PlanPublishView, PlanUnpublishView, PollPublishView, PollUnpublishView, PublishedSlidesPDFView, PublishedSlidesView
 from AKModel.views.room import RoomBatchCreationView, RoomBatchImportConfirmView, RoomCSVTemplateView
 from AKModel.views.status import EventStatusView
 
@@ -123,6 +123,8 @@ def get_admin_urls_event(admin_site):
         path('plan/unpublish/', admin_site.admin_view(PlanUnpublishView.as_view()), name="plan-unpublish"),
         path('poll/publish/', admin_site.admin_view(PollPublishView.as_view()), name="poll-publish"),
         path('poll/unpublish/', admin_site.admin_view(PollUnpublishView.as_view()), name="poll-unpublish"),
+        # Debugging only (view itself checks for DEBUG mode)
+        path('shift-dates/', admin_site.admin_view(EventShiftDatesView.as_view()), name="event-shift-dates"),
         path('<slug:event_slug>/defaultSlots/', admin_site.admin_view(DefaultSlotEditorView.as_view()),
              name="default-slots-editor"),
         path('<slug:event_slug>/importRooms/', admin_site.admin_view(RoomBatchCreationView.as_view()),
