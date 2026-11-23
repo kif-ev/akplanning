@@ -1,8 +1,7 @@
-from django import forms
 from django.apps import apps
 from django.conf import settings
 from django.contrib import admin, messages
-from django.contrib.admin import action, display, RelatedFieldListFilter, SimpleListFilter
+from django.contrib.admin import action, display, SimpleListFilter
 from django.contrib.admin.utils import unquote
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User  # pylint: disable=E5142
@@ -12,35 +11,25 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import path, reverse_lazy
 from django.utils import timezone
+from django.utils.formats import date_format
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from simple_history.admin import SimpleHistoryAdmin
 
+from AKModel.admin_utils import EventRelatedFieldListFilter, EventTimezoneFormMixin, \
+    PrepopulateWithNextActiveEventMixin
 from AKModel.availability.models import Availability
-from AKModel.forms import RoomFormWithAvailabilities
+from AKModel.forms import AKAdminForm, AKSlotAdminForm, AvailabilityAdminForm, ConstraintViolationAdminForm, \
+    DefaultSlotAdminForm, RoomFormWithAvailabilities, StatusTrackingEntryAdminForm
 from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKRequirement, AKSlot, AKTrack, AKType, \
-    ConstraintViolation, DefaultSlot, Event, Room
+    ConstraintViolation, DefaultSlot, Event, Room, StatusTrackingEntry
+from AKModel.status_tracking import status_tracker
 from AKModel.urls import get_admin_urls_event, get_admin_urls_event_wizard
 from AKModel.views.ak import AKAssignTrackView, AKMessageMarkResolvedView, AKMigrateProtocolsView, \
     AKMigrateProtocolView, AKMoveToTrashView, AKResetInterestCounterView, AKResetInterestView, AKRestoreFromTrashView
 from AKModel.views.manage import AvailabilitiesApplyOffsetView, ClearScheduleView, CVMarkResolvedView, \
     CVSetLevelViolationView, CVSetLevelWarningView, DefaultSlotCategoryBulkAssignmentView, SlotsApplyOffsetView
-
-
-class EventRelatedFieldListFilter(RelatedFieldListFilter):
-    """
-    Reusable filter to restrict the possible choices of a field to those belonging to a certain event
-    as specified in the event__id__exact GET parameter.
-    The choices are only restricted if this parameter is present, otherwise all choices are used/returned
-    """
-
-    def field_choices(self, field, request, model_admin):
-        ordering = self.field_admin_ordering(field, request, model_admin)
-        limit_choices = {}
-        if "event__id__exact" in request.GET:
-            limit_choices['event__id__exact'] = request.GET["event__id__exact"]
-        return field.get_choices(include_blank=False, limit_choices_to=limit_choices, ordering=ordering)
 
 
 @admin.register(Event)
@@ -188,24 +177,6 @@ class EventAdmin(admin.ModelAdmin):
                 f"{reverse_lazy('admin:poll-unpublish')}?pks={','.join(str(pk) for pk in selected)}")
 
 
-class PrepopulateWithNextActiveEventMixin:
-    """
-    Mixin for automated pre-population of the event field
-    """
-
-    # pylint: disable=too-few-public-methods
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        """
-        Override field generation for foreign key fields to introduce special handling for event fields:
-        Pre-populate the event field with the next active event (since that is the most likeliest event to be worked
-        on in the admin interface) to make creation of new owners easier
-        """
-        if db_field.name == 'event':
-            kwargs['initial'] = Event.get_next_active()
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-
 @admin.register(AKOwner)
 class AKOwnerAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
     """
@@ -329,29 +300,6 @@ class TrashedFilter(SimpleListFilter):
         if self.value() == 'NOT_TRASHED':
             return queryset.filter(trashed_at__isnull=True)
         return queryset
-
-
-class AKAdminForm(forms.ModelForm):
-    """
-    Modified admin form for AKs, to be used in :class:`AKAdmin`
-    """
-
-    class Meta:
-        widgets = {
-            'requirements': forms.CheckboxSelectMultiple,
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Filter possible values for foreign keys & m2m when event is specified
-        if hasattr(self.instance, "event") and self.instance.event is not None:
-            self.fields["category"].queryset = AKCategory.objects.filter(event=self.instance.event)
-            self.fields["track"].queryset = AKTrack.objects.filter(event=self.instance.event)
-            self.fields["owners"].queryset = AKOwner.objects.filter(event=self.instance.event)
-            self.fields["requirements"].queryset = AKRequirement.objects.filter(event=self.instance.event)
-            self.fields["conflicts"].queryset = AK.objects.filter(event=self.instance.event)
-            self.fields["prerequisites"].queryset = AK.objects.filter(event=self.instance.event)
-            self.fields["types"].queryset = AKType.objects.filter(event=self.instance.event)
 
 
 @admin.register(AK)
@@ -584,38 +532,6 @@ class RoomAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
         return urls
 
 
-class EventTimezoneFormMixin:
-    """
-    Mixin to enforce the usage of the timezone of the associated event in forms
-    """
-
-    # pylint: disable=too-few-public-methods
-
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        """
-        Override form creation, use timezone of associated event
-        """
-        if obj is not None and obj.event.timezone:
-            timezone.activate(obj.event.timezone)
-        # No timezone available? Use UTC
-        else:
-            timezone.activate("UTC")
-        return super().get_form(request, obj, change, **kwargs)
-
-
-class AKSlotAdminForm(forms.ModelForm):
-    """
-    Modified admin form for AKSlots, to be used in :class:`AKSlotAdmin`
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Filter possible values for foreign keys when event is specified
-        if hasattr(self.instance, "event") and self.instance.event is not None:
-            self.fields["ak"].queryset = AK.objects.filter(event=self.instance.event)
-            self.fields["room"].queryset = Room.objects.filter(event=self.instance.event)
-
-
 @admin.register(AKSlot)
 class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
     """
@@ -689,26 +605,6 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
     ak_details_link.short_description = _('AK Details')
 
 
-class AvailabilityAdminForm(forms.ModelForm):
-    """
-    Modified admin form for Availability, to be used in :class:`AvailabilityAdmin`
-    """
-
-    def __init__(self, *args, **kwargs):
-        # Local import to prevent cyclic imports
-        # pylint: disable=import-outside-toplevel
-        from AKPreference.models import EventParticipant
-
-        super().__init__(*args, **kwargs)
-        # Filter possible values for foreign keys when event is specified
-        if hasattr(self.instance, "event") and self.instance.event is not None:
-            self.fields["person"].queryset = AKOwner.objects.filter(event=self.instance.event)
-            self.fields["room"].queryset = Room.objects.filter(event=self.instance.event)
-            self.fields["ak"].queryset = AK.objects.filter(event=self.instance.event)
-            self.fields["ak_category"].queryset = AKCategory.objects.filter(event=self.instance.event)
-            self.fields["participant"].queryset = EventParticipant.objects.filter(event=self.instance.event)
-
-
 @admin.register(Availability)
 class AvailabilityAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
     """
@@ -770,23 +666,6 @@ class AKOrgaMessageAdmin(admin.ModelAdmin):
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
                 f"{reverse_lazy('admin:akorgamessage-mark-resolved')}?pks={','.join(str(pk) for pk in selected)}")
-
-
-class ConstraintViolationAdminForm(forms.ModelForm):
-    """
-    Adapted admin form for constraint violations for usage in :class:`ConstraintViolationAdmin`)
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Filter possible values for foreign keys & m2m when event is specified
-        if hasattr(self.instance, "event") and self.instance.event is not None:
-            self.fields["ak_owner"].queryset = AKOwner.objects.filter(event=self.instance.event)
-            self.fields["room"].queryset = Room.objects.filter(event=self.instance.event)
-            self.fields["requirement"].queryset = AKRequirement.objects.filter(event=self.instance.event)
-            self.fields["category"].queryset = AKCategory.objects.filter(event=self.instance.event)
-            self.fields["aks"].queryset = AK.objects.filter(event=self.instance.event)
-            self.fields["ak_slots"].queryset = AKSlot.objects.filter(event=self.instance.event)
 
 
 @admin.register(ConstraintViolation)
@@ -853,23 +732,6 @@ class ConstraintViolationAdmin(admin.ModelAdmin):
                 f"{reverse_lazy('admin:cv-set-warning')}?pks={','.join(str(pk) for pk in selected)}")
 
 
-class DefaultSlotAdminForm(forms.ModelForm):
-    """
-    Adapted admin form for DefaultSlot for usage in :class:`DefaultSlotAdmin`
-    """
-
-    class Meta:
-        widgets = {
-            'primary_categories': forms.CheckboxSelectMultiple
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Filter possible values for foreign keys & m2m when event is specified
-        if hasattr(self.instance, "event") and self.instance.event is not None:
-            self.fields["primary_categories"].queryset = AKCategory.objects.filter(event=self.instance.event)
-
-
 @admin.register(DefaultSlot)
 class DefaultSlotAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
     """
@@ -899,6 +761,76 @@ class DefaultSlotAdmin(EventTimezoneFormMixin, admin.ModelAdmin):
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
                 f"{reverse_lazy('admin:slot-set-categories')}?pks={','.join(str(pk) for pk in selected)}")
+
+
+class StatusTrackingPhaseFilter(SimpleListFilter):
+    """
+    Filter status tracking entries by their phase (showing the names of the registered phases)
+    """
+    title = _("Phase")
+    parameter_name = "phase"
+
+    def lookups(self, request, model_admin):
+        return [(p.key, p.name) for p in status_tracker.get_phases()]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(phase=self.value())
+        return queryset
+
+
+@admin.register(StatusTrackingEntry)
+class StatusTrackingEntryAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
+    """
+    Admin interface for status tracking entries
+    Uses an adapted form (see :class:`StatusTrackingEntryAdminForm`) and the timezone of the associated event
+    """
+    form = StatusTrackingEntryAdminForm
+    list_display = ['timestamp_display', 'phase_display', 'step_display', 'mandatory_display', 'progress', 'detail',
+                    'event']
+    list_filter = ['event', StatusTrackingPhaseFilter, 'progress']
+    list_select_related = ['event']
+    search_fields = ['step', 'detail']
+    date_hierarchy = 'timestamp'
+
+    @display(description=_("Timestamp"), ordering='timestamp')
+    def timestamp_display(self, obj: StatusTrackingEntry):
+        """
+        Show the timestamp in the timezone of the associated event
+        """
+        local_timestamp = timezone.localtime(obj.timestamp, obj.event.timezone)
+        return f"{date_format(local_timestamp, 'SHORT_DATE_FORMAT')} {date_format(local_timestamp, 'H:i')}"
+
+    @staticmethod
+    def _registered(getter, fallback):
+        """
+        Look up information about a registered phase or step, use the fallback if it is not registered (anymore)
+        """
+        try:
+            return getter()
+        except KeyError:
+            return fallback
+
+    @display(description=_("Phase"), ordering='phase')
+    def phase_display(self, obj: StatusTrackingEntry):
+        """
+        Show the name of the phase (or its key if it is not registered)
+        """
+        return self._registered(lambda: status_tracker.get_phase(obj.phase).name, obj.phase)
+
+    @display(description=_("Step"), ordering='step')
+    def step_display(self, obj: StatusTrackingEntry):
+        """
+        Show the name of the step (or its key if it is not registered)
+        """
+        return self._registered(lambda: status_tracker.get_step(obj.phase, obj.step).name, obj.step)
+
+    @display(description=_("Mandatory"), boolean=True)
+    def mandatory_display(self, obj: StatusTrackingEntry):
+        """
+        Show whether the step is mandatory (unknown for steps that are not registered)
+        """
+        return self._registered(lambda: status_tracker.get_step(obj.phase, obj.step).mandatory, None)
 
 
 # Define a new User admin
@@ -937,7 +869,3 @@ class UserAdmin(BaseUserAdmin):
 # Re-register UserAdmin
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
-
-# Register the admin for status tracking (in a separate module to keep this one manageable)
-# pylint: disable=wrong-import-position,unused-import,cyclic-import
-import AKModel.admin_status_tracking  # noqa: E402,F401
