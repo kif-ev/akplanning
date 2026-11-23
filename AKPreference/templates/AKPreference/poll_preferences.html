@@ -33,18 +33,29 @@
     <form method="POST" class="post-form">{% csrf_token %}
         {{ form.management_form }}
         {% bootstrap_formset_errors form %}
-        {% if form.non_form_errors %}
-            <p>
-                <a href="{% url 'poll:participant-update' event_slug=event.slug %}" class="btn btn-sm btn-outline-danger">
-                    {% fa6_icon "clock" "fas" %} {% trans "Adjust your availabilities" %}
-                </a>
-            </p>
-        {% endif %}
+
+        {% for ak in owned_aks %}
+            <div class="container radio-group col mb-0">
+                <div class="container radio-info">
+                    <details>
+                        <summary class="ak-header">{{ ak.name }}
+                            <span class="badge bg-secondary">{% trans "Your AK" %}</span>
+                        </summary>
+                        <p>{{ ak.description }}</p>
+                        {% if ak.owners_list %}
+                            <p>{% trans "Responsible" %}: {{ ak.owners_list }}</p>
+                        {% endif %}
+                    </details>
+                    <p class="text-muted mb-0">
+                        {% trans "You are responsible for this AK, so you cannot enter a preference for it. AKs you are interested in will preferably not be scheduled at the same time." %}
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
 
         {% for f in form %}
             {# Skip rows for AKs that were removed in the meantime #}
             {% if not f.stale %}
-                {# Field errors (e.g., insufficient availability for required AKs) are shown directly at the preference #}
                 {% bootstrap_form_errors f type='non_fields' %}
                 {% bootstrap_form f exclude='preference' %}
                 <div class="container radio-group col mb-0">

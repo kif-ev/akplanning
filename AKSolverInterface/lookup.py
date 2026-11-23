@@ -150,28 +150,38 @@ def lookup_participants(event: Event) -> dict:
 
     Includes the dummy participants generated for the AK owners during export
     (see :class:`AKSolverInterface.serializers.ExportParticipantAndDummiesSerializer`).
-    Their IDs are computed in the same way, assuming that preferences were exported.
+    Their IDs are computed in the same way. Dummy participants of owners linked to a participant
+    are not exported if that participant is exported (i.e., if preferences are exported and the participant
+    is not filtered out), but are always included here since the lookup does not know the export settings.
     """
     participants = {}
     next_participant_pk = 1
+    linked_owner_pks = set()
 
     if apps.is_installed("AKPreference"):
         # pylint: disable=import-outside-toplevel
         from AKPreference.models import AKPreference, EventParticipant
 
-        # Ignore preferences for trashed AKs
-        active_preferences = AKPreference.objects.filter(ak__trashed_at__isnull=True).select_related('ak')
+        # Ignore preferences for trashed AKs and AKs owned by the participant (as in the export)
+        active_preferences = (AKPreference.objects.filter(ak__trashed_at__isnull=True)
+                              .exclude(AKPreference.for_owned_ak()).select_related('ak'))
         for participant in event.participants.prefetch_related(
-                Prefetch('akpreference_set', queryset=active_preferences), 'requirements'):
+                Prefetch('akpreference_set', queryset=active_preferences), 'requirements').select_related('ak_owner'):
             preferences = list(participant.akpreference_set.all())
-            required = [p.ak for p in preferences if p.preference == AKPreference.PreferenceLevel.REQUIRED]
+            required = [p.ak for p in preferences if p.required]
+            if participant.ak_owner_id is not None:
+                linked_owner_pks.add(participant.ak_owner_id)
+            fields = [
+                [_("Preferences"), str(len(preferences))],
+                [_("AK owner"), str(participant.ak_owner) if participant.ak_owner else "-"],
+            ]
+            # 'Required' can no longer be selected, so only show it for participants that still have such preferences
+            if required:
+                fields.append([_("Required for"), [_ref("ak", ak.pk, ak.name) for ak in required]])
+            fields.append([_("Requirements"), ", ".join(str(r) for r in participant.requirements.all()) or "-"])
             participants[str(participant.pk)] = {
                 "title": str(participant),
-                "fields": [
-                    [_("Preferences"), str(len(preferences))],
-                    [_("Required for"), [_ref("ak", ak.pk, ak.name) for ak in required] or "-"],
-                    [_("Requirements"), ", ".join(str(r) for r in participant.requirements.all()) or "-"],
-                ],
+                "fields": fields,
                 "links": [_admin_link(_("Edit in admin"), "admin:AKPreference_eventparticipant_change",
                                       participant.pk)],
             }
@@ -183,11 +193,13 @@ def lookup_participants(event: Event) -> dict:
         owned_aks = list(event.ak_set.filter(owners=owner, akslot__isnull=False).distinct())
         if not owned_aks:
             continue
+        fields = [[_("AKs"), [_ref("ak", ak.pk, ak.name) for ak in owned_aks]]]
+        if owner.pk in linked_owner_pks:
+            fields.append([_("Note"), _("Not exported if a participant linked to this AK owner is exported "
+                                        "(with the preferences)")])
         participants[str(new_pk)] = {
             "title": _("{owner} [AK owner, dummy participant]").format(owner=owner),
-            "fields": [
-                [_("AKs"), [_ref("ak", ak.pk, ak.name) for ak in owned_aks]],
-            ],
+            "fields": fields,
             "links": [
                 _admin_link(_("Edit AK owner in admin"), "admin:AKModel_akowner_change", owner.pk),
                 {"text": _("AKs of this owner"),

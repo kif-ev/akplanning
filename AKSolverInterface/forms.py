@@ -20,7 +20,7 @@ class JSONExportControlForm(forms.Form):
             label=_("Fixate all scheduled slots for the solver"),
             help_text=_(
                     "Slots that are already scheduled are not exported. Instead, their owners, "
-                    "required participants, rooms and conflicting AKs are unavailable at their time, "
+                    "participants linked to these owners, rooms and conflicting AKs are unavailable at their time, "
                     "dependent AKs are unavailable until their end and prerequisite AKs from their start."
             ),
             required=False,
@@ -29,7 +29,9 @@ class JSONExportControlForm(forms.Form):
             initial=True,
             label=_("Export participants' preferences"),
             help_text=_(
-                    "Include the preferences of participants in the export."
+                    "Include the preferences of participants in the export. "
+                    "The availabilities and requirements of participants linked to an AK owner then also "
+                    "restrict when and in which rooms the AKs of that owner can take place."
             ),
             required=False,
     )

@@ -1,9 +1,11 @@
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Exists, OuterRef
 from django.utils.translation import gettext_lazy as _
 
-from AKModel.models import AK, AKRequirement, Event
+from AKModel.models import AK, AKOwner, AKRequirement, Event
 
 
 class EventParticipant(models.Model):
@@ -27,12 +29,38 @@ class EventParticipant(models.Model):
     uuid = models.UUIDField(unique=True, verbose_name=_('UUID'), default=uuid.uuid4,
                             help_text=_('Unique and non-guessable identifier for this participant'))
 
+    ak_owner = models.ForeignKey(to=AKOwner, on_delete=models.SET_NULL, blank=True, null=True,
+                                 verbose_name=_('AK owner (optional)'),
+                                 help_text=_('Optional: If you own AKs yourself, you can select your AK owner '
+                                             'name here. If you do, the times of the AKs you own will be treated '
+                                             'as bad times for the AKs you would like to attend and your '
+                                             'availabilities will be used when scheduling the AKs you own.'))
+
     def __str__(self) -> str:
         string = _("Anonymous {pk}").format(pk=self.pk) if not self.name else self.name
         if self.institution:
             string += f" ({self.institution})"
         string += f" [{self.uuid}]"
         return string
+
+    def clean(self):
+        super().clean()
+        if self.ak_owner_id is not None and self.event_id is not None and self.ak_owner.event_id != self.event_id:
+            raise ValidationError({"ak_owner": _("The AK owner must belong to the same event as the participant.")})
+
+    @property
+    def owned_aks(self):
+        """AKs of the AK owner this participant is linked to (none if not linked)"""
+        if self.ak_owner_id is None:
+            return AK.objects.none()
+        return AK.objects.filter(event=self.event, owners=self.ak_owner_id)
+
+    @property
+    def has_required_preferences(self) -> bool:
+        """Whether this participant has 'Required' preferences (no longer selectable) for AKs that are not trashed"""
+        return self.akpreference_set.filter(
+                preference=AKPreference.PreferenceLevel.REQUIRED, ak__trashed_at__isnull=True,
+        ).exists()
 
     @property
     def availabilities(self):
@@ -42,40 +70,6 @@ class EventParticipant(models.Model):
         :rtype: QuerySet[Availability]
         """
         return "Availability".objects.filter(participant=self)
-
-    def get_time_constraints(self, availabilities: list | None = None) -> list[str]:
-        """Construct list of required time constraint labels.
-
-        :param availabilities: optional availabilities to use instead of the stored ones.
-            In contrast to stored availabilities, an empty list means that the participant
-            is not available at all.
-        """
-        # local import to prevent cyclic import
-        # pylint: disable=import-outside-toplevel
-        from AKModel.availability.models import Availability
-
-        if availabilities is None:
-            avails = self.availabilities.all()
-            if not avails:
-                # no stored availabilities -> participant is available for the whole event
-                return []
-        else:
-            avails = availabilities
-        participant_required_prefs = AKPreference.objects.filter(
-                event=self.event,
-                participant=self,
-                preference=AKPreference.PreferenceLevel.REQUIRED,
-                ak__trashed_at__isnull=True,
-        )
-
-        if (
-                not Availability.is_event_covered(self.event, avails)
-                and participant_required_prefs.exists()
-        ):
-            # participant has restricted availability and is actually required for AKs
-            return [f"availability-participant-{self.pk}"]
-
-        return []
 
     def get_room_constraints(self) -> list[str]:
         """Construct list of required room constraint labels."""
@@ -120,6 +114,8 @@ class AKPreference(models.Model):
         IGNORE = 0, _('Ignore')
         PREFER = 1, _('Interested')
         STRONG_PREFER = 2, _("Great interest")
+        # No longer selectable in the preference poll (replaced by linking participants to AK owners),
+        # but existing preferences are kept and still exported as hard constraints
         REQUIRED = 3, _("Required")
 
     preference = models.PositiveSmallIntegerField(verbose_name=_('Preference'), choices=PreferenceLevel.choices,
@@ -131,6 +127,16 @@ class AKPreference(models.Model):
 
     def __str__(self) -> str:
         return f"Preference {self.get_preference_display()} [of '{self.participant}' for AK '{self.ak}']"
+
+    @staticmethod
+    def for_owned_ak() -> Exists:
+        """Expression that is true for preferences for AKs owned by the AK owner linked to their participant.
+
+        Such preferences can neither be entered in the poll nor are they exported,
+        but they may exist if they were entered before the participant was linked to the AK owner
+        or before the AK owner was added to the AK. They are kept in case the link is removed again.
+        """
+        return Exists(AK.objects.filter(pk=OuterRef("ak_id"), owners=OuterRef("participant__ak_owner")))
 
     @property
     def required(self) -> bool:

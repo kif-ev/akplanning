@@ -65,6 +65,7 @@ class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
         self.rooms: Iterable[Room] = []
         self.participants: Iterable[EventParticipant] = []
         self.owners: Iterable[AKOwner] = []
+        self.linked_owner_pks: set[int] = set()
         self.slots_in_an_hour: float = 1.0
         self.max_participant_pk = 0
         self.event: Event | None = None
@@ -113,6 +114,9 @@ class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
                 event__slug=event.slug
         ).all()
         self.owners = AKOwner.objects.filter(event__slug=event.slug).all()
+        self.linked_owner_pks = set(
+                self.participants.exclude(ak_owner=None).values_list("ak_owner", flat=True)
+        )
 
         self.max_participant_pk = (
             self.participants.latest("pk").pk if self.participants else 0
@@ -657,16 +661,6 @@ class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
                             )
                         }
 
-                        # add participant constraints
-                        fulfilled_time_constraints |= {
-                            f"availability-participant-{participant.id}"
-                            for participant in self.participants
-                            if self._is_restricted_and_contained_slot(
-                                    timeslot_avail,
-                                    Availability.union(participant.availabilities.all()),
-                            )
-                        }
-
                         # add ak constraints
                         fulfilled_time_constraints |= {
                             f"availability-ak-{ak.id}"
@@ -732,9 +726,10 @@ class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
                         block_names, self.export_dict["timeslots"]["info"]["blocknames"]
                 )
 
-    def _owner_has_ak(self, owner: AKOwner) -> bool:
+    def _owner_has_dummy(self, owner: AKOwner) -> bool:
+        """Owners get a dummy participant if they own AKs and are not linked to a participant."""
         owned_aks = self.ak_slots.filter(ak__owners=owner).all()
-        return bool(owned_aks)
+        return bool(owned_aks) and owner.pk not in self.linked_owner_pks
 
     def test_all_participants_exported(self):
         """Test if exported Rooms match the rooms of Event."""
@@ -744,7 +739,7 @@ class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
 
                 participant_ids = set(self.participants.values_list("pk", flat=True))
                 for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
-                    if self._owner_has_ak(owner):
+                    if self._owner_has_dummy(owner):
                         participant_ids.add(idx)
 
                 self.assertEqual(
@@ -768,7 +763,7 @@ class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
                     )
 
                 for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
-                    if not self._owner_has_ak(owner):
+                    if not self._owner_has_dummy(owner):
                         continue
                     export_participant = self.export_objects["participants"][idx]
                     self.assertEqual(
@@ -776,40 +771,11 @@ class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
                     )
 
     def test_participant_timeconstraints(self):
-        """Test if participant time constraints are exported as expected."""
+        """Test that participants are exported without time constraints."""
         for event in Event.objects.all():
             with self.subTest(event=event):
                 self.set_up_event(event=event)
-                for participant in self.participants:
-                    export_participant = self.export_objects["participants"][
-                        participant.pk
-                    ]
-
-                    time_constraints = set()
-                    participant_avails = participant.availabilities.all()
-                    if participant_avails and not Availability.is_event_covered(
-                            self.event, participant_avails
-                    ):
-                        # participant has restricted availability
-                        if AKPreference.objects.filter(
-                                event=self.event,
-                                participant=participant,
-                                preference=AKPreference.PreferenceLevel.REQUIRED,
-                        ):
-                            # partipant is actually required for AKs
-                            time_constraints.add(
-                                    f"availability-participant-{participant.pk}"
-                            )
-
-                    self.assertEqual(
-                            set(export_participant["time_constraints"]), time_constraints
-                    )
-
-                # dummy participants have no time constraints
-                for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
-                    if not self._owner_has_ak(owner):
-                        continue
-                    export_participant = self.export_objects["participants"][idx]
+                for export_participant in self.export_objects["participants"].values():
                     self.assertEqual(export_participant["time_constraints"], [])
 
     def test_participant_roomconstraints(self):
@@ -821,33 +787,19 @@ class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
                     export_participant = self.export_objects["participants"][
                         participant.pk
                     ]
-                    room_constraints = [
-                        constr.name for constr in participant.requirements.all()
-                    ]
+                    room_constraints = [constr.name for constr in participant.requirements.all()]
                     self.assertCountEqual(
                             export_participant["room_constraints"], room_constraints
                     )
 
                 for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
-                    if not self._owner_has_ak(owner):
+                    if not self._owner_has_dummy(owner):
                         continue
                     export_participant = self.export_objects["participants"][idx]
                     self.assertEqual(export_participant["room_constraints"], [])
 
     def test_preferences(self):
         """Test if preferences are exported as expected."""
-
-        def _preference_json(pref: AKPreference):
-            return {
-                "ak_id": pref.slot.pk,
-                "required": pref.preference == AKPreference.PreferenceLevel.REQUIRED,
-                "preference_score": (
-                    pref.preference
-                    if pref.preference != AKPreference.PreferenceLevel.REQUIRED
-                    else -1
-                ),
-            }
-
         for event in Event.objects.all():
             with self.subTest(event=event):
                 self.set_up_event(event=event)
@@ -855,20 +807,32 @@ class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
                     export_participant = self.export_objects["participants"][
                         participant.pk
                     ]
+                    # participants linked to an AK owner are required for all slots of the AKs of that owner
+                    owned_slot_pks = set()
+                    if participant.ak_owner is not None:
+                        owned_slot_pks = set(
+                                self.ak_slots.filter(ak__owners=participant.ak_owner).values_list("pk", flat=True)
+                        )
                     preferences = [
-                        _preference_json(pref)
+                        {"ak_id": slot.pk, "required": False, "preference_score": pref.preference}
                         for pref in AKPreference.objects.filter(
-                                participant=participant, preference__gt=0
-                        ).select_related("slot")
+                                participant=participant, preference__gt=0, ak__trashed_at__isnull=True
+                        )
+                        for slot in pref.ak.akslot_set.all()
+                        if slot.pk not in owned_slot_pks
                     ]
+                    preferences.extend(
+                            {"ak_id": slot_pk, "required": True, "preference_score": -1}
+                            for slot_pk in owned_slot_pks
+                    )
                     self.assertCountEqual(
                             export_participant["preferences"], preferences
                     )
 
                 for idx, owner in enumerate(self.owners, self.max_participant_pk + 1):
-                    owned_slots = self.ak_slots.filter(ak__owners=owner).all()
-                    if not owned_slots:
+                    if not self._owner_has_dummy(owner):
                         continue
+                    owned_slots = self.ak_slots.filter(ak__owners=owner).all()
                     preferences = [
                         {
                             "ak_id": slot.pk,

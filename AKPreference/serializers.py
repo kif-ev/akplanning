@@ -2,25 +2,11 @@ from rest_framework import serializers
 
 from AKModel.models import AKSlot
 from AKModel.serializers import StringListField
-from AKPreference.models import AKPreference, EventParticipant
+from AKPreference.models import EventParticipant
 
 
-class ExportAKPreferenceSerializer(serializers.ModelSerializer):
-    """Export serializer for AKPreference objects.
-
-    Used to serialize AKPreference objects for the export to a solver.
-    Part of the implementation of the format of the KoMa solver:
-    https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
-    """
-
-    class Meta:
-        model = AKPreference
-        fields = ["required", "preference_score"]
-        read_only_fields = ["required", "preference_score"]
-
-
-class ExportAKPreferencePerSlotSerializer(serializers.BaseSerializer):
-    """Export serializer to associate AKPreferences with the AK's AKSlot objects.
+def _preferences_per_slot(preferences, exclude_slot_pks: set[int]) -> list[dict]:
+    """Serialize AKPreferences per slot of their AK for the export to a solver.
 
     The AKPreference model stores the preference per AK object.
     The solver however needs the serialization to be *per AKSlot*, i.e.
@@ -28,37 +14,19 @@ class ExportAKPreferencePerSlotSerializer(serializers.BaseSerializer):
 
     Part of the implementation of the format of the KoMa solver:
     https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
+
+    :param preferences: preferences to serialize (with prefetched slots of their AKs)
+    :param exclude_slot_pks: pks of slots to skip
     """
-
-    def create(self, validated_data):
-        raise ValueError("`ExportAKPreferencePerSlotSerializer` is read-only.")
-
-    def to_internal_value(self, data):
-        raise ValueError("`ExportAKPreferencePerSlotSerializer` is read-only.")
-
-    def update(self, instance, validated_data):
-        raise ValueError("`ExportAKPreferencePerSlotSerializer` is read-only.")
-
-    def to_representation(self, instance):
-        preference_queryset = instance
-
-        def _insert_akslot_id(serialization_dict: dict, slot: AKSlot) -> dict:
-            """Insert id of the slot into the dict and return it."""
-
-            # The naming scheme of the solver is confusing.
-            # Our 'AKSlot' corresponds to the 'AK' of the solver,
-            # so `ak_id` is the id of the corresponding AKSlot.
-            serialization_dict["ak_id"] = slot.pk
-            return serialization_dict
-
-        return_lst = []
-        for pref in preference_queryset:
-            pref_serialization = ExportAKPreferenceSerializer(pref).data
-            return_lst.extend([
-                _insert_akslot_id(pref_serialization, slot)
-                for slot in pref.ak.akslot_set.all()
-            ])
-        return return_lst
+    # The naming scheme of the solver is confusing.
+    # Our 'AKSlot' corresponds to the 'AK' of the solver,
+    # so `ak_id` is the id of the corresponding AKSlot.
+    return [
+        {"ak_id": slot.pk, "required": pref.required, "preference_score": pref.preference_score}
+        for pref in preferences
+        for slot in pref.ak.akslot_set.all()
+        if slot.pk not in exclude_slot_pks
+    ]
 
 
 class ExportParticipantInfoSerializer(serializers.ModelSerializer):
@@ -87,19 +55,70 @@ class ExportParticipantSerializer(serializers.ModelSerializer):
 
     room_constraints = StringListField(source="get_room_constraints")
     time_constraints = serializers.SerializerMethodField()
-    preferences = ExportAKPreferencePerSlotSerializer(source="export_preferences")
+    preferences = serializers.SerializerMethodField()
     info = ExportParticipantInfoSerializer(source="*")
+
+    def _has_required_preferences(self, participant: EventParticipant) -> bool:
+        """Whether the participant has 'Required' preferences.
+
+        The pks of all such participants can be passed via the context key `participants_with_required_preferences`
+        to avoid querying this per participant.
+        """
+        if "participants_with_required_preferences" in self.context:
+            return participant.pk in self.context["participants_with_required_preferences"]
+        return participant.has_required_preferences
 
     def get_time_constraints(self, participant: EventParticipant) -> list[str]:
         """Get serialized representation for time_constraints.
 
-        Uses adjusted availabilities passed via the context key
-        `participant_availabilities` (mapping participant pks to availabilities) if present.
+        Stored availabilities of participants are only exported if they have 'Required' preferences
+        (no longer selectable, but still exported as hard constraints): The availabilities of AK owners
+        are already exported as time constraints of their AKs.
+        Adjusted availabilities can be passed via the context key `participant_availabilities`
+        (mapping participant pks to availabilities), e.g. because scheduled slots of the AKs of their linked
+        AK owner or of AKs they are required for are not exported but must still block these times.
         """
+        # pylint: disable=import-outside-toplevel
+        from AKModel.availability.models import Availability
+
         participant_availabilities = self.context.get("participant_availabilities", {})
-        return participant.get_time_constraints(
-                availabilities=participant_availabilities.get(participant.pk),
-        )
+        if participant.pk in participant_availabilities:
+            avails = participant_availabilities[participant.pk]
+        elif self._has_required_preferences(participant):
+            avails = list(participant.availabilities.all())
+            if not avails:
+                # no stored availabilities -> participant is available for the whole event
+                return []
+        else:
+            return []
+        if Availability.is_event_covered(participant.event, avails):
+            return []
+        return [f"availability-participant-{participant.pk}"]
+
+    def get_preferences(self, participant: EventParticipant) -> list[dict]:
+        """Get serialized representation for preferences.
+
+        If the participant is linked to an AK owner, the participant is marked as required
+        for all slots of the AKs of that owner. Since a participant cannot attend multiple AKs at the same time,
+        this makes the slots of their own AKs bad times for the AKs they would like to attend.
+        These entries replace the preferences of the participant for their own AKs.
+
+        The slots of each owner can be passed via the context key `owned_slot_pks`
+        (mapping AKOwner pks to sets of slot pks) to avoid querying them per participant.
+        """
+        owned_slot_pks = set()
+        if participant.ak_owner_id is not None:
+            if "owned_slot_pks" in self.context:
+                owned_slot_pks = self.context["owned_slot_pks"].get(participant.ak_owner_id, set())
+            else:
+                owned_slot_pks = set(
+                        AKSlot.objects.filter(event=participant.event, ak__owners=participant.ak_owner_id)
+                        .order_by().values_list("pk", flat=True)
+                )
+        preferences = _preferences_per_slot(participant.export_preferences, exclude_slot_pks=owned_slot_pks)
+        preferences.extend({"ak_id": slot_pk, "required": True, "preference_score": -1}
+                           for slot_pk in sorted(owned_slot_pks))
+        return preferences
 
     class Meta:
         model = EventParticipant

@@ -146,7 +146,7 @@ class PreferencePollOverview(EventSlugRedirectWhenInactiveMixin, CheckSessionFor
                                 ak__category=OuterRef('pk'),
                                 ak__trashed_at__isnull=True,
                                 participant=context['participant']
-                        )
+                        ).exclude(AKPreference.for_owned_ak())
                 )
         )
         return context
@@ -215,15 +215,11 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
 
     def get_form_class(self):
         existing_preferences_ak_ids = self.get_object().akpreference_set.values_list('ak', flat=True)
+        # AKs owned by the participant cannot be rated (see PreferenceFormSet)
         aks_without_preferences = (self.ak_category.ak_set.exclude(pk__in=existing_preferences_ak_ids)
+                                   .exclude(pk__in=self.get_object().owned_aks)
                                    .prefetch_related('owners'))
-        self.initial = [
-            {
-                'event': self.event,
-                'participant': self.get_object(),
-                'ak': ak,
-            } for ak in aks_without_preferences
-        ]
+        self.initial = [{'ak': ak} for ak in aks_without_preferences]
 
         return forms.modelformset_factory(AKPreference, form=PreferenceForm, formset=PreferenceFormSet,
                                           extra=len(self.initial))
@@ -239,6 +235,8 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context['category'] = self.ak_category
+        context['owned_aks'] = (self.ak_category.ak_set.filter(pk__in=self.get_object().owned_aks)
+                                .prefetch_related('owners'))
         ak_details = {ak.pk: ak for ak in self.ak_category.ak_set.prefetch_related('owners').all()}
         for f in context['form']:
             # Rows for AKs that are no longer available are not displayed
@@ -262,6 +260,9 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
     def _warn_about_stale_forms(self, form):
         if form.has_stale_forms:
             messages.warning(self.request, _("Some AKs were removed in the meantime. "
+                                             "Your preferences for them were not saved."))
+        if form.has_owned_stale_forms:
+            messages.warning(self.request, _("You are responsible for some AKs by now. "
                                              "Your preferences for them were not saved."))
 
     def form_invalid(self, form):
@@ -343,7 +344,9 @@ class ParticipantAdminView(AdminViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['event'] = self.object.event
+        # Preferences for AKs owned by the participant are ignored (see AKPreference.for_owned_ak)
         context["preferences"] = (AKPreference.objects.filter(participant=self.object, preference__gt=0)
+                                  .exclude(AKPreference.for_owned_ak())
                                   .select_related('ak')
                                   .order_by('-preference'))
         relevant_aks = context["preferences"].values_list('ak', flat=True)

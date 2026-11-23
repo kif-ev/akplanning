@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.admin import action
-from django.db.models import Count
+from django.db.models import Count, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse_lazy
 from django.utils.html import format_html
@@ -18,7 +19,7 @@ class EventParticipantAdminForm(EventRestrictedFieldsFormMixin, forms.ModelForm)
     Adapted admin form for EventParticipant for usage in :class:`EventParticipantAdmin`)
     """
     class Meta:
-        event_restricted_fields = ["requirements"]
+        event_restricted_fields = ["requirements", "ak_owner"]
         widgets = {
             "requirements": forms.CheckboxSelectMultiple,
         }
@@ -30,7 +31,8 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
     Admin interface for EventParticipant
     """
     model = EventParticipant
-    list_display = ['name', 'institution', 'event', 'uuid', 'preference_count']
+    list_display = ['name', 'institution', 'event', 'ak_owner', 'uuid', 'preference_count']
+    list_select_related = ['event', 'ak_owner']
     list_filter = ['event', 'institution']
     list_editable = []
     readonly_fields = ['uuid']
@@ -40,7 +42,11 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.annotate(preference_count=Count('akpreference'))
+        # Preferences for AKs owned by the participant are ignored (see AKPreference.for_owned_ak)
+        counted_preferences = (AKPreference.objects.filter(participant=OuterRef('pk'))
+                               .exclude(AKPreference.for_owned_ak())
+                               .order_by().values('participant').annotate(count=Count('pk')).values('count'))
+        return qs.annotate(preference_count=Coalesce(Subquery(counted_preferences), 0))
 
     def preference_count(self, obj):
         """
