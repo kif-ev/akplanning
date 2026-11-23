@@ -213,6 +213,60 @@ class Event(models.Model):
             event = Event.objects.order_by('start').filter(start__gt=datetime.now().astimezone()).first()
         return event
 
+    @staticmethod
+    def _date_fields(model):
+        """
+        Get the names of all date and datetime fields of the given model
+
+        :param model: model to inspect
+        :return: list of field names
+        :rtype: list[str]
+        """
+        # DateTimeField is a subclass of DateField, hence this covers both
+        return [f.name for f in model._meta.concrete_fields if isinstance(f, models.DateField)]
+
+    @classmethod
+    def get_date_shift_targets(cls):
+        """
+        Get all models (except the event itself) that belong to an event and contain dates or timestamps.
+        Models are discovered automatically (including models of other apps and historical models)
+        based on their foreign keys to event.
+
+        :return: list of tuples (model, name of the foreign key to event, names of the date fields)
+        :rtype: list[tuple[type[models.Model], str, list[str]]]
+        """
+        targets = []
+        for model in apps.get_models():
+            if model is cls:
+                continue
+            date_fields = cls._date_fields(model)
+            if not date_fields:
+                continue
+            for field in model._meta.concrete_fields:
+                if isinstance(field, models.ForeignKey) and field.related_model is cls:
+                    targets.append((model, field.name, date_fields))
+        return targets
+
+    @transaction.atomic
+    def shift_dates(self, delta: timedelta):
+        """
+        Shift all dates and timestamps of this event and of everything belonging to it by the given offset.
+        Meant for debugging and testing purposes (e.g., to simulate a currently running event using old data).
+
+        Updates are performed directly in the database, hence no auto_now timestamps are updated,
+        no signals are sent and no new history entries are created.
+
+        :param delta: offset to shift by (may be negative)
+        :type delta: timedelta
+        """
+        targets = [(Event, "pk", self._date_fields(Event))] + self.get_date_shift_targets()
+        for model, event_field, date_fields in targets:
+            # Use the base manager to also include objects hidden by custom default managers (e.g., trashed AKs)
+            model._base_manager.filter(**{event_field: self.pk}).update(
+                **{f: models.F(f) + delta for f in date_fields}
+            )
+        self.refresh_from_db()
+
     def get_categories_with_aks(self, *, wishes_seperately=False,
                                 filter_func=lambda ak: True, hide_empty_categories=False,
                                 types=None, types_all_selected_only=False,

@@ -66,7 +66,7 @@ class EventAdmin(admin.ModelAdmin):
         'plan_hidden', 'plan_published_at', 'toggle_plan_visibility',
         'poll_hidden', 'poll_published_at', 'toggle_poll_visibility',
     ]
-    actions = ['publish_plan', 'unpublish_plan', 'publish_poll', 'unpublish_poll']
+    actions = ['publish_plan', 'unpublish_plan', 'publish_poll', 'unpublish_poll', 'shift_dates']
 
     def add_view(self, request, form_url='', extra_context=None):
         # Override
@@ -186,6 +186,24 @@ class EventAdmin(admin.ModelAdmin):
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
                 f"{reverse_lazy('admin:poll-unpublish')}?pks={','.join(str(pk) for pk in selected)}")
+
+    @action(description=_('Shift event dates (debugging)'))
+    def shift_dates(self, request, queryset):
+        """
+        Admin action to shift the event and all its dates to a new start date (debugging only)
+        """
+        if queryset.count() != 1:
+            self.message_user(request, _("Dates can only be shifted for exactly one event at a time."),
+                              messages.ERROR)
+            return None
+        return HttpResponseRedirect(f"{reverse_lazy('admin:event-shift-dates')}?pks={queryset.first().pk}")
+
+    def get_actions(self, request, *args, **kwargs):
+        actions = super().get_actions(request, *args, **kwargs)
+        # Shifting dates is meant for debugging only and must never be available in production
+        if not settings.DEBUG:
+            actions.pop("shift_dates", None)
+        return actions
 
 
 class PrepopulateWithNextActiveEventMixin:

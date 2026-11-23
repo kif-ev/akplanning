@@ -379,6 +379,18 @@ class ShiftByOffsetForm(AdminIntermediateActionForm):
     )
 
 
+class EventShiftDatesForm(AdminIntermediateActionForm):
+    """
+    Form to specify the new start of an event, all dates of the event will be shifted accordingly
+    """
+    new_start = forms.DateTimeField(
+            label=_("New start"),
+            help_text=_("New start of the event. All dates and timestamps of the event and everything belonging to it "
+                        "will be shifted by the same offset."),
+            widget=DateTimeInput(),
+    )
+
+
 class TrackAssignmentForm(AdminIntermediateActionForm):
     """
     Form to assign AKs to a given track
