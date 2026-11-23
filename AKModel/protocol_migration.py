@@ -63,6 +63,15 @@ class MigrationStatus(TextChoices):
     UNEXPECTED_ERROR = "unexpected_error", _("Unexpected error")
 
 
+# Outcomes that are not successful but also no failure since there is nothing to migrate
+# (no protocol at all, or the wiki page already has content that must not be overwritten)
+NOTHING_TO_MIGRATE_STATUSES = {
+    MigrationStatus.NO_PROTOCOL_LINK,
+    MigrationStatus.PROTOCOL_EMPTY,
+    MigrationStatus.WIKI_PAGE_NOT_EMPTY,
+}
+
+
 @dataclass
 class MigrationResult:
     """

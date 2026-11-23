@@ -26,8 +26,9 @@ from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKRequirement
     ConstraintViolation, DefaultSlot, Event, Room, StatusTrackingEntry
 from AKModel.status_tracking import status_tracker
 from AKModel.urls import get_admin_urls_event, get_admin_urls_event_wizard
-from AKModel.views.ak import AKAssignTrackView, AKMessageMarkResolvedView, AKMigrateProtocolsView, \
-    AKMigrateProtocolView, AKMoveToTrashView, AKResetInterestCounterView, AKResetInterestView, AKRestoreFromTrashView
+from AKModel.views.ak import AKAssignTrackView, AKMessageMarkResolvedView, AKMigrateProtocolsFinishedView, \
+    AKMigrateProtocolsView, AKMigrateProtocolView, AKMoveToTrashView, AKResetInterestCounterView, AKResetInterestView, \
+    AKRestoreFromTrashView
 from AKModel.views.manage import AvailabilitiesApplyOffsetView, ClearScheduleView, CVMarkResolvedView, \
     CVSetLevelViolationView, CVSetLevelWarningView, DefaultSlotCategoryBulkAssignmentView, SlotsApplyOffsetView
 
@@ -421,6 +422,9 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
             path('restore-from-trash/', AKRestoreFromTrashView.as_view(), name="ak-restore-from-trash"),
             path('migrate-protocols/', self.admin_site.admin_view(AKMigrateProtocolsView.as_view()),
                  name="ak-migrate-protocols"),
+            path('migrate-protocols/finished/',
+                 self.admin_site.admin_view(AKMigrateProtocolsFinishedView.as_view()),
+                 name="ak-migrate-protocols-finished"),
             path('migrate-protocols/<int:pk>/', self.admin_site.admin_view(AKMigrateProtocolView.as_view()),
                  name="ak-migrate-protocol"),
         ]

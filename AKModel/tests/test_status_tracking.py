@@ -1,11 +1,13 @@
+import json
 from datetime import datetime, timedelta, timezone as dt_timezone
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from AKModel.models import Event, StatusTrackingEntry
+from AKModel.models import AK, AKCategory, AKRequirement, Event, StatusTrackingEntry
 from AKModel.status_tracking import StatusTracker, status_tracker
 
 Progress = StatusTrackingEntry.Progress
@@ -280,3 +282,258 @@ class StatusTrackingAdminTests(TestCase):
         self.assertEqual(response.status_code, 302)
         entry.refresh_from_db()
         self.assertEqual(entry.timestamp, datetime(2026, 1, 15, 13, 30, tzinfo=dt_timezone.utc))
+
+
+class StatusTrackingEventWizardTests(TestCase):
+    """
+    Tests for automatically tracking progress in the event creation wizard
+    """
+    fixtures = ['model.json']
+
+    def setUp(self):
+        self.event = Event.get_by_slug('kif42')
+        self.import_event = Event.objects.get(pk=1)
+        self.categories = list(AKCategory.objects.filter(event=self.import_event).order_by('pk'))
+        self.admin_user = get_user_model().objects.create(username="wizardadmin", is_staff=True,
+                                                          is_superuser=True, is_active=True)
+        self.client.force_login(self.admin_user)
+        self.url = reverse("admin:new_event_wizard_import",
+                           kwargs={"event_slug": self.event.slug, "import_slug": self.import_event.slug})
+
+    def _import(self, categories):
+        return self.client.post(self.url, {"import_event": self.import_event.pk,
+                                           "import_categories": [c.pk for c in categories]})
+
+    def _categories_status(self):
+        return status_tracker.get_phase_progress(self.event, "configuration")[0]
+
+    def test_copy_categories(self):
+        """
+        Test that copying categories marks the categories step as done
+        """
+        response = self._import(self.categories)
+        self.assertRedirects(response, reverse("admin:new_event_wizard_activate", kwargs={"slug": self.event.slug}),
+                             fetch_redirect_response=False)
+        status = self._categories_status()
+        self.assertEqual(status.step.key, "categories")
+        self.assertEqual(status.progress, Progress.DONE)
+        for category in self.categories:
+            self.assertIn(category.name, status.detail)
+        self.assertIn(str(self.import_event), status.detail)
+
+    def test_nothing_selected(self):
+        """
+        Test that nothing is recorded if no categories are copied (they may still be created manually)
+        """
+        self._import([])
+        self.assertIsNone(self._categories_status().entry)
+
+    def test_copy_failure(self):
+        """
+        Test that the step is marked as failed if some categories could not be copied
+        """
+        failing = self.categories[0]
+        original_save = AKCategory.save
+
+        def save(category, *args, **kwargs):
+            if category.name == failing.name:
+                raise ValueError("Test failure")
+            return original_save(category, *args, **kwargs)
+
+        with patch.object(AKCategory, "save", save):
+            self._import(self.categories)
+        status = self._categories_status()
+        self.assertEqual(status.progress, Progress.FAILED)
+        self.assertIn(f"Could not copy: {failing.name}", status.detail)
+
+    def test_copy_requirements(self):
+        """
+        Test that copying requirements marks the requirements step as done (independent of categories)
+        """
+        requirements = list(AKRequirement.objects.filter(event=self.import_event))
+        self.client.post(self.url, {"import_event": self.import_event.pk,
+                                    "import_requirements": [r.pk for r in requirements]})
+        statuses = {s.step.key: s for s in status_tracker.get_phase_progress(self.event, "configuration")}
+        self.assertEqual(statuses["requirements"].progress, Progress.DONE)
+        for requirement in requirements:
+            self.assertIn(requirement.name, statuses["requirements"].detail)
+        self.assertIsNone(statuses["categories"].entry)
+
+    def test_activate(self):
+        """
+        Test that activating the event in the wizard marks the activation step as done
+        """
+        event = Event.get_by_slug("kif23")
+        url = reverse("admin:new_event_wizard_activate", kwargs={"slug": event.slug})
+
+        # Not activating the event does not record anything
+        self.client.post(url, {})
+        self.assertIsNone(status_tracker.get_phase_progress(event, "configuration")[-1].entry)
+
+        self.client.post(url, {"active": "on"})
+        status = status_tracker.get_phase_progress(event, "configuration")[-1]
+        self.assertEqual(status.step.key, "activate")
+        self.assertEqual(status.progress, Progress.DONE)
+
+
+class StatusTrackingAutomaticRecordingTests(TestCase):
+    """
+    Tests for automatically tracking progress in further admin views
+    """
+    fixtures = ['model.json']
+
+    def setUp(self):
+        self.event = Event.get_by_slug('kif42')
+        self.admin_user = get_user_model().objects.create(username="trackingadmin", is_staff=True,
+                                                          is_superuser=True, is_active=True)
+        self.client.force_login(self.admin_user)
+
+    def _status(self, phase, step):
+        return next(s for s in status_tracker.get_phase_progress(self.event, phase) if s.step.key == step)
+
+    def test_plan_publishing(self):
+        """
+        Test that publishing the plan marks the step as done and unpublishing reopens it
+        """
+        for view, progress in [("admin:plan-publish", Progress.DONE), ("admin:plan-unpublish", Progress.IN_PROGRESS)]:
+            self.client.post(f"{reverse(view)}?pks={self.event.pk}", {"pks": str(self.event.pk)})
+            self.assertEqual(self._status("scheduling", "publish_plan").progress, progress)
+
+    def test_room_import(self):
+        """
+        Test that importing rooms tracks the progress of room creation
+        """
+        url = reverse("admin:room-import-confirm", kwargs={"event_slug": self.event.slug})
+
+        # Lines with errors were skipped: rooms are not complete yet
+        self.client.post(url, {"csv_data": "name;capacity\nNeu;10\nKaputt;viele\n"})
+        status = self._status("scheduling", "rooms")
+        self.assertEqual(status.progress, Progress.IN_PROGRESS)
+        self.assertIn("Imported 1 room(s)", status.detail)
+        self.assertIn("Skipped 1 line(s) with errors", status.detail)
+
+        # Everything imported
+        self.client.post(url, {"csv_data": "name;capacity\nKorrigiert;100\n"})
+        self.assertEqual(self._status("scheduling", "rooms").progress, Progress.DONE)
+
+        # Nothing imported: nothing to record
+        self.client.post(url, {"csv_data": "name\nKorrigiert\n"})
+        self.assertEqual(self._status("scheduling", "rooms").progress, Progress.DONE)
+
+    def test_record_if_registered(self):
+        """
+        Test that steps of apps that are not installed (not registered) are silently ignored
+        """
+        self.assertIsNone(status_tracker.record_if_registered(self.event, "scheduling", "unknown", Progress.DONE))
+        self.assertIsNotNone(status_tracker.record_if_registered(self.event, "scheduling", "rooms", Progress.DONE))
+
+    def test_protocol_migration(self):
+        """
+        Test that starting and finishing a protocol migration tracks the progress per event
+        """
+        with patch("AKModel.views.ak.migrate_protocols"):
+            self.client.post(f"{reverse('admin:ak-migrate-protocols')}?pks=1,2", {"pks": "1,2"})
+        self.assertEqual(self._status("aftermath", "protocols").progress, Progress.IN_PROGRESS)
+
+        finished_url = reverse("admin:ak-migrate-protocols-finished")
+
+        def finish(results):
+            return self.client.post(finished_url, json.dumps({"results": results}), content_type="application/json")
+
+        # Successes and AKs without anything to migrate: done
+        response = finish([{"pk": 1, "status": "success"}, {"pk": 2, "status": "no_protocol_link"}])
+        self.assertEqual(response.status_code, 200)
+        status = self._status("aftermath", "protocols")
+        self.assertEqual(status.progress, Progress.DONE)
+        self.assertIn("Migrated: 1", status.detail)
+        self.assertIn("Skipped (nothing to migrate): 1", status.detail)
+
+        # Any failure (including failed requests): failed, naming the AKs
+        finish([{"pk": 1, "status": "success"}, {"pk": 2, "status": "request_failed"}])
+        status = self._status("aftermath", "protocols")
+        self.assertEqual(status.progress, Progress.FAILED)
+        self.assertIn(f"Failed: {AK.objects.get(pk=2)}", status.detail)
+
+        # Invalid data
+        self.assertEqual(self.client.post(finished_url, "nonsense", content_type="application/json").status_code,
+                         400)
+        self.assertEqual(self.client.get(finished_url).status_code, 405)
+
+
+class StatusTrackingEventActivationTests(TestCase):
+    """
+    Tests for tracking the activation and deactivation of events via signals
+    """
+    fixtures = ['model.json']
+
+    def setUp(self):
+        self.event = Event.get_by_slug('kif42')
+
+    @staticmethod
+    def _status(event, phase, step):
+        return next(s for s in status_tracker.get_phase_progress(event, phase) if s.step.key == step)
+
+    def test_fixtures_not_tracked(self):
+        """
+        Test that loading fixtures (raw saves) does not record anything although kif42 is active
+        """
+        self.assertTrue(self.event.active)
+        self.assertFalse(StatusTrackingEntry.objects.exists())
+
+    def test_create_active_event(self):
+        """
+        Test that creating an active event marks the activation as done, creating an inactive one records nothing
+        """
+        now = timezone.now()
+        inactive = Event.objects.create(name="Inactive", slug="inactive", start=now, end=now + timedelta(days=1),
+                                        active=False)
+        self.assertFalse(StatusTrackingEntry.objects.filter(event=inactive).exists())
+
+        active = Event.objects.create(name="Active", slug="active", start=now, end=now + timedelta(days=1),
+                                      active=True)
+        self.assertEqual(self._status(active, "configuration", "activate").progress, Progress.DONE)
+
+    def test_activate_and_deactivate(self):
+        """
+        Test that (de)activating an existing event fills the corresponding steps, other saves record nothing
+        """
+        # Saving without changing the activation state
+        self.event.name = "KIF 42 (renamed)"
+        self.event.save()
+        self.assertFalse(StatusTrackingEntry.objects.exists())
+
+        # Deactivation fills the aftermath step and does not touch the activation step
+        self.event.active = False
+        self.event.save()
+        self.assertEqual(self._status(self.event, "aftermath", "deactivate").progress, Progress.DONE)
+        self.assertIsNone(self._status(self.event, "configuration", "activate").entry)
+
+        # Saving an inactive event again does not record another deactivation
+        self.event.save()
+        self.assertEqual(status_tracker.get_history(self.event, "aftermath", "deactivate").count(), 1)
+
+        # Reactivation
+        self.event.active = True
+        self.event.save()
+        self.assertEqual(self._status(self.event, "configuration", "activate").progress, Progress.DONE)
+        self.assertEqual(StatusTrackingEntry.objects.count(), 2)
+
+    def test_admin_list_editable(self):
+        """
+        Test that toggling the active flag in the event list of the admin (outside the wizard) is tracked
+        """
+        admin_user = get_user_model().objects.create(username="activationadmin", is_staff=True,
+                                                     is_superuser=True, is_active=True)
+        self.client.force_login(admin_user)
+        events = list(Event.objects.order_by("-start"))
+        data = {"form-TOTAL_FORMS": len(events), "form-INITIAL_FORMS": len(events), "_save": "Save"}
+        for i, event in enumerate(events):
+            data[f"form-{i}-id"] = event.pk
+            if event.pk != self.event.pk:
+                data[f"form-{i}-active"] = "on"
+        response = self.client.post(reverse("admin:AKModel_event_changelist"), data)
+        self.assertEqual(response.status_code, 302)
+
+        other = Event.objects.exclude(pk=self.event.pk).get()
+        self.assertEqual(self._status(other, "configuration", "activate").progress, Progress.DONE)
+        self.assertEqual(self._status(self.event, "aftermath", "deactivate").progress, Progress.DONE)

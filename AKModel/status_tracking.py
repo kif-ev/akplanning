@@ -251,6 +251,24 @@ class StatusTracker:
         return StatusTrackingEntry.objects.create(event=event, phase=phase, step=step,
                                                   progress=Progress(progress), detail=detail)
 
+    def record_if_registered(self, event: Event, phase: str, step: str, progress: str, *,
+                             detail: str = "") -> StatusTrackingEntry | None:
+        """
+        Record a new progress increment for a step if this step is registered
+
+        Use this for steps registered by other (optional) apps, e.g., when a view in one app performs
+        a step that is registered by another app which might not be installed.
+        Parameters are the same as for :meth:`record`.
+
+        :return: the created entry or None if phase or step are not registered
+        :raises ValueError: if the progress value is invalid
+        """
+        try:
+            self.get_step(phase, step)
+        except KeyError:
+            return None
+        return self.record(event, phase, step, progress, detail=detail)
+
     # Querying progress
 
     def get_history(self, event: Event, phase: str, step: str):

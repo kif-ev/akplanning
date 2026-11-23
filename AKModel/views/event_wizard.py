@@ -8,7 +8,10 @@ from django.views.generic import CreateView, DetailView, FormView, UpdateView
 from AKModel.forms import NewEventWizardActivateForm, NewEventWizardImportForm, NewEventWizardPrepareImportForm, \
     NewEventWizardSettingsForm, NewEventWizardStartForm
 from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, WizardViewMixin
-from AKModel.models import Event
+from AKModel.models import Event, StatusTrackingEntry
+from AKModel.status_tracking import status_tracker
+
+Progress = StatusTrackingEntry.Progress
 
 
 class NewEventWizardMixin(WizardViewMixin):
@@ -95,6 +98,11 @@ class NewEventWizardImportView(EventSlugMixin, NewEventWizardMixin, FormView):
     form_class = NewEventWizardImportForm
     template_name = "admin/AKModel/event_wizard/import.html"
     wizard_step = 4
+    # Configuration steps (phase, step) whose progress is tracked when copying elements of the given type
+    tracked_import_steps = {
+        "import_categories": ("configuration", "categories"),
+        "import_requirements": ("configuration", "requirements"),
+    }
 
     def get_initial(self):
         initial = super().get_initial()
@@ -112,17 +120,47 @@ class NewEventWizardImportView(EventSlugMixin, NewEventWizardMixin, FormView):
         # and try to clone them by requesting a new primary key, adapting the event and then storing the
         # object in the database
         for import_type in import_types:
+            copied, failed = [], []
             for import_obj in form.cleaned_data.get(import_type):
                 try:
                     import_obj.event = self.event
                     import_obj.pk = None
                     import_obj.save()
+                    copied.append(str(import_obj))
                     messages.add_message(self.request, messages.SUCCESS, _("Copied '%(obj)s'" % {'obj': import_obj}))
                 except BaseException as e:  # pylint: disable=broad-exception-caught
+                    failed.append(str(import_obj))
                     messages.add_message(self.request, messages.ERROR,
                                          _("Could not copy '%(obj)s' (%(error)s)" % {'obj': import_obj,
                                                                                      "error": str(e)}))
+            if import_type in self.tracked_import_steps:
+                self._record_import_progress(self.tracked_import_steps[import_type], form.initial["import_event"],
+                                             copied, failed)
         return redirect("admin:new_event_wizard_activate", slug=self.event.slug)
+
+    def _record_import_progress(self, step: tuple[str, str], import_event: Event, copied: list[str],
+                                failed: list[str]):
+        """
+        Track the progress of a configuration step after copying the corresponding elements
+
+        Nothing is recorded if no elements of this type were selected (the step can still be done manually).
+        The step is done if all selected elements were copied and failed otherwise.
+
+        :param step: phase and step key of the step to track
+        :param import_event: event the elements were copied from
+        :param copied: names of the elements copied successfully
+        :param failed: names of the elements that could not be copied
+        """
+        if not copied and not failed:
+            return
+        detail = _("Copied from %(event)s: %(copied)s") % {"event": import_event, "copied": ", ".join(copied)} \
+            if copied else ""
+        if failed:
+            detail += ("\n" if detail else "") \
+                      + _("Could not copy: %(failed)s") % {"failed": ", ".join(failed)}
+        status_tracker.record(self.event, *step,
+                              Progress.FAILED if failed else Progress.DONE,
+                              detail=detail)
 
 
 class NewEventWizardActivateView(NewEventWizardMixin, UpdateView):
@@ -136,6 +174,8 @@ class NewEventWizardActivateView(NewEventWizardMixin, UpdateView):
 
     In the following last step (:class:`NewEventWizardFinishView`), a confirmation of the full process and some
     details of the created event are shown
+
+    The activation is tracked automatically (see :func:`AKModel.signals.track_event_activation`)
     """
     model = Event
     template_name = "admin/AKModel/event_wizard/activate.html"

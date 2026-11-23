@@ -28,7 +28,7 @@
         </thead>
         <tbody>
         {% for ak in aks %}
-            <tr data-url="{% url 'admin:ak-migrate-protocol' ak.pk %}">
+            <tr data-url="{% url 'admin:ak-migrate-protocol' ak.pk %}" data-pk="{{ ak.pk }}">
                 <td><a href="{% url 'admin:AKModel_ak_change' ak.pk %}">{{ ak }}</a></td>
                 <td>{% if ak.protocol_link %}
                     <a href="{{ ak.protocol_link }}" target="_blank" rel="noopener">{{ ak.protocol_link }}</a>{% else %}
@@ -55,6 +55,8 @@
             const successCount = document.getElementById("migration-success-count");
             const warnBeforeLeaving = (e) => e.preventDefault();
             window.addEventListener("beforeunload", warnBeforeLeaving);
+            // Outcome per AK, reported to the server at the end to track the progress of the migration step
+            const results = [];
 
             for (const row of document.querySelectorAll("#migration-results tr[data-url]")) {
                 const statusCell = row.querySelector(".migration-status");
@@ -75,12 +77,25 @@
                     if (result.success) {
                         successCount.textContent = Number(successCount.textContent) + 1;
                     }
+                    results.push({pk: row.dataset.pk, status: result.status});
                 } catch (e) {
                     // Keep going, a failure for one AK should not stop the migration of the others
                     statusCell.textContent = "{{ request_failed_text|escapejs }}";
                     detailCell.textContent = e.message;
                     row.classList.add("table-danger");
+                    results.push({pk: row.dataset.pk, status: "request_failed"});
                 }
+            }
+
+            try {
+                await fetch("{% url 'admin:ak-migrate-protocols-finished' %}", {
+                    method: "POST",
+                    headers: {"X-CSRFToken": csrftoken, "Content-Type": "application/json"},
+                    body: JSON.stringify({results: results}),
+                });
+            } catch (e) {
+                // Tracking the progress is optional, the migration itself is already done
+                console.error(e);
             }
 
             window.removeEventListener("beforeunload", warnBeforeLeaving);

@@ -1,3 +1,6 @@
+import json
+from collections import defaultdict
+
 from django.contrib import messages
 from django.contrib.admin.models import CHANGE, LogEntry
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -11,8 +14,11 @@ from django.views.generic import DetailView, ListView
 from AKModel.forms import TrackAssignmentForm
 from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, FilterByEventSlugMixin, \
     IntermediateAdminActionView, IntermediateAdminView
-from AKModel.models import AK, AKOrgaMessage, AKRequirement, AKSlot, AKTrack, Event
-from AKModel.protocol_migration import migrate_protocols
+from AKModel.models import AK, AKOrgaMessage, AKRequirement, AKSlot, AKTrack, Event, StatusTrackingEntry
+from AKModel.protocol_migration import MigrationStatus, migrate_protocols, NOTHING_TO_MIGRATE_STATUSES
+from AKModel.status_tracking import status_tracker
+
+Progress = StatusTrackingEntry.Progress
 
 
 class AKRequirementOverview(AdminViewMixin, FilterByEventSlugMixin, ListView):
@@ -262,9 +268,56 @@ class AKMigrateProtocolsView(PermissionRequiredMixin, IntermediateAdminActionVie
 
     def form_valid(self, form):
         self.entities = self.get_queryset(pks=form.cleaned_data['pks'])
+        for event, aks in _group_by_event(self.entities).items():
+            status_tracker.record(event, "aftermath", "protocols", Progress.IN_PROGRESS,
+                                  detail=_("Migration of {count} protocol(s) started").format(count=len(aks)))
         context = self.get_context_data(form=form)
         context["aks"] = self.entities.order_by("pk")
         return render(self.request, self.result_template_name, context)
+
+
+def _group_by_event(aks) -> dict[Event, list[AK]]:
+    """
+    Group the given AKs by their event
+    """
+    aks_by_event = defaultdict(list)
+    for ak in aks.select_related("event"):
+        aks_by_event[ak.event].append(ak)
+    return aks_by_event
+
+
+class AKMigrateProtocolsFinishedView(PermissionRequiredMixin, View):
+    """
+    View: Track the outcome of a protocol migration (see :class:`AKMigrateProtocolsView`) after all AKs are processed
+
+    Called by the result page with the outcome for each AK as JSON (``{"results": [{"pk": 1, "status": "success"}]}``,
+    status values see :class:`AKModel.protocol_migration.MigrationStatus`, other values are considered failures).
+    The protocol step of each affected event is marked as done if no migration failed and as failed otherwise.
+    """
+    http_method_names = ["post"]
+    permission_required = "AKModel.change_ak"
+
+    def post(self, request):
+        """
+        Record the outcome
+        """
+        try:
+            results = {int(r["pk"]): str(r["status"]) for r in json.loads(request.body)["results"]}
+        except (ValueError, KeyError, TypeError):
+            return JsonResponse({"error": "Invalid data"}, status=400)
+
+        events = _group_by_event(AK.objects.filter(pk__in=results.keys()))
+        for event, aks in events.items():
+            migrated = [ak for ak in aks if results[ak.pk] == MigrationStatus.SUCCESS]
+            skipped = [ak for ak in aks if results[ak.pk] in NOTHING_TO_MIGRATE_STATUSES]
+            failed = [ak for ak in aks if ak not in migrated and ak not in skipped]
+            detail = [_("Migrated: {count}").format(count=len(migrated)),
+                      _("Skipped (nothing to migrate): {count}").format(count=len(skipped))]
+            if failed:
+                detail.append(_("Failed: {aks}").format(aks=", ".join(str(ak) for ak in failed)))
+            status_tracker.record(event, "aftermath", "protocols", Progress.FAILED if failed else Progress.DONE,
+                                  detail="\n".join(detail))
+        return JsonResponse({"events": len(events)})
 
 
 class AKMigrateProtocolView(PermissionRequiredMixin, View):

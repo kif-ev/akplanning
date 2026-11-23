@@ -20,7 +20,13 @@ class AkmodelConfig(AppConfig):
         status_tracker.register_step("configuration", "categories", _("Create AK categories"), order=10,
                                      mandatory=True)
         status_tracker.register_step("configuration", "requirements", _("Create requirements"), order=11)
+        status_tracker.register_step("configuration", "activate", _("Activate event"), order=90, mandatory=True)
         status_tracker.register_step("aftermath", "wiki_export", _("Transfer AK list to wiki"), order=20)
+        status_tracker.register_step("aftermath", "protocols", _("Migrate protocols to wiki"), order=80)
+        status_tracker.register_step("aftermath", "deactivate", _("Deactivate event"), order=90, mandatory=True)
+
+        # Connect signal receivers (e.g., for automated status tracking)
+        import AKModel.signals  # noqa: F401  # pylint: disable=unused-import
 
 
 class AKAdminConfig(AdminConfig):
