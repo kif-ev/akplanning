@@ -144,6 +144,7 @@ class PreferencePollOverview(EventSlugRedirectWhenInactiveMixin, CheckSessionFor
                 has_saved_preferences=Exists(
                         AKPreference.objects.filter(
                                 ak__category=OuterRef('pk'),
+                                ak__trashed_at__isnull=True,
                                 participant=context['participant']
                         )
                 )
@@ -240,8 +241,12 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
         context['category'] = self.ak_category
         ak_details = {ak.pk: ak for ak in self.ak_category.ak_set.prefetch_related('owners').all()}
         for f in context['form']:
-            # If type of initial['ak'] is not string
-            ak = ak_details[f.initial['ak']] if isinstance(f.initial['ak'], int) else f.initial['ak']
+            # Rows for AKs that are no longer available are not displayed
+            if f.stale:
+                continue
+            # Use the (submitted or initial) value of the form instead of the initial data
+            # since the latter may not match the submitted rows anymore if AKs were trashed in the meantime
+            ak = ak_details[int(f["ak"].value())]
             f.fields["preference"].label = ak.name
             f.fields["preference"].help_text = (
                     _("Description: ") + ak.description
@@ -254,7 +259,17 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
             f.ak_obj = ak
         return context
 
+    def _warn_about_stale_forms(self, form):
+        if form.has_stale_forms:
+            messages.warning(self.request, _("Some AKs were removed in the meantime. "
+                                             "Your preferences for them were not saved."))
+
+    def form_invalid(self, form):
+        self._warn_about_stale_forms(form)
+        return super().form_invalid(form)
+
     def form_valid(self, form):
+        self._warn_about_stale_forms(form)
         count_saved = 0
         count_deleted = 0
 
@@ -266,7 +281,8 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
                 if f.cleaned_data['preference'] > 0:
                     o.save()
                     count_saved += 1
-                else:
+                # Rows may also be validated if they were not saved before (e.g., if AKs were trashed in the meantime)
+                elif o.pk is not None:
                     o.delete()
                     count_deleted += 1
 
