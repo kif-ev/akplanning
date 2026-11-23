@@ -1,0 +1,25 @@
+{% comment %}
+    Visual markers in timeline views. Expects earliest_start_hour in the context.
+
+    Day separator: Thicker line before the first visible hour of each day.
+    Since the hours outside of slotMinTime/slotMaxTime are hidden, each day starts at earliest_start_hour.
+    FullCalendar marks the slots with their (local) date and time in the data-date attribute.
+
+    Resolution deadline: Thinner blue line at the deadline.
+    The deadline is added as background event without resource (shown for all resources), see PlanIndexView.
+{% endcomment %}
+<style>
+    .fc-timeline-slot[data-date$="T{{ earliest_start_hour|stringformat:'02d' }}:00:00"] {
+        border-left: 3px solid #555;
+    }
+
+    .fc .fc-bg-event.reso-deadline-marker {
+        background: none;
+        opacity: 1;
+        border-left: 2px solid #0d6efd;
+    }
+
+    .fc .fc-bg-event.reso-deadline-marker .fc-event-title {
+        display: none;
+    }
+</style>

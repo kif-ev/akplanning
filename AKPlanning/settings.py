@@ -204,6 +204,8 @@ FOOTER_INFO = {
 PLAN_MAX_NEXT_AKS = 10
 # Specify range of plan for screen/projector view
 PLAN_WALL_HOURS_RETROSPECT = 3
+# How many visible hours (i.e., hours within the daily range shown in the plan) should the wall show into the future?
+PLAN_WALL_VISIBLE_HOURS_AHEAD = 14
 # Should the plan use a hierarchy of buildings and rooms?
 PLAN_SHOW_HIERARCHY = True
 # For which time (in seconds) should changes of akslots be highlighted in plan?

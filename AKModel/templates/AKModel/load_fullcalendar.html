@@ -6,6 +6,8 @@
 {% compress js %}
     <script src='{% static 'common/vendor/fullcalendar-scheduler/fullcalendar-6.0.2.js' %}'></script>
     <script src='{% static 'common/vendor/fullcalendar-scheduler/fullcalendar.bootstrap5-5.0.2.min.js' %}'></script>
+    {# Custom timeline view showing exactly the given visible range (resourceTimelineRangeAdjusted) #}
+    <script src='{% static 'common/js/fullcalendar-range-adjusted.js' %}'></script>
 
     {% with 'common/vendor/fullcalendar-scheduler/locales/'|add:LANGUAGE_CODE|add:'.js' as locale_file %}
         {% if LANGUAGE_CODE != "en" %}
