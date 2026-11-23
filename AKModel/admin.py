@@ -937,3 +937,7 @@ class UserAdmin(BaseUserAdmin):
 # Re-register UserAdmin
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
+
+# Register the admin for status tracking (in a separate module to keep this one manageable)
+# pylint: disable=wrong-import-position,unused-import,cyclic-import
+import AKModel.admin_status_tracking  # noqa: E402,F401

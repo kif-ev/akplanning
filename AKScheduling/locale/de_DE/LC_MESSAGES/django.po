@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-18 19:26+0100\n"
+"POT-Creation-Date: 2026-11-23 13:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,6 +25,10 @@ msgstr "Behoben durch %(user)s"
 #: AKScheduling/api.py:272
 msgid "Manually Resolved"
 msgstr "Manuell behoben"
+
+#: AKScheduling/apps.py:15
+msgid "Create rooms"
+msgstr "Räume anlegen"
 
 #: AKScheduling/forms.py:24
 msgid "Start"
@@ -412,16 +416,16 @@ msgstr ""
 "\n"
 " {aks}"
 
-#: AKScheduling/views.py:315
+#: AKScheduling/views.py:311
 #, python-brace-format
 msgid "Could not create default availabilities for AK: {ak}"
 msgstr "Konnte keine Verfügbarkeit anlegen für AK: {ak}"
 
-#: AKScheduling/views.py:320
+#: AKScheduling/views.py:316
 #, python-brace-format
 msgid "Created default availabilities for {count} AKs"
 msgstr "Standardverfügbarkeiten für {count} AKs angelegt"
 
-#: AKScheduling/views.py:331
+#: AKScheduling/views.py:327
 msgid "Constraint Violations"
 msgstr "Constraintverletzungen"

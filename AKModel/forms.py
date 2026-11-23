@@ -8,8 +8,10 @@ from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
-from AKModel.models import AK, AKCategory, AKRequirement, AKTrack, AKType, DefaultSlot, Event, Room
+from AKModel.models import AK, AKCategory, AKRequirement, AKTrack, AKType, DefaultSlot, Event, Room, \
+    StatusTrackingEntry
 from AKModel.room_import import decode_csv_bytes
+from AKModel.status_tracking import status_tracker
 
 
 class DateTimeInput(forms.DateTimeInput):
@@ -523,3 +525,35 @@ class DefaultSlotCategoriesForm(AdminIntermediateActionForm):
         event = slots[0].event
 
         return cleaned_data
+
+
+class StatusTrackingEntryAdminForm(forms.ModelForm):
+    """
+    Adapted admin form for status tracking entries for usage in :class:`StatusTrackingEntryAdmin`
+
+    Replaces the free-text phase and step fields by a single selection of the registered steps (grouped by phase)
+    """
+    phase_step = forms.ChoiceField(label=_("Step"),
+                                   help_text=_("Step (and phase) this entry belongs to. "
+                                               "Mandatory steps are marked with an asterisk (*)."))
+
+    class Meta:
+        model = StatusTrackingEntry
+        fields = ['event', 'phase_step', 'progress', 'detail', 'timestamp']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        choices = [(str(phase.name), [(f"{phase.key}/{step.key}", f"{step.name} *" if step.mandatory else step.name)
+                                      for step in status_tracker.get_steps(phase.key)])
+                   for phase in status_tracker.get_phases()]
+        if self.instance.pk:
+            current = f"{self.instance.phase}/{self.instance.step}"
+            self.initial["phase_step"] = current
+            # Keep entries of steps that are no longer registered editable
+            if all(current != value for _group_name, group in choices for value, _label in group):
+                choices.append((_("Unregistered"), [(current, current)]))
+        self.fields["phase_step"].choices = [(name, group) for name, group in choices if group]
+
+    def save(self, commit=True):
+        self.instance.phase, self.instance.step = self.cleaned_data["phase_step"].split("/", 1)
+        return super().save(commit)
