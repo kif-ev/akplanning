@@ -42,37 +42,40 @@
         {% endif %}
 
         {% for f in form %}
-            {# Field errors (e.g., insufficient availability for required AKs) are shown directly at the preference #}
-            {% bootstrap_form_errors f type='non_fields' %}
-            {% bootstrap_form f exclude='preference' %}
-            <div class="container radio-group col mb-0">
-                <div class="container radio-info">
-                    <details>
-                        <summary class="ak-header">{{ f.preference.label }}
-                            {% if f.ak_obj.reso %}
-                                <span class="badge bg-dark rounded-pill"
-                                      title="{% trans 'Intends to submit a resolution' %}">{% fa6_icon "scroll" 'fas' %}</span>
+            {# Skip rows for AKs that were removed in the meantime #}
+            {% if not f.stale %}
+                {# Field errors (e.g., insufficient availability for required AKs) are shown directly at the preference #}
+                {% bootstrap_form_errors f type='non_fields' %}
+                {% bootstrap_form f exclude='preference' %}
+                <div class="container radio-group col mb-0">
+                    <div class="container radio-info">
+                        <details>
+                            <summary class="ak-header">{{ f.preference.label }}
+                                {% if f.ak_obj.reso %}
+                                    <span class="badge bg-dark rounded-pill"
+                                          title="{% trans 'Intends to submit a resolution' %}">{% fa6_icon "scroll" 'fas' %}</span>
+                                {% endif %}
+                            </summary>
+                            <p>{{ f.ak_obj.description }}</p>
+                            {% if f.ak_obj.owners_list %}
+                                <p>{% trans "Responsible" %}: {{ f.ak_obj.owners_list }}</p>
                             {% endif %}
-                        </summary>
-                        <p>{{ f.ak_obj.description }}</p>
-                        {% if f.ak_obj.owners_list %}
-                            <p>{% trans "Responsible" %}: {{ f.ak_obj.owners_list }}</p>
-                        {% endif %}
-                        {% if show_types %}
-                            <p>
-                                {% for aktype in f.ak_obj.types.all %}
-                                    <span class="badge bg-light">{{ aktype.name }}</span>&nbsp;
-                                {% endfor %}
-                            </p>
-                        {% endif %}
-                        {% if f.ak_obj.reso %}
-                            <!-- TODO: reso as an icon -->
-                            <p><i>{% trans "Intends to submit a resolution" %}.</i></p>
-                        {% endif %}
-                    </details>
+                            {% if show_types %}
+                                <p>
+                                    {% for aktype in f.ak_obj.types.all %}
+                                        <span class="badge bg-light">{{ aktype.name }}</span>&nbsp;
+                                    {% endfor %}
+                                </p>
+                            {% endif %}
+                            {% if f.ak_obj.reso %}
+                                <!-- TODO: reso as an icon -->
+                                <p><i>{% trans "Intends to submit a resolution" %}.</i></p>
+                            {% endif %}
+                        </details>
+                    </div>
+                    {% bootstrap_field f.preference show_label=False show_help=False field_class="pref-cls" %}
                 </div>
-                {% bootstrap_field f.preference show_label=False show_help=False field_class="pref-cls" %}
-            </div>
+            {% endif %}
         {% endfor %}
 
         <button type="submit" class="save btn btn-primary float-end">

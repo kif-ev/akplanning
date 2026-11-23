@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.forms.utils import ErrorDict
 from django.utils.translation import gettext_lazy as _, ngettext
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
@@ -78,6 +79,18 @@ class PreferenceForm(forms.ModelForm):
             "preference": forms.RadioSelect,
         }
 
+    # Set by the formset for rows whose AK is no longer available (e.g., because it was moved to the trash
+    # after the form was displayed). Such rows are neither validated nor saved
+    stale = False
+
+    def full_clean(self):
+        if self.stale:
+            self._errors = ErrorDict()
+            # pylint: disable-next=attribute-defined-outside-init
+            self.cleaned_data = {}
+            return
+        super().full_clean()
+
 
 class PreferenceFormSet(forms.BaseModelFormSet):
     """
@@ -92,13 +105,32 @@ class PreferenceFormSet(forms.BaseModelFormSet):
         self.participant = kwargs.pop("participant")
         self.category = kwargs.pop("category")
         super().__init__(*args, **kwargs)
+        self._available_ak_pks = {str(pk) for pk in self.category.ak_set.values_list("pk", flat=True)}
+
+    def _construct_form(self, i, **kwargs):
+        form = super()._construct_form(i, **kwargs)
+        # Submitted rows may refer to AKs that were trashed in the meantime
+        if self.is_bound:
+            form.stale = str(form["ak"].value()) not in self._available_ak_pks
+        return form
+
+    @property
+    def has_stale_forms(self):
+        """
+        Did the submitted data contain rows for AKs that are no longer available?
+
+        Rows without any submitted AK are ignored: They belong to stale rows of an earlier submission
+        that were not rendered again and thus were already reported back then
+        """
+        return any(f.stale and f["ak"].value() not in f.fields["ak"].empty_values for f in self.forms)
 
     def get_queryset(self):
         # Override queryset to only show existing preferences of the given participant and category
         # Other options will be added as "extras" in the view
         if not hasattr(self, "_queryset"):
             # pylint: disable-next=attribute-defined-outside-init
-            self._queryset = (super().get_queryset().filter(participant=self.participant, ak__category=self.category)
+            self._queryset = (super().get_queryset().filter(participant=self.participant, ak__category=self.category,
+                                                            ak__trashed_at__isnull=True)
                               .select_related('ak')
                               .order_by('ak'))
         return self._queryset
