@@ -1686,11 +1686,22 @@ class StatusTrackingEntry(models.Model):
     class Progress(models.TextChoices):
         """
         Possible progress states of a step
+
+        Steps that can be skipped for a specific event can be marked as not needed,
+        they then count as completed just like steps that are done.
         """
         NOT_STARTED = 'not_started', _('Not started')
         IN_PROGRESS = 'in_progress', _('In progress')
         FAILED = 'failed', _('Failed')
         DONE = 'done', _('Done')
+        NOT_NEEDED = 'not_needed', _('Not needed')
+
+        @classmethod
+        def completed_states(cls) -> set:
+            """
+            :return: progress states in which a step counts as completed (done or not needed)
+            """
+            return {cls.DONE, cls.NOT_NEEDED}
 
     event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
                               help_text=_('Associated event'))

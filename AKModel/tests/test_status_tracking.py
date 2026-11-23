@@ -168,8 +168,46 @@ class StatusTrackerProgressTests(TestCase):
             Progress.IN_PROGRESS: 0.0,
             Progress.FAILED: 0.25,
             Progress.DONE: 0.5,
+            Progress.NOT_NEEDED: 0.0,
         })
+        self.assertEqual(fractions.completed, 0.5)
+        self.assertFalse(fractions.complete)
         self.assertEqual(self.tracker.get_phase_fractions(self.event, "empty"), {p: 0.0 for p in Progress})
+
+    def test_phase_completion(self):
+        """
+        Test that a phase is complete once all of its steps (mandatory or not) are either done or not needed
+        """
+        self.tracker.register_step("p2", "m", "Mandatory", mandatory=True)
+        self.assertEqual(self.tracker.get_phase_completion(self.event), {"p1": False, "p2": False, "empty": True})
+        self.assertTrue(self.tracker.is_phase_complete(self.event, "empty"))
+
+        self.tracker.record(self.event, "p1", "s1", Progress.DONE)
+        self.tracker.record(self.event, "p1", "s2", Progress.NOT_NEEDED, detail="No such thing at this event")
+        self.tracker.record(self.event, "p1", "s3", Progress.DONE)
+        self.tracker.record(self.event, "p1", "s4", Progress.FAILED)
+        report = self.tracker.get_phase_progress(self.event, "p1")
+        self.assertFalse(report.complete)
+        self.assertEqual([s.step.key for s in report.open_steps], ["s4"])
+        self.assertEqual([s.completed for s in report], [True, True, True, False])
+
+        self.tracker.record(self.event, "p1", "s4", Progress.NOT_NEEDED)
+        self.assertTrue(self.tracker.is_phase_complete(self.event, "p1"))
+        fractions = self.tracker.get_phase_fractions(self.event, "p1")
+        self.assertTrue(fractions.complete)
+        self.assertEqual(fractions[Progress.NOT_NEEDED], 0.5)
+        self.assertEqual(fractions.completed, 1.0)
+
+        # Optional steps that are not completed prevent completion as well, not only mandatory ones
+        self.tracker.record(self.event, "p2", "m", Progress.DONE)
+        self.assertFalse(self.tracker.is_phase_complete(self.event, "p2"))
+        self.tracker.record(self.event, "p2", "s1", Progress.NOT_NEEDED)
+        with self.assertNumQueries(1):
+            self.assertEqual(self.tracker.get_phase_completion(self.event), {"p1": True, "p2": True, "empty": True})
+
+        # Steps that turn out to be needed again reopen the phase
+        self.tracker.record(self.event, "p1", "s2", Progress.IN_PROGRESS)
+        self.assertFalse(self.tracker.is_phase_complete(self.event, "p1"))
 
     def test_missing_mandatory(self):
         """
@@ -186,7 +224,7 @@ class StatusTrackerProgressTests(TestCase):
         self.assertEqual(self.tracker.get_phase_fractions(self.event, "p2").missing_mandatory, 3)
         self.assertEqual(self.tracker.get_phase_fractions(self.event, "empty").missing_mandatory, 0)
 
-        # Only done steps count as no longer missing (in progress and failed ones are still missing)
+        # Only completed steps count as no longer missing (in progress and failed ones are still missing)
         self.tracker.record(self.event, "p2", "m1", Progress.DONE)
         self.tracker.record(self.event, "p2", "m2", Progress.IN_PROGRESS)
         self.tracker.record(self.event, "p2", "m3", Progress.FAILED)
@@ -200,6 +238,10 @@ class StatusTrackerProgressTests(TestCase):
         # Done steps that are reopened are missing again
         self.tracker.record(self.event, "p2", "m1", Progress.IN_PROGRESS)
         self.assertEqual(self.tracker.get_phase_fractions(self.event, "p2").missing_mandatory, 3)
+
+        # Mandatory steps explicitly marked as not needed for this event are no longer missing
+        self.tracker.record(self.event, "p2", "m1", Progress.NOT_NEEDED)
+        self.assertEqual(self.tracker.get_phase_fractions(self.event, "p2").missing_mandatory, 2)
 
 
 class StatusTrackingAdminTests(TestCase):

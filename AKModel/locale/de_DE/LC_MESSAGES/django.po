@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-23 14:45+0100\n"
+"POT-Creation-Date: 2026-11-23 15:55+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -160,15 +160,15 @@ msgstr "Constraintverletzungen auf Level \"Warning\" setzen"
 msgid "Set primary categories"
 msgstr "Primäre Kategorien zuweisen"
 
-#: admin.py:774 admin.py:818 models.py:1697
+#: admin.py:774 admin.py:818 models.py:1708
 msgid "Phase"
 msgstr "Phase"
 
-#: admin.py:800 models.py:1459 models.py:1705
+#: admin.py:800 models.py:1459 models.py:1716
 msgid "Timestamp"
 msgstr "Timestamp"
 
-#: admin.py:825 forms.py:614 models.py:1699
+#: admin.py:825 forms.py:614 models.py:1710
 #: templates/admin/AKModel/event_wizard/wizard_steps.html:26
 msgid "Step"
 msgstr "Schritt"
@@ -252,13 +252,13 @@ msgstr "Bitte Verfügbarkeiten eintragen!"
 
 #: availability/models.py:46 models.py:185 models.py:622 models.py:699
 #: models.py:732 models.py:761 models.py:780 models.py:876 models.py:1086
-#: models.py:1174 models.py:1380 models.py:1438 models.py:1635 models.py:1695
+#: models.py:1174 models.py:1380 models.py:1438 models.py:1635 models.py:1706
 msgid "Event"
 msgstr "Event"
 
 #: availability/models.py:47 models.py:623 models.py:700 models.py:733
 #: models.py:762 models.py:781 models.py:877 models.py:1087 models.py:1175
-#: models.py:1381 models.py:1439 models.py:1636 models.py:1696
+#: models.py:1381 models.py:1439 models.py:1636 models.py:1707
 msgid "Associated event"
 msgstr "Zugehöriges Event"
 
@@ -1376,56 +1376,60 @@ msgstr "Zeit und Datum zu der der Slot endet"
 msgid "Categories that should be assigned to this slot primarily"
 msgstr "Kategorieren, die diesem Slot primär zugewiesen werden sollen"
 
-#: models.py:1690
+#: models.py:1693
 msgid "Not started"
 msgstr "Nicht begonnen"
 
-#: models.py:1691 templates/admin/AKModel/protocol_migration_result.html:49
+#: models.py:1694 templates/admin/AKModel/protocol_migration_result.html:49
 msgid "In progress"
 msgstr "In Bearbeitung"
 
-#: models.py:1692
+#: models.py:1695
 msgid "Failed"
 msgstr "Fehlgeschlagen"
 
-#: models.py:1693
+#: models.py:1696
 msgid "Done"
 msgstr "Erledigt"
 
-#: models.py:1698
+#: models.py:1697
+msgid "Not needed"
+msgstr "Nicht benötigt"
+
+#: models.py:1709
 msgid "Key of the phase this entry belongs to"
 msgstr "Schlüssel der Phase, zu der dieser Eintrag gehört"
 
-#: models.py:1700
+#: models.py:1711
 msgid "Key of the step (within the phase) this entry belongs to"
 msgstr ""
 "Schlüssel des Schritts (innerhalb der Phase), zu dem dieser Eintrag gehört"
 
-#: models.py:1702
+#: models.py:1713
 msgid "Progress"
 msgstr "Fortschritt"
 
-#: models.py:1702
+#: models.py:1713
 msgid "Progress of this step"
 msgstr "Fortschritt dieses Schritts"
 
-#: models.py:1703
+#: models.py:1714
 msgid "Detail"
 msgstr "Detail"
 
-#: models.py:1704
+#: models.py:1715
 msgid "Further information about the progress of this step"
 msgstr "Weitere Informationen zum Fortschritt dieses Schritts"
 
-#: models.py:1706
+#: models.py:1717
 msgid "Time this progress was recorded"
 msgstr "Zeitpunkt, zu dem dieser Fortschritt erfasst wurde"
 
-#: models.py:1709
+#: models.py:1720
 msgid "Status Tracking Entry"
 msgstr "Fortschrittseintrag"
 
-#: models.py:1710
+#: models.py:1721
 msgid "Status Tracking Entries"
 msgstr "Fortschrittseinträge"
 

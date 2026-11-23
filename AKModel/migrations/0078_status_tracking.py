@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('phase', models.CharField(help_text='Key of the phase this entry belongs to', max_length=64, verbose_name='Phase')),
                 ('step', models.CharField(help_text='Key of the step (within the phase) this entry belongs to', max_length=64, verbose_name='Step')),
-                ('progress', models.CharField(choices=[('not_started', 'Not started'), ('in_progress', 'In progress'), ('failed', 'Failed'), ('done', 'Done')], default='not_started', help_text='Progress of this step', max_length=16, verbose_name='Progress')),
+                ('progress', models.CharField(choices=[('not_started', 'Not started'), ('in_progress', 'In progress'), ('failed', 'Failed'), ('done', 'Done'), ('not_needed', 'Not needed')], default='not_started', help_text='Progress of this step', max_length=16, verbose_name='Progress')),
                 ('detail', models.TextField(blank=True, help_text='Further information about the progress of this step', verbose_name='Detail')),
                 ('timestamp', models.DateTimeField(default=django.utils.timezone.now, help_text='Time this progress was recorded', verbose_name='Timestamp')),
                 ('event', models.ForeignKey(help_text='Associated event', on_delete=django.db.models.deletion.CASCADE, to='AKModel.event', verbose_name='Event')),
