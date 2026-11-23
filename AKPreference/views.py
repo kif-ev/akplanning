@@ -4,7 +4,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Exists, OuterRef, Subquery
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, ngettext
 from django.views.generic import CreateView, DeleteView, DetailView, FormView, TemplateView, UpdateView
 
 from AKModel.availability.models import Availability
@@ -288,7 +288,12 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
 
         messages.success(
                 self.request,
-                _(f"{count_saved} Preferences saved/updated, {count_deleted} previously saved Preferences deleted.")
+                ngettext("%(count)d preference saved/updated.", "%(count)d preferences saved/updated.",
+                         count_saved) % {"count": count_saved}
+                + " "
+                + ngettext("%(count)d previously saved preference deleted.",
+                           "%(count)d previously saved preferences deleted.",
+                           count_deleted) % {"count": count_deleted}
         )
         return redirect(self.get_success_url())
 

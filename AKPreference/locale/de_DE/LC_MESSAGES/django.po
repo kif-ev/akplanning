@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-23 16:31+0000\n"
+"POT-Creation-Date: 2026-11-23 17:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,7 @@ msgstr ""
 msgid "Count of saved preferences"
 msgstr "Anzahl gespeicherter Präferenzen"
 
-#: AKPreference/admin.py:78 AKPreference/views.py:318
+#: AKPreference/admin.py:78 AKPreference/views.py:323
 msgid "Anonymize participants"
 msgstr "Teilnehmende anonymisieren"
 
@@ -352,11 +352,25 @@ msgstr ""
 "Einige AKs wurden in der Zwischenzeit entfernt. Deine Präferenzen für diese "
 "wurden nicht gespeichert."
 
-#: AKPreference/views.py:302
+#: AKPreference/views.py:291
+#, python-format
+msgid "%(count)d preference saved/updated."
+msgid_plural "%(count)d preferences saved/updated."
+msgstr[0] "%(count)d Präferenz gespeichert/aktualisiert."
+msgstr[1] "%(count)d Präferenzen gespeichert/aktualisiert."
+
+#: AKPreference/views.py:294
+#, python-format
+msgid "%(count)d previously saved preference deleted."
+msgid_plural "%(count)d previously saved preferences deleted."
+msgstr[0] "%(count)d zuvor gespeicherte Präferenz gelöscht."
+msgstr[1] "%(count)d zuvor gespeicherte Präferenzen gelöscht."
+
+#: AKPreference/views.py:307
 msgid "Preference Poll Summary"
 msgstr "Zusammenfassung AK-Präferenzen"
 
-#: AKPreference/views.py:320
+#: AKPreference/views.py:325
 msgid ""
 "The following participants will be anonymized by removing their name and "
 "institution. This cannot be undone!"
@@ -364,6 +378,6 @@ msgstr ""
 "Die folgenden Teilnehmen werden anonymisiert, indem ihr Name und ihre "
 "Institution entfernt werden. Das kann nicht rückgängig gemacht werden!"
 
-#: AKPreference/views.py:322
+#: AKPreference/views.py:327
 msgid "Participants successfully anonymized."
 msgstr "Teilnehmende erfolgreich anonymisiert"
