@@ -18,6 +18,51 @@
             font-size: 1.2em;
             font-weight: 500;
         }
+
+        /* Keep text readable on (possibly light or striped) category colors */
+        .default-slot-event:not(.deleteEvent) .fc-event-main {
+            text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Vertically center checkbox, color marker and name in the category selection
+           (bootstrap floats the checkbox with a fixed top margin, which does not match the admin label styles) */
+        .category-selector .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.4em;
+            min-height: 0;
+            margin: 0;
+            padding-left: 0;
+        }
+
+        .category-selector .form-check-input {
+            float: none;
+            flex-shrink: 0;
+            margin: 0;
+        }
+
+        .category-selector .form-check-label {
+            display: inline-flex;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Small square showing the color of a category in the category selection */
+        .category-color-marker {
+            display: inline-block;
+            flex-shrink: 0;
+            width: 0.9em;
+            height: 0.9em;
+            margin-right: 0.35em;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            border-radius: 2px;
+        }
+
+        /* Hide stripes of slots with multiple categories while marked for deletion */
+        .default-slot-event.deleteEvent {
+            background-image: none !important;
+        }
     </style>
 
     <script>
@@ -34,20 +79,26 @@
          * the categories of the next added slots. The categories of each slot are shown as event title and are
          * submitted as list of category ids in the field "categories" of each slot.
          * Existing slots cannot be changed regarding their categories, they need to be deleted and re-added instead.
+         *
+         * Slots are shown in the color of their category. Slots with multiple categories are shown with
+         * diagonal stripes in the colors of all their categories.
          */
         class DefaultSlotEditor extends AvailabilityEditor {
+            // Fallback for categories without (valid) color
             colorWithCategories = 'var(--bs-primary, #158cba)';
             colorWithoutCategories = '#8c8c8c';
+            stripeWidth = 12;
 
             constructor(dataField, timezone, language, startDate, endDate, slotResolution, categories, labels) {
                 super(dataField, timezone, language, startDate, endDate, slotResolution);
                 this.categories = categories;
                 this.categoryNames = new Map(categories.map(c => [String(c.id), c.name]));
+                this.categoryColors = new Map(categories.map(c => [String(c.id), c.color || this.colorWithCategories]));
                 this.labels = labels;
             }
 
             renderControls() {
-                const categorySelector = $("<div class='d-flex flex-wrap gap-3 py-1 mb-2'>");
+                const categorySelector = $("<div class='category-selector d-flex flex-wrap gap-3 py-1 mb-2'>");
 
                 // Toggle for all/no categories
                 this.toggleAll = $("<input type='checkbox' class='form-check-input' id='categoryToggleAll' checked>");
@@ -67,7 +118,11 @@
                     categorySelector.append(
                         $("<div class='form-check'>").append(
                             checkbox,
-                            $("<label class='form-check-label'>").attr("for", "categoryCheckbox" + c.id).text(c.name)
+                            $("<label class='form-check-label'>").attr("for", "categoryCheckbox" + c.id).append(
+                                $("<span class='category-color-marker'>")
+                                    .css("background-color", this.categoryColors.get(String(c.id))),
+                                document.createTextNode(c.name)
+                            )
                         )
                     );
                     return checkbox;
@@ -112,16 +167,40 @@
                 return names.length > 0 ? names.join(", ") : this.labels.noCategories;
             }
 
-            // Show categories as title and use a different color for slots without categories
+            // Colors of the given categories (ignoring ids of unknown categories, without duplicates)
+            categoryColorsOf(categoryIds) {
+                const colors = (categoryIds || [])
+                    .map(id => this.categoryColors.get(String(id)))
+                    .filter(color => color !== undefined);
+                return [...new Set(colors)];
+            }
+
+            // Diagonal stripes alternating between the given colors
+            stripesFor(colors) {
+                const w = this.stripeWidth;
+                const stops = colors.map((color, i) => `${color} ${i * w}px ${(i + 1) * w}px`);
+                return `repeating-linear-gradient(135deg, ${stops.join(", ")})`;
+            }
+
+            // Show categories as title and color slots by their categories (gray for slots without categories)
             eventFromData(entry) {
-                const color = this.categoryNamesOf(entry.categories).length > 0 ?
-                    this.colorWithCategories : this.colorWithoutCategories;
+                const colors = this.categoryColorsOf(entry.categories);
+                const color = colors.length > 0 ? colors[0] : this.colorWithoutCategories;
                 return Object.assign({}, entry, {
                     title: this.categoriesTitle(entry.categories),
                     backgroundColor: color,
                     borderColor: color,
                     classNames: ['default-slot-event'],
                 });
+            }
+
+            // Use striped background for slots with multiple categories
+            eventDidMount(info) {
+                const colors = this.categoryColorsOf(info.event.extendedProps.categories);
+                if (colors.length > 1) {
+                    info.el.style.backgroundImage = this.stripesFor(colors);
+                    info.el.style.borderColor = '#6a6a6a';
+                }
             }
 
             // New slots get the currently selected categories

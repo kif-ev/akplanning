@@ -561,7 +561,7 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["categories"] = [
-            {"id": c.id, "name": c.name}
+            {"id": c.id, "name": c.name, "color": c.css_color}
             for c in AKCategory.objects.filter(event=self.event).order_by("name")
         ]
         return context

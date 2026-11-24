@@ -79,6 +79,34 @@
                 background-color: rgba(18, 123, 163, 0.75);
             }
 
+            /* Legend for the category colors above the list of unscheduled slots */
+            .category-legend {
+                font-size: 0.875rem;
+            }
+
+            .category-legend-entry {
+                display: flex;
+                align-items: center;
+                gap: 0.4em;
+            }
+
+            .category-legend-marker {
+                display: inline-block;
+                flex-shrink: 0;
+                width: 0.9em;
+                height: 0.9em;
+                border: 1px solid rgba(0, 0, 0, 0.3);
+                border-radius: 2px;
+            }
+
+            .category-legend-marker.no-color {
+                border-style: dashed;
+            }
+
+            .category-legend-marker-striped {
+                background-image: repeating-linear-gradient(135deg, #6a6a6a 0 3px, #d0d0d0 3px 6px);
+            }
+
             .fc-v-event, .tooltip {
                 white-space: pre-line;
             }
@@ -278,8 +306,16 @@
                             slotDuration: '00:30',
                         }
                     },
-                    // Show full AK title as tooltip for each AK (needs to be removed and newly placed when AK is moved)
                     eventDidMount: function (info) {
+                        // Default slots with multiple primary categories: diagonal stripes in the category colors
+                        const categoryColors = info.event.extendedProps.categoryColors;
+                        if (categoryColors !== undefined && categoryColors.length > 1) {
+                            const stripeWidth = 12;
+                            const stops = categoryColors.map((color, i) =>
+                                `${color} ${i * stripeWidth}px ${(i + 1) * stripeWidth}px`);
+                            info.el.style.backgroundImage = `repeating-linear-gradient(135deg, ${stops.join(", ")})`;
+                        }
+                        // Show full AK title as tooltip for each AK (needs to be removed and newly placed when AK is moved)
                         if (info.event.extendedProps.description !== undefined) {
                             $(info.el).tooltip({title: info.event.extendedProps.description, trigger: 'hover'});
                         }
@@ -530,6 +566,27 @@
                     </div>
                     <div class="tab-pane fade show active" id="unscheduled-slots"
                          style="height: 80vh;overflow-y: scroll;">
+                        {# Legend for the category colors (used for AKs and default slots) #}
+                        <div class="category-legend mt-2 mb-2 pb-2 border-bottom">
+                            <div class="fw-bold">{% trans "Categories" %}</div>
+                            {% for category in categories %}
+                                <div class="category-legend-entry">
+                                    {% with category.css_color as color %}
+                                        <span class="category-legend-marker{% if not color %} no-color{% endif %}"
+                                              {% if color %}style="background-color: {{ color }};"{% endif %}></span>
+                                    {% endwith %}
+                                    {{ category.name }}
+                                </div>
+                            {% endfor %}
+                            <div class="category-legend-entry text-muted">
+                                <span class="category-legend-marker" style="background-color: #8c8c8c;"></span>
+                                {% trans "Default slot without categories" %}
+                            </div>
+                            <div class="category-legend-entry text-muted">
+                                <span class="category-legend-marker category-legend-marker-striped"></span>
+                                {% trans "Default slot with multiple categories" %}
+                            </div>
+                        </div>
                         {% regroup slots_unscheduled by ak.track as slots_unscheduled_by_track_list %}
                         {% for track_slots in slots_unscheduled_by_track_list %}
                             <div class="unscheduled-track" data-track="{{ track_slots.grouper.pk|unlocalize }}">

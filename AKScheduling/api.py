@@ -140,24 +140,41 @@ class DefaultSlotsView(LoginRequiredMixin, EventSlugMixin, ListView):
     model = DefaultSlot
     context_object_name = "default_slots"
 
+    # Colors for default slots, same as in the default slot editor
+    COLOR_CATEGORY_WITHOUT_COLOR = '#158cba'
+    COLOR_NO_CATEGORIES = '#8c8c8c'
+
     def get_queryset(self):
-        return super().get_queryset().filter(event=self.event)
+        return super().get_queryset().filter(event=self.event).prefetch_related('primary_categories')
+
+    @classmethod
+    def category_colors(cls, default_slot):
+        """
+        Get the colors of the primary categories of the given default slot (without duplicates)
+
+        Slots with multiple colors are displayed with diagonal stripes in these colors in the scheduler.
+
+        :return: list of CSS colors (contains a neutral color if the slot has no primary categories)
+        """
+        colors = [c.css_color or cls.COLOR_CATEGORY_WITHOUT_COLOR for c in default_slot.primary_categories.all()]
+        return list(dict.fromkeys(colors)) or [cls.COLOR_NO_CATEGORIES]
 
     def render_to_response(self, context, **response_kwargs):
         all_room_ids = [r.pk for r in self.event.room_set.all()]
-        return JsonResponse(
-                [{
-                    "title": "",
-                    "resourceIds": all_room_ids,
-                    "start": timezone.localtime(a.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
-                    "end": timezone.localtime(a.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
-                    "display": 'background',
-                    "groupId": 'defaultSlot',
-                    "backgroundColor": '#69b6d4'
-                } for a in context["default_slots"]],
-                safe=False,
-                **response_kwargs
-        )
+        events = []
+        for a in context["default_slots"]:
+            colors = self.category_colors(a)
+            events.append({
+                "title": "",
+                "resourceIds": all_room_ids,
+                "start": timezone.localtime(a.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                "end": timezone.localtime(a.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                "display": 'background',
+                "groupId": 'defaultSlot',
+                "backgroundColor": colors[0],
+                "categoryColors": colors,
+            })
+        return JsonResponse(events, safe=False, **response_kwargs)
 
 
 class EventSerializer(serializers.ModelSerializer):

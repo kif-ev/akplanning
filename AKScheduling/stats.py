@@ -3,7 +3,6 @@ Scheduling statistics: Number of scheduled AK slots per default slot (overall an
 and a simple line chart visualization of these numbers (rendered as SVG, no JavaScript library needed)
 """
 import math
-import re
 
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
@@ -17,12 +16,7 @@ _TOTAL_COLOR = "#212529"
 
 def _category_color(category, index: int) -> str:
     """Get a valid CSS color for the given category (colors may be stored with or without leading #)"""
-    color = (category.color or "").strip()
-    if color and not color.startswith("#"):
-        color = "#" + color
-    if re.fullmatch(r"#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?", color):
-        return color
-    return _FALLBACK_COLORS[index % len(_FALLBACK_COLORS)]
+    return category.css_color or _FALLBACK_COLORS[index % len(_FALLBACK_COLORS)]
 
 
 def _format_range(event: Event, start, end) -> str:

@@ -13,7 +13,7 @@
  * with a calendar view and keeps the field updated with all changes made in the calendar.
  *
  * Subclasses can adapt the behavior by overriding the hook methods
- * renderControls, eventFromData, newEvent, serializeEvent and eventTitle.
+ * renderControls, eventFromData, newEvent, serializeEvent, eventDidMount and eventTitle.
  */
 class AvailabilityEditor {
     eventColor = '#28B62C';
@@ -77,6 +77,7 @@ class AvailabilityEditor {
             selectOverlap: false,
             eventOverlap: false,
             eventChange: () => this.save(),
+            eventDidMount: info => this.eventDidMount(info),
             slotDuration: this.slotResolution,
         });
         this.plan.render();
@@ -193,6 +194,12 @@ class AvailabilityEditor {
             end: e.end.toISOString().replace("Z", ""),
             allDay: e.allDay,
         };
+    }
+
+    /**
+     * Hook: Adapt the DOM element of an event after it was rendered (e.g., for custom styling)
+     */
+    eventDidMount(info) {
     }
 
     /**
