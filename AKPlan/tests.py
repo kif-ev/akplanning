@@ -192,3 +192,36 @@ class PlanWallVisibleHoursTests(TestCase):
         self.assertEqual(len(context["akslots"]), 3)
         self.assertEqual(context["start"], self.event.start)
         self.assertEqual(context["end"], self.event.end)
+
+    @override_settings(PLAN_MAX_NEXT_AKS=2)
+    def test_next_aks_limit(self):
+        """
+        Test: The list of next AKs contains at least PLAN_MAX_NEXT_AKS entries, in the normal plan more if there are
+        more current AKs (entries beyond the limit are hidden on small screens), on the wall always exactly the limit
+        """
+        for i in range(4):
+            self._create_slot(f"R_now{i}", 23, 17)
+            self._create_slot(f"R_next{i}", 23, 19 + i % 2)
+
+        with mock.patch("AKPlan.views.datetime", _FixedNowDatetime):
+            response = self.client.get(reverse('plan:plan_overview', kwargs={'event_slug': 'kif42'}))
+        # Show the same number of AKs current and next,
+        # but with 2 of the next ones marked to only show on wider screens
+        # since the setting for next AKs is only 2
+        self.assertEqual(len(response.context["akslots_now"]), 4)
+        self.assertEqual(len(response.context["akslots_next"]), 4)
+        self.assertContains(response, 'class="d-none d-md-table-row"', count=2)
+
+        # On the wall, the lists are below each other
+        # and the next list should always stay at the limit
+        context = self._get_wall_context()
+        self.assertEqual(len(context["akslots_now"]), 4)
+        self.assertEqual(len(context["akslots_next"]), 2)
+
+        # If there is only 1 current AK (less than the limit from settings)
+        # the list should neither be extended nor shortened
+        AKSlot.objects.filter(room__name__in=["R_now0", "R_now1", "R_now2"]).delete()
+        with mock.patch("AKPlan.views.datetime", _FixedNowDatetime):
+            response = self.client.get(reverse('plan:plan_overview', kwargs={'event_slug': 'kif42'}))
+        self.assertEqual(len(response.context["akslots_next"]), 2)
+        self.assertNotContains(response, 'd-md-table-row')
