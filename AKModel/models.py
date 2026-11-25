@@ -1,6 +1,7 @@
 import itertools
 import json
 import math
+import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_DOWN
@@ -761,6 +762,20 @@ class AKCategory(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def css_color(self) -> str | None:
+        """
+        Color of this category as valid CSS hex color (colors may be stored with or without leading #)
+
+        :return: CSS color or None if the stored color is empty or invalid
+        """
+        color = (self.color or "").strip()
+        if color and not color.startswith("#"):
+            color = "#" + color
+        if re.fullmatch(r"#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?", color):
+            return color
+        return None
 
     @staticmethod
     def create_category_optimizer_constraints(categories: Iterable["AKCategory"]) -> set[str]:

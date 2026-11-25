@@ -64,6 +64,9 @@ class SchedulingAdminView(AdminViewMixin, FilterByEventSlugMixin, ListView):
 
         context["akSlotAddForm"] = AKAddSlotForm(self.event)
 
+        # Categories (with colors) for the legend
+        context["categories"] = AKCategory.objects.filter(event=self.event).order_by("name")
+
         return context
 
 
