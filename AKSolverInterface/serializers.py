@@ -18,48 +18,79 @@ def _apply_filter_cb_to_queryset(
     return cb(queryset) if isinstance(queryset, QuerySet) else queryset
 
 
+def _participants_with_required_preferences(event: Event) -> set[int]:
+    """Pks of the participants of the event with 'Required' preferences for AKs that are not trashed.
+
+    'Required' can no longer be selected in the preference poll, but existing preferences are still exported
+    as hard constraints, so the availabilities of these participants are exported as well.
+    """
+    if not apps.is_installed("AKPreference"):
+        return set()
+
+    # pylint: disable=import-outside-toplevel
+    from AKPreference.models import AKPreference, EventParticipant
+
+    return set(EventParticipant.objects.filter(
+            event=event,
+            akpreference__preference=AKPreference.PreferenceLevel.REQUIRED,
+            akpreference__ak__trashed_at__isnull=True,
+    ).distinct().values_list("pk", flat=True))
+
+
 def _compute_availabilities_without_scheduled_slots(
-        event: Event, scheduled_slots: QuerySet,
+        event: Event, scheduled_slots: QuerySet, participants_required_pks: set[int],
 ) -> dict[str, dict[int, list]]:
     """Compute availabilities adjusted for scheduled slots that are removed from the export.
 
     As removed slots are no longer visible to the solver, their effects are encoded
     by removing the time of each removed slot from the availabilities of
-    the owners of its AK, all participants required for its AK,
+    the owners of its AK, all participants linked to these owners or required for its AK,
     its AK itself (other slots of it), all AKs in conflict with it (both ways)
     and the room it is scheduled in.
     Furthermore, AKs that have the AK of a removed slot as prerequisite
     lose all availabilities until the end of that slot and
     prerequisites of the AK of a removed slot lose all availabilities from the start of that slot.
 
+    :param participants_required_pks: pks of the participants with 'Required' preferences
+        (see :func:`_participants_with_required_preferences`)
     :return: dict with keys 'ak', 'room', 'person' and 'participant', each mapping the pks
         of all affected objects to their adjusted availabilities.
         Unaffected objects are not contained.
     """
-    # pylint: disable=import-outside-toplevel,too-many-locals
+    # pylint: disable=import-outside-toplevel,too-many-locals,too-many-branches
     from AKModel.availability.models import Availability
 
     removals = {key: defaultdict(list) for key in ["ak", "room", "person", "participant"]}
 
-    for slot in scheduled_slots.select_related("ak"):
+    # participants affected by scheduled slots, queried once instead of per slot
+    linked_participant_pks = defaultdict(set)
+    required_participant_pks = defaultdict(set)
+    if apps.is_installed("AKPreference"):
+        # pylint: disable=import-outside-toplevel
+        from AKPreference.models import AKPreference, EventParticipant
+
+        for owner_pk, participant_pk in EventParticipant.objects.filter(
+                event=event, ak_owner__isnull=False,
+        ).values_list("ak_owner_id", "pk"):
+            linked_participant_pks[owner_pk].add(participant_pk)
+        for ak_pk, participant_pk in AKPreference.objects.filter(
+                event=event, preference=AKPreference.PreferenceLevel.REQUIRED,
+        ).values_list("ak_id", "participant_id"):
+            required_participant_pks[ak_pk].add(participant_pk)
+
+    for slot in scheduled_slots.select_related("ak").prefetch_related("ak__owners"):
         slot_avail = Availability(event=event, start=slot.start, end=slot.end)
         ak = slot.ak
 
         if slot.room_id is not None:
             removals["room"][slot.room_id].append(slot_avail)
 
-        for owner_pk in ak.owners.values_list("pk", flat=True):
-            removals["person"][owner_pk].append(slot_avail)
-
-        if apps.is_installed("AKPreference"):
-            # pylint: disable=import-outside-toplevel
-            from AKPreference.models import AKPreference
-
-            required_participant_pks = AKPreference.objects.filter(
-                    event=event, ak=ak, preference=AKPreference.PreferenceLevel.REQUIRED,
-            ).values_list("participant_id", flat=True)
-            for participant_pk in required_participant_pks:
-                removals["participant"][participant_pk].append(slot_avail)
+        affected_participant_pks = set(required_participant_pks[ak.pk])
+        for owner in ak.owners.all():
+            removals["person"][owner.pk].append(slot_avail)
+            affected_participant_pks |= linked_participant_pks[owner.pk]
+        for participant_pk in affected_participant_pks:
+            removals["participant"][participant_pk].append(slot_avail)
 
         conflicting_ak_pks = {ak.pk}
         conflicting_ak_pks |= set(ak.conflicts.values_list("pk", flat=True))
@@ -86,15 +117,67 @@ def _compute_availabilities_without_scheduled_slots(
         }
         for key, field in [("ak", "ak_id"), ("room", "room_id")]
     }
-    # For persons and participants, no availabilities mean availability for the whole event
-    for key, field in [("person", "person_id"), ("participant", "participant_id")]:
-        availabilities[key] = {}
-        for pk, avails in removals[key].items():
-            stored = _stored_availabilities(**{field: pk}) or [
-                Availability(event=event, start=event.start, end=event.end)
-            ]
-            availabilities[key][pk] = Availability.difference(stored, avails)
+    # For persons, no availabilities mean availability for the whole event
+    availabilities["person"] = {}
+    for pk, avails in removals["person"].items():
+        stored = _stored_availabilities(person_id=pk) or [
+            Availability(event=event, start=event.start, end=event.end)
+        ]
+        availabilities["person"][pk] = Availability.difference(stored, avails)
+    # Stored availabilities of participants are only exported for participants with 'Required' preferences,
+    # all other participants start out available for the whole event
+    availabilities["participant"] = {}
+    for pk, avails in removals["participant"].items():
+        stored = (_stored_availabilities(participant_id=pk) if pk in participants_required_pks
+                  else []) or [
+                     Availability(event=event, start=event.start, end=event.end)
+                 ]
+        availabilities["participant"][pk] = Availability.difference(stored, avails)
     return availabilities
+
+
+def _restrict_owner_availabilities_to_linked_participants(
+        event: Event, person_availabilities: dict[int, list],
+) -> dict[int, list]:
+    """Restrict availabilities of AK owners to the availabilities of the participants linked to them.
+
+    A participant linked to an AK owner is the person (or one of the persons) holding the AKs of that owner,
+    so their availabilities restrict when these AKs can take place.
+    The availabilities of the participants do not affect the AKs they would like to attend.
+
+    :param person_availabilities: adjusted availabilities of owners to use instead of the stored ones
+    :return: copy of `person_availabilities` extended by the restricted availabilities
+        of all owners linked to participants that are not available for the whole event
+    """
+    if not apps.is_installed("AKPreference"):
+        return person_availabilities
+
+    # pylint: disable=import-outside-toplevel
+    from AKModel.availability.models import Availability
+    from AKPreference.models import EventParticipant
+
+    full_event = [Availability(event=event, start=event.start, end=event.end)]
+    restricted = dict(person_availabilities)
+    linked_participants = EventParticipant.objects.filter(
+            event=event, ak_owner__isnull=False,
+    ).prefetch_related("availabilities", "ak_owner__availabilities")
+    for participant in linked_participants:
+        # skip invalid availabilities (end not after start, could be created by older versions of the form)
+        participant_avails = [a for a in participant.availabilities.all() if a.end > a.start]
+        # no stored availabilities -> participant is available for the whole event
+        if not participant_avails or Availability.is_event_covered(event, participant_avails):
+            continue
+        owner_pk = participant.ak_owner_id
+        if owner_pk in restricted:
+            owner_avails = restricted[owner_pk]
+        else:
+            # For persons, no availabilities mean availability for the whole event
+            owner_avails = list(participant.ak_owner.availabilities.all()) or full_event
+        # intersection of the availabilities of owner and participant
+        restricted[owner_pk] = Availability.difference(
+                owner_avails, Availability.difference(full_event, participant_avails),
+        )
+    return restricted
 
 
 class ExportRoomInfoSerializer(serializers.ModelSerializer):
@@ -339,6 +422,9 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
     the event to serialize. To avoid scheduling conflicts, a 'dummy' participant is then added
     to the list for each AKOwner of the event. These dummy participants only have 'required'
     preference for all AKs of the owner, so the target of the optimization is not impacted.
+    Owners linked to an exported participant do not get a dummy participant, since that participant
+    is already marked as required for the AKs of the owner
+    (see :class:`AKPreference.serializers.ExportParticipantSerializer`).
 
     Part of the implementation of the format of the KoMa solver:
     https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format#input--output-format
@@ -351,6 +437,7 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
             filter_participants_cb: Callable[[QuerySet], QuerySet],
             export_preferences: bool = True,
             participant_availabilities: dict[int, list] | None = None,
+            participants_required_pks: set[int] | None = None,
             **kwargs,
     ):
         super().__init__(*args, **kwargs)
@@ -358,6 +445,7 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
         self.slots_qs = slots_qs
         self.export_preferences = export_preferences
         self.participant_availabilities = participant_availabilities or {}
+        self.participants_required_pks = participants_required_pks
 
     def create(self, validated_data):
         raise ValueError("`ExportParticipantAndDummiesSerializer` is read-only.")
@@ -374,30 +462,45 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
         # default case
         real_participants = []
         next_participant_pk = 1
+        linked_owner_pks = set()
 
-        # set variable values if AKPreference app is installed
-        if apps.is_installed("AKPreference") and self.export_preferences:
+        owned_slot_pks = defaultdict(set)
+        for slot_pk, owner_pk in event.slots.filter(ak__owners__isnull=False).values_list("pk", "ak__owners"):
+            owned_slot_pks[owner_pk].add(slot_pk)
+
+        if apps.is_installed("AKPreference"):
             # local import to decouple
             # pylint: disable=import-outside-toplevel
             from AKPreference.models import EventParticipant
             from AKPreference.serializers import ExportParticipantSerializer
 
-            participants = _apply_filter_cb_to_queryset(self.filter_participants_cb, event.participants)
-            real_participants = ExportParticipantSerializer(
-                    participants,
-                    many=True,
-                    context={"participant_availabilities": self.participant_availabilities},
-            ).data
-
+            # dummy participants are numbered independently of whether preferences are exported
+            # to keep their ids consistent (see :func:`AKSolverInterface.lookup.lookup_participants`)
             if EventParticipant.objects.exists():
                 next_participant_pk = EventParticipant.objects.latest("pk").pk + 1
+
+            if self.export_preferences:
+                participants = _apply_filter_cb_to_queryset(self.filter_participants_cb, event.participants)
+                real_participants = ExportParticipantSerializer(
+                        participants,
+                        many=True,
+                        context={
+                            "participant_availabilities": self.participant_availabilities,
+                            "owned_slot_pks": owned_slot_pks,
+                            "participants_with_required_preferences": (
+                                self.participants_required_pks
+                                if self.participants_required_pks is not None
+                                else _participants_with_required_preferences(event)
+                            ),
+                        },
+                ).data
+                linked_owner_pks = {p.ak_owner_id for p in participants if p.ak_owner_id is not None}
 
         dummies = []
         # add one dummy participant per owner
         # this ensures that the hard constraints from each owner are considered
         for new_pk, owner in enumerate(event.owners, next_participant_pk):
-            owned_slots = event.slots.filter(ak__owners=owner).order_by().all()
-            if not owned_slots:
+            if owner.pk in linked_owner_pks or not owned_slot_pks[owner.pk]:
                 continue
             new_participant_data = {
                 "id": new_pk,
@@ -405,8 +508,8 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
                 "room_constraints": [],
                 "time_constraints": [],
                 "preferences": [
-                    {"ak_id": slot.pk, "required": True, "preference_score": -1}
-                    for slot in owned_slots
+                    {"ak_id": slot_pk, "required": True, "preference_score": -1}
+                    for slot_pk in sorted(owned_slot_pks[owner.pk])
                 ]
             }
             dummies.append(new_participant_data)
@@ -452,10 +555,12 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
     """
 
     def __init__(self, *args, export_scheduled_aks_as_fixed: bool = False,
-                 availability_overrides: dict[str, dict[int, list]] | None = None, **kwargs):
+                 availability_overrides: dict[str, dict[int, list]] | None = None,
+                 participants_required_pks: set[int] | None = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.export_scheduled_aks_as_fixed = export_scheduled_aks_as_fixed
         self.availability_overrides = availability_overrides or {}
+        self.participants_required_pks = participants_required_pks
 
     def create(self, validated_data):
         raise ValueError("`ExportTimeslotBlockSerializer` is read-only.")
@@ -529,15 +634,25 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
             person.pk: Availability.union(person.availabilities.all())
             for person in event.owners
         }
-        participant_availabilities = {
-            participant.pk: Availability.union(participant.availabilities.all())
-            for participant in event.participants
-        }
 
         # replace stored availabilities by adjusted ones (e.g., due to scheduled slots removed from the export)
         ak_availabilities.update(self.availability_overrides.get("ak", {}))
         room_availabilities.update(self.availability_overrides.get("room", {}))
         person_availabilities.update(self.availability_overrides.get("person", {}))
+        # stored availabilities of participants are only exported for participants with 'Required' preferences
+        participant_availabilities = {}
+        participants_required_pks = (self.participants_required_pks if self.participants_required_pks is not None
+                                     else _participants_with_required_preferences(event))
+        if participants_required_pks:
+            # pylint: disable=import-outside-toplevel
+            from AKPreference.models import EventParticipant
+
+            participant_availabilities = {
+                participant.pk: Availability.union(participant.availabilities.all())
+                for participant in EventParticipant.objects.filter(
+                        pk__in=participants_required_pks,
+                ).prefetch_related("availabilities")
+            }
         participant_availabilities.update(self.availability_overrides.get("participant", {}))
 
         block_names = []
@@ -591,17 +706,17 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
                         )
                 )
 
-                # add fulfilled time constraints for all rooms that are not available for full event
-                time_constraints.extend(
-                        _generate_time_constraints(
-                                "room", room_availabilities, timeslot.avail
-                        )
-                )
-
                 # add fulfilled time constraints for all participants that are not available for full event
                 time_constraints.extend(
                         _generate_time_constraints(
                                 "participant", participant_availabilities, timeslot.avail
+                        )
+                )
+
+                # add fulfilled time constraints for all rooms that are not available for full event
+                time_constraints.extend(
+                        _generate_time_constraints(
+                                "room", room_availabilities, timeslot.avail
                         )
                 )
 
@@ -698,21 +813,30 @@ class ExportEventSerializer(serializers.BaseSerializer):
         # we support filtering of Rooms and AKSlots
         slots_qs = _apply_filter_cb_to_queryset(self.filter_slots_cb, event.slots)
 
+        # queried once and shared by all parts of the export
+        participants_required_pks = _participants_with_required_preferences(event)
+
         availability_overrides = {}
         if self.export_scheduled_aks_as_fixed:
             # Scheduled slots are not exported at all, instead the availabilities
             # of all affected objects are reduced accordingly.
             # This includes scheduled slots that are excluded by the filters.
             availability_overrides = _compute_availabilities_without_scheduled_slots(
-                    event, event.slots.filter(start__isnull=False),
+                    event, event.slots.filter(start__isnull=False), participants_required_pks,
             )
             if isinstance(slots_qs, QuerySet):
                 slots_qs = slots_qs.filter(start__isnull=True)
+        if self.export_preferences:
+            # availabilities entered in the preference poll are only considered if the poll results are exported
+            availability_overrides["person"] = _restrict_owner_availabilities_to_linked_participants(
+                    event, availability_overrides.get("person", {}),
+            )
 
         timeslots = ExportTimeslotBlockSerializer(
                 event,
                 export_scheduled_aks_as_fixed=self.export_scheduled_aks_as_fixed,
                 availability_overrides=availability_overrides,
+                participants_required_pks=participants_required_pks,
         )
         rooms = ExportRoomSerializer(
                 _apply_filter_cb_to_queryset(self.filter_rooms_cb, event.rooms),
@@ -732,6 +856,7 @@ class ExportEventSerializer(serializers.BaseSerializer):
                 filter_participants_cb=self.filter_participants_cb,
                 export_preferences=self.export_preferences,
                 participant_availabilities=availability_overrides.get("participant"),
+                participants_required_pks=participants_required_pks,
         )
 
         return {

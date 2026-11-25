@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import AKJSONExportView, AKScheduleJSONImportView, SchedulingWizardChecksView, \
-    SchedulingWizardLookupView, SchedulingWizardPreferencesView, SchedulingWizardRequirementsView, \
+    SchedulingWizardLookupView, SchedulingWizardRequirementsView, \
     SchedulingWizardResultsView, SchedulingWizardSlotsView
 
 
@@ -22,11 +22,6 @@ def get_admin_urls_solver_interface(admin_site):
                 "<slug:event_slug>/scheduling-workflow/slots/",
                 admin_site.admin_view(SchedulingWizardSlotsView.as_view()),
                 name="scheduling_wizard_slots",
-        ),
-        path(
-                "<slug:event_slug>/scheduling-workflow/preferences/",
-                admin_site.admin_view(SchedulingWizardPreferencesView.as_view()),
-                name="scheduling_wizard_preferences",
         ),
         path(
                 "<slug:event_slug>/scheduling-workflow/export/",

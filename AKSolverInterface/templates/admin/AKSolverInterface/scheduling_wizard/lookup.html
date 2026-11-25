@@ -106,7 +106,7 @@
         <li>{% trans "AK: AK id in the info of the AK slots (django_ak_id)." %}</li>
         <li>{% trans "AK slot: id of the AK slots, also used for conflicts, dependencies, and preferences of participants (ak_id) as well as in the solver output." %}</li>
         <li>{% trans "Timeslot: id of the timeslots in the blocks (and in the solver output), the default slots containing it are shown." %}</li>
-        <li>{% trans "Participant: also includes the dummy participants created for AK owners (assuming the preferences were exported)." %}</li>
+        <li>{% trans "Participant: also includes the dummy participants created for AK owners. A dummy participant is not exported if a participant linked to its AK owner is exported (with the preferences)." %}</li>
     </ul>
 
     {% if timeslot_error %}

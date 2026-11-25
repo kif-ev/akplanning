@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from AKModel.availability.models import Availability
 from AKModel.models import AK, AKSlot, Event
-from AKPreference.models import AKPreference, EventParticipant
+from AKPreference.models import EventParticipant
 from AKSolverInterface.serializers import ExportEventSerializer
 
 
@@ -19,9 +19,6 @@ class JSONExportScheduledSlotsTest(TestCase):
         # AK 3 conflicts with AK 1 and has AK 2 as prerequisite
         self.ak_wish = AK.objects.get(pk=3)
         Availability.with_event_length(event=self.event, ak=self.ak_wish).save()
-        self.participant = EventParticipant.objects.create(event=self.event, name="Required participant")
-        AKPreference.objects.create(event=self.event, participant=self.participant, ak=AK.objects.get(pk=2),
-                                    preference=AKPreference.PreferenceLevel.REQUIRED)
         self.scheduled_slots = list(AKSlot.objects.filter(event=self.event, start__isnull=False))
 
     def _export(self, fixed: bool) -> dict:
@@ -106,16 +103,75 @@ class JSONExportScheduledSlotsTest(TestCase):
                 self.assertIn(constraint, ak["time_constraints"])
         self.assertFalse(self._fulfilling_timeslots(export, constraint))
 
-    def test_participant_without_remaining_availability(self):
-        """Participants whose whole availability is used by scheduled slots get a time constraint."""
+    def test_linked_participant_availability_reduced(self):
+        """Participants linked to an AK owner are not available during scheduled slots of that owner."""
         slot = AKSlot.objects.get(pk=2)
-        Availability.objects.create(event=self.event, participant=self.participant, start=slot.start, end=slot.end)
+        owner = slot.ak.owners.first()
+        participant = EventParticipant.objects.create(event=self.event, name="Owner participant", ak_owner=owner)
+        constraint = f"availability-participant-{participant.pk}"
+
+        export = self._export(fixed=False)
+        export_participant = next(p for p in export["participants"] if p["id"] == participant.pk)
+        self.assertNotIn(constraint, export_participant["time_constraints"])
 
         export = self._export(fixed=True)
-        constraint = f"availability-participant-{self.participant.pk}"
-        participant = next(p for p in export["participants"] if p["id"] == self.participant.pk)
-        self.assertIn(constraint, participant["time_constraints"])
-        self.assertFalse(self._fulfilling_timeslots(export, constraint))
+        export_participant = next(p for p in export["participants"] if p["id"] == participant.pk)
+        self.assertIn(constraint, export_participant["time_constraints"])
+        timeslots = self._fulfilling_timeslots(export, constraint)
+        self.assertTrue(timeslots)
+        for scheduled_slot in AKSlot.objects.filter(event=self.event, start__isnull=False, ak__owners=owner):
+            scheduled_avail = Availability(event=self.event, start=scheduled_slot.start, end=scheduled_slot.end)
+            self.assertFalse(any(t.overlaps(scheduled_avail, strict=True) for t in timeslots))
+
+    def test_linked_participant_availability_restricts_owned_aks(self):
+        """Availabilities of participants linked to an AK owner restrict when the AKs of that owner can take place,
+        but not the AKs they would like to attend."""
+        slot = AKSlot.objects.get(pk=2)
+        owner = slot.ak.owners.first()
+        participant = EventParticipant.objects.create(event=self.event, name="Owner participant", ak_owner=owner)
+        # unscheduled slot of the owner, so it is also exported when fixing scheduled slots
+        unscheduled_slot = AKSlot.objects.create(event=self.event, ak=slot.ak, duration=1)
+        # the participant is only available during the second day, which contains the scheduled slot
+        participant_avail = Availability(event=self.event, start=datetime(2020, 11, 8, 8, tzinfo=timezone.utc),
+                                         end=datetime(2020, 11, 8, 19, tzinfo=timezone.utc))
+        Availability.objects.create(event=self.event, participant=participant,
+                                    start=participant_avail.start, end=participant_avail.end)
+        slot_avail = Availability(event=self.event, start=slot.start, end=slot.end)
+
+        for fixed in [False, True]:
+            with self.subTest(fixed=fixed):
+                export = self._export(fixed=fixed)
+                constraint = f"availability-person-{owner.pk}"
+                exported_slot = next(ak for ak in export["aks"] if ak["id"] == unscheduled_slot.pk)
+                self.assertIn(constraint, exported_slot["time_constraints"])
+                timeslots = self._fulfilling_timeslots(export, constraint)
+                self.assertTrue(timeslots)
+                self.assertTrue(all(t.is_covered([participant_avail]) for t in timeslots))
+                if fixed:
+                    self.assertFalse(any(t.overlaps(slot_avail, strict=True) for t in timeslots))
+
+                export_participant = next(p for p in export["participants"] if p["id"] == participant.pk)
+                self.assertFalse([c for c in export_participant["time_constraints"]
+                                  if c.startswith("availability-person-")])
+
+    def test_linked_participant_availability_ignored_without_preferences(self):
+        """Availabilities of participants linked to an AK owner are ignored if preferences are not exported."""
+        slot = AKSlot.objects.get(pk=2)
+        participant = EventParticipant.objects.create(event=self.event, name="Owner participant",
+                                                      ak_owner=slot.ak.owners.first())
+        AKSlot.objects.create(event=self.event, ak=slot.ak, duration=1)
+
+        for fixed in [False, True]:
+            with self.subTest(fixed=fixed):
+                Availability.objects.filter(participant=participant).delete()
+                expected = ExportEventSerializer(self.event, export_scheduled_aks_as_fixed=fixed,
+                                                 export_preferences=False).data
+                Availability.objects.create(event=self.event, participant=participant,
+                                            start=datetime(2020, 11, 8, 8, tzinfo=timezone.utc),
+                                            end=datetime(2020, 11, 8, 19, tzinfo=timezone.utc))
+                export = ExportEventSerializer(self.event, export_scheduled_aks_as_fixed=fixed,
+                                               export_preferences=False).data
+                self.assertEqual(expected, export)
 
     def test_prerequisite_ak_availability_reduced(self):
         """Prerequisites of a scheduled AK are only available before its start."""
@@ -149,19 +205,6 @@ class JSONExportScheduledSlotsTest(TestCase):
         export = self._export(fixed=True)
         for timeslot in self._timeslots(export):
             self.assertFalse([c for c in timeslot["fulfilled_time_constraints"] if c.startswith("fixed-akslot-")])
-
-    def test_required_participant_availability_reduced(self):
-        """Participants are not available during scheduled slots they are required for."""
-        export = self._export(fixed=True)
-        slot = AKSlot.objects.get(pk=2)
-        slot_avail = Availability(event=self.event, start=slot.start, end=slot.end)
-
-        participant = next(p for p in export["participants"] if p["id"] == self.participant.pk)
-        constraint = f"availability-participant-{self.participant.pk}"
-        self.assertIn(constraint, participant["time_constraints"])
-        timeslots = self._fulfilling_timeslots(export, constraint)
-        self.assertTrue(timeslots)
-        self.assertFalse(any(t.overlaps(slot_avail, strict=True) for t in timeslots))
 
     def test_dependent_ak_availability_reduced(self):
         """AKs depending on a scheduled AK are only available after its end."""

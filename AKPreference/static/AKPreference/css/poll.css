@@ -77,7 +77,7 @@
     box-shadow: none;
 }
 
-/* Erforderlich */
+/* Erforderlich (only shown for preferences that already have this level) */
 .radio-group input[value="3"]:checked + label {
     background-color: #28b62c;
     box-shadow: none;

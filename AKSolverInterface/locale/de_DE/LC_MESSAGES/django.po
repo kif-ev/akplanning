@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-18 20:06+0100\n"
+"POT-Creation-Date: 2026-11-23 18:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,36 +25,43 @@ msgstr "Fixiere alle schon terminierten Slots für den Solver."
 #: AKSolverInterface/forms.py:22
 msgid ""
 "Slots that are already scheduled are not exported. Instead, their owners, "
-"required participants, rooms and conflicting AKs are unavailable at their "
-"time, dependent AKs are unavailable until their end and prerequisite AKs "
-"from their start."
+"participants linked to these owners, rooms and conflicting AKs are "
+"unavailable at their time, dependent AKs are unavailable until their end and "
+"prerequisite AKs from their start."
 msgstr ""
-"Schon terminierte Slots werden nicht exportiert. Stattdessen sind ihre "
-"AK-Leitungen, benötigten Teilnehmenden, Räume und kollidierenden AKs zu "
-"ihrer Zeit nicht verfügbar, abhängige AKs bis zu ihrem Ende und "
+"Schon terminierte Slots werden nicht exportiert. Stattdessen sind ihre AK-"
+"Leitungen, mit diesen verknüpfte Teilnehmende, Räume und kollidierenden AKs "
+"zu ihrer Zeit nicht verfügbar, abhängige AKs bis zu ihrem Ende und "
 "vorausgesetzte AKs ab ihrem Beginn."
 
-#: AKSolverInterface/forms.py:29
+#: AKSolverInterface/forms.py:30
 msgid "Export participants' preferences"
 msgstr "Präferenzen der Teilnehmenden exportieren"
 
-#: AKSolverInterface/forms.py:31
-msgid "Include the preferences of participants in the export."
-msgstr "Präferenzen der Teilnehmenden in den Export einschließen."
+#: AKSolverInterface/forms.py:32
+msgid ""
+"Include the preferences of participants in the export. The availabilities "
+"and requirements of participants linked to an AK owner then also restrict "
+"when and in which rooms the AKs of that owner can take place."
+msgstr ""
+"Präferenzen der Teilnehmenden in den Export einschließen. Die "
+"Verfügbarkeiten und Anforderungen von Teilnehmenden, die mit einer AK-"
+"Leitung verknüpft sind, schränken dann auch ein, wann und in welchen Räumen "
+"die AKs dieser AK-Leitung stattfinden können."
 
-#: AKSolverInterface/forms.py:38
+#: AKSolverInterface/forms.py:41
 msgid "AK Categories to include in the export"
 msgstr "AK Kategorien, die im Export enthalten sein sollen"
 
-#: AKSolverInterface/forms.py:44
+#: AKSolverInterface/forms.py:47
 msgid "AK tracks to include in the export"
 msgstr "AK Tracks, die im Export enthalten sein sollen"
 
-#: AKSolverInterface/forms.py:50
+#: AKSolverInterface/forms.py:53
 msgid "AK types to include in the export"
 msgstr "AK Typen, die im Export enthalten sein sollen"
 
-#: AKSolverInterface/forms.py:57
+#: AKSolverInterface/forms.py:59
 msgid ""
 "The following AKs cannot be placed in the default timeslots of their "
 "category. Remove constraint?"
@@ -62,36 +69,36 @@ msgstr ""
 "Die folgenden AKs können nicht in den Default-Zeitslots ihrer Kategorie "
 "platziert werden. Constraints entfernen?"
 
-#: AKSolverInterface/forms.py:104
+#: AKSolverInterface/forms.py:107
 msgid "JSON data"
 msgstr "JSON-Daten"
 
-#: AKSolverInterface/forms.py:105
+#: AKSolverInterface/forms.py:108
 msgid "JSON data from the scheduling solver"
 msgstr "JSON-Daten, die der scheduling-solver produziert hat"
 
-#: AKSolverInterface/forms.py:110
+#: AKSolverInterface/forms.py:113
 msgid "File with JSON data"
 msgstr "Datei mit JSON-Daten"
 
-#: AKSolverInterface/forms.py:111
+#: AKSolverInterface/forms.py:114
 msgid "File with JSON data from the scheduling solver"
 msgstr "Datei mit JSON-Daten, die der scheduling-solver produziert hat"
 
-#: AKSolverInterface/forms.py:131
+#: AKSolverInterface/forms.py:134
 msgid "Cannot decode as JSON"
 msgstr "Dekodierung als JSON fehlgeschlagen"
 
-#: AKSolverInterface/forms.py:136
+#: AKSolverInterface/forms.py:139
 #, python-format
 msgid "Invalid JSON format: %(msg)s at %(error_path)s"
 msgstr "Ungültige JSON-Eingabe: %(msg)s bei %(error_path)s"
 
-#: AKSolverInterface/forms.py:157
+#: AKSolverInterface/forms.py:160
 msgid "Please enter data as a file OR via text, not both."
 msgstr "Gib die Daten bitte als Datei oder als Text ein, nicht beides."
 
-#: AKSolverInterface/forms.py:163
+#: AKSolverInterface/forms.py:166
 msgid "No data entered. Please enter data as a file or via text."
 msgstr ""
 "Keine Daten eingegeben. Gib die Daten bitte als Datei oder als Text ein."
@@ -109,7 +116,7 @@ msgid "Frontend"
 msgstr "Frontend"
 
 #: AKSolverInterface/lookup.py:52 AKSolverInterface/lookup.py:76
-#: AKSolverInterface/lookup.py:99 AKSolverInterface/lookup.py:175
+#: AKSolverInterface/lookup.py:99 AKSolverInterface/lookup.py:179
 #: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/ak_links.html:4
 msgid "Edit in admin"
 msgstr "Im Admin bearbeiten"
@@ -142,9 +149,8 @@ msgid "AK in frontend"
 msgstr "AK im Frontend"
 
 #: AKSolverInterface/lookup.py:80
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/overlap_violation_list.html:6
 #: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/slot_ak_list.html:5
-#: AKSolverInterface/views.py:541
+#: AKSolverInterface/views.py:487
 msgid "AK"
 msgstr "AK"
 
@@ -160,7 +166,7 @@ msgstr "Geplant"
 msgid "Not scheduled yet"
 msgstr "Noch nicht geplant"
 
-#: AKSolverInterface/lookup.py:83 AKSolverInterface/views.py:543
+#: AKSolverInterface/lookup.py:83 AKSolverInterface/views.py:489
 msgid "Room"
 msgstr "Raum"
 
@@ -210,33 +216,48 @@ msgstr "Zeitslot {id}"
 msgid "Default slot {time}"
 msgstr "Standardslot {time}"
 
-#: AKSolverInterface/lookup.py:171
+#: AKSolverInterface/lookup.py:175
 msgid "Preferences"
 msgstr "Präferenzen"
 
-#: AKSolverInterface/lookup.py:172
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:27
+#: AKSolverInterface/lookup.py:176
+msgid "AK owner"
+msgstr "AK-Leitung"
+
+#: AKSolverInterface/lookup.py:179
 msgid "Required for"
 msgstr "Notwendig für"
 
-#: AKSolverInterface/lookup.py:173
+#: AKSolverInterface/lookup.py:177
 msgid "Requirements"
 msgstr "Anforderungen"
 
-#: AKSolverInterface/lookup.py:187
-#, python-brace-format
-msgid "{owner} [AK owner, dummy participant]"
-msgstr "{owner} [AK-Leitung, Dummy-Teilnehmer*in]"
-
-#: AKSolverInterface/lookup.py:189
+#: AKSolverInterface/lookup.py:190
 msgid "AKs"
 msgstr "AKs"
 
 #: AKSolverInterface/lookup.py:192
+msgid "Note"
+msgstr "Hinweis"
+
+#: AKSolverInterface/lookup.py:192
+msgid ""
+"Not exported if a participant linked to this AK owner is exported (with the "
+"preferences)"
+msgstr ""
+"Wird nicht exportiert, wenn eine*ein mit dieser AK-Leitung verknüpfte*r "
+"Teilnehmende*r exportiert wird (mit den Präferenzen)"
+
+#: AKSolverInterface/lookup.py:195
+#, python-brace-format
+msgid "{owner} [AK owner, dummy participant]"
+msgstr "{owner} [AK-Leitung, Dummy-Teilnehmer*in]"
+
+#: AKSolverInterface/lookup.py:198
 msgid "Edit AK owner in admin"
 msgstr "AK-Leitung im Admin bearbeiten"
 
-#: AKSolverInterface/lookup.py:193
+#: AKSolverInterface/lookup.py:199
 msgid "AKs of this owner"
 msgstr "AKs dieser Leitung"
 
@@ -281,31 +302,31 @@ msgstr ""
 "Bitte behebe die obigen Probleme, bevor du mit der automatischen Planung "
 "fortfährst."
 
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:55
+#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:57
 msgid "Generate/Update Export"
 msgstr "Export generieren/aktualisieren"
 
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:59
+#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:61
 msgid "Reset Form"
 msgstr "Formular zurücksetzen"
 
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:65
+#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:67
 msgid "Exported JSON:"
 msgstr "Exportiertes JSON:"
 
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:74
+#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:76
 msgid "Copy"
 msgstr "Kopieren"
 
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:77
+#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:79
 msgid "Download"
 msgstr "Herunterladen"
 
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:80
+#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:82
 msgid "Exported JSON (indented for better readability):"
 msgstr "Exportiertes JSON (eingerückt für bessere Lesbarkeit):"
 
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:85
+#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/export.html:87
 msgid "Show formatted JSON"
 msgstr "Formatiertes JSON anzeigen"
 
@@ -344,11 +365,14 @@ msgstr ""
 
 #: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/lookup.html:109
 msgid ""
-"Participant: also includes the dummy participants created for AK owners "
-"(assuming the preferences were exported)."
+"Participant: also includes the dummy participants created for AK owners. A "
+"dummy participant is not exported if a participant linked to its AK owner is "
+"exported (with the preferences)."
 msgstr ""
 "Teilnehmer*in: umfasst auch die für AK-Leitungen erzeugten Dummy-"
-"Teilnehmenden (unter der Annahme, dass die Präferenzen exportiert wurden)."
+"Teilnehmenden. Ein Dummy-Teilnehmender wird nicht exportiert, wenn eine*ein "
+"mit seiner AK-Leitung verknüpfte*r Teilnehmende*r exportiert wird (mit den "
+"Präferenzen)."
 
 #: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/lookup.html:114
 msgid "Timeslots could not be generated:"
@@ -357,137 +381,6 @@ msgstr "Zeitslots konnten nicht erzeugt werden:"
 #: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/lookup.html:139
 msgid "Search"
 msgstr "Suchen"
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/overlap_violation_list.html:5
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:24
-#: AKSolverInterface/views.py:545
-msgid "Participant"
-msgstr "Teilnehmer*in"
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/overlap_violation_list.html:7
-msgid "Longest slot"
-msgstr "Längster Slot"
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/overlap_violation_list.html:9
-msgid "Preference"
-msgstr "Präferenz"
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/overlap_violation_list.html:21
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:43
-msgid "Edit preference in admin"
-msgstr "Präferenz im Admin bearbeiten"
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/participant_link.html:2
-msgid "Edit participant in admin"
-msgstr "Teilnehmer*in im Admin bearbeiten"
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:8
-msgid ""
-"Checking whether the preferences marking participants as required for AKs "
-"can be fulfilled."
-msgstr ""
-"Prüfe, ob die Präferenzen erfüllt werden können, mit denen Teilnehmende als "
-"notwendig für AKs markiert wurden."
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:16
-msgid ""
-"Participants required for more AK slots than there are suitable default "
-"slots."
-msgstr ""
-"Teilnehmende, die für mehr AK-Slots notwendig sind, als es passende "
-"Standardslots gibt."
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:20
-msgid ""
-"Since a participant cannot attend multiple slots at the same time, these "
-"participants can probably not attend all AKs they are required for, so the "
-"automatic scheduling will probably not be able to find a solution."
-msgstr ""
-"Da niemand an mehreren Slots gleichzeitig teilnehmen kann, können diese "
-"Teilnehmenden vermutlich nicht an allen AKs teilnehmen, für die sie "
-"notwendig sind. Die automatische Planung wird daher vermutlich keine Lösung "
-"finden können."
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:25
-msgid "Required slots"
-msgstr "Notwendige Slots"
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:26
-msgid "Default slots"
-msgstr "Standardslots"
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:41
-#, python-format
-msgid "%(count)s slot"
-msgid_plural "%(count)s slots"
-msgstr[0] "%(count)s Slot"
-msgstr[1] "%(count)s Slots"
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:53
-msgid ""
-"No participant is required for more AK slots than there are suitable default "
-"slots."
-msgstr ""
-"Niemand ist für mehr AK-Slots notwendig, als es passende Standardslots gibt."
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:59
-msgid ""
-"There are no default slots for this event, hence the check whether "
-"participants are required for too many AK slots and the strict overlap check "
-"were skipped."
-msgstr ""
-"Für dieses Event gibt es keine Standardslots, daher wurden die Prüfung, ob "
-"Teilnehmende für zu viele AK-Slots notwendig sind, und die strenge "
-"Überschneidungsprüfung übersprungen."
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:67
-msgid "Required participants not available for long enough (loose check)"
-msgstr "Notwendige Teilnehmende nicht lange genug verfügbar (einfache Prüfung)"
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:70
-msgid ""
-"The availabilities of the AK and of the required participant have to overlap "
-"for at least the duration of the longest slot of the AK. Participants "
-"without availabilities are considered available during the whole event."
-msgstr ""
-"Die Verfügbarkeiten des AKs und der notwendigen Person müssen sich "
-"mindestens für die Dauer des längsten Slots des AKs überschneiden. "
-"Teilnehmende ohne Verfügbarkeiten gelten während des gesamten Events als "
-"verfügbar."
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:72
-msgid "Longest overlap"
-msgstr "Längste Überschneidung"
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:75
-msgid "All required participants are available long enough."
-msgstr "Alle notwendigen Teilnehmenden sind lange genug verfügbar."
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:85
-msgid "Required participants not available for long enough (strict check)"
-msgstr "Notwendige Teilnehmende nicht lange genug verfügbar (strenge Prüfung)"
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:88
-msgid ""
-"Only the parts of the overlap that lie within a single default slot intended "
-"for the category of the AK are considered. This also includes all violations "
-"of the loose check."
-msgstr ""
-"Es werden nur die Teile der Überschneidung berücksichtigt, die innerhalb "
-"eines einzelnen Standardslots für die Kategorie des AKs liegen. Dies umfasst "
-"auch alle Verstöße der einfachen Prüfung."
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:90
-msgid "Longest usable window"
-msgstr "Längstes nutzbares Zeitfenster"
-
-#: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/preferences.html:93
-msgid ""
-"All required participants are available long enough within the default slots "
-"of the respective categories."
-msgstr ""
-"Alle notwendigen Teilnehmenden sind innerhalb der Standardslots der "
-"jeweiligen Kategorien lange genug verfügbar."
 
 #: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/requirements.html:8
 msgid ""
@@ -543,7 +436,7 @@ msgid "Edit rooms"
 msgstr "Räume bearbeiten"
 
 #: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/results.html:13
-#: AKSolverInterface/views.py:45
+#: AKSolverInterface/views.py:43
 msgid "Import"
 msgstr "Import"
 
@@ -618,7 +511,7 @@ msgstr ""
 
 #: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/slots.html:14
 #: AKSolverInterface/templates/admin/AKSolverInterface/scheduling_wizard/slots.html:51
-#: AKSolverInterface/views.py:343
+#: AKSolverInterface/views.py:340
 msgid "Edit Default Slots"
 msgstr "Standardslots bearbeiten"
 
@@ -653,52 +546,48 @@ msgstr ""
 "Kategorie vorgesehen sind. Ändere die Verfügbarkeiten oder die Kategorien "
 "der Standardslots, oder ignoriere die Kategorie dieser AKs beim Export."
 
-#: AKSolverInterface/views.py:37
+#: AKSolverInterface/views.py:36
 msgid "Automatic Scheduling Workflow"
 msgstr "Workflow: Automatische Planerstellung"
 
-#: AKSolverInterface/views.py:39
+#: AKSolverInterface/views.py:38
 msgid "Basic Checks"
 msgstr "Grundlegende Prüfungen"
 
-#: AKSolverInterface/views.py:40
+#: AKSolverInterface/views.py:39
 msgid "Check: Room requirements"
 msgstr "Prüfung: Raumanforderungen"
 
-#: AKSolverInterface/views.py:41
+#: AKSolverInterface/views.py:40
 msgid "Check: AK slots"
 msgstr "Prüfung: AK-Slots"
 
-#: AKSolverInterface/views.py:42
-msgid "Check: Preferences"
-msgstr "Prüfung: Präferenzen"
-
-#: AKSolverInterface/views.py:43
+#: AKSolverInterface/views.py:41
 msgid "Export"
 msgstr "Export"
 
-#: AKSolverInterface/views.py:44
+#: AKSolverInterface/views.py:42
 msgid "Investigate issues"
 msgstr "Probleme untersuchen"
 
-#: AKSolverInterface/views.py:46
+#: AKSolverInterface/views.py:44
 msgid "Results"
 msgstr "Ergebnisse"
 
-#: AKSolverInterface/views.py:136
+#: AKSolverInterface/views.py:134
 #, python-brace-format
 msgid "The following AKs cannot be placed in any default slot: {aks_list}"
 msgstr ""
 "Die folgenden AKs können in keinem Default-Slot platziert werden: {aks_list}"
 
-#: AKSolverInterface/views.py:180
+#: AKSolverInterface/views.py:181
 #, python-brace-format
 msgid ""
 "Category constraints for slots of the following AKs were removed: {aks_list}"
 msgstr ""
 "Kategorie-Constraints für slots der folgenden AKs wurden entfernt: {aks_list}"
 
-#: AKSolverInterface/views.py:190
+#: AKSolverInterface/views.py:191
 #, python-brace-format
 msgid ""
 "The following AKs have no slot assigned to them and are therefore not "
@@ -707,45 +596,45 @@ msgstr ""
 "Die folgenden AKs haben keine zugehörigen Slots und werden deshalb nicht "
 "exportiert: {aks_list}"
 
-#: AKSolverInterface/views.py:219
-msgid "No AKSlots are exported"
-msgstr "Keine AK Slots werden exportiert"
-
-#: AKSolverInterface/views.py:227
+#: AKSolverInterface/views.py:221
 msgid "No Rooms are exported"
 msgstr "Keine Räume werden exportiert"
 
-#: AKSolverInterface/views.py:233
+#: AKSolverInterface/views.py:227
 msgid "No real participants are exported"
 msgstr "Keine echten Teilnehmenden werden exportiert"
 
-#: AKSolverInterface/views.py:248
+#: AKSolverInterface/views.py:243
+msgid "No AKSlots are exported"
+msgstr "Keine AK Slots werden exportiert"
+
+#: AKSolverInterface/views.py:245
 msgid "No timeslots are exported"
 msgstr "Keine Zeitslots werden exportiert"
 
-#: AKSolverInterface/views.py:256
+#: AKSolverInterface/views.py:253
 msgid "Exporting AKs for the solver failed! Reason: "
 msgstr "Daten für den Solver exportieren fehlgeschlagen! Grund: "
 
-#: AKSolverInterface/views.py:283
+#: AKSolverInterface/views.py:280
 msgid "Importing an AK schedule failed! Reason: "
 msgstr "AK-Plan importieren fehlgeschlagen! Grund: "
 
-#: AKSolverInterface/views.py:291
+#: AKSolverInterface/views.py:288
 #, python-brace-format
 msgid "Successfully imported {n} slot(s)"
 msgstr "Erfolgreich {n} Slot(s) importiert"
 
-#: AKSolverInterface/views.py:326
+#: AKSolverInterface/views.py:323
 msgid "Rooms"
 msgstr "Räume"
 
-#: AKSolverInterface/views.py:328
+#: AKSolverInterface/views.py:325
 #, python-brace-format
 msgid "{count} room(s) available"
 msgstr "{count} Raum/Räume verfügbar"
 
-#: AKSolverInterface/views.py:329
+#: AKSolverInterface/views.py:326
 msgid ""
 "There are no rooms for this event yet. Automatic scheduling requires at "
 "least one room."
@@ -753,20 +642,20 @@ msgstr ""
 "Für dieses Event gibt es noch keine Räume. Für die automatische Planung wird "
 "mindestens ein Raum benötigt."
 
-#: AKSolverInterface/views.py:331
+#: AKSolverInterface/views.py:328
 msgid "Import rooms"
 msgstr "Räume importieren"
 
-#: AKSolverInterface/views.py:337
+#: AKSolverInterface/views.py:334
 msgid "Default Slots"
 msgstr "Standardslots"
 
-#: AKSolverInterface/views.py:339
+#: AKSolverInterface/views.py:336
 #, python-brace-format
 msgid "{count} default slot(s) defined"
 msgstr "{count} Standardslot(s) definiert"
 
-#: AKSolverInterface/views.py:340
+#: AKSolverInterface/views.py:337
 msgid ""
 "There are no default slots for this event. AKs could hence be scheduled at "
 "any time between start and end of the event (including nights)."
@@ -775,15 +664,15 @@ msgstr ""
 "Zeit zwischen Beginn und Ende des Events eingeplant werden (inklusive "
 "Nächte)."
 
-#: AKSolverInterface/views.py:351
+#: AKSolverInterface/views.py:348
 msgid "Categories of default slots"
 msgstr "Kategorien der Standardslots"
 
-#: AKSolverInterface/views.py:353
+#: AKSolverInterface/views.py:350
 msgid "All default slots have at least one primary category"
 msgstr "Alle Standardslots haben mindestens eine primäre Kategorie"
 
-#: AKSolverInterface/views.py:354
+#: AKSolverInterface/views.py:351
 #, python-brace-format
 msgid ""
 "{count} of {total} default slot(s) have no primary category. AKs can only be "
@@ -793,18 +682,22 @@ msgstr ""
 "können dort nur platziert werden, wenn ihre Kategorie beim Export ignoriert "
 "wird."
 
-#: AKSolverInterface/views.py:358
+#: AKSolverInterface/views.py:355
 msgid "Set primary categories"
 msgstr "Primäre Kategorien zuweisen"
 
-#: AKSolverInterface/views.py:542
+#: AKSolverInterface/views.py:488
 msgid "AK slot"
 msgstr "AK-Slot"
 
-#: AKSolverInterface/views.py:544
+#: AKSolverInterface/views.py:490
 msgid "Timeslot (default slot)"
 msgstr "Zeitslot (Standardslot)"
 
-#: AKSolverInterface/views.py:546
+#: AKSolverInterface/views.py:491
+msgid "Participant"
+msgstr "Teilnehmer*in"
+
+#: AKSolverInterface/views.py:492
 msgid "No object with this ID found."
 msgstr "Kein Objekt mit dieser ID gefunden."

@@ -18,7 +18,6 @@ from AKModel.metaviews.admin import (
 )
 from AKModel.models import AK, Event
 from AKScheduling.checks import aks_not_in_default_schedules, aks_with_unfulfillable_requirements
-from AKSolverInterface.checks import participants_required_for_too_many_slots, required_preferences_without_overlap
 from AKSolverInterface.forms import JSONExportControlForm, JSONScheduleImportForm
 from AKSolverInterface.lookup import lookup_aks, lookup_participants, lookup_rooms, lookup_slots, lookup_timeslots
 from AKSolverInterface.serializers import ExportEventSerializer
@@ -39,7 +38,6 @@ class SchedulingWizardMixin(WizardViewMixin):
         _("Basic Checks"),
         _("Check: Room requirements"),
         _("Check: AK slots"),
-        _("Check: Preferences"),
         _("Export"),
         _("Investigate issues"),
         _("Import"),
@@ -50,14 +48,13 @@ class SchedulingWizardMixin(WizardViewMixin):
         "admin:scheduling_wizard_checks",
         "admin:scheduling_wizard_requirements",
         "admin:scheduling_wizard_slots",
-        "admin:scheduling_wizard_preferences",
         "admin:scheduling_wizard_export",
         "admin:scheduling_wizard_lookup",
         "admin:scheduling_wizard_import",
         "admin:scheduling_wizard_results",
     ]
     # Step of the export (all steps before are checks)
-    wizard_export_step = 5
+    wizard_export_step = 4
 
     # Possible results of a check (correspond to bootstrap colors)
     STATUS_OK = "success"
@@ -108,7 +105,7 @@ class AKJSONExportView(EventSlugMixin, AdminViewMixin, SchedulingWizardMixin, Fo
     template_name = "admin/AKSolverInterface/scheduling_wizard/export.html"
     model = Event
     form_class = JSONExportControlForm
-    wizard_step = 5
+    wizard_step = 4
     show_ignore_slot_category_mismatches_field = False
 
     def get_form_kwargs(self):
@@ -268,7 +265,7 @@ class AKScheduleJSONImportView(EventSlugMixin, SchedulingWizardMixin, Intermedia
 
     template_name = "admin/AKSolverInterface/scheduling_wizard/import.html"
     form_class = JSONScheduleImportForm
-    wizard_step = 7
+    wizard_step = 6
 
     def form_valid(self, form):
         try:
@@ -458,57 +455,6 @@ class SchedulingWizardSlotsView(EventSlugMixin, AdminViewMixin, SchedulingWizard
         return context
 
 
-class SchedulingWizardPreferencesView(EventSlugMixin, AdminViewMixin, SchedulingWizardMixin, TemplateView):
-    """
-    Wizard view (automatic scheduling): Preferences
-
-    Checks whether the preferences marking participants as required for AKs can be fulfilled:
-
-    * Participants required for more AK slots than there are default slots
-      (see :func:`AKSolverInterface.checks.participants_required_for_too_many_slots`)
-    * Required preferences without a long enough overlap of the availabilities of AK and participant,
-      both in a loose and a strict variant (see :func:`AKSolverInterface.checks.required_preferences_without_overlap`)
-    """
-    template_name = "admin/AKSolverInterface/scheduling_wizard/preferences.html"
-    wizard_step = 4
-
-    def _format_overlap_violations(self, violations):
-        """
-        Format the durations of the given overlap violations for display
-
-        :param violations: list of violations as returned by required_preferences_without_overlap
-        :return: list of dicts containing the preference and the formatted durations
-        :rtype: list[dict]
-        """
-        return [
-            {
-                "preference": v["preference"],
-                "longest_slot": self._format_duration(v["longest_slot"].total_seconds() / 3600),
-                "longest_window": self._format_duration(v["longest_window"].total_seconds() / 3600),
-            }
-            for v in violations
-        ]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["has_default_slots"] = self.event.defaultslot_set.exists()
-
-        # a) Participants required for more slots than there are default slots (only with default slots)
-        if context["has_default_slots"]:
-            context["too_many_required"] = participants_required_for_too_many_slots(self.event)
-            context["too_many_required_status"] = (self.STATUS_WARNING if context["too_many_required"]
-                                                   else self.STATUS_OK)
-
-        # b) Overlap of AK and participant availabilities
-        loose_violations, strict_violations = required_preferences_without_overlap(self.event)
-        context["loose_violations"] = self._format_overlap_violations(loose_violations)
-        context["loose_status"] = self.STATUS_ERROR if loose_violations else self.STATUS_OK
-        if strict_violations is not None:
-            context["strict_violations"] = self._format_overlap_violations(strict_violations)
-            context["strict_status"] = self.STATUS_WARNING if strict_violations else self.STATUS_OK
-        return context
-
-
 class SchedulingWizardLookupView(EventSlugMixin, AdminViewMixin, SchedulingWizardMixin, TemplateView):
     """
     Wizard view (automatic scheduling): Investigate issues
@@ -519,7 +465,7 @@ class SchedulingWizardLookupView(EventSlugMixin, AdminViewMixin, SchedulingWizar
     the lookup itself is done in the browser without any API calls.
     """
     template_name = "admin/AKSolverInterface/scheduling_wizard/lookup.html"
-    wizard_step = 6
+    wizard_step = 5
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -557,7 +503,7 @@ class SchedulingWizardResultsView(EventSlugMixin, AdminViewMixin, SchedulingWiza
     (line chart and numbers, see :mod:`AKScheduling.stats`) are shown and linked, otherwise a generic success page.
     """
     template_name = "admin/AKSolverInterface/scheduling_wizard/results.html"
-    wizard_step = 8
+    wizard_step = 7
 
     @staticmethod
     def session_key(event: Event) -> str:
