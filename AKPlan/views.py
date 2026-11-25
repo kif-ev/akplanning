@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Max, Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -27,6 +27,9 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
     ordering = "start"
     types_filter = None
     query_string = ""
+    # Daily range of hours shown in the timeline, determined based on the slots if not set before
+    earliest_start_hour = None
+    latest_end_hour = None
 
     def get(self, request, *args, **kwargs):
         if 'types' in request.GET:
@@ -112,6 +115,30 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
             if slot.start and slot.room is not None
         ]
         return encoded_events
+
+    def _encode_markers(self):
+        """
+        Encode markers for important points in time of the event (e.g., the resolution deadline)
+        as background events in a format understandable for fullcalendar.
+        Background events without resource are shown for all resources, the marker is displayed as vertical line
+        (see AKPlan/timeline_markers.html)
+
+        :return: List of dicts in the correct format
+        :rtype: List[Dict[str, str]]
+        """
+        markers = []
+        if self.event.reso_deadline:
+            deadline = timezone.localtime(self.event.reso_deadline, self.event.timezone)
+            markers.append({
+                'title': '',
+                'description': str(_('Resolution Deadline')),
+                'start': deadline.strftime("%Y-%m-%d %H:%M:%S"),
+                # Short duration, the visible width is determined by the line (border) of the marker
+                'end': (deadline + timedelta(minutes=1)).strftime("%Y-%m-%d %H:%M:%S"),
+                'display': 'background',
+                'classNames': ['reso-deadline-marker'],
+            })
+        return markers
 
     def _encode_rooms(self, rooms):
         """
@@ -205,9 +232,14 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
         else:
             context["type_filtering_active"] = False
 
-        context["akslots_encoded"] = self._encode_events(context["akslots"])
+        context["akslots_encoded"] = self._encode_events(context["akslots"]) + self._encode_markers()
         context["rooms_encoded"] = self._encode_rooms(context["rooms"])
         context["buildings_encoded"] = self._encode_buildings(context["buildings"])
+
+        # Only show the hours of the day in which slots take place (e.g., hide nights without slots)
+        self._determine_visible_hours(context["akslots"])
+        context["earliest_start_hour"] = self.earliest_start_hour
+        context["latest_end_hour"] = self.latest_end_hour
 
         return context
 
@@ -219,6 +251,46 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
         :param akslot: current slot
         :type akslot: AKSlot
         """
+
+    def _determine_visible_hours(self, akslots):
+        """
+        Determine the daily range of hours shown in the timeline (slotMinTime/slotMaxTime)
+        such that all given slots are visible.
+        If the range was already determined before (e.g., by a view based on a different set of slots), keep it.
+
+        :param akslots: slots to consider
+        :type akslots: Iterable[AKSlot]
+        """
+        if self.earliest_start_hour is not None:
+            return
+        self.earliest_start_hour = 23
+        self.latest_end_hour = 1
+        for akslot in akslots:
+            self._update_visible_hours(akslot)
+        # No slots? Show complete days
+        if self.earliest_start_hour >= self.latest_end_hour:
+            self.earliest_start_hour = 0
+            self.latest_end_hour = 24
+
+    def _update_visible_hours(self, akslot):
+        """
+        Extend the daily range of hours shown in the plan such that the given slot is visible
+        (handle 00:00 as 24:00)
+
+        :param akslot: slot to consider
+        :type akslot: AKSlot
+        """
+        start_hour = akslot.start.astimezone(self.event.timezone).hour
+        if start_hour < self.earliest_start_hour:
+            # Use hour - 1 to improve visibility of date change
+            self.earliest_start_hour = max(start_hour - 1, 0)
+        end_hour = akslot.end.astimezone(self.event.timezone).hour
+        # Special case: AK starts before but ends after midnight -- show until midnight
+        if end_hour < start_hour:
+            self.latest_end_hour = 24
+        elif end_hour + 1 > self.latest_end_hour:
+            # Always use hour + 1, since AK may end at :xy and not always at :00
+            self.latest_end_hour = min(end_hour + 1, 24)
 
 
 class PlanScreenView(PlanIndexView):
@@ -246,21 +318,75 @@ class PlanScreenView(PlanIndexView):
     def get_queryset(self):
         now = datetime.now().astimezone(self.event.timezone)
         # Wall during event: Adjust, show only parts in the future
-        if self.event.start < now < self.event.end:
+        event_running = self.event.start < now < self.event.end
+        if event_running:
             # Determine interesting range (some hours ago until some hours in the future as specified in the settings)
             self.start = now - timedelta(hours=settings.PLAN_WALL_HOURS_RETROSPECT)
         else:
             self.start = self.event.start
         self.end = self.event.end
 
-        # Restrict AK slots to relevant ones
+        # Restrict AK slots to relevant ones, i.e., those that did not end before the start of the shown range
+        # (including slots that started earlier but are still running or ended only recently)
+        # The end is not stored in the database, hence first restrict to candidates based on the longest slot
+        # and then filter by the real end
+        qs = super().get_queryset()
+        longest = qs.aggregate(longest=Max('duration'))['longest'] or 0
+        candidates = qs.filter(start__gt=self.start - timedelta(hours=float(longest)))
+        qs = qs.filter(pk__in=[s.pk for s in candidates.select_related(None).only('start', 'duration')
+                               if s.end > self.start])
+
+        # Determine the daily range of hours shown in the plan (based on all remaining slots,
+        # so that the range stays stable independent of the further restriction below)
+        self._determine_visible_hours(qs.select_related(None).only('start', 'duration'))
+
+        # Further restrict to slots starting within the next visible hours,
+        # since slots further in the future would only be reachable by horizontal scrolling anyway.
         # This will automatically filter all rooms not needed for the selected range in the orginal get_context method
-        return super().get_queryset().filter(start__gt=self.start)
+        # Only apply this during the event, before and afterwards, the full wall is shown
+        self.cutoff = None
+        if event_running:
+            self.cutoff = self._visible_hours_cutoff(now, settings.PLAN_WALL_VISIBLE_HOURS_AHEAD)
+        if self.cutoff is not None:
+            qs = qs.filter(start__lt=self.cutoff)
+        return qs
+
+    def _visible_hours_cutoff(self, reference, hours):
+        """
+        Compute the point in time after which the given amount of visible hours have passed, starting at reference.
+        Only hours within the daily range shown by the plan (earliest_start_hour to latest_end_hour) are counted,
+        hidden hours (e.g., during the night) are skipped.
+
+        :param reference: point in time to start counting from
+        :type reference: datetime
+        :param hours: amount of visible hours
+        :type hours: int
+        :return: cutoff point in time or None if no restriction is possible/necessary
+        :rtype: datetime | None
+        """
+        if self.earliest_start_hour >= self.latest_end_hour:
+            return None
+        tz = self.event.timezone
+        cursor = reference.astimezone(tz)
+        remaining = timedelta(hours=hours)
+        while cursor < self.end:
+            day = cursor.date()
+            window_start = datetime.combine(day, datetime.min.time(), tzinfo=tz) \
+                + timedelta(hours=self.earliest_start_hour)
+            window_end = datetime.combine(day, datetime.min.time(), tzinfo=tz) \
+                + timedelta(hours=self.latest_end_hour)
+            cursor = max(cursor, window_start)
+            if cursor < window_end:
+                available = window_end - cursor
+                if available >= remaining:
+                    return cursor + remaining
+                remaining -= available
+            # Continue at the start of the visible range of the next day
+            cursor = datetime.combine(day + timedelta(days=1), datetime.min.time(), tzinfo=tz) \
+                + timedelta(hours=self.earliest_start_hour)
+        return None
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        # Find the earliest hour AKs start and end (handle 00:00 as 24:00)
-        self.earliest_start_hour = 23
-        self.latest_end_hour = 1
         context = super().get_context_data(object_list=object_list, **kwargs)
 
         # Show rooms as flat list without hierarchy (location only as part of the room title)
@@ -272,24 +398,16 @@ class PlanScreenView(PlanIndexView):
         now = timezone.now()
         context["akslots_changed"] = [s for s in context["akslots"] if s.end > now and recently_changed(s)]
 
-        context["start"] = self.start
-        context["end"] = self.event.end
-        context["earliest_start_hour"] = self.earliest_start_hour
-        context["latest_end_hour"] = self.latest_end_hour
+        # Start the plan early enough to completely show slots that started before but are still relevant
+        context["start"] = min([self.start] + [s.start for s in context["akslots"]])
+        # Only show the plan until the cutoff of the visible hours (but never beyond the end of the event).
+        # Extend the range if necessary such that slots starting before but ending after the cutoff are not clipped
+        end = self.event.end
+        if self.cutoff is not None:
+            end = max([self.cutoff] + [s.end for s in context["akslots"]])
+            end = min(end, self.event.end)
+        context["end"] = end
         return context
-
-    def _process_slot(self, akslot):
-        start_hour = akslot.start.astimezone(self.event.timezone).hour
-        if start_hour < self.earliest_start_hour:
-            # Use hour - 1 to improve visibility of date change
-            self.earliest_start_hour = max(start_hour - 1, 0)
-        end_hour = akslot.end.astimezone(self.event.timezone).hour
-        # Special case: AK starts before but ends after midnight -- show until midnight
-        if end_hour < start_hour:
-            self.latest_end_hour = 24
-        elif end_hour > self.latest_end_hour:
-            # Always use hour + 1, since AK may end at :xy and not always at :00
-            self.latest_end_hour = min(end_hour + 1, 24)
 
 
 class PlanCategoryView(PlanIndexView):

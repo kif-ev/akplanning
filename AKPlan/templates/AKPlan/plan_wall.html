@@ -113,6 +113,8 @@
         }
     </style>
 
+    {% include "AKPlan/timeline_markers.html" %}
+
     {% get_current_language as LANGUAGE_CODE %}
 
     {{ akslots_encoded | json_script:"data-events" }}
@@ -133,15 +135,25 @@
                 // Adapt to user selected locale
                 locale: '{{ LANGUAGE_CODE }}',
                 slotDuration: '01:00',
-                initialView: 'resourceTimeline',
+                // Custom view (see common/js/fullcalendar-range-adjusted.js) to show exactly the given range
+                // (FullCalendar itself would round the visible range to full days)
+                initialView: 'resourceTimelineRangeAdjusted',
                 visibleRange: {
                     start: '{{ start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
-                    end: '{{ end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
+                    end: '{{ end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
                 },
+                // Always show the beginning of the plan (which already starts shortly before the current time),
+                // FullCalendar would otherwise scroll to 06:00 (or the next visible hour) by default
+                // On most screens there should be no reason to scroll anyhow with the limited visibility ahead
+                scrollTime: '00:00:00',
                 slotMinTime: '{{ earliest_start_hour }}:00:00',
                 slotMaxTime: '{{ latest_end_hour }}:00:00',
                 eventDidMount: function (info) {
                     $(info.el).tooltip({title: info.event.extendedProps.description});
+                },
+                // Remove the tooltip together with the event, otherwise it would remain visible at an arbitrary position
+                eventWillUnmount: function (info) {
+                    $(info.el).tooltip('dispose');
                 },
                 editable: false,
                 allDaySlot: false,
@@ -157,12 +169,11 @@
                 schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
             });
 
+            // No scrolling to the current time here: The plan already starts shortly before the current time
+            // (to also show recent slots), and scrolling would hide these (especially if the current time lies
+            // within the hidden hours, e.g., during the night, the indicator is placed at the next visible hour)
             plan.render();
 
-            // Scroll to current time
-            if ($(".fc-timeline-now-indicator-line").length) {
-                $('.fc-scroller').scrollLeft($('.fc-timeline-now-indicator-line').position().left);
-            }
 
             // == Ticker for recent changes ==
 

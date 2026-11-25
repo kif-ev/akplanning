@@ -12,6 +12,8 @@
     {% if not event.plan_hidden or user.is_staff %}
         {% get_current_language as LANGUAGE_CODE %}
 
+        {% include "AKPlan/timeline_markers.html" %}
+
         {{ akslots_encoded | json_script:"data-events" }}
         {{ rooms_encoded | json_script:"data-rooms" }}
         {{ buildings_encoded | json_script:"data-buildings" }}
@@ -35,6 +37,14 @@
                     // Adapt to user selected locale
                     locale: '{{ LANGUAGE_CODE }}',
                     initialView: 'resourceTimelineEvent',
+                    // Only allow to select/navigate to the days of the event (FullCalendar rounds to full days)
+                    validRange: {
+                        start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                        end: '{{ event.end | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
+                    },
+                    // Only show the hours of the day in which slots take place (e.g., hide nights without slots)
+                    slotMinTime: '{{ earliest_start_hour }}:00:00',
+                    slotMaxTime: '{{ latest_end_hour }}:00:00',
                     views: {
                         resourceTimelineDay: {
                             type: 'resourceTimeline',
@@ -43,7 +53,9 @@
                             scrollTime: '08:00',
                         },
                         resourceTimelineEvent: {
-                            type: 'resourceTimeline',
+                            // Custom view (see common/js/fullcalendar-range-adjusted.js) to show exactly the event
+                            // (FullCalendar itself would round the visible range to full days)
+                            type: 'resourceTimelineRangeAdjusted',
                             visibleRange: {
                                 start: '{{ event.start | timezone:event.timezone | date:"Y-m-d H:i:s" }}',
                                 end: '{{ event.end | timezone:event.timezone  | date:"Y-m-d H:i:s"}}',
@@ -53,6 +65,11 @@
                     },
                     eventDidMount: function (info) {
                         $(info.el).tooltip({title: info.event.extendedProps.description});
+                    },
+                    // Remove the tooltip together with the event (e.g., when switching the view while hovering),
+                    // otherwise it would remain visible at an arbitrary position
+                    eventWillUnmount: function (info) {
+                        $(info.el).tooltip('dispose');
                     },
                     editable: false,
                     allDaySlot: false,
