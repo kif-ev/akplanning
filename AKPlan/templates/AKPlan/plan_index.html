@@ -250,7 +250,7 @@
 
                     <div class="col-md-6">
                         <h2><a name="currentAKs">{% trans "Next AKs" %}:</a></h2>
-                        {% with akslots_next as slots %}
+                        {% with slots=akslots_next limit_small=plan_max_next_aks %}
                             {% include "AKPlan/slots_table.html" %}
                         {% endwith %}
                     </div>

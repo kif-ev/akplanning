@@ -198,10 +198,16 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
             # Recent AKs: Started but not ended yet
             if akslot.start <= current_timestamp <= akslot.end:
                 context["akslots_now"].append(akslot)
-            # Next AKs: Not started yet, list will be filled in order until threshold is reached
+            # Next AKs: Not started yet (in order of their start)
             elif akslot.start > current_timestamp:
-                if len(context["akslots_next"]) < settings.PLAN_MAX_NEXT_AKS:
-                    context["akslots_next"].append(akslot)
+                context["akslots_next"].append(akslot)
+
+        # Restrict the list of next AKs: Show at least PLAN_MAX_NEXT_AKS, but if the list is shown next to the list
+        # of current AKs (on wider screens), it may be as long as that list. Entries beyond PLAN_MAX_NEXT_AKS are hidden
+        # on smaller screens in the template
+        context["plan_max_next_aks"] = settings.PLAN_MAX_NEXT_AKS
+        context["akslots_next"] = context["akslots_next"][
+                                  :max(settings.PLAN_MAX_NEXT_AKS, len(context["akslots_now"]))]
 
         # Sort list of rooms by title
         context["rooms"] = sorted(rooms, key=lambda x: x.title)
@@ -388,6 +394,9 @@ class PlanScreenView(PlanIndexView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
+
+        # Lists of current and next AKs are always shown below each other, hence apply the fixed limit
+        context["akslots_next"] = context["akslots_next"][:settings.PLAN_MAX_NEXT_AKS]
 
         # Show rooms as flat list without hierarchy (location only as part of the room title)
         for r in context["rooms_encoded"]:
