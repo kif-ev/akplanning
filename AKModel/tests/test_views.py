@@ -1,16 +1,19 @@
 import json
 import re
 import traceback
+from datetime import datetime
 from typing import List
 from urllib.parse import urlencode
 
+from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.base import Message
 from django.core import signing
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse, reverse_lazy
 
+from AKModel.availability.models import Availability
 from AKModel.models import (
     AK,
     AKCategory,
@@ -1019,3 +1022,105 @@ class ModelViewTests(BasicViewTests, TestCase):
         response = self.client.get(status_url)
         self.assertNotContains(response, "Open orga message")
         self.assertRegex(response.content.decode(), rf'href="{re.escape(resolved_list_url)}">\s*2\s*</a>')
+
+
+class EventShiftDatesTests(BasicViewTests, TestCase):
+    """
+    Tests for shifting all dates of an event (debugging functionality)
+    """
+
+    fixtures = ["model.json"]
+
+    def test_event_shift_dates_unavailable_without_debug(self):
+        """
+        Test that shifting event dates (debugging functionality) is neither offered nor reachable without DEBUG
+        (the test runner always uses DEBUG=False)
+        """
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse('admin:AKModel_event_changelist'))
+        actions = [a for a, _ in response.context['action_form'].fields['action'].choices]
+        self.assertNotIn('shift_dates', actions)
+
+        response = self.client.get(reverse('admin:event-shift-dates'), {'pks': '2'})
+        self.assertEqual(response.status_code, 404)
+
+    @staticmethod
+    def _date_snapshot():
+        """
+        Collect the dates of various models belonging to events
+
+        :return: dict mapping (model label, pk, field name) to (event id, value)
+        """
+        snapshot = {}
+        models_and_fields = [
+            (AKSlot, ['start', 'updated']),
+            (Availability, ['start', 'end']),
+            (DefaultSlot, ['start', 'end']),
+            (ConstraintViolation, ['timestamp']),
+            (apps.get_model('AKModel', 'HistoricalAK'), ['history_date', 'trashed_at']),
+        ]
+        for model, fields in models_and_fields:
+            for obj in model.objects.all():
+                for field in fields:
+                    snapshot[(model._meta.label, obj.pk, field)] = (obj.event_id, getattr(obj, field))
+        return snapshot
+
+    def _assert_snapshot_shifted(self, old_snapshot, event_pk, delta):
+        """
+        Assert that all dates belonging to the given event were shifted by delta and all others were not changed
+
+        :param old_snapshot: snapshot before shifting (see :meth:`_date_snapshot`)
+        :param event_pk: primary key of the shifted event
+        :param delta: offset the event was shifted by
+        """
+        new_snapshot = self._date_snapshot()
+        self.assertEqual(new_snapshot.keys(), old_snapshot.keys())
+        for key, (event_id, old_value) in old_snapshot.items():
+            expected = old_value + delta if event_id == event_pk and old_value is not None else old_value
+            self.assertEqual(new_snapshot[key][1], expected, msg=f"{key} not shifted correctly")
+
+    @override_settings(DEBUG=True)
+    def test_event_shift_dates(self):
+        """
+        Test shifting an event and everything belonging to it to a new start date
+        """
+        self.client.force_login(self.admin_user)
+        event = Event.objects.get(pk=2)
+        old_event_values = {f: getattr(event, f) for f in ['start', 'end', 'reso_deadline', 'interest_start',
+                                                           'interest_end', 'plan_published_at', 'poll_published_at']}
+        old_other_event_start = Event.objects.get(pk=1).start
+        old_snapshot = self._date_snapshot()
+        changelist_url = reverse('admin:AKModel_event_changelist')
+        url = reverse('admin:event-shift-dates')
+
+        # Action is offered and redirects to the intermediate view
+        response = self.client.get(changelist_url)
+        self.assertIn('shift_dates', [a for a, _ in response.context['action_form'].fields['action'].choices])
+        response = self.client.post(changelist_url, {'action': 'shift_dates', '_selected_action': ['2']})
+        self.assertRedirects(response, f"{url}?pks=2")
+
+        # Only one event at a time
+        response = self.client.post(changelist_url, {'action': 'shift_dates', '_selected_action': ['1', '2']},
+                                    follow=True)
+        self._assert_message(response, "Dates can only be shifted for exactly one event at a time.")
+
+        # Intermediate view shows the current start (in the timezone of the event)
+        response = self.client.get(url, {'pks': '2'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['form'].initial['new_start'], event.start)
+
+        # Perform shift (new start is interpreted in the timezone of the event)
+        new_start = datetime(2026, 11, 23, 9, 30, tzinfo=event.timezone)
+        delta = new_start - event.start
+        response = self.client.post(f"{url}?pks=2", {'pks': '2', 'new_start': '2026-11-23T09:30'})
+        self.assertRedirects(response, changelist_url)
+
+        event.refresh_from_db()
+        self.assertEqual(event.start, new_start)
+        for field, old_value in old_event_values.items():
+            expected = old_value + delta if old_value is not None else None
+            self.assertEqual(getattr(event, field), expected, msg=f"Event field {field} not shifted correctly")
+
+        # Other events are not touched, everything belonging to the event is shifted, everything else not
+        self.assertEqual(Event.objects.get(pk=1).start, old_other_event_start)
+        self._assert_snapshot_shifted(old_snapshot, event.pk, delta)
