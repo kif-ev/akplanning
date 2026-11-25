@@ -13,7 +13,11 @@ from django.views.generic import CreateView
 
 from AKModel.forms import RoomBatchCreationForm, RoomBatchImportConfirmForm, RoomForm
 from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, IntermediateAdminView
+from AKModel.models import StatusTrackingEntry
 from AKModel.room_import import import_rooms, parse_rooms_csv
+from AKModel.status_tracking import status_tracker
+
+Progress = StatusTrackingEntry.Progress
 
 
 class RoomCreationView(AdminViewMixin, CreateView):
@@ -113,20 +117,35 @@ class RoomBatchImportConfirmView(EventSlugMixin, IntermediateAdminView):
         try:
             created_count = import_rooms(result, self.event, form.cleaned_data["create_default_availabilities"])
         except django.db.Error as e:
-            messages.add_message(self.request, messages.ERROR,
-                                 _("Could not import rooms, no rooms were created: {e}").format(e=str(e)))
+            error_message = _("Could not import rooms, no rooms were created: {e}").format(e=str(e))
+            messages.add_message(self.request, messages.ERROR, error_message)
+            self._record_progress(Progress.FAILED, error_message)
             return redirect('admin:room-import', event_slug=self.event.slug)
 
+        details = []
         if result.errors:
-            messages.add_message(self.request, messages.WARNING,
-                                 _("Skipped {count} line(s) with errors").format(
-                                         count=len({line for line, _error in result.errors})))
+            skipped_message = _("Skipped {count} line(s) with errors").format(
+                    count=len({line for line, _error in result.errors}))
+            messages.add_message(self.request, messages.WARNING, skipped_message)
+            details.append(skipped_message)
         if created_count > 0:
-            messages.add_message(self.request, messages.SUCCESS,
-                                 _("Imported {count} room(s)").format(count=created_count))
+            imported_message = _("Imported {count} room(s)").format(count=created_count)
+            messages.add_message(self.request, messages.SUCCESS, imported_message)
+            # Rooms are complete unless some of them were skipped and still have to be fixed and imported
+            self._record_progress(Progress.IN_PROGRESS if result.errors else Progress.DONE,
+                                  "\n".join([imported_message, *details]))
         else:
             messages.add_message(self.request, messages.WARNING, _("No rooms imported"))
         return super().form_valid(form)
+
+    def _record_progress(self, progress: str, detail: str):
+        """
+        Track the progress of room creation (if the step is registered)
+
+        :param progress: new progress of the step
+        :param detail: detail text describing the import result
+        """
+        status_tracker.record_if_registered(self.event, "scheduling", "rooms", progress, detail=detail)
 
 
 class RoomCSVTemplateView(EventSlugMixin, View):

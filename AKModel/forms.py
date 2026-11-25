@@ -8,8 +8,10 @@ from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
-from AKModel.models import AK, AKCategory, AKRequirement, AKTrack, AKType, DefaultSlot, Event, Room
+from AKModel.models import AK, AKCategory, AKRequirement, AKTrack, AKType, DefaultSlot, Event, Room, \
+    StatusTrackingEntry
 from AKModel.room_import import decode_csv_bytes
+from AKModel.status_tracking import status_tracker
 
 
 class DateTimeInput(forms.DateTimeInput):
@@ -446,6 +448,34 @@ class TrackAssignmentForm(AdminIntermediateActionForm):
         return cleaned_data
 
 
+class EventRestrictedFieldsFormMixin:
+    """
+    Mixin for model forms of event-related models:
+    Restrict the choices of the foreign key or many-to-many fields listed in ``Meta.event_restricted_fields``
+    to objects belonging to the same event as the edited instance (if the instance has an event already)
+
+    Usage::
+
+        class AKSlotAdminForm(EventRestrictedFieldsFormMixin, forms.ModelForm):
+            class Meta:
+                event_restricted_fields = ["ak", "room"]
+
+    Like other ``Meta`` options, the setting is only inherited by subclasses that do not define their own ``Meta``
+    or let it inherit from the parent's (``class Meta(ParentForm.Meta)``).
+    Fields listed there that are not part of the form (e.g., because they are read-only in the admin) are skipped.
+    """
+    # pylint: disable=too-few-public-methods
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        event = getattr(self.instance, "event", None)
+        if event is not None:
+            for field_name in getattr(getattr(self, "Meta", None), "event_restricted_fields", []):
+                if field_name in self.fields:
+                    field = self.fields[field_name]
+                    field.queryset = field.queryset.filter(event=event)
+
+
 class RoomForm(forms.ModelForm):
     """
     Room (creation) form (basic), will be extended for handling of availabilities
@@ -461,12 +491,13 @@ class RoomForm(forms.ModelForm):
                   ]
 
 
-class RoomFormWithAvailabilities(AvailabilitiesFormMixin, RoomForm):
+class RoomFormWithAvailabilities(EventRestrictedFieldsFormMixin, AvailabilitiesFormMixin, RoomForm):
     """
     Room (update) form including handling of availabilities, extends :class:`RoomForm`
     """
 
     class Meta:
+        event_restricted_fields = ["properties"]
         model = Room
         fields = ['name',
                   'location',
@@ -484,9 +515,6 @@ class RoomFormWithAvailabilities(AvailabilitiesFormMixin, RoomForm):
         kwargs['initial'] = {}
         super().__init__(*args, **kwargs)
         self.initial = {**self.initial, **kwargs['initial']}
-        # Filter possible values for m2m when event is specified
-        if hasattr(self.instance, "event") and self.instance.event is not None:
-            self.fields["properties"].queryset = AKRequirement.objects.filter(event=self.instance.event)
 
 
 class DefaultSlotCategoriesForm(AdminIntermediateActionForm):
@@ -523,3 +551,87 @@ class DefaultSlotCategoriesForm(AdminIntermediateActionForm):
         event = slots[0].event
 
         return cleaned_data
+
+
+class AKAdminForm(EventRestrictedFieldsFormMixin, forms.ModelForm):
+    """
+    Modified admin form for AKs, to be used in :class:`AKModel.admin.AKAdmin`
+    """
+
+    class Meta:
+        event_restricted_fields = ["category", "track", "owners", "requirements", "conflicts", "prerequisites",
+                                   "types"]
+        widgets = {
+            'requirements': forms.CheckboxSelectMultiple,
+        }
+
+
+class AKSlotAdminForm(EventRestrictedFieldsFormMixin, forms.ModelForm):
+    """
+    Modified admin form for AKSlots, to be used in :class:`AKModel.admin.AKSlotAdmin`
+    """
+
+    class Meta:
+        event_restricted_fields = ["ak", "room"]
+
+
+class AvailabilityAdminForm(EventRestrictedFieldsFormMixin, forms.ModelForm):
+    """
+    Modified admin form for Availability, to be used in :class:`AKModel.admin.AvailabilityAdmin`
+    """
+
+    class Meta:
+        event_restricted_fields = ["person", "room", "ak", "ak_category", "participant"]
+
+
+class ConstraintViolationAdminForm(EventRestrictedFieldsFormMixin, forms.ModelForm):
+    """
+    Adapted admin form for constraint violations for usage in :class:`AKModel.admin.ConstraintViolationAdmin`
+    """
+
+    class Meta:
+        event_restricted_fields = ["ak_owner", "room", "requirement", "category", "aks", "ak_slots"]
+
+
+class DefaultSlotAdminForm(EventRestrictedFieldsFormMixin, forms.ModelForm):
+    """
+    Adapted admin form for DefaultSlot for usage in :class:`AKModel.admin.DefaultSlotAdmin`
+    """
+
+    class Meta:
+        event_restricted_fields = ["primary_categories"]
+        widgets = {
+            'primary_categories': forms.CheckboxSelectMultiple
+        }
+
+
+class StatusTrackingEntryAdminForm(forms.ModelForm):
+    """
+    Adapted admin form for status tracking entries for usage in :class:`StatusTrackingEntryAdmin`
+
+    Replaces the free-text phase and step fields by a single selection of the registered steps (grouped by phase)
+    """
+    phase_step = forms.ChoiceField(label=_("Step"),
+                                   help_text=_("Step (and phase) this entry belongs to. "
+                                               "Mandatory steps are marked with an asterisk (*)."))
+
+    class Meta:
+        model = StatusTrackingEntry
+        fields = ['event', 'phase_step', 'progress', 'detail', 'timestamp']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        choices = [(str(phase.name), [(f"{phase.key}/{step.key}", f"{step.name} *" if step.mandatory else step.name)
+                                      for step in status_tracker.get_steps(phase.key)])
+                   for phase in status_tracker.get_phases()]
+        if self.instance.pk:
+            current = f"{self.instance.phase}/{self.instance.step}"
+            self.initial["phase_step"] = current
+            # Keep entries of steps that are no longer registered editable
+            if all(current != value for _group_name, group in choices for value, _label in group):
+                choices.append((_("Unregistered"), [(current, current)]))
+        self.fields["phase_step"].choices = [(name, group) for name, group in choices if group]
+
+    def save(self, commit=True):
+        self.instance.phase, self.instance.step = self.cleaned_data["phase_step"].split("/", 1)
+        return super().save(commit)

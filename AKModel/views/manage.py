@@ -17,7 +17,11 @@ from AKModel.availability.models import Availability
 from AKModel.forms import CVMarkResolvedForm, DefaultSlotCategoriesForm, DefaultSlotEditorForm, ShiftByOffsetForm, \
     SlideExportForm
 from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, IntermediateAdminActionView, IntermediateAdminView
-from AKModel.models import AKCategory, AKOwner, AKSlot, AKType, ConstraintViolation, DefaultSlot, Event
+from AKModel.models import AKCategory, AKOwner, AKSlot, AKType, ConstraintViolation, DefaultSlot, Event, \
+    StatusTrackingEntry
+from AKModel.status_tracking import status_tracker
+
+Progress = StatusTrackingEntry.Progress
 
 
 class UserView(TemplateView):
@@ -448,6 +452,9 @@ class PlanPublishView(IntermediateAdminActionView):
 
     def action(self, form):
         self.entities.update(plan_published_at=timezone.now(), plan_hidden=False)
+        for event in self.entities:
+            status_tracker.record_if_registered(event, "scheduling", "publish_plan", Progress.DONE,
+                                                detail=str(self.success_message))
 
 
 class PlanUnpublishView(IntermediateAdminActionView):
@@ -461,6 +468,10 @@ class PlanUnpublishView(IntermediateAdminActionView):
 
     def action(self, form):
         self.entities.update(plan_published_at=None, plan_hidden=True)
+        # The plan has to be published again, hence the step is no longer done
+        for event in self.entities:
+            status_tracker.record_if_registered(event, "scheduling", "publish_plan", Progress.IN_PROGRESS,
+                                                detail=str(self.success_message))
 
 
 class PollPublishView(IntermediateAdminActionView):

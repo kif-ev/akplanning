@@ -7,27 +7,21 @@ from django.urls import path, reverse_lazy
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from AKModel.admin import EventRelatedFieldListFilter, PrepopulateWithNextActiveEventMixin
-from AKModel.models import AK, AKRequirement
+from AKModel.admin_utils import EventRelatedFieldListFilter, PrepopulateWithNextActiveEventMixin
+from AKModel.forms import EventRestrictedFieldsFormMixin
 from AKPreference.models import AKPreference, EventParticipant
 from AKPreference.views import AnonymizeParticipantsView, ParticipantAdminView
 
 
-class EventParticipantAdminForm(forms.ModelForm):
+class EventParticipantAdminForm(EventRestrictedFieldsFormMixin, forms.ModelForm):
     """
     Adapted admin form for EventParticipant for usage in :class:`EventParticipantAdmin`)
     """
-
     class Meta:
+        event_restricted_fields = ["requirements"]
         widgets = {
             "requirements": forms.CheckboxSelectMultiple,
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Filter possible values for foreign keys & m2m when event is specified
-        if hasattr(self.instance, "event") and self.instance.event is not None:
-            self.fields["requirements"].queryset = AKRequirement.objects.filter(event=self.instance.event)
 
 
 @admin.register(EventParticipant)
@@ -86,23 +80,16 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
                 f"{reverse_lazy('admin:preference-anonymize-participants')}?pks={','.join(str(pk) for pk in selected)}")
 
 
-class AKPreferenceAdminForm(forms.ModelForm):
+class AKPreferenceAdminForm(EventRestrictedFieldsFormMixin, forms.ModelForm):
     """
     Adapted admin form for AK preferences for usage in :class:`AKPreferenceAdmin`)
     """
-
     class Meta:
+        event_restricted_fields = ["participant", "ak"]
         widgets = {
             'participant': forms.Select,
             'ak': forms.Select,
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Filter possible values for foreign keys & m2m when event is specified
-        if hasattr(self.instance, "event") and self.instance.event is not None:
-            self.fields["participant"].queryset = EventParticipant.objects.filter(event=self.instance.event)
-            self.fields["ak"].queryset = AK.objects.filter(event=self.instance.event)
 
 
 @admin.register(AKPreference)

@@ -1671,3 +1671,56 @@ class DefaultSlot(models.Model):
 
     def __str__(self):
         return f"{self.event}: {self.start_simplified} - {self.end_simplified}"
+
+
+class StatusTrackingEntry(models.Model):
+    """
+    A single progress increment for one step of the organization of an event
+
+    Phases and steps are not stored in the database but registered in code
+    (see :class:`AKModel.status_tracking.StatusTracker`); entries refer to them by their keys.
+    Multiple entries may exist per combination of event, phase and step; the most recent one determines the
+    current progress. Steps without any entry are considered as not started.
+    """
+
+    class Progress(models.TextChoices):
+        """
+        Possible progress states of a step
+
+        Steps that can be skipped for a specific event can be marked as not needed,
+        they then count as completed just like steps that are done.
+        """
+        NOT_STARTED = 'not_started', _('Not started')
+        IN_PROGRESS = 'in_progress', _('In progress')
+        FAILED = 'failed', _('Failed')
+        DONE = 'done', _('Done')
+        NOT_NEEDED = 'not_needed', _('Not needed')
+
+        @classmethod
+        def completed_states(cls) -> set:
+            """
+            :return: progress states in which a step counts as completed (done or not needed)
+            """
+            return {cls.DONE, cls.NOT_NEEDED}
+
+    event = models.ForeignKey(to=Event, on_delete=models.CASCADE, verbose_name=_('Event'),
+                              help_text=_('Associated event'))
+    phase = models.CharField(max_length=64, verbose_name=_('Phase'),
+                             help_text=_('Key of the phase this entry belongs to'))
+    step = models.CharField(max_length=64, verbose_name=_('Step'),
+                            help_text=_('Key of the step (within the phase) this entry belongs to'))
+    progress = models.CharField(max_length=16, choices=Progress.choices, default=Progress.NOT_STARTED,
+                                verbose_name=_('Progress'), help_text=_('Progress of this step'))
+    detail = models.TextField(blank=True, verbose_name=_('Detail'),
+                              help_text=_('Further information about the progress of this step'))
+    timestamp = models.DateTimeField(default=timezone.now, verbose_name=_('Timestamp'),
+                                     help_text=_('Time this progress was recorded'))
+
+    class Meta:
+        verbose_name = _('Status Tracking Entry')
+        verbose_name_plural = _('Status Tracking Entries')
+        ordering = ['-timestamp', '-pk']
+        indexes = [models.Index(fields=['event', 'phase', 'step'])]
+
+    def __str__(self):
+        return f"{self.event}: {self.phase}/{self.step} - {self.get_progress_display()}"
