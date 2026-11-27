@@ -3,11 +3,10 @@
 # cause issues when loading fixtures or model dumps, it is not wise to replace that attribute with "_".
 # Therefore, the check that finds unused arguments is disabled for this whole file:
 # pylint: disable=unused-argument
-from typing import Iterable
-
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
+from typing import Iterable
 
 from AKModel.availability.models import Availability
 from AKModel.models import AK, AKSlot, ConstraintViolation, Event, Room
@@ -58,7 +57,7 @@ def update_cv_reso_deadline_for_slot(slot):
     violation_type = ConstraintViolation.ViolationType.AK_AFTER_RESODEADLINE
     if slot.ak.reso and slot.event.reso_deadline and slot.start:
         # Violation?
-        if slot.end > event.reso_deadline:
+        if slot.scheduled_end > event.reso_deadline:
             c = ConstraintViolation(
                     type=violation_type,
                     level=ConstraintViolation.ViolationLevel.VIOLATION,
@@ -243,7 +242,7 @@ def get_cvs_where_ak_is_prerequisite(slot: AKSlot, event: Event) -> Iterable[Con
         if ak != slot.ak:
             for other_slot in ak.akslot_set.filter(start__isnull=False):
                 # ...find slots in the wrong order...
-                if slot.end > other_slot.start:
+                if slot.scheduled_end > other_slot.scheduled_start:
                     # ...and create a temporary violation if necessary...
                     c = ConstraintViolation(
                             type=violation_type,
@@ -282,7 +281,7 @@ def ak_prerequisites_changed_handler(sender, instance: AK, action: str, **kwargs
             for other_slot in ak.akslot_set.filter(start__isnull=False):
                 for slot in slots_of_this_ak:
                     # ...find overlapping slots...
-                    if other_slot.end > slot.start:
+                    if other_slot.scheduled_end > slot.scheduled_start:
                         # ...and create a temporary violation if necessary...
                         c = ConstraintViolation(
                                 type=violation_type,
@@ -474,7 +473,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
         covered = False
 
         for availability in availabilities_of_this_ak:
-            covered = availability.start <= instance.start and availability.end >= instance.end
+            covered = availability.start <= instance.start and availability.end >= instance.scheduled_end
             if covered:
                 break
         if not covered:
@@ -566,7 +565,7 @@ def akslot_changed_handler(sender, instance: AKSlot, **kwargs):
             if ak != instance.ak:
                 for other_slot in ak.akslot_set.filter(start__isnull=False):
                     # ...find slots in the wrong order...
-                    if other_slot.end > instance.start:
+                    if other_slot.scheduled_end > instance.start:
                         # ...and create a temporary violation if necessary...
                         c = ConstraintViolation(
                                 type=violation_type,
@@ -700,7 +699,7 @@ def availability_changed_handler(sender, instance: Availability, **kwargs):
         for slot in slots_of_this_ak:
             covered = False
             for availability in availabilities_of_this_ak:
-                covered = availability.start <= slot.start and availability.end >= slot.end
+                covered = availability.start <= slot.scheduled_start and availability.end >= slot.scheduled_end
                 if covered:
                     break
             if not covered:

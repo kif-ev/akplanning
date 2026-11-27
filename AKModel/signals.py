@@ -21,7 +21,8 @@ def remember_previous_activation_state(sender, instance: Event, raw=False, **kwa
     previous = None
     if not raw and instance.pk is not None:
         previous = Event.objects.filter(pk=instance.pk).values_list("active", flat=True).first()
-    instance._previous_active = previous  # pylint: disable=protected-access
+    # Not a model field, just remembered on the instance until post_save
+    setattr(instance, "_previous_active", previous)
 
 
 @receiver(post_save, sender=Event)

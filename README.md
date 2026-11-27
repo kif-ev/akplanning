@@ -40,6 +40,8 @@ Afterward, you may check your setup by executing ``Utils/check.sh`` or ``Utils/c
 
 ## Developer Notes
 
+* to check type annotations use ````python -m mypy```` (requires ````pip install -r requirements/lint.txt````,
+  the configuration is in ````setup.cfg````)
 * to regenerate translations use ````python manage.py makemessages -l de_DE --ignore venv````
 * to create a data backup use
   ````python manage.py dumpdata --all --indent 2 --natural-foreign --natural-primary -e contenttypes -e auth.Permission > "db.json" --traceback````

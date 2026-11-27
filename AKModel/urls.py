@@ -1,6 +1,6 @@
 from csp.decorators import csp_update
 from django.apps import apps
-from django.urls import include, path
+from django.urls import include, path, URLPattern, URLResolver
 from rest_framework.routers import DefaultRouter
 
 import AKModel.views.api
@@ -25,7 +25,7 @@ api_router.register('room', AKModel.views.api.RoomViewSet, basename='Room')
 api_router.register('akslot', AKModel.views.api.AKSlotViewSet, basename='AKSlot')
 
 # TODO Can we move this functionality to the individual apps instead?
-extra_paths = []
+extra_paths: list[URLPattern | URLResolver] = []
 # If AKScheduling is active, register additional API endpoints
 if apps.is_installed("AKScheduling"):
     from AKScheduling.api import ResourcesViewSet, RoomAvailabilitiesView, EventsView, EventsViewSet, \
@@ -38,7 +38,7 @@ if apps.is_installed("AKScheduling"):
 
     extra_paths.append(path('api/scheduling-events/', EventsView.as_view(), name='scheduling-events'))
     extra_paths.append(path('api/scheduling-room-availabilities/', RoomAvailabilitiesView.as_view(),
-                            name='scheduling-room-availabilities')),
+                            name='scheduling-room-availabilities'))
     extra_paths.append(path('api/scheduling-default-slots/', DefaultSlotsView.as_view(),
                             name='scheduling-default-slots'))
 
@@ -55,7 +55,7 @@ if apps.is_installed("AKSolverInterface"):
 
     api_router.register("solver-export", ExportEventForSolverViewSet, basename="solver-export")
 
-event_specific_paths = [
+event_specific_paths: list[URLPattern | URLResolver] = [
     path('api/', include(api_router.urls), name='api'),
     path('slides/', PublishedSlidesView.as_view(), name='ak_slides_public'),
     path('slides/pdf/', PublishedSlidesPDFView.as_view(), name='ak_slides_pdf'),

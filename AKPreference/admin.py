@@ -48,6 +48,7 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
                                .order_by().values('participant').annotate(count=Count('pk')).values('count'))
         return qs.annotate(preference_count=Coalesce(Subquery(counted_preferences), 0))
 
+    @admin.display(description=_('Count of saved preferences'), ordering='preference_count')
     def preference_count(self, obj):
         """
         Access the annotated preference count for the participants as field in the admin list view
@@ -57,9 +58,6 @@ class EventParticipantAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmi
         return format_html("<a href='{url}'>{text}</a>",
                            url=reverse_lazy('admin:participant-details', kwargs={'pk': obj.pk}),
                            text=obj.preference_count)
-
-    preference_count.admin_order_field = 'preference_count'
-    preference_count.short_description = _('Count of saved preferences')
 
     def get_urls(self):
         """

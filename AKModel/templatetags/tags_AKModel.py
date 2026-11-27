@@ -3,7 +3,8 @@ from django.apps import apps
 from django.conf import settings
 from django.template.defaultfilters import date
 from django.templatetags.static import static
-from django.utils.html import conditional_escape, format_html, mark_safe
+from django.utils.html import conditional_escape, format_html
+from django.utils.safestring import mark_safe
 from fontawesome_6.app_settings import get_css
 
 from AKModel.models import Event

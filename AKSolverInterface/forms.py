@@ -1,11 +1,11 @@
 import json
-
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import best_match
+from typing import cast
 
-from AKModel.forms import AdminIntermediateForm
+from AKModel.forms import AdminIntermediateForm, restrict_to_event
 from AKModel.models import AKCategory, AKTrack, AKType, Event
 from AKSolverInterface.utils import construct_schema_validator
 
@@ -79,21 +79,19 @@ class JSONExportControlForm(forms.Form):
 
         def _set_queryset(field_name: str):
             # restrict queryset to all objects of this event
-            self.fields[field_name].queryset = self.fields[field_name].queryset.filter(
-                    event=self.event,
-            )
+            queryset = restrict_to_event(self, field_name, self.event)
 
             # default init: all objects are checked
-            self.fields[field_name].initial = self.fields[field_name].queryset
+            self.fields[field_name].initial = queryset
 
             # if queryset is empty, simply remove the field
-            if not self.fields[field_name].queryset.exists():
+            if not queryset.exists():
                 self.fields.pop(field_name)
 
         for field_name in ["export_categories", "export_tracks", "export_types"]:
             _set_queryset(field_name)
 
-        self.fields["ignore_slot_category_mismatches"].choices = [
+        cast(forms.MultipleChoiceField, self.fields["ignore_slot_category_mismatches"]).choices = [
             (ak.pk, f"{ak.name} ({ak.category})") for ak in self.event.ak_set.select_related('category').all()
         ]
 
@@ -154,7 +152,8 @@ class JSONScheduleImportForm(AdminIntermediateForm):
         If so, the entered JSON string is validated against our schema.
         Any errors are reported at the corresponding form field.
         """
-        cleaned_data = super().clean()
+        super().clean()
+        cleaned_data = self.cleaned_data
         if cleaned_data.get("json_file") and cleaned_data.get("json_data"):
             err = ValidationError(
                     _("Please enter data as a file OR via text, not both."), "invalid"
@@ -173,7 +172,7 @@ class JSONScheduleImportForm(AdminIntermediateForm):
             data = cleaned_data.get(source_field)
             if not data:
                 source_field = "json_file"
-                with cleaned_data.get(source_field).open() as ff:
+                with cleaned_data[source_field].open() as ff:
                     data = ff.read()
             try:
                 cleaned_data["data"] = self._check_json_data(data)

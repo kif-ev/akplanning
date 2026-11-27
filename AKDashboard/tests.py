@@ -1,9 +1,9 @@
 import zoneinfo
-
 from django.apps import apps
 from django.test import override_settings, TestCase
 from django.urls import reverse
 from django.utils.timezone import now
+from typing import Any
 
 from AKDashboard.models import DashboardButton, EventFact
 from AKModel.models import AK, AKCategory, AKOwner, AKSlot, Event, Room
@@ -14,6 +14,9 @@ class DashboardTests(TestCase):
     """
     Specific Dashboard Tests
     """
+    # Set in setUpTestData
+    event: Event
+    default_category: AKCategory
 
     @classmethod
     def setUpTestData(cls):
@@ -215,7 +218,7 @@ class DashboardEventInfoTests(TestCase):
         """
         response = self.client.get(reverse('dashboard:dashboard_event_info', kwargs={'slug': slug}))
         self.assertEqual(response.status_code, 200, msg="Info page not reachable")
-        facts = {}
+        facts: dict[str, Any] = {}
         for fact in response.context['facts']:
             facts[str(fact['title'])] = (str(fact['value']), str(fact['detail']))
             if fact['ranking']:

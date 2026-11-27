@@ -3,9 +3,9 @@ Scheduling statistics: Number of scheduled AK slots per default slot (overall an
 and a simple line chart visualization of these numbers (rendered as SVG, no JavaScript library needed)
 """
 import math
-
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
+from typing import Any
 
 from AKModel.models import AKSlot, Event
 
@@ -49,9 +49,10 @@ def scheduling_statistics(event: Event) -> dict:
         return [sum(1 for s in slot_list if s.ak.category_id == c.pk) for c in categories]
 
     rows = []
-    inside = set()
+    inside: set[int] = set()
     for default_slot in default_slots:
-        slots_in_default_slot = [s for s in slots if default_slot.start <= s.start < default_slot.end]
+        slots_in_default_slot = [s for s in slots
+                                 if default_slot.start <= s.scheduled_start < default_slot.end]
         inside.update(s.pk for s in slots_in_default_slot)
         rows.append({
             "default_slot": default_slot,
@@ -128,7 +129,7 @@ def _chart_series(stats: dict, x_pos, y_pos) -> list[dict]:
     :rtype: list[dict]
     """
     rows = stats["rows"]
-    definitions = [{"name": _("All categories"), "color": _TOTAL_COLOR, "width": 3,
+    definitions: list[dict[str, Any]] = [{"name": _("All categories"), "color": _TOTAL_COLOR, "width": 3,
                     "values": [r["total"] for r in rows]}]
     for index, category in enumerate(stats["categories"]):
         definitions.append({"name": str(category["category"]), "color": category["color"], "width": 2,

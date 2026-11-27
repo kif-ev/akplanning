@@ -79,7 +79,8 @@ def lookup_slots(event: Event) -> dict:
             "fields": [
                 [_("AK"), [_ref("ak", slot.ak.pk, slot.ak.name)]],
                 [_("Duration"), f"{slot.duration} h"],
-                [_("Scheduled"), _format_range(event, slot.start, slot.end) if slot.start else _("Not scheduled yet")],
+                [_("Scheduled"),
+                 _format_range(event, slot.start, slot.scheduled_end) if slot.start else _("Not scheduled yet")],
                 [_("Room"), [_ref("room", slot.room.pk, slot.room)] if slot.room else "-"],
                 [_("Fixed"), _yes_no(slot.fixed)],
             ],
@@ -171,7 +172,7 @@ def lookup_participants(event: Event) -> dict:
             required = [p.ak for p in preferences if p.required]
             if participant.ak_owner_id is not None:
                 linked_owner_pks.add(participant.ak_owner_id)
-            fields = [
+            fields: list[list[str | list[dict]]] = [
                 [_("Preferences"), str(len(preferences))],
                 [_("AK owner"), str(participant.ak_owner) if participant.ak_owner else "-"],
             ]

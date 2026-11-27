@@ -185,7 +185,7 @@ def _count_institutions(institution_names):
     # Step 1: Group the spellings by institution and count how often each spelling occurs.
     # The normalized name (trimmed and case-insensitive) identifies the institution, e.g.,
     # {"uni x": Counter({"Uni X": 2, "uni x": 1})}
-    spellings_per_institution = defaultdict(Counter)
+    spellings_per_institution: defaultdict[str, Counter[str]] = defaultdict(Counter)
     for name in institution_names:
         spelling = name.strip()
         if spelling == "":
@@ -326,15 +326,16 @@ class DashboardEventInfoView(DetailView):
 
     @staticmethod
     def _ak_name_facts(event):
-        aks = AK.objects.filter(event=event).annotate(name_length=Length('name'))
-        longest = aks.order_by('-name_length', Lower('name')).first()
-        if longest is None:
+        # Load all names at once to determine both from the same data (ties are broken alphabetically)
+        names = list(AK.objects.filter(event=event).values_list('name', flat=True))
+        if not names:
             return []
-        shortest = aks.order_by('name_length', Lower('name')).first()
+        shortest = min(names, key=lambda name: (len(name), name.lower()))
+        longest = min(names, key=lambda name: (-len(name), name.lower()))
         return [
-            _fact(icon, title, ak.name,
-                  ngettext("%(count)s character", "%(count)s characters", ak.name_length) % {'count': ak.name_length})
-            for icon, title, ak in [
+            _fact(icon, title, name,
+                  ngettext("%(count)s character", "%(count)s characters", len(name)) % {'count': len(name)})
+            for icon, title, name in [
                 (('temperature-empty', 'fas'), _("Shortest AK name"), shortest),
                 (('temperature-three-quarters', 'fas'), _("Longest AK name"), longest)
             ]

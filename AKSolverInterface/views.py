@@ -1,6 +1,6 @@
-import json
 from collections import Counter
 
+import json
 from django.apps import apps
 from django.contrib import messages
 from django.db.models import Count, Q
@@ -33,6 +33,7 @@ class SchedulingWizardMixin(WizardViewMixin):
     Has to be combined with :class:`EventSlugMixin`.
     """
     # pylint: disable=too-few-public-methods
+    event: Event  # provided by EventSlugMixin
     wizard_title = _("Automatic Scheduling Workflow")
     wizard_steps = [
         _("Basic Checks"),

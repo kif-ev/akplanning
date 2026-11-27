@@ -7,7 +7,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User  # pylint: disable=E5142
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, F
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import path, reverse_lazy
 from django.utils import timezone
@@ -212,7 +212,7 @@ class AKOwnerAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
         qs = super().get_queryset(request)
         return qs.annotate(ak_count=Count('ak'))
 
-    @display(description=_("AKs"))
+    @display(description=_("AKs"), ordering="ak_count")
     def aks_url(self, obj):
         """
         Define a read-only field to go to the list of all AKs by this user
@@ -224,8 +224,6 @@ class AKOwnerAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
         return format_html("<a href='{url}'>{text}</a>",
                            url=reverse_lazy('admin:aks_by_owner', kwargs={'event_slug': obj.event.slug, 'pk': obj.pk}),
                            text=obj.ak_count)
-
-    aks_url.admin_order_field = 'ak_count'
 
 
 @admin.register(AKCategory)
@@ -392,6 +390,8 @@ class AKAdmin(PrepopulateWithNextActiveEventMixin, SimpleHistoryAdmin):
         if request.POST and "_to_trash" in request.POST:
             to_field = request.POST.get("_to_field", request.GET.get("_to_field"))
             obj = self.get_object(request, unquote(object_id), to_field)
+            if obj is None:
+                raise Http404
             if not self.has_delete_permission(request, obj):
                 raise PermissionDenied
             obj.move_to_trash()
@@ -542,13 +542,14 @@ class RoomAdmin(PrepopulateWithNextActiveEventMixin, admin.ModelAdmin):
         when the support for virtual rooms is turned on (AKOnline app active)
         """
         # pylint: disable=import-outside-toplevel
+        from .views.room import RoomCreationView
+        room_creation_view: type[RoomCreationView] = RoomCreationView
         if apps.is_installed("AKOnline"):
-            from AKOnline.views import RoomCreationWithVirtualView as RoomCreationView
-        else:
-            from .views.room import RoomCreationView
+            from AKOnline.views import RoomCreationWithVirtualView
+            room_creation_view = RoomCreationWithVirtualView
 
         urls = [
-            path('new/', self.admin_site.admin_view(RoomCreationView.as_view()), name="room-new"),
+            path('new/', self.admin_site.admin_view(room_creation_view.as_view()), name="room-new"),
         ]
         urls.extend(super().get_urls())
         return urls
@@ -623,8 +624,6 @@ class AKSlotAdmin(EventTimezoneFormMixin, PrepopulateWithNextActiveEventMixin, a
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
                 f"{reverse_lazy('admin:shift-slots')}?pks={','.join(str(pk) for pk in selected)}")
-
-    ak_details_link.short_description = _('AK Details')
 
 
 @admin.register(Availability)
@@ -752,6 +751,13 @@ class ConstraintViolationAdmin(admin.ModelAdmin):
         selected = queryset.values_list('pk', flat=True)
         return HttpResponseRedirect(
                 f"{reverse_lazy('admin:cv-set-warning')}?pks={','.join(str(pk) for pk in selected)}")
+
+    @admin.display(description=_('Details'))
+    def get_details(self, obj: ConstraintViolation) -> str:
+        """
+        Details of the constraint violation (all fields connected to it), see :meth:`ConstraintViolation.get_details`
+        """
+        return obj.get_details()
 
 
 @admin.register(DefaultSlot)

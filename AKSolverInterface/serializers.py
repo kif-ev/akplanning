@@ -1,10 +1,11 @@
 from collections import defaultdict
+
 from collections.abc import Callable
 from datetime import datetime, timezone
-
 from django.apps import apps
 from django.db.models.query import QuerySet
 from rest_framework import serializers
+from typing import Any
 
 from AKModel.models import AK, AKSlot, Event, Room
 from AKModel.serializers import IntListField, StringListField
@@ -60,7 +61,9 @@ def _compute_availabilities_without_scheduled_slots(
     # pylint: disable=import-outside-toplevel,too-many-locals,too-many-branches
     from AKModel.availability.models import Availability
 
-    removals = {key: defaultdict(list) for key in ["ak", "room", "person", "participant"]}
+    removals: dict[str, defaultdict[int, list[Availability]]] = {
+        key: defaultdict(list) for key in ["ak", "room", "person", "participant"]
+    }
 
     # participants affected by scheduled slots, queried once instead of per slot
     linked_participant_pks = defaultdict(set)
@@ -79,7 +82,7 @@ def _compute_availabilities_without_scheduled_slots(
             required_participant_pks[ak_pk].add(participant_pk)
 
     for slot in scheduled_slots.select_related("ak").prefetch_related("ak__owners"):
-        slot_avail = Availability(event=event, start=slot.start, end=slot.end)
+        slot_avail = Availability(event=event, start=slot.scheduled_start, end=slot.scheduled_end)
         ak = slot.ak
 
         if slot.room_id is not None:
@@ -98,11 +101,13 @@ def _compute_availabilities_without_scheduled_slots(
         for ak_pk in conflicting_ak_pks:
             removals["ak"][ak_pk].append(slot_avail)
 
-        until_slot_end = Availability(event=event, start=datetime.min.replace(tzinfo=timezone.utc), end=slot.end)
+        until_slot_end = Availability(event=event, start=datetime.min.replace(tzinfo=timezone.utc),
+                                      end=slot.scheduled_end)
         for ak_pk in AK.objects.filter(prerequisites=ak).values_list("pk", flat=True):
             removals["ak"][ak_pk].append(until_slot_end)
 
-        from_slot_start = Availability(event=event, start=slot.start, end=datetime.max.replace(tzinfo=timezone.utc))
+        from_slot_start = Availability(event=event, start=slot.scheduled_start,
+                                       end=datetime.max.replace(tzinfo=timezone.utc))
         for ak_pk in ak.prerequisites.values_list("pk", flat=True):
             removals["ak"][ak_pk].append(from_slot_start)
 
@@ -168,6 +173,8 @@ def _restrict_owner_availabilities_to_linked_participants(
         if not participant_avails or Availability.is_event_covered(event, participant_avails):
             continue
         owner_pk = participant.ak_owner_id
+        # guaranteed by the filter of the queryset above
+        assert owner_pk is not None and participant.ak_owner is not None
         if owner_pk in restricted:
             owner_avails = restricted[owner_pk]
         else:
@@ -433,7 +440,7 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
     def __init__(
             self,
             *args,
-            slots_qs: QuerySet = None,
+            slots_qs: QuerySet | None = None,
             filter_participants_cb: Callable[[QuerySet], QuerySet],
             export_preferences: bool = True,
             participant_availabilities: dict[int, list] | None = None,
@@ -460,7 +467,7 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
         event = instance
 
         # default case
-        real_participants = []
+        real_participants: list[dict] = []
         next_participant_pk = 1
         linked_owner_pks = set()
 
@@ -481,7 +488,8 @@ class ExportParticipantAndDummiesSerializer(serializers.BaseSerializer):
 
             if self.export_preferences:
                 participants = _apply_filter_cb_to_queryset(self.filter_participants_cb, event.participants)
-                real_participants = ExportParticipantSerializer(
+                # The stubs type .data as a dict, but it is a list for many=True
+                real_participants = ExportParticipantSerializer(  # type: ignore[assignment]
                         participants,
                         many=True,
                         context={
@@ -594,7 +602,7 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
                 return False
 
             fixed_avail = Availability(
-                    event=event, start=ak_slot.start, end=ak_slot.end
+                    event=event, start=ak_slot.start, end=ak_slot.scheduled_end
             )
             return fixed_avail.overlaps(timeslot, strict=True)
 
@@ -618,7 +626,7 @@ class ExportTimeslotBlockSerializer(serializers.BaseSerializer):
                 if _check_add_constraint(timeslot_avail, availabilities)
             ]
 
-        timeslots = {
+        timeslots: dict[str, Any] = {
             "info": {"duration": float(event.export_slot)},
             "blocks": [],
         }

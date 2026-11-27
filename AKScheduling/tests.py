@@ -2,7 +2,6 @@ import html
 import json
 import re
 from datetime import timedelta
-
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -75,6 +74,7 @@ class ModelViewTests(BasicViewTests, TestCase):
 
         # Test updating room
         new_room = Room.objects.exclude(pk=room_id).first()
+        assert new_room is not None
 
         # Try second API call
         response = self.client.put(
@@ -90,7 +90,7 @@ class ModelViewTests(BasicViewTests, TestCase):
 
         # Make sure API call did update the slot as expected
         slot = AKSlot.objects.get(pk=pk)
-        self.assertEqual(new_room.pk, slot.room.pk, "Update did not work")
+        self.assertEqual(new_room.pk, slot.room_id, "Update did not work")
 
     def test_unscheduling_of_slot(self):
         """
@@ -123,6 +123,7 @@ class ModelViewTests(BasicViewTests, TestCase):
 
         # Slots of other events cannot be unscheduled via this event
         other_slot = AKSlot.objects.exclude(event=event).first()
+        assert other_slot is not None
         response = self.client.post(f"/kif42/api/scheduling-event/{other_slot.pk}/unschedule/")
         self.assertEqual(response.status_code, 404, "Slot of other event could be unscheduled")
 
@@ -187,10 +188,12 @@ class ModelViewTests(BasicViewTests, TestCase):
                          "Wrongly identified AKs with fulfillable requirements as unfulfillable")
 
         # Create an AK with an unfulfillable requirement (that is not property of any room)
+        category = AKCategory.objects.filter(event=event).first()
+        assert category is not None
         ak = AK.objects.create(
                 event=event,
                 name="Test AK with unfulfillable requirement",
-                category=AKCategory.objects.filter(event=event).first(),
+                category=category,
                 include_in_export=True,
         )
         req = AKRequirement.objects.create(
@@ -212,7 +215,7 @@ class ModelViewTests(BasicViewTests, TestCase):
 
         unfulfillable_filtered = aks_with_unfulfillable_requirements(
                 event,
-                qs=event.ak_set.exclude(category__in=[AKCategory.objects.filter(event=event).first()])
+                qs=event.ak_set.exclude(category__in=[category])
         )
         self.assertNotIn(ak, unfulfillable_filtered,
                          "Filtering did not work correctly")

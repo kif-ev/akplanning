@@ -1,11 +1,10 @@
 import datetime
 import json
-from itertools import zip_longest
-from urllib.parse import urlencode
-
 from django.conf import settings
 from django.contrib import messages
 from django.core import signing
+from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
@@ -13,6 +12,8 @@ from django.utils.dateparse import parse_datetime
 from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, ListView, TemplateView
+from itertools import zip_longest
+from urllib.parse import urlencode
 
 from AKModel.availability.models import Availability
 from AKModel.forms import CVMarkResolvedForm, DefaultSlotCategoriesForm, DefaultSlotEditorForm, EventShiftDatesForm, \
@@ -89,7 +90,7 @@ def _ak_has_slot_in_timespan(ak, timespan_start, timespan_end):
     :return: True if at least one slot overlaps the timespan, False otherwise
     :rtype: bool
     """
-    return any(slot.start is not None and slot.start < timespan_end and slot.end > timespan_start
+    return any(slot.start is not None and slot.start < timespan_end and slot.scheduled_end > timespan_start
                for slot in ak.akslot_set.all())
 
 
@@ -547,6 +548,10 @@ class PollUnpublishView(IntermediateAdminActionView):
         self.entities.update(poll_published_at=None, poll_hidden=True)
 
 
+# Default slot as parsed from the editor: id (None for new slots), start, end and raw category ids
+ParsedDefaultSlot = tuple[int | None, datetime.datetime, datetime.datetime, list]
+
+
 class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
     """
     Admin view: Allow to edit the default slots of an event
@@ -583,23 +588,23 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
         })
         return initial
 
-    def form_valid(self, form):
-        default_slots_raw = json.loads(form.cleaned_data['availabilities'])["availabilities"]
-        tz = self.event.timezone
+    def _save_default_slots(self, parsed_slots: list[ParsedDefaultSlot]) -> tuple[int, int, int]:
+        """
+        Update, create and delete the default slots of the event according to the slots submitted by the editor
 
+        :param parsed_slots: slots as returned by `_parse_default_slot`
+        :return: numbers of created, updated and deleted slots
+        """
         created_count = 0
         updated_count = 0
 
-        previous_slot_ids = set(s.id for s in self.event.defaultslot_set.all())
+        existing_slots = self.event.defaultslot_set.in_bulk()
+        previous_slot_ids = set(existing_slots)
         event_categories = {c.id: c for c in AKCategory.objects.filter(event=self.event)}
 
         # Loop over inputs and update or add slots
-        for slot in default_slots_raw:
-            start = parse_datetime(slot["start"]).replace(tzinfo=tz)
-            end = parse_datetime(slot["end"]).replace(tzinfo=tz)
-
-            if slot["id"] != '':
-                slot_id = int(slot["id"])
+        for slot_id, start, end, raw_category_ids in parsed_slots:
+            if slot_id is not None:
                 if slot_id not in previous_slot_ids:
                     # Make sure only slots (currently) belonging to this event are edited
                     # (user did not manipulate IDs and slots have not been deleted in another session in the meantime)
@@ -607,12 +612,12 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
                             self.request,
                             messages.WARNING,
                             _("Could not update slot {id} since it does not belong to {event}")
-                            .format(id=slot['id'], event=self.event.name)
+                            .format(id=slot_id, event=self.event.name)
                     )
                 else:
                     # Update existing entries
                     previous_slot_ids.remove(slot_id)
-                    original_slot = DefaultSlot.objects.get(id=slot_id)
+                    original_slot = existing_slots[slot_id]
                     if original_slot.start != start or original_slot.end != end:
                         original_slot.start = start
                         original_slot.end = end
@@ -627,7 +632,7 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
                 )
                 # Assign primary categories (only those belonging to this event, ignore invalid entries)
                 category_ids = set()
-                for c_id in slot.get("categories", []):
+                for c_id in raw_category_ids:
                     try:
                         category_ids.add(int(c_id))
                     except (TypeError, ValueError):
@@ -638,9 +643,65 @@ class DefaultSlotEditorView(EventSlugMixin, IntermediateAdminView):
                 created_count += 1
 
         # Delete all slots not re-submitted by the user (and hence deleted in editor)
-        deleted_count = len(previous_slot_ids)
-        for d_id in previous_slot_ids:
-            DefaultSlot.objects.get(id=d_id).delete()
+        DefaultSlot.objects.filter(id__in=previous_slot_ids).delete()
+
+        return created_count, updated_count, len(previous_slot_ids)
+
+    @staticmethod
+    def _parse_default_slot(slot, tz) -> ParsedDefaultSlot:
+        """
+        Parse and validate one default slot as submitted by the editor
+
+        :param slot: raw slot data (dict with id, start, end and optionally categories)
+        :param tz: timezone of the event
+        :return: id (None for new slots), start, end and raw category ids of the slot
+        :raises ValidationError: if the slot data is invalid
+        """
+        try:
+            slot_id = int(slot["id"]) if slot["id"] != '' else None
+            start = parse_datetime(slot["start"])
+            end = parse_datetime(slot["end"])
+            categories = list(slot.get("categories", []))
+        except (AttributeError, KeyError, TypeError, ValueError) as exc:
+            raise ValidationError(_("The submitted default slots do not comply with the required format.")) from exc
+        if start is None or end is None:
+            raise ValidationError(_("The submitted default slots contain an invalid date."))
+        if end <= start:
+            raise ValidationError(_("Default slots have to end after they start."))
+        return slot_id, start.replace(tzinfo=tz), end.replace(tzinfo=tz), categories
+
+    def _parse_default_slots(self, raw_data: str) -> list[ParsedDefaultSlot]:
+        """
+        Parse and validate all default slots as submitted by the editor
+
+        :param raw_data: JSON data of the editor
+        :return: parsed slots (see `_parse_default_slot`)
+        :raises ValidationError: if the data is invalid
+        """
+        try:
+            default_slots_raw = json.loads(raw_data)["availabilities"]
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValidationError(_("The submitted default slots do not comply with the required format.")) from exc
+        if not isinstance(default_slots_raw, list):
+            raise ValidationError(_("The submitted default slots do not comply with the required format."))
+        parsed_slots = [self._parse_default_slot(slot, self.event.timezone) for slot in default_slots_raw]
+        slot_ids = [slot_id for slot_id, _start, _end, _categories in parsed_slots if slot_id is not None]
+        if len(slot_ids) != len(set(slot_ids)):
+            raise ValidationError(_("The submitted default slots contain the same slot more than once."))
+        return parsed_slots
+
+    def form_valid(self, form):
+        # Parse all slots before changing anything to reject invalid input as a whole
+        # (and show the editor again with the submitted data and an error message)
+        try:
+            parsed_slots = self._parse_default_slots(form.cleaned_data['availabilities'])
+        except ValidationError as error:
+            form.add_error('availabilities', error)
+            return self.form_invalid(form)
+
+        # Apply all changes or none of them (e.g., in case of an error while saving)
+        with transaction.atomic():
+            created_count, updated_count, deleted_count = self._save_default_slots(parsed_slots)
 
         # Inform user about changes performed
         if created_count + updated_count + deleted_count > 0:

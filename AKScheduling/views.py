@@ -242,7 +242,7 @@ class InterestEnteringAdminView(SuccessMessageMixin, AdminViewMixin, EventSlugMi
         # explicitly reordering them by their primary key)
         ak_wishes.sort(key=lambda x: x.pk)
         categories_with_aks.append(
-                (AKCategory(name=_("Wishes"), pk=0, description="-"), ak_wishes))
+                (AKCategory(name=str(_("Wishes")), pk=0, description="-"), ak_wishes))
 
         context["categories_with_aks"] = categories_with_aks
 
@@ -330,7 +330,7 @@ class CVWidget(TemplateStatusWidget):
     title = _("Constraint Violations")
     template_name = "admin/AKScheduling/status/cvs.html"
 
-    def render_status(self, context: {}) -> str:
+    def render_status(self, context: dict) -> str:
         return "success" if context["constraint_violations_count"] == 0 else "warning"
 
     def get_context_data(self, context) -> dict:

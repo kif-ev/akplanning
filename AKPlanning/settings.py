@@ -12,11 +12,11 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import decimal
 import os
-
 from csp.constants import SELF
 from django.utils.translation import gettext_lazy as _
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from split_settings.tools import include, optional
+from typing import Any
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -29,7 +29,7 @@ SECRET_KEY = '+7#&=$grg7^x62m#3cuv)k$)tqx!xkj_o&y9sm)@@sgj7_7-!+'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS: list[str] = []
 
 # Application definition
 
@@ -104,7 +104,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
+DATABASES: dict[str, dict[str, Any]] = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
@@ -244,7 +244,7 @@ CONTENT_SECURITY_POLICY = {
 
 # Emails
 SEND_MAILS = True
-MAILERS = {
+MAILERS: dict[str, dict[str, Any]] = {
     'default': {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
@@ -253,12 +253,12 @@ MAILERS = {
 # Migration of AK protocols from HedgeDoc to MediaWiki (admin action on AKs)
 # Wikis protocols may be written to, by (lowercase) hostname, e.g.,
 # {"wiki.example.com": {"api_url": "https://wiki.example.com/w/api.php", "article_path": "/wiki/"}}
-PROTOCOL_MIGRATION_WIKIS = {}
+PROTOCOL_MIGRATION_WIKIS: dict[str, dict[str, str]] = {}
 # Credentials for the wikis above, by API URL. Should be bot passwords (see Special:BotPasswords, grants needed:
 # basic rights, edit existing pages, create pages), e.g.,
 # {"https://wiki.example.com/w/api.php": {"username": "...", "password": "..."}}
 # Do not set them here but in settings_secrets.py (used in production)
-PROTOCOL_MIGRATION_WIKI_CREDENTIALS = {}
+PROTOCOL_MIGRATION_WIKI_CREDENTIALS: dict[str, dict[str, str]] = {}
 
 # Documentation
 

@@ -4,7 +4,6 @@
 # Documentation was mainly added by us, other changes are marked in the code
 import datetime
 import json
-
 from django import forms
 from django.db import transaction
 from django.db.models.signals import post_save
@@ -50,9 +49,16 @@ class AvailabilitiesFormMixin(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Load event information and populate availabilities text field
-        self.event = self.initial.get('event')
-        if isinstance(self.event, int):
-            self.event = Event.objects.get(pk=self.event)
+        event = self.initial.get('event')
+        if event is None:
+            raise ValueError(f"{type(self).__name__} needs the event in its initial data")
+        # The event may also be given by its primary key (e.g., as int or as str from a request)
+        if not isinstance(event, Event):
+            try:
+                event = Event.objects.get(pk=event)
+            except (Event.DoesNotExist, TypeError, ValueError) as exc:
+                raise ValueError(f"{type(self).__name__} got an invalid event in its initial data: {event!r}") from exc
+        self.event: Event = event
         initial = kwargs.pop('initial', {})
         if 'availabilities' not in initial:
             initial['availabilities'] = self._serialize(self.event, kwargs.get('instance'))
@@ -203,7 +209,7 @@ class AvailabilitiesFormMixin(forms.Form):
         """
         Override the saving method of the (model) form
         """
-        instance = super().save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)  # type: ignore[misc]  # mixin is combined with a ModelForm
         availabilities = self.cleaned_data.get('availabilities')
 
         if availabilities is not None:

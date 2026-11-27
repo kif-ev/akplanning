@@ -1,10 +1,12 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorDict
+from typing import Any, cast
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
 from AKModel.models import AKOwner, AKRequirement
+from AKModel.typing_utils import model_choice_field
 from AKPreference.models import AKPreference, EventParticipant
 
 
@@ -31,16 +33,16 @@ class EventParticipantForm(AvailabilitiesFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.initial = {**self.initial, **kwargs["initial"]}
 
-        self.fields["requirements"].queryset = AKRequirement.objects.filter(
-                event=self.initial.get("event"), relevant_for_participants=True
-        )
+        requirements = AKRequirement.objects.filter(event=self.event, relevant_for_participants=True)
+        model_choice_field(self, "requirements").queryset = requirements
         # Don't ask for requirements if there are no requirements configured for this event
-        if self.fields["requirements"].queryset.count() == 0:
+        if requirements.count() == 0:
             self.fields.pop("requirements")
 
-        self.fields["ak_owner"].queryset = AKOwner.objects.filter(event=self.initial.get("event"))
+        ak_owners = AKOwner.objects.filter(event=self.event)
+        model_choice_field(self, "ak_owner").queryset = ak_owners
         # Don't ask for the AK owner if there are no AK owners for this event
-        if self.fields["ak_owner"].queryset.count() == 0:
+        if ak_owners.count() == 0:
             self.fields.pop("ak_owner")
 
     def clean_availabilities(self):
@@ -81,19 +83,21 @@ class PreferenceForm(forms.ModelForm):
         # 'Required' can no longer be selected, but is kept as option for preferences that already have it
         # to not drop them when the participant saves their preferences again
         if self.instance.preference != AKPreference.PreferenceLevel.REQUIRED:
-            self.fields["preference"].choices = [
-                choice for choice in self.fields["preference"].choices
+            preference_field = cast(forms.ChoiceField, self.fields["preference"])
+            preference_field.choices = [
+                choice for choice in cast(list[tuple[Any, Any]], preference_field.choices)
                 if choice[0] != AKPreference.PreferenceLevel.REQUIRED
             ]
 
     def validate_unique(self):
         # Event and participant are not part of the form, but must be included in the uniqueness check,
         # e.g., if a preference for the same AK was saved from another tab in the meantime
-        exclude = self._get_validation_exclusions() - {"event", "participant"}
+        # (uses private API of Django's ModelForm that is not part of the type stubs)
+        exclude = self._get_validation_exclusions() - {"event", "participant"}  # type: ignore[attr-defined]
         try:
             self.instance.validate_unique(exclude=exclude)
         except ValidationError as e:
-            self._update_errors(e)
+            self._update_errors(e)  # type: ignore[attr-defined]
 
     def full_clean(self):
         if self.stale:
@@ -122,7 +126,8 @@ class PreferenceFormSet(forms.BaseModelFormSet):
                                  } - self._owned_ak_pks
 
     def _construct_form(self, i, **kwargs):
-        form = super()._construct_form(i, **kwargs)
+        # (uses private API of Django's formsets that is not part of the type stubs)
+        form = cast(PreferenceForm, super()._construct_form(i, **kwargs))  # type: ignore[misc]
         form.instance.participant = self.participant
         form.instance.event = self.participant.event
         # Submitted rows may refer to AKs that were trashed in the meantime
@@ -138,7 +143,8 @@ class PreferenceFormSet(forms.BaseModelFormSet):
         Rows without any submitted AK are ignored: They belong to stale rows of an earlier submission
         that were not rendered again and thus were already reported back then
         """
-        return [f for f in self.forms if f.stale and f["ak"].value() not in f.fields["ak"].empty_values]
+        return [f for f in cast(list[PreferenceForm], self.forms)
+                if f.stale and f["ak"].value() not in f.fields["ak"].empty_values]
 
     @property
     def has_stale_forms(self):

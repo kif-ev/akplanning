@@ -1,14 +1,15 @@
 from datetime import timedelta
-
 from django.contrib import admin
 from django.contrib.messages import get_messages
 from django.core.exceptions import ValidationError
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from typing import Any
 
 from AKModel.availability.models import Availability
 from AKModel.models import AK, AKOwner, AKRequirement, Event
 from AKModel.tests.test_views import BasicViewTests
+from AKModel.typing_utils import model_choice_field
 from AKPreference.admin import EventParticipantAdmin
 from AKPreference.forms import EventParticipantForm
 from AKPreference.models import AKPreference, EventParticipant
@@ -75,7 +76,7 @@ class EnterPreferencesTrashedAKTests(TestCase):
         """
         Build the POST data of the formset, each row is a tuple (preference id or None, AK id, preference level)
         """
-        data = {
+        data: dict[str, Any] = {
             'form-TOTAL_FORMS': str(len(rows)),
             'form-INITIAL_FORMS': str(initial_forms),
             'form-MIN_NUM_FORMS': '0',
@@ -200,7 +201,8 @@ class ParticipantAKOwnerTests(TestCase):
         """
         form = EventParticipantForm(initial={'event': self.event})
         self.assertFalse(form.fields['ak_owner'].required)
-        self.assertCountEqual(form.fields['ak_owner'].queryset, AKOwner.objects.filter(event=self.event))
+        self.assertCountEqual(model_choice_field(form, 'ak_owner').queryset or [],
+                              AKOwner.objects.filter(event=self.event))
 
     def test_form_without_ak_owners(self):
         """
@@ -218,6 +220,7 @@ class ParticipantAKOwnerTests(TestCase):
         owner = AKOwner.objects.get(pk=1)  # owns AKs 1 and 4
         participant = EventParticipant.objects.create(event=self.event, name="Owner", ak_owner=owner)
         requirement = AKRequirement.objects.filter(event=self.event).first()
+        assert requirement is not None
         participant.requirements.add(requirement)
         AKPreference.objects.create(event=self.event, participant=participant, ak_id=1, preference=2)
         AKPreference.objects.create(event=self.event, participant=participant, ak_id=2, preference=1)
@@ -346,7 +349,7 @@ class RequiredPreferenceTests(TestCase):
         """
         Submit the formset, each row is a tuple (preference id or None, AK id, preference level)
         """
-        data = {
+        data: dict[str, Any] = {
             'form-TOTAL_FORMS': str(len(rows)),
             'form-INITIAL_FORMS': str(initial_forms),
             'form-MIN_NUM_FORMS': '0',

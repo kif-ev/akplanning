@@ -65,6 +65,7 @@ class NewEventWizardSettingsView(AdminViewMixin, NewEventWizardMixin, CreateView
         return context
 
     def get_success_url(self):
+        assert self.object is not None  # the event was created before redirecting
         return reverse_lazy("admin:new_event_wizard_prepare_import", kwargs={"event_slug": self.object.slug})
 
 

@@ -1,7 +1,8 @@
-from abc import ABC, abstractmethod
 from collections import defaultdict
 
+from abc import ABC, abstractmethod
 from django.template import loader
+from django.utils.functional import Promise
 from django.views.generic import TemplateView
 
 from AKModel.metaviews.admin import AdminViewMixin
@@ -11,8 +12,8 @@ class StatusWidget(ABC):
     """
     Abstract parent for status page widgets
     """
-    title = "Status Widget"
-    actions = []
+    title: str | Promise = "Status Widget"
+    actions: list[dict] = []
     status = "primary"
 
     @property
@@ -29,7 +30,7 @@ class StatusWidget(ABC):
         """
         return context
 
-    def render(self, context: {}, request) -> dict:
+    def render(self, context: dict, request) -> dict:
         """
         Render widget based on context
 
@@ -45,7 +46,7 @@ class StatusWidget(ABC):
             "status": self.render_status(context),
         }
 
-    def render_title(self, context: {}) -> str:  # pylint: disable=unused-argument
+    def render_title(self, context: dict) -> str | Promise:  # pylint: disable=unused-argument
         """
         Render title for widget based on context
 
@@ -55,7 +56,7 @@ class StatusWidget(ABC):
         """
         return self.title
 
-    def render_status(self, context: {}) -> str:  # pylint: disable=unused-argument
+    def render_status(self, context: dict) -> str:  # pylint: disable=unused-argument
         """
         Render status for widget based on context
 
@@ -66,7 +67,7 @@ class StatusWidget(ABC):
         return self.status
 
     @abstractmethod
-    def render_body(self, context: {}, request) -> str:  # pylint: disable=unused-argument
+    def render_body(self, context: dict, request) -> str:  # pylint: disable=unused-argument
         """
         Render body for widget based on context
 
@@ -75,7 +76,7 @@ class StatusWidget(ABC):
         :return: Rendered widget body (HTML)
         """
 
-    def render_actions(self, context: {}) -> list[dict]:  # pylint: disable=unused-argument
+    def render_actions(self, context: dict) -> list[dict]:  # pylint: disable=unused-argument
         """
         Render actions for widget based on context
 
@@ -100,7 +101,7 @@ class TemplateStatusWidget(StatusWidget):
         :return: name of the template to use
         """
 
-    def render_body(self, context: {}, request) -> str:
+    def render_body(self, context: dict, request) -> str:
         """
         Render the body of the widget using the template rendering method from django
         (load and render template using the provided context)
@@ -119,8 +120,8 @@ class StatusManager:
 
     Allows to register status widgets using the `@status_manager.register(name="xyz")` decorator
     """
-    widgets = {}
-    widgets_by_context_type = defaultdict(list)
+    widgets: dict[str, StatusWidget] = {}
+    widgets_by_context_type: defaultdict[str, list[StatusWidget]] = defaultdict(list)
 
     def register(self, name: str):
         """

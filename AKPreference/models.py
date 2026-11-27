@@ -1,5 +1,4 @@
 import uuid
-
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Exists, OuterRef
@@ -45,7 +44,7 @@ class EventParticipant(models.Model):
 
     def clean(self):
         super().clean()
-        if self.ak_owner_id is not None and self.event_id is not None and self.ak_owner.event_id != self.event_id:
+        if self.ak_owner is not None and self.event_id is not None and self.ak_owner.event_id != self.event_id:
             raise ValidationError({"ak_owner": _("The AK owner must belong to the same event as the participant.")})
 
     @property
@@ -61,15 +60,6 @@ class EventParticipant(models.Model):
         return self.akpreference_set.filter(
                 preference=AKPreference.PreferenceLevel.REQUIRED, ak__trashed_at__isnull=True,
         ).exists()
-
-    @property
-    def availabilities(self):
-        """
-        Get all availabilities associated to this EventParticipant
-        :return: availabilities
-        :rtype: QuerySet[Availability]
-        """
-        return "Availability".objects.filter(participant=self)
 
     def get_room_constraints(self) -> list[str]:
         """Construct list of required room constraint labels."""

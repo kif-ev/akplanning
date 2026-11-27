@@ -12,6 +12,7 @@ from AKModel.metaviews import status_manager
 from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, IntermediateAdminActionView
 from AKModel.metaviews.status import TemplateStatusWidget
 from AKModel.models import AKCategory
+from AKModel.typing_utils import EventViewMixinBase
 from AKPreference.models import AKPreference, EventParticipant
 from .forms import EventParticipantForm, PreferenceForm, PreferenceFormSet
 
@@ -84,6 +85,7 @@ class PreferencePollStartView(EventSlugRedirectWhenInactiveMixin, CreateView):
     def form_valid(self, form):
         s = super().form_valid(form)
         # Save the uuid of the created participant in the session to recognize the user in the next step
+        assert self.object is not None  # saved by the parent implementation
         self.request.session[uuid_key(self.event)] = str(self.object.uuid)
         return s
 
@@ -95,7 +97,7 @@ class PreferencePollStartView(EventSlugRedirectWhenInactiveMixin, CreateView):
         return initials
 
 
-class CheckSessionForParticipantMixin:
+class CheckSessionForParticipantMixin(EventViewMixinBase):
     """
     Mixin to check whether the session contains a valid participant uuid for the event
     and redirect to the start page if not
@@ -117,7 +119,7 @@ class CheckSessionForParticipantMixin:
             messages.warning(request,
                              _("There was an error discovering your previously entered information. "
                                "Please start again."))
-        return super().get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)  # type: ignore[misc]  # provided by the concrete view
 
     def get_success_url(self):
         """
@@ -200,8 +202,9 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
     """
     template_name = 'AKPreference/poll_preferences.html'
     model = EventParticipant
-    ak_category = None
-    object = None
+    # Loaded at the start of the request handling (see dispatch)
+    ak_category: AKCategory
+    object: EventParticipant | None = None
 
     def dispatch(self, request, *args, **kwargs):
         self.ak_category = get_object_or_404(AKCategory, pk=self.kwargs['category_pk'])
@@ -219,7 +222,8 @@ class EnterPreferencesView(EventSlugRedirectWhenInactiveMixin, CheckSessionForPa
         aks_without_preferences = (self.ak_category.ak_set.exclude(pk__in=existing_preferences_ak_ids)
                                    .exclude(pk__in=self.get_object().owned_aks)
                                    .prefetch_related('owners'))
-        self.initial = [{'ak': ak} for ak in aks_without_preferences]
+        # Formsets take a list of initial values (one per form)
+        self.initial = [{'ak': ak} for ak in aks_without_preferences]  # type: ignore[assignment]
 
         return forms.modelformset_factory(AKPreference, form=PreferenceForm, formset=PreferenceFormSet,
                                           extra=len(self.initial))

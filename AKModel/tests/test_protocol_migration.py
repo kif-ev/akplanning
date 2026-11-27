@@ -1,13 +1,13 @@
-import socket
-from unittest.mock import MagicMock, patch
-
 import requests
+import socket
 from django.contrib.admin.models import CHANGE, LogEntry
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.core.cache import cache
 from django.test import override_settings, TestCase
 from django.urls import reverse
+from typing import Any
+from unittest.mock import MagicMock, patch
 
 from AKModel.models import AK
 from AKModel.protocol_migration import convert_to_mediawiki, download_protocol, fetch_public, \
@@ -97,7 +97,7 @@ class ProtocolMigrationTests(TestCase):
         self.addCleanup(download_patcher.stop)
         self.client_mock = MagicMock(spec=MediaWikiClient)
         self.client_mock.get_page.return_value = (False, "", None, "2026-01-02T00:00:00Z")
-        self.wiki_clients = {WIKI["api_url"]: self.client_mock}
+        self.wiki_clients: dict[str, Any] = {WIKI["api_url"]: self.client_mock}
 
     def _migrate(self):
         with patch("AKModel.protocol_migration.convert_to_mediawiki", return_value="= Protocol =") as convert:

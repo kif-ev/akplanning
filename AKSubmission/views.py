@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
 from math import floor
 
+from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
@@ -17,6 +17,7 @@ from AKModel.metaviews import status_manager
 from AKModel.metaviews.admin import EventSlugMixin, FilterByEventSlugMixin
 from AKModel.metaviews.status import TemplateStatusWidget
 from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKSlot, AKTrack, AKType
+from AKModel.typing_utils import EventViewMixinBase
 from AKSubmission.api import ak_interest_indication_active
 from AKSubmission.forms import AKDurationForm, AKForm, AKOrgaMessageForm, AKOwnerForm, AKSubmissionForm, AKWishForm
 
@@ -89,10 +90,11 @@ class AKOverviewView(FilterByEventSlugMixin, ListView):
         redirect to error page if necessary (see :class:`SubmissionErrorNotConfiguredView`)
         """
         self._load_event()
-        self.object_list = self.get_queryset()  # pylint: disable=attribute-defined-outside-init
+        categories = self.get_queryset()
+        self.object_list = categories  # pylint: disable=attribute-defined-outside-init
 
         # No categories yet? Redirect to configuration error page
-        if self.object_list.count() == 0:
+        if categories.count() == 0:
             return redirect(reverse_lazy("submit:error_not_configured", kwargs={'event_slug': self.event.slug}))
 
         context = self.get_context_data()
@@ -122,7 +124,8 @@ class AKOverviewView(FilterByEventSlugMixin, ListView):
 
         if self.wishes_as_category:
             categories_with_aks.append(
-                    (AKCategory(name=_("Wishes"), pk=0, description=_("AKs one would like to have")), ak_wishes))
+                    (AKCategory(name=str(_("Wishes")), pk=0, description=str(_("AKs one would like to have"))),
+                     ak_wishes))
 
         context["categories_with_aks"] = categories_with_aks
         context["active_category"] = self.get_active_category_name(context)
@@ -296,10 +299,10 @@ class AKDetailView(EventSlugMixin, DetailView):
             in_two_hours = current_timestamp + timedelta(hours=2)
             slots = context["ak"].akslot_set.filter(start__isnull=False, room__isnull=False).select_related('room')
             for slot in slots:
-                if slot.end > current_timestamp:
+                if slot.scheduled_end > current_timestamp:
                     if slot.start <= current_timestamp:
                         context["featured_slot_type"] = "CURRENT"
-                        remaining = slot.end - current_timestamp
+                        remaining = slot.scheduled_end - current_timestamp
                     elif slot.start <= in_two_hours:
                         context["featured_slot_type"] = "UPCOMING"
                         remaining = slot.start - current_timestamp
@@ -347,7 +350,7 @@ def warn_about_clamped_durations(request, form, event):
             })
 
 
-class EventInactiveRedirectMixin:
+class EventInactiveRedirectMixin(EventViewMixinBase):
     """
     Mixin that will cause a redirect when actions are performed on an inactive event.
     Will add a message explaining why the action was not performed to the user
@@ -368,7 +371,7 @@ class EventInactiveRedirectMixin:
         Override GET request handling
         Will either perform the redirect including the message creation or continue with the planned dispatching
         """
-        s = super().get(request, *args, **kwargs)
+        s = super().get(request, *args, **kwargs)  # type: ignore[misc]  # provided by the concrete view
         if not self.event.active:
             messages.add_message(self.request, messages.ERROR, self.get_error_message())
             return redirect(reverse_lazy('submit:submission_overview', kwargs={'event_slug': self.event.slug}))
@@ -383,10 +386,11 @@ class AKAndAKWishSubmissionView(EventSlugMixin, EventInactiveRedirectMixin, Crea
     """
     model = AK
     template_name = 'AKSubmission/submit_new.html'
-    form_class = AKSubmissionForm
+    form_class: type[AKForm] = AKSubmissionForm
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK successfully created"))
+        assert self.object is not None  # saved before redirecting
         return self.object.detail_url
 
     def form_valid(self, form):
@@ -398,6 +402,7 @@ class AKAndAKWishSubmissionView(EventSlugMixin, EventInactiveRedirectMixin, Crea
         # Try to save AK and get redirect URL
         super_form_valid = super().form_valid(form)
 
+        assert self.object is not None  # saved by the parent implementation
         # Generate slot(s) (but not for wishes)
         if "durations" in form.cleaned_data:
             for duration in form.cleaned_data["durations"]:
@@ -508,6 +513,7 @@ class AKOwnerCreateView(EventSlugMixin, EventInactiveRedirectMixin, CreateView):
 
         # Called from an existing AK? Add the new owner as an owner of that AK, notify the user and redirect to detail
         # page of that AK
+        assert self.object is not None  # saved before redirecting
         if "add_to_existing_ak" in self.request.GET:
             ak_pk = self.request.GET['add_to_existing_ak']
             ak = get_object_or_404(AK, pk=ak_pk)
@@ -669,10 +675,12 @@ class AKSlotAddView(EventSlugMixin, EventInactiveRedirectMixin, CreateView):
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("AK Slot successfully added"))
+        assert self.object is not None  # saved before redirecting
         return self.object.ak.detail_url
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        assert self.object is not None  # saved by the parent implementation
         warn_about_clamped_durations(self.request, form, self.object.event)
         return response
 
@@ -757,7 +765,7 @@ class EventAKMessagesWidget(TemplateStatusWidget):
         context["resolved_ak_messages_count"] = event_messages.filter(resolved=True).count()
         return context
 
-    def render_actions(self, context: {}) -> list[dict]:
+    def render_actions(self, context: dict) -> list[dict]:
         return [
             {
                 "text": _("Show all messages"),
@@ -793,4 +801,5 @@ class AKAddOrgaMessageView(EventSlugMixin, CreateView):
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, _("Message to organizers successfully saved"))
+        assert self.object is not None  # saved before redirecting
         return self.object.ak.detail_url

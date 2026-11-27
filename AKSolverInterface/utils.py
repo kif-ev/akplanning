@@ -35,9 +35,12 @@ def construct_schema_validator(schema: str | dict) -> Validator:
     In particular, all schemas from the 'schemas' directory
     are loaded into the registry.
     """
-    registry = Registry(retrieve=retrieve_schema_from_disk)
+    # mypy does not understand the field alias "retrieve" of the attrs-based Registry
+    registry = Registry(retrieve=retrieve_schema_from_disk)  # type: ignore[call-arg]
 
     if isinstance(schema, str):
         schema_uri = str(Path("schemas") / schema)
-        schema = registry.get_or_retrieve(schema_uri).value.contents
-    return Draft202012Validator(schema=schema, registry=registry)
+        schema_contents = registry.get_or_retrieve(schema_uri).value.contents
+    else:
+        schema_contents = schema
+    return Draft202012Validator(schema=schema_contents, registry=registry)

@@ -181,6 +181,13 @@ lint:
       codequality: codeclimate.json
     when: always
 
+typecheck:
+  extends: .venv
+  stage: test
+  script:
+    # Files and settings are configured in setup.cfg
+    - python -m mypy
+
 doc:
   extends: .venv
   stage: test

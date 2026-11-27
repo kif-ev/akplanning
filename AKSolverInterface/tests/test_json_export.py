@@ -1,16 +1,19 @@
+from collections import defaultdict
+
 import json
 import math
-from collections import defaultdict
+from bs4 import BeautifulSoup
 from collections.abc import Iterable
 from datetime import datetime, timedelta
-from itertools import chain
-
-from bs4 import BeautifulSoup
 from django.contrib.auth import get_user_model
+from django.db.models import QuerySet
 from django.forms import ModelMultipleChoiceField
 from django.test import TestCase
 from django.urls import reverse
+from itertools import chain
 from jsonschema.exceptions import best_match
+from jsonschema.protocols import Validator
+from typing import Any
 
 from AKModel.availability.models import Availability
 from AKModel.models import (
@@ -35,6 +38,9 @@ class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
     """
 
     fixtures = ["model.json"]
+    # Set in setUpTestData
+    admin_user: Any
+    json_export_validator: Validator
 
     @classmethod
     def setUpTestData(cls):
@@ -54,21 +60,22 @@ class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
 
     def setUp(self):
         self.client.force_login(self.admin_user)
-        self.export_dict = {}
-        self.export_objects = {
+        self.export_dict: dict[str, Any] = {}
+        self.export_objects: dict[str, dict[int, dict]] = {
             "aks": {},
             "rooms": {},
             "participants": {},
         }
 
-        self.ak_slots: Iterable[AKSlot] = []
+        self.ak_slots: QuerySet[AKSlot] = AKSlot.objects.none()
         self.rooms: Iterable[Room] = []
-        self.participants: Iterable[EventParticipant] = []
+        self.participants: QuerySet[EventParticipant] = EventParticipant.objects.none()
         self.owners: Iterable[AKOwner] = []
         self.linked_owner_pks: set[int] = set()
         self.slots_in_an_hour: float = 1.0
         self.max_participant_pk = 0
-        self.event: Event | None = None
+        # Set in set_up_event
+        self.event: Event
 
     def set_up_event(self, event: Event) -> None:
         """Set up by retrieving json export and initializing data."""
@@ -91,7 +98,9 @@ class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
         soup = BeautifulSoup(response.content, features="lxml")
         # The formatted JSON is only rendered on demand in the browser, the full export is always contained
         # in the (hidden) textarea used for copying and downloading
-        self.export_dict = json.loads(soup.find("textarea", id="textarea_export_json").string)
+        export_textarea = soup.find("textarea", id="textarea_export_json")
+        assert export_textarea is not None and export_textarea.string is not None
+        self.export_dict = json.loads(export_textarea.string)
 
         self.export_objects["aks"] = {ak["id"]: ak for ak in self.export_dict["aks"]}
         self.export_objects["rooms"] = {
@@ -597,7 +606,7 @@ class JSONExportTest(TestCase):  # pylint: disable=too-many-instance-attributes
         ak_slot_avail = Availability(
                 event=self.event,
                 start=ak_slot.start.astimezone(self.event.timezone),
-                end=ak_slot.end.astimezone(self.event.timezone),
+                end=ak_slot.scheduled_end.astimezone(self.event.timezone),
         )
         return timeslot_avail.overlaps(ak_slot_avail, strict=True)
 

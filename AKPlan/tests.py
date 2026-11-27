@@ -1,8 +1,8 @@
-from datetime import datetime
 from unittest import mock
 from zoneinfo import ZoneInfo
 
-from django.test import TestCase, override_settings
+from datetime import datetime
+from django.test import override_settings, TestCase
 from django.urls import reverse
 
 from AKModel.models import AK, AKSlot, Event, Room
@@ -80,7 +80,9 @@ class PlanWallVisibleHoursTests(TestCase):
         self.event.plan_hidden = False
         self.event.save()
         AKSlot.objects.filter(event=self.event).delete()
-        self.ak = AK.objects.filter(event=self.event).first()
+        ak = AK.objects.filter(event=self.event).first()
+        assert ak is not None
+        self.ak = ak
 
     def _get_wall_context(self):
         with mock.patch("AKPlan.views.datetime", _FixedNowDatetime):

@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta, timezone
-
 from django.test import TestCase
 
 from AKModel.availability.models import Availability
@@ -20,6 +19,10 @@ class JSONExportScheduledSlotsTest(TestCase):
         self.ak_wish = AK.objects.get(pk=3)
         Availability.with_event_length(event=self.event, ak=self.ak_wish).save()
         self.scheduled_slots = list(AKSlot.objects.filter(event=self.event, start__isnull=False))
+
+    def _slot_avail(self, slot: AKSlot) -> Availability:
+        """Availability covering the time of the given scheduled slot"""
+        return Availability(event=self.event, start=slot.scheduled_start, end=slot.scheduled_end)
 
     def _export(self, fixed: bool) -> dict:
         return ExportEventSerializer(self.event, export_scheduled_aks_as_fixed=fixed).data
@@ -57,7 +60,7 @@ class JSONExportScheduledSlotsTest(TestCase):
         """Owners are not available during their scheduled slots."""
         export = self._export(fixed=True)
         for slot in self.scheduled_slots:
-            slot_avail = Availability(event=self.event, start=slot.start, end=slot.end)
+            slot_avail = self._slot_avail(slot)
             for owner in slot.ak.owners.all():
                 with self.subTest(slot=slot, owner=owner):
                     timeslots = self._fulfilling_timeslots(export, f"availability-person-{owner.pk}")
@@ -75,15 +78,15 @@ class JSONExportScheduledSlotsTest(TestCase):
             Availability.with_event_length(event=self.event, room=slot.room).save()
         unfixed_rooms = {room["id"]: room for room in self._export(fixed=False)["rooms"]}
         for slot in slots_with_room:
-            self.assertFalse(unfixed_rooms[slot.room.pk]["time_constraints"])
+            self.assertFalse(unfixed_rooms[slot.room_id]["time_constraints"])
 
         export = self._export(fixed=True)
         for slot in slots_with_room:
             with self.subTest(slot=slot):
-                constraint = f"availability-room-{slot.room.pk}"
-                room = next(r for r in export["rooms"] if r["id"] == slot.room.pk)
+                constraint = f"availability-room-{slot.room_id}"
+                room = next(r for r in export["rooms"] if r["id"] == slot.room_id)
                 self.assertIn(constraint, room["time_constraints"])
-                slot_avail = Availability(event=self.event, start=slot.start, end=slot.end)
+                slot_avail = self._slot_avail(slot)
                 timeslots = self._fulfilling_timeslots(export, constraint)
                 self.assertTrue(timeslots)
                 self.assertFalse(any(t.overlaps(slot_avail, strict=True) for t in timeslots))
@@ -92,7 +95,8 @@ class JSONExportScheduledSlotsTest(TestCase):
         """Owners whose whole availability is used by scheduled slots cannot be scheduled anymore."""
         slot = AKSlot.objects.get(pk=2)
         owner = slot.ak.owners.get()
-        Availability.objects.create(event=self.event, person=owner, start=slot.start, end=slot.end)
+        slot_avail = self._slot_avail(slot)
+        Availability.objects.create(event=self.event, person=owner, start=slot_avail.start, end=slot_avail.end)
         # unscheduled slot of the same owner
         AKSlot.objects.create(event=self.event, ak=slot.ak, duration=1)
 
@@ -120,7 +124,7 @@ class JSONExportScheduledSlotsTest(TestCase):
         timeslots = self._fulfilling_timeslots(export, constraint)
         self.assertTrue(timeslots)
         for scheduled_slot in AKSlot.objects.filter(event=self.event, start__isnull=False, ak__owners=owner):
-            scheduled_avail = Availability(event=self.event, start=scheduled_slot.start, end=scheduled_slot.end)
+            scheduled_avail = self._slot_avail(scheduled_slot)
             self.assertFalse(any(t.overlaps(scheduled_avail, strict=True) for t in timeslots))
 
     def test_linked_participant_availability_restricts_owned_aks(self):
@@ -128,6 +132,7 @@ class JSONExportScheduledSlotsTest(TestCase):
         but not the AKs they would like to attend."""
         slot = AKSlot.objects.get(pk=2)
         owner = slot.ak.owners.first()
+        assert owner is not None
         participant = EventParticipant.objects.create(event=self.event, name="Owner participant", ak_owner=owner)
         # unscheduled slot of the owner, so it is also exported when fixing scheduled slots
         unscheduled_slot = AKSlot.objects.create(event=self.event, ak=slot.ak, duration=1)
@@ -136,7 +141,7 @@ class JSONExportScheduledSlotsTest(TestCase):
                                          end=datetime(2020, 11, 8, 19, tzinfo=timezone.utc))
         Availability.objects.create(event=self.event, participant=participant,
                                     start=participant_avail.start, end=participant_avail.end)
-        slot_avail = Availability(event=self.event, start=slot.start, end=slot.end)
+        slot_avail = self._slot_avail(slot)
 
         for fixed in [False, True]:
             with self.subTest(fixed=fixed):
@@ -190,7 +195,7 @@ class JSONExportScheduledSlotsTest(TestCase):
         """Scheduled slots excluded by filters still reduce availabilities."""
         slot = AKSlot.objects.get(pk=2)
         owner = slot.ak.owners.get()
-        slot_avail = Availability(event=self.event, start=slot.start, end=slot.end)
+        slot_avail = self._slot_avail(slot)
 
         export = ExportEventSerializer(
                 self.event, export_scheduled_aks_as_fixed=True,
@@ -209,7 +214,7 @@ class JSONExportScheduledSlotsTest(TestCase):
     def test_dependent_ak_availability_reduced(self):
         """AKs depending on a scheduled AK are only available after its end."""
         export = self._export(fixed=True)
-        prerequisite_end = AKSlot.objects.get(pk=2).end
+        prerequisite_end = AKSlot.objects.get(pk=2).scheduled_end
         timeslots = self._fulfilling_timeslots(export, "availability-ak-3")
         self.assertTrue(timeslots)
         self.assertTrue(all(t.start >= prerequisite_end for t in timeslots))
@@ -223,7 +228,7 @@ class JSONExportScheduledSlotsTest(TestCase):
         slot = AKSlot.objects.get(pk=1)
         slot.start = datetime(2020, 11, 9, 20, 0, tzinfo=timezone.utc)
         slot.save()
-        slot_avail = Availability(event=self.event, start=slot.start, end=slot.end)
+        slot_avail = self._slot_avail(slot)
 
         timeslots = self._fulfilling_timeslots(self._export(fixed=True), "availability-ak-3")
         self.assertTrue(timeslots)
@@ -235,7 +240,7 @@ class JSONExportScheduledSlotsTest(TestCase):
         wish_slot = AKSlot.objects.get(pk=3)
         wish_slot.start = datetime(2020, 11, 9, 20, 0, tzinfo=timezone.utc)
         wish_slot.save()
-        wish_avail = Availability(event=self.event, start=wish_slot.start, end=wish_slot.end)
+        wish_avail = self._slot_avail(wish_slot)
 
         timeslots = self._fulfilling_timeslots(self._export(fixed=True), "availability-ak-1")
         self.assertTrue(timeslots)

@@ -4,14 +4,18 @@ Central and admin forms
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models import QuerySet
 from django.forms.utils import ErrorList
+from django.utils.functional import Promise
 from django.utils.translation import gettext_lazy as _
+from typing import cast
 
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.models import AK, AKCategory, AKRequirement, AKTrack, AKType, DefaultSlot, Event, Room, \
     StatusTrackingEntry
 from AKModel.room_import import decode_csv_bytes
 from AKModel.status_tracking import status_tracker
+from AKModel.typing_utils import model_choice_field, ModelFormMixinBase
 
 
 class DateTimeInput(forms.DateTimeInput):
@@ -74,6 +78,23 @@ class TimespanField(forms.MultiValueField):
         if start and end and start >= end:
             raise ValidationError(_("The end of the timespan must be after its start"), code="invalid_timespan")
         return start, end
+
+
+def restrict_to_event(form: forms.BaseForm, field_name: str, event: Event | int) -> QuerySet:
+    """
+    Restrict the choices of a (multiple) model choice field of a form to the objects belonging to the given event
+
+    :param form: form containing the field
+    :param field_name: name of the field
+    :param event: event (or its primary key) the choices should belong to
+    :return: the restricted queryset of the field
+    :raises ValueError: if the field has no queryset to restrict
+    """
+    field = model_choice_field(form, field_name)
+    if field.queryset is None:
+        raise ValueError(f"Field {field_name} has no queryset to restrict to an event")
+    field.queryset = field.queryset.filter(event=event)
+    return field.queryset
 
 
 class NewEventWizardStartForm(forms.ModelForm):
@@ -174,12 +195,8 @@ class NewEventWizardImportForm(forms.Form):
                  renderer=None):
         super().__init__(data, files, auto_id, prefix, initial, error_class, label_suffix, empty_permitted, field_order,
                          use_required_attribute, renderer)
-        self.fields["import_categories"].queryset = self.fields["import_categories"].queryset.filter(
-                event=self.initial["import_event"])
-        self.fields["import_requirements"].queryset = self.fields["import_requirements"].queryset.filter(
-                event=self.initial["import_event"])
-        self.fields["import_types"].queryset = self.fields["import_types"].queryset.filter(
-                event=self.initial["import_event"])
+        for field_name in ["import_categories", "import_requirements", "import_types"]:
+            restrict_to_event(self, field_name, self.initial["import_event"])
 
         # pylint: disable=import-outside-toplevel
         # Local imports used to prevent cyclic imports and to only import when AKDashboard is available
@@ -337,7 +354,8 @@ class RoomBatchCreationForm(AdminIntermediateForm):
         :return: cleaned data
         :rtype: dict
         """
-        cleaned_data = super().clean()
+        super().clean()
+        cleaned_data = self.cleaned_data
         if cleaned_data.get("csv_file") and cleaned_data.get("csv_data"):
             err = ValidationError(
                     _("Please enter data as a file OR via text, not both."), "invalid"
@@ -397,7 +415,7 @@ class TrackAssignmentForm(AdminIntermediateActionForm):
     """
     Form to assign AKs to a given track
     """
-    track = forms.ModelChoiceField(
+    track: "forms.ModelChoiceField[AKTrack]" = forms.ModelChoiceField(
             queryset=None,
             label=_("Existing track"),
             help_text=_("Select the track to assign the selected AKs to."),
@@ -412,10 +430,11 @@ class TrackAssignmentForm(AdminIntermediateActionForm):
     def __init__(self, *args, **kwargs):
         event = kwargs.pop('event')
         super().__init__(*args, **kwargs)
-        self.fields['track'].queryset = AKTrack.objects.filter(event=event).all()
+        model_choice_field(self, 'track').queryset = AKTrack.objects.filter(event=event).all()
 
     def clean(self):
-        cleaned_data = super().clean()
+        super().clean()
+        cleaned_data = self.cleaned_data
 
         # Check whether the AKs with the given PKs are from different events
         aks = AK.objects.filter(pk__in=self.cleaned_data['pks'].split(','))
@@ -460,7 +479,7 @@ class TrackAssignmentForm(AdminIntermediateActionForm):
         return cleaned_data
 
 
-class EventRestrictedFieldsFormMixin:
+class EventRestrictedFieldsFormMixin(ModelFormMixinBase):
     """
     Mixin for model forms of event-related models:
     Restrict the choices of the foreign key or many-to-many fields listed in ``Meta.event_restricted_fields``
@@ -484,8 +503,7 @@ class EventRestrictedFieldsFormMixin:
         if event is not None:
             for field_name in getattr(getattr(self, "Meta", None), "event_restricted_fields", []):
                 if field_name in self.fields:
-                    field = self.fields[field_name]
-                    field.queryset = field.queryset.filter(event=event)
+                    restrict_to_event(self, field_name, event)
 
 
 class RoomForm(forms.ModelForm):
@@ -533,7 +551,7 @@ class DefaultSlotCategoriesForm(AdminIntermediateActionForm):
     """
     Form to assign categories to default slots in bulk
     """
-    primary_categories = forms.ModelMultipleChoiceField(
+    primary_categories: "forms.ModelMultipleChoiceField[AKCategory]" = forms.ModelMultipleChoiceField(
             queryset=None,
             label=_("Primary categories"),
             help_text=_("Categories that should be assigned to these slots primarily"),
@@ -544,10 +562,11 @@ class DefaultSlotCategoriesForm(AdminIntermediateActionForm):
     def __init__(self, *args, **kwargs):
         event = kwargs.pop('event')
         super().__init__(*args, **kwargs)
-        self.fields['primary_categories'].queryset = AKCategory.objects.filter(event=event).all()
+        model_choice_field(self, 'primary_categories').queryset = AKCategory.objects.filter(event=event).all()
 
     def clean(self):
-        cleaned_data = super().clean()
+        super().clean()
+        cleaned_data = self.cleaned_data
 
         # Check whether the default slots with the given PKs are from different events
         slots = (DefaultSlot.objects.filter(pk__in=self.cleaned_data['pks'].split(',')))
@@ -633,16 +652,18 @@ class StatusTrackingEntryAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        choices = [(str(phase.name), [(f"{phase.key}/{step.key}", f"{step.name} *" if step.mandatory else step.name)
-                                      for step in status_tracker.get_steps(phase.key)])
-                   for phase in status_tracker.get_phases()]
+        choices: list[tuple[str | Promise, list[tuple[str, str | Promise]]]] = [
+            (str(phase.name), [(f"{phase.key}/{step.key}", f"{step.name} *" if step.mandatory else step.name)
+                               for step in status_tracker.get_steps(phase.key)])
+            for phase in status_tracker.get_phases()
+        ]
         if self.instance.pk:
             current = f"{self.instance.phase}/{self.instance.step}"
             self.initial["phase_step"] = current
             # Keep entries of steps that are no longer registered editable
             if all(current != value for _group_name, group in choices for value, _label in group):
                 choices.append((_("Unregistered"), [(current, current)]))
-        self.fields["phase_step"].choices = [(name, group) for name, group in choices if group]
+        cast(forms.ChoiceField, self.fields["phase_step"]).choices = [(name, group) for name, group in choices if group]
 
     def save(self, commit=True):
         self.instance.phase, self.instance.step = self.cleaned_data["phase_step"].split("/", 1)

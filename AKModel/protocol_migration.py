@@ -11,18 +11,18 @@ to public addresses (see :func:`fetch_public`). Which wikis are supported is con
 """
 import ipaddress
 import logging
+import pypandoc
 import re
+import requests
 import socket
 from dataclasses import dataclass
-from urllib.parse import parse_qs, unquote, urljoin, urlsplit, urlunsplit
-
-import pypandoc
-import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import TextChoices
 from django.utils.translation import gettext_lazy as _
 from requests.adapters import HTTPAdapter
+from typing import Any
+from urllib.parse import parse_qs, unquote, urljoin, urlsplit, urlunsplit
 
 from AKModel.models import AK
 
@@ -140,7 +140,7 @@ def get_wiki_page_title(wiki_link: str) -> tuple[dict, str] | None:
     if parts.scheme not in ("http", "https"):
         return None
     wikis = {host.lower(): wiki for host, wiki in settings.PROTOCOL_MIGRATION_WIKIS.items()}
-    wiki = wikis.get(parts.hostname)
+    wiki = wikis.get(parts.hostname) if parts.hostname else None
     if wiki is None:
         return None
     title = None
@@ -209,6 +209,8 @@ def fetch_public(url: str) -> requests.Response:
     :raises MigrationError: if the host is not publicly reachable or the request fails
     """
     parts = urlsplit(url)
+    if not parts.hostname:
+        raise MigrationError(MigrationStatus.INVALID_PROTOCOL_LINK, url)
     address = resolve_public_address(parts.hostname)
     session = requests.Session()
     session.mount("https://", PinnedAddressAdapter(parts.hostname))
@@ -299,7 +301,7 @@ class MediaWikiClient:
         self.password = password
         self.session = requests.Session()
         self.session.headers["User-Agent"] = USER_AGENT
-        self.csrf_token = None
+        self.csrf_token: str | None = None
 
     def _request(self, method: str, _retry: bool = True, **params) -> dict:
         params["format"] = "json"
@@ -362,7 +364,7 @@ class MediaWikiClient:
         cache.set(self._cache_key(), {"cookies": requests.utils.dict_from_cookiejar(self.session.cookies),
                                       "csrf_token": self.csrf_token}, WIKI_SESSION_CACHE_TIMEOUT)
 
-    def get_page(self, title: str) -> tuple[bool, str, str | None, str]:
+    def get_page(self, title: str) -> tuple[bool, str, str | None, str | None]:
         """
         Retrieve the current state of a page
 
@@ -402,7 +404,8 @@ class MediaWikiClient:
         MediaWiki and reported as errors instead of overwriting the page
         """
         self.login()
-        params = {"action": "edit", "title": title, "text": content, "summary": summary, "token": self.csrf_token}
+        params: dict[str, Any] = {"action": "edit", "title": title, "text": content, "summary": summary,
+                                  "token": self.csrf_token}
         if start_timestamp:
             params["starttimestamp"] = start_timestamp
         if exists:
@@ -473,5 +476,5 @@ def migrate_protocols(aks) -> list[MigrationResult]:
     :param aks: AKs to migrate the protocols for
     :return: list of results (one per AK)
     """
-    wiki_clients = {}
+    wiki_clients: dict[str, MediaWikiClient] = {}
     return [migrate_protocol(ak, wiki_clients) for ak in aks]

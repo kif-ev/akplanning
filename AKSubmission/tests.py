@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
-
 from django.test import TestCase
-from django.urls import reverse_lazy
+from django.urls import reverse
 
 from AKModel.models import AK, AKSlot, Event
 from AKModel.tests.test_views import BasicViewTests
@@ -73,11 +72,11 @@ class ModelViewTests(BasicViewTests, TestCase):
         Test creation and deletion of slots in frontend
         """
         ak_args = {'event_slug': 'kif42', 'pk': 1}
-        redirect_url = reverse_lazy(f"{self.APP_NAME}:ak_detail", kwargs=ak_args)
+        redirect_url = reverse(f"{self.APP_NAME}:ak_detail", kwargs=ak_args)
 
         # Create a valid slot -> Redirect to AK detail page, message to user
         count_slots = AK.objects.get(pk=1).akslot_set.count()
-        create_url = reverse_lazy(f"{self.APP_NAME}:akslot_add", kwargs=ak_args)
+        create_url = reverse(f"{self.APP_NAME}:akslot_add", kwargs=ak_args)
         response = self.client.post(create_url, {'ak': 1, 'event': 2, 'duration': 1.5})
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200,
                              msg_prefix="Did not correctly trigger redirect")
@@ -85,11 +84,11 @@ class ModelViewTests(BasicViewTests, TestCase):
                          msg="New slot was not correctly saved")
 
         # Get primary key of newly created Slot
-        slot_pk = AK.objects.get(pk=1).akslot_set.order_by('pk').last().pk
+        slot_pk = AK.objects.get(pk=1).akslot_set.latest('pk').pk
 
         # Edit the recently created slot: Make sure view is accessible, post change
         # -> redirect to detail page, duration updated
-        edit_url = reverse_lazy(f"{self.APP_NAME}:akslot_edit", kwargs={'event_slug': 'kif42', 'pk': slot_pk})
+        edit_url = reverse(f"{self.APP_NAME}:akslot_edit", kwargs={'event_slug': 'kif42', 'pk': slot_pk})
         response = self.client.get(edit_url)
         self.assertEqual(response.status_code, 200, msg=f"Cant open edit view for newly created slot ({edit_url})")
         response = self.client.post(edit_url, {'ak': 1, 'event': 2, 'duration': 2})
@@ -100,7 +99,7 @@ class ModelViewTests(BasicViewTests, TestCase):
 
         # Delete recently created slot: Make sure view is accessible, post deletion
         # -> redirect to detail page, slot deleted, message to user
-        deletion_url = reverse_lazy(f"{self.APP_NAME}:akslot_delete", kwargs={'event_slug': 'kif42', 'pk': slot_pk})
+        deletion_url = reverse(f"{self.APP_NAME}:akslot_delete", kwargs={'event_slug': 'kif42', 'pk': slot_pk})
         response = self.client.get(deletion_url)
         self.assertEqual(response.status_code, 200,
                          msg="Cant open deletion view for newly created slot ({deletion_url})")
@@ -114,9 +113,9 @@ class ModelViewTests(BasicViewTests, TestCase):
         """
         Test dispatch of user editing requests
         """
-        edit_url = reverse_lazy(f"{self.APP_NAME}:akowner_edit_dispatch", kwargs={'event_slug': 'kif42'})
+        edit_url = reverse(f"{self.APP_NAME}:akowner_edit_dispatch", kwargs={'event_slug': 'kif42'})
 
-        base_url = reverse_lazy(f"{self.APP_NAME}:submission_overview", kwargs={'event_slug': 'kif42'})
+        base_url = reverse(f"{self.APP_NAME}:submission_overview", kwargs={'event_slug': 'kif42'})
 
         # Empty form/no user selected -> start page
         response = self.client.post(edit_url, {'owner_id': -1})
@@ -125,7 +124,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         self._assert_message(response, "No user selected")
 
         # Correct selection -> user edit page for that user
-        edit_redirect_url = reverse_lazy(f"{self.APP_NAME}:akowner_edit", kwargs={'event_slug': 'kif42', 'slug': 'a'})
+        edit_redirect_url = reverse(f"{self.APP_NAME}:akowner_edit", kwargs={'event_slug': 'kif42', 'slug': 'a'})
         response = self.client.post(edit_url, {'owner_id': 1})
         self.assertRedirects(response, edit_redirect_url, status_code=302, target_status_code=200,
                              msg_prefix=f"Dispatch redirect failed (should go to {edit_redirect_url})")
@@ -134,8 +133,8 @@ class ModelViewTests(BasicViewTests, TestCase):
         """
         Test dispatch of owner selection requests
         """
-        select_url = reverse_lazy(f"{self.APP_NAME}:akowner_select", kwargs={'event_slug': 'kif42'})
-        create_url = reverse_lazy(f"{self.APP_NAME}:akowner_create", kwargs={'event_slug': 'kif42'})
+        select_url = reverse(f"{self.APP_NAME}:akowner_select", kwargs={'event_slug': 'kif42'})
+        create_url = reverse(f"{self.APP_NAME}:akowner_create", kwargs={'event_slug': 'kif42'})
 
         # Empty user selection -> create a new user view
         response = self.client.post(select_url, {'owner_id': -1})
@@ -143,7 +142,7 @@ class ModelViewTests(BasicViewTests, TestCase):
                              msg_prefix="Did not redirect to user create view even though no user was specified")
 
         # Valid user selected -> redirect to view that allows to add a new AK with this user as owner
-        add_redirect_url = reverse_lazy(f"{self.APP_NAME}:submit_ak", kwargs={'event_slug': 'kif42', 'owner_slug': 'a'})
+        add_redirect_url = reverse(f"{self.APP_NAME}:submit_ak", kwargs={'event_slug': 'kif42', 'owner_slug': 'a'})
         response = self.client.post(select_url, {'owner_id': 1})
         self.assertRedirects(response, add_redirect_url, status_code=302, target_status_code=200,
                              msg_prefix=f"Dispatch redirect to ak submission page failed "
@@ -153,8 +152,8 @@ class ModelViewTests(BasicViewTests, TestCase):
         """
         Test submission and storing of direct confident messages to organizers
         """
-        form_url = reverse_lazy(f"{self.APP_NAME}:akmessage_add", kwargs={'event_slug': 'kif42', 'pk': 1})
-        detail_url = reverse_lazy(f"{self.APP_NAME}:ak_detail", kwargs={'event_slug': 'kif42', 'pk': 1})
+        form_url = reverse(f"{self.APP_NAME}:akmessage_add", kwargs={'event_slug': 'kif42', 'pk': 1})
+        detail_url = reverse(f"{self.APP_NAME}:ak_detail", kwargs={'event_slug': 'kif42', 'pk': 1})
 
         count_messages = AK.objects.get(pk=1).akorgamessage_set.count()
 
@@ -216,12 +215,12 @@ class ModelViewTests(BasicViewTests, TestCase):
         Test adding of a previously not existing owner to an AK
         """
         # Pre-Check: AK detail page existing?
-        detail_url = reverse_lazy(f"{self.APP_NAME}:ak_detail", kwargs={'event_slug': 'kif42', 'pk': 1})
+        detail_url = reverse(f"{self.APP_NAME}:ak_detail", kwargs={'event_slug': 'kif42', 'pk': 1})
         response = self.client.get(detail_url)
         self.assertEqual(response.status_code, 200, msg="Could not load ak detail view")
 
         # Make sure AK detail page contains a link to add a new owner
-        edit_url = reverse_lazy(f"{self.APP_NAME}:ak_edit", kwargs={'event_slug': 'kif42', 'pk': 1})
+        edit_url = reverse(f"{self.APP_NAME}:ak_edit", kwargs={'event_slug': 'kif42', 'pk': 1})
         response = self.client.get(edit_url)
         self.assertEqual(response.status_code, 200, msg="Could not load ak detail view")
         self.assertContains(response, "Add person not in the list yet",
@@ -230,7 +229,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         # Check adding of a new owner by posting an according request
         # -> Redirect to AK detail page, message to user, owners list updated
         self.assertEqual(AK.objects.get(pk=1).owners.count(), 1)
-        add_new_user_to_ak_url = reverse_lazy(f"{self.APP_NAME}:akowner_create", kwargs={'event_slug': 'kif42'}) \
+        add_new_user_to_ak_url = reverse(f"{self.APP_NAME}:akowner_create", kwargs={'event_slug': 'kif42'}) \
                                  + "?add_to_existing_ak=1"
         response = self.client.post(add_new_user_to_ak_url,
                                     {'name': 'New test owner', 'event': Event.get_by_slug('kif42').pk})
@@ -340,7 +339,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         Test that slots with durations longer than the event are shortened to the event length when submitting an AK
         and that the user is warned about this
         """
-        submit_url = reverse_lazy(f"{self.APP_NAME}:submit_ak", kwargs={'event_slug': 'kif42', 'owner_slug': 'a'})
+        submit_url = reverse(f"{self.APP_NAME}:submit_ak", kwargs={'event_slug': 'kif42', 'owner_slug': 'a'})
         data = {'name': 'AK with long slots', 'owners': [1], 'category': 4, 'event': 2, 'types': [1],
                 'description': 'Test description', 'goal': 'Test goal',
                 'availabilities': '{"availabilities": []}'}
@@ -368,8 +367,8 @@ class ModelViewTests(BasicViewTests, TestCase):
         (same input formats, invalid values rejected, too long durations clamped to the event length with a warning)
         """
         ak_args = {'event_slug': 'kif42', 'pk': 1}
-        detail_url = reverse_lazy(f"{self.APP_NAME}:ak_detail", kwargs=ak_args)
-        create_url = reverse_lazy(f"{self.APP_NAME}:akslot_add", kwargs=ak_args)
+        detail_url = reverse(f"{self.APP_NAME}:ak_detail", kwargs=ak_args)
+        create_url = reverse(f"{self.APP_NAME}:akslot_add", kwargs=ak_args)
         clamp_message = ("The following durations were longer than the event and were shortened to the length of "
                          "the event (96 hours): {}")
 
@@ -378,7 +377,7 @@ class ModelViewTests(BasicViewTests, TestCase):
             response = self.client.post(create_url, {'ak': 1, 'event': 2, 'duration': raw})
             self.assertRedirects(response, detail_url, msg_prefix=f"Adding slot with duration '{raw}' failed")
             self._assert_message(response, "AK Slot successfully added")
-            self.assertEqual(AKSlot.objects.filter(ak=1).order_by('pk').last().duration, expected)
+            self.assertEqual(AKSlot.objects.filter(ak=1).latest('pk').duration, expected)
 
         # Invalid durations are rejected and no slot is created
         count_slots = AKSlot.objects.filter(ak=1).count()
@@ -392,11 +391,11 @@ class ModelViewTests(BasicViewTests, TestCase):
         response = self.client.post(create_url, {'ak': 1, 'event': 2, 'duration': "200"})
         self.assertRedirects(response, detail_url, msg_prefix="Adding slot with too long duration failed")
         self._assert_message(response, clamp_message.format("200"))
-        slot = AKSlot.objects.filter(ak=1).order_by('pk').last()
+        slot = AKSlot.objects.filter(ak=1).latest('pk')
         self.assertEqual(slot.duration, 96)
 
         # The same applies when editing a slot
-        edit_url = reverse_lazy(f"{self.APP_NAME}:akslot_edit", kwargs={'event_slug': 'kif42', 'pk': slot.pk})
+        edit_url = reverse(f"{self.APP_NAME}:akslot_edit", kwargs={'event_slug': 'kif42', 'pk': slot.pk})
         response = self.client.post(edit_url, {'ak': 1, 'event': 2, 'duration': "0:45"})
         self.assertRedirects(response, detail_url, msg_prefix="Editing slot failed")
         self._assert_message(response, "AK Slot successfully updated")
@@ -422,7 +421,7 @@ class ModelViewTests(BasicViewTests, TestCase):
 
         wish = AK.objects.get(pk=3)
         wish.akslot_set.all().delete()
-        edit_url = reverse_lazy(f"{self.APP_NAME}:ak_edit", kwargs={'event_slug': 'kif42', 'pk': wish.pk})
+        edit_url = reverse(f"{self.APP_NAME}:ak_edit", kwargs={'event_slug': 'kif42', 'pk': wish.pk})
         response = self.client.post(edit_url, {
             'name': wish.name, 'short_name': wish.short_name, 'description': wish.description, 'goal': wish.goal,
             'category': wish.category.pk, 'owners': [2], 'event': event.pk, 'types': [1],

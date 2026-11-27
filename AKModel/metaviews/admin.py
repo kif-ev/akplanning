@@ -1,18 +1,33 @@
 from abc import ABC, abstractmethod
-
 from django.contrib import admin, messages
 from django.contrib.admin.models import CHANGE, LogEntry
-from django.db.models import Model
+from django.core.exceptions import PermissionDenied
+from django.db.models import Model, QuerySet
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.functional import Promise
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import FormView
 
 from AKModel.forms import AdminIntermediateActionForm, AdminIntermediateForm
 from AKModel.models import Event
+from AKModel.typing_utils import ViewMixinBase
 
 
-class EventSlugMixin:
+def logged_in_user_id(request) -> int:
+    """
+    Get the id of the user performing a request that requires a login (e.g., to log the changes performed)
+
+    :param request: request to get the user from
+    :return: id of the logged-in user
+    :raises PermissionDenied: if no user is logged in
+    """
+    if request.user.id is None:
+        raise PermissionDenied
+    return request.user.id
+
+
+class EventSlugMixin(ViewMixinBase):
     """
     Mixin to handle views with event slugs
 
@@ -20,14 +35,29 @@ class EventSlugMixin:
     (generic GET and POST views, list views, dispatching, create views)
     """
     # pylint: disable=no-member
-    event = None
+    # Only None until the event is loaded at the start of the request handling (see _load_event)
+    _event: Event | None = None
+
+    @property
+    def event(self) -> Event:
+        """
+        Event of this request (as specified by event_slug in the URL)
+        """
+        if self._event is None:
+            # Not an AttributeError, as these are silently ignored, e.g., by templates and getattr
+            raise RuntimeError(f"Event of {type(self).__name__} accessed before it was loaded")
+        return self._event
+
+    @event.setter
+    def event(self, event: Event):
+        self._event = event
 
     def _load_event(self):
         """
         Perform the real loading of the event data (as specified by event_slug in the URL) into self.event
         """
         # Find event based on event slug
-        if self.event is None:
+        if self._event is None:
             self.event = get_object_or_404(Event, slug=self.kwargs.get("event_slug", None))
 
     def get(self, request, *args, **kwargs):
@@ -35,34 +65,34 @@ class EventSlugMixin:
         Override GET request handling to perform loading event first
         """
         self._load_event()
-        return super().get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)  # type: ignore[misc]  # provided by the concrete view
 
     def post(self, request, *args, **kwargs):
         """
         Override POST request handling to perform loading event first
         """
         self._load_event()
-        return super().post(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)  # type: ignore[misc]  # provided by the concrete view
 
     def list(self, request, *args, **kwargs):
         """
         Override list view request handling to perform loading event first
         """
         self._load_event()
-        return super().list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)  # type: ignore[misc]  # provided by the concrete view
 
     def create(self, request, *args, **kwargs):
         """
         Override create view request handling to perform loading event first
         """
         self._load_event()
-        return super().create(request, *args, **kwargs)
+        return super().create(request, *args, **kwargs)  # type: ignore[misc]  # provided by the concrete view
 
     def dispatch(self, request, *args, **kwargs):
         """
         Override dispatch which is called in many generic views to perform loading event first
         """
-        if self.event is None:
+        if self._event is None:
             self._load_event()
         return super().dispatch(request, *args, **kwargs)
 
@@ -87,10 +117,10 @@ class FilterByEventSlugMixin(EventSlugMixin):
         Filter current queryset based on url event slug or return 404 if event slug is invalid
         :return: Queryset
         """
-        return super().get_queryset().filter(event=self.event)
+        return super().get_queryset().filter(event=self.event)  # type: ignore[misc]  # provided by the concrete view
 
 
-class AdminViewMixin:
+class AdminViewMixin(ViewMixinBase):
     """
     Mixin to provide context information needed in custom admin views
 
@@ -99,7 +129,7 @@ class AdminViewMixin:
     # pylint: disable=too-few-public-methods
 
     site_url = ''
-    title = ''
+    title: str | Promise = ''
 
     def get_context_data(self, **kwargs):
         """
@@ -139,7 +169,7 @@ class IntermediateAdminView(AdminViewMixin, FormView):
         return context
 
 
-class WizardViewMixin:
+class WizardViewMixin(ViewMixinBase):
     """
     Mixin to create wizard-like views.
     This visualizes the progress of the user in the creation process and provides the interlinking to the next step
@@ -153,8 +183,8 @@ class WizardViewMixin:
     """
 
     # pylint: disable=too-few-public-methods
-    wizard_title: str
-    wizard_steps: list[str]
+    wizard_title: str | Promise
+    wizard_steps: list[str | Promise]
     wizard_step: int
 
     def get_wizard_step_url(self, step: int) -> str | None:
@@ -203,10 +233,11 @@ class IntermediateAdminActionView(IntermediateAdminView, ABC):
     """
     # pylint: disable=no-member
     form_class = AdminIntermediateActionForm
-    entities = None
-    success_message: str
-    confirmation_message: str
-    model: Model
+    # Set when the entities are loaded (see get_preview and form_valid)
+    entities: QuerySet
+    success_message: str | Promise
+    confirmation_message: str | Promise
+    model: type[Model]
 
     def get_queryset(self, pks=None):
         """
@@ -214,7 +245,7 @@ class IntermediateAdminActionView(IntermediateAdminView, ABC):
         """
         if pks is None:
             pks = self.request.GET['pks']
-        return self.model.objects.filter(pk__in=pks.split(","))
+        return self.model._default_manager.filter(pk__in=pks.split(","))  # pylint: disable=protected-access
 
     def get_initial(self):
         initial = super().get_initial()
@@ -243,15 +274,17 @@ class IntermediateAdminActionView(IntermediateAdminView, ABC):
         """
 
     def form_valid(self, form):
+        # Admin views can only be used by logged-in users (needed for logging the action)
+        user_id = logged_in_user_id(self.request)
         self.entities = self.get_queryset(pks=form.cleaned_data['pks'])
         self.action(form)
         LogEntry.objects.log_actions(
-                user_id=self.request.user.id,
+                user_id=user_id,
                 queryset=self.entities,
                 action_flag=CHANGE,
-                change_message=self.success_message
+                change_message=str(self.success_message)
         )
-        messages.add_message(self.request, messages.SUCCESS, self.success_message)
+        messages.add_message(self.request, messages.SUCCESS, str(self.success_message))
         return super().form_valid(form)
 
 
@@ -264,6 +297,7 @@ class LoopActionMixin(ABC):
     further customization can be reached with the two callbacks `pre_action()` and `post_action()`
     that are called before and after performing the action loop
     """
+    entities: QuerySet  # provided by IntermediateAdminActionView
 
     def action(self, form):  # pylint: disable=unused-argument
         """

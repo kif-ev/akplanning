@@ -1,17 +1,16 @@
 import json
 import re
 import traceback
-from datetime import datetime
-from typing import List
-from urllib.parse import urlencode
-
+from datetime import datetime, timedelta
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.base import Message
 from django.core import signing
-from django.test import TestCase, override_settings
+from django.test import override_settings, TestCase
 from django.urls import reverse, reverse_lazy
+from typing import Any, List
+from urllib.parse import urlencode
 
 from AKModel.availability.models import Availability
 from AKModel.models import (
@@ -28,9 +27,10 @@ from AKModel.models import (
     Event,
     Room,
 )
+from AKModel.typing_utils import TestCaseMixinBase
 
 
-class BasicViewTests:
+class BasicViewTests(TestCaseMixinBase):
     """
     Parent class for "standard" tests of views
 
@@ -50,10 +50,10 @@ class BasicViewTests:
     """
 
     # pylint: disable=no-member
-    VIEWS = []
+    VIEWS: list[tuple[str, dict] | tuple[str, dict, int]] = []
     APP_NAME = ""
-    VIEWS_STAFF_ONLY = []
-    EDIT_TESTCASES = []
+    VIEWS_STAFF_ONLY: list[tuple[str, dict] | tuple[str, dict, int]] = []
+    EDIT_TESTCASES: list[dict] = []
 
     def setUp(self):  # pylint: disable=invalid-name
         """
@@ -266,7 +266,7 @@ class ModelViewTests(BasicViewTests, TestCase):
 
     fixtures = ["model.json"]
 
-    ADMIN_MODELS = [
+    ADMIN_MODELS: list[tuple[Any, str]] = [
         (Event, "event"),
         (AKOwner, "akowner"),
         (AKCategory, "akcategory"),
@@ -781,7 +781,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         # Make sure presentation mode excludes at least one AK that is not a wish
         AK.objects.filter(pk=2).update(present=False)
 
-        configurations = [
+        configurations: list[dict[str, Any]] = [
             {"name": "wishes_default", "include_wishes": "True", "presentation_mode": "False",
              "timespan": ("", ""), "expected_aks": {1, 2, 3, 4}},
             {"name": "no_wishes_default", "include_wishes": "False", "presentation_mode": "False",
@@ -847,7 +847,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         Test list API views, checking whether they load correctly
         and include the correct items and fields
         """
-        api_views = [
+        api_views: list[tuple[str, Any, Any]] = [
             ("model:AK-list", AK, '__all__'),
             ("model:AKOwner-list", AKOwner, '__all__'),
             ("model:AKCategory-list", AKCategory, '__all__'),
@@ -982,8 +982,8 @@ class ModelViewTests(BasicViewTests, TestCase):
                     f'{room_count}</a>')
 
         # The linked admin lists show exactly the counted entities
-        response = self.client.get(ak_list_url, {'event__id__exact': event.pk, 'requirements__id__exact': 3,
-                                                 'trashed': 'NOT_TRASHED'})
+        params: dict[str, Any] = {'event__id__exact': event.pk, 'requirements__id__exact': 3, 'trashed': 'NOT_TRASHED'}
+        response = self.client.get(ak_list_url, params)
         self.assertEqual(response.context['cl'].result_count, 1)
         response = self.client.get(room_list_url, {'event__id__exact': event.pk, 'properties__id__exact': 3})
         self.assertEqual(response.context['cl'].result_count, 1)
@@ -996,6 +996,7 @@ class ModelViewTests(BasicViewTests, TestCase):
         self.client.force_login(self.admin_user)
         event = Event.objects.get(slug="kif42")
         ak = event.ak_set.first()
+        assert ak is not None
         open_message = AKOrgaMessage.objects.create(ak=ak, event=event, text="Open orga message")
         AKOrgaMessage.objects.create(ak=ak, event=event, text="Resolved orga message", resolved=True)
         status_url = reverse('admin:event_status', kwargs={'event_slug': event.slug})
@@ -1052,7 +1053,7 @@ class EventShiftDatesTests(BasicViewTests, TestCase):
         :return: dict mapping (model label, pk, field name) to (event id, value)
         """
         snapshot = {}
-        models_and_fields = [
+        models_and_fields: list[tuple[Any, list[str]]] = [
             (AKSlot, ['start', 'updated']),
             (Availability, ['start', 'end']),
             (DefaultSlot, ['start', 'end']),
@@ -1124,3 +1125,90 @@ class EventShiftDatesTests(BasicViewTests, TestCase):
         # Other events are not touched, everything belonging to the event is shifted, everything else not
         self.assertEqual(Event.objects.get(pk=1).start, old_other_event_start)
         self._assert_snapshot_shifted(old_snapshot, event.pk, delta)
+
+
+class DefaultSlotEditorTests(BasicViewTests, TestCase):
+    """
+    Tests for saving default slots in the default slot editor
+    """
+
+    fixtures = ["model.json"]
+
+    def setUp(self):
+        super().setUp()
+        self.event = Event.get_by_slug("kif42")
+        self.start = self.event.start.astimezone(self.event.timezone).replace(tzinfo=None)
+
+    def _slot(self, slot_id="", start_offset_hours=0, duration_hours=1):
+        start = self.start + timedelta(hours=start_offset_hours)
+        return {"id": slot_id, "start": start.isoformat(), "end": (start + timedelta(hours=duration_hours)).isoformat()}
+
+    def _post(self, slots):
+        self.client.force_login(self.admin_user)
+        return self.client.post(
+                reverse("admin:default-slots-editor", kwargs={"event_slug": self.event.slug}),
+                {"availabilities": json.dumps({"availabilities": slots})},
+        )
+
+    def _assert_rejected(self, slots):
+        """
+        Assert that the submitted slots are rejected as a whole (editor shown again with an error, nothing changed)
+        """
+        slots_before = list(self.event.defaultslot_set.values_list("pk", "start", "end"))
+        response = self._post(slots)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["form"].has_error("availabilities"))
+        self.assertEqual(list(self.event.defaultslot_set.values_list("pk", "start", "end")), slots_before)
+
+    def test_invalid_date_rejected(self):
+        """
+        Test that an invalid date in one of the submitted slots is rejected before any slot is changed
+        """
+        self._assert_rejected([self._slot(), {"id": "", "start": "not a date", "end": self.start.isoformat()}])
+
+    def test_invalid_id_rejected(self):
+        """
+        Test that an invalid id in one of the submitted slots is rejected before any slot is changed
+        """
+        self._assert_rejected([self._slot(), self._slot(slot_id="abc")])
+
+    def test_end_before_start_rejected(self):
+        """
+        Test that slots not ending after their start are rejected
+        """
+        self._assert_rejected([self._slot(), self._slot(duration_hours=-1)])
+        self._assert_rejected([self._slot(duration_hours=0)])
+
+    def test_duplicate_id_rejected(self):
+        """
+        Test that submitting the same existing slot more than once is rejected
+        """
+        DefaultSlot.objects.create(event=self.event, start=self.event.start, end=self.event.start + timedelta(hours=1))
+        slot_id = str(self.event.defaultslot_set.first().pk)
+        self._assert_rejected([self._slot(slot_id=slot_id), self._slot(slot_id=slot_id, start_offset_hours=2)])
+
+    def test_valid_slots_saved(self):
+        """
+        Test that valid submitted slots replace the existing default slots of the event
+        """
+        response = self._post([self._slot()])
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.event.defaultslot_set.count(), 1)
+        self.assertEqual(self.event.defaultslot_set.get().start, self.event.start.astimezone(self.event.timezone))
+
+    def test_existing_slot_updated(self):
+        """
+        Test that existing slots are updated (and not re-created) and others are deleted
+        """
+        kept = DefaultSlot.objects.create(event=self.event, start=self.event.start,
+                                          end=self.event.start + timedelta(hours=1))
+        DefaultSlot.objects.create(event=self.event, start=self.event.start + timedelta(hours=3),
+                                   end=self.event.start + timedelta(hours=4))
+
+        response = self._post([self._slot(slot_id=str(kept.pk), start_offset_hours=1, duration_hours=2)])
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(list(self.event.defaultslot_set.values_list("pk", flat=True)), [kept.pk])
+        kept.refresh_from_db()
+        self.assertEqual(kept.end - kept.start, timedelta(hours=2))

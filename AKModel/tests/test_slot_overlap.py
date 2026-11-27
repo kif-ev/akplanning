@@ -1,6 +1,5 @@
 from datetime import timedelta
 from decimal import Decimal
-
 from django.test import TestCase
 
 from AKModel.models import AK, AKSlot, Event
@@ -61,3 +60,16 @@ class SlotOverlapTests(TestCase):
         a, b = self._slot(0, "1"), self._slot(90, "1")
         self.assertFalse(a.overlaps(b))
         self.assertFalse(b.overlaps(a))
+
+    def test_unscheduled_slot(self):
+        """
+        Test that unscheduled slots have no end and that the scheduled times are rejected for them
+        """
+        slot = AKSlot(ak=self.ak, event=self.event, duration=Decimal("1"))
+        self.assertIsNone(slot.end)
+        with self.assertRaises(ValueError):
+            _ = slot.scheduled_start
+        with self.assertRaises(ValueError):
+            _ = slot.scheduled_end
+        with self.assertRaises(ValueError):
+            slot.overlaps(self._slot(0, "1"))

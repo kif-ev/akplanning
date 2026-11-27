@@ -2,6 +2,8 @@
 # Copyright 2017-2019, Tobias Kunze
 # Original Copyrights licensed under the Apache License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0
 # Documentation was mainly added by us, other changes are marked in the code
+
+from collections.abc import Iterable
 from django.utils import timezone
 from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import BaseSerializer, ModelSerializer
@@ -59,7 +61,7 @@ class AvailabilityFormSerializer(BaseSerializer):
     def update(self, instance, validated_data):
         raise ValueError("`AvailabilityFormSerializer` is read-only.")
 
-    def to_representation(self, instance: tuple[Availability, Event], **kwargs):
+    def to_representation(self, instance: tuple[Iterable[Availability], Event]):
         availabilities, event = instance
 
         return {

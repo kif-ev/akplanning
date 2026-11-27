@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-18 11:37+0100\n"
+"POT-Creation-Date: 2026-11-27 23:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -264,30 +264,30 @@ msgstr "Beliebteste Kategorie"
 msgid "AKs per category"
 msgstr "AKs pro Kategorie"
 
-#: AKDashboard/views.py:336
+#: AKDashboard/views.py:337
 #, python-format
 msgid "%(count)s character"
 msgid_plural "%(count)s characters"
 msgstr[0] "%(count)s Zeichen"
 msgstr[1] "%(count)s Zeichen"
 
-#: AKDashboard/views.py:338
+#: AKDashboard/views.py:339
 msgid "Shortest AK name"
 msgstr "Kürzester AK-Name"
 
-#: AKDashboard/views.py:339
+#: AKDashboard/views.py:340
 msgid "Longest AK name"
 msgstr "Längster AK-Name"
 
-#: AKDashboard/views.py:359
+#: AKDashboard/views.py:360
 #, python-format
 msgid "%(hours)s hours of AKs"
 msgstr "%(hours)s Stunden AKs"
 
-#: AKDashboard/views.py:361
+#: AKDashboard/views.py:362
 msgid "Rooms"
 msgstr "Räume"
 
-#: AKDashboard/views.py:362
+#: AKDashboard/views.py:363
 msgid "Busiest rooms"
 msgstr "Meistgenutzte Räume"

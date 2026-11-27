@@ -22,8 +22,8 @@ A phase is complete once all of its steps are either done or not needed.
 import re
 from dataclasses import dataclass
 from datetime import datetime
-
 from django.db.models import OuterRef, Subquery
+from django.utils.functional import Promise
 
 from AKModel.models import Event, StatusTrackingEntry
 
@@ -44,9 +44,9 @@ class Phase:
     A phase in the organization of an event (e.g., basic_configuration)
     """
     key: str
-    name: str
+    name: str | Promise
     order: int = 0
-    description: str = ""
+    description: str | Promise = ""
 
 
 @dataclass(frozen=True)
@@ -58,9 +58,9 @@ class Step:
     """
     phase: str
     key: str
-    name: str
+    name: str | Promise
     order: int = 0
-    description: str = ""
+    description: str | Promise = ""
     mandatory: bool = False
 
 
@@ -175,7 +175,8 @@ class StatusTracker:
 
     # Registration
 
-    def register_phase(self, key: str, name: str, *, order: int = 0, description: str = "") -> Phase:
+    def register_phase(self, key: str, name: str | Promise, *, order: int = 0,
+                       description: str | Promise = "") -> Phase:
         """
         Register a new phase
 
@@ -193,8 +194,8 @@ class StatusTracker:
         self._phases[key] = phase
         return phase
 
-    def register_step(self, phase: str, key: str, name: str, *, order: int = 0, description: str = "",
-                      mandatory: bool = False) -> Step:
+    def register_step(self, phase: str, key: str, name: str | Promise, *, order: int = 0,
+                      description: str | Promise = "", mandatory: bool = False) -> Step:
         """
         Register a new step for a phase
 

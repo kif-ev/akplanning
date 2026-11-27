@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-25 12:41+0000\n"
+"POT-Creation-Date: 2026-11-27 23:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,7 +34,7 @@ msgstr "Raum"
 msgid "Virtual Room"
 msgstr "Virtueller Raum"
 
-#: AKOnline/models.py:17 AKOnline/views.py:40
+#: AKOnline/models.py:17 AKOnline/views.py:39
 msgid "Virtual Rooms"
 msgstr "Virtuelle Räume"
 

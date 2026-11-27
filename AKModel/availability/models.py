@@ -4,11 +4,11 @@
 # Changes are marked in the code
 
 import datetime
-from typing import List
-
+from collections.abc import Iterable
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from typing import List
 
 from AKModel.models import AK, AKCategory, AKOwner, Event, Room
 # TODO: Decouple from AKPreference app
@@ -125,7 +125,7 @@ class Availability(models.Model):
                 )
         )
 
-    def __eq__(self, other: 'Availability') -> bool:
+    def __eq__(self, other: object) -> bool:
         """Comparisons like ``availability1 == availability2``.
 
         Checks if ``event``, ``person``, ``room``, ``ak``, ``ak_category``, ``start`` and ``end``
@@ -215,17 +215,16 @@ class Availability(models.Model):
         return self.intersect_with(other)
 
     @classmethod
-    def union(cls, availabilities: List['Availability']) -> List['Availability']:
+    def union(cls, availabilities: Iterable['Availability']) -> List['Availability']:
         """Return the minimal list of Availability objects which are covered by
         at least one given Availability."""
-        if not availabilities:
+        sorted_availabilities = sorted(availabilities, key=lambda a: a.start)
+        if not sorted_availabilities:
             return []
 
-        availabilities = sorted(availabilities, key=lambda a: a.start)
-        result = [availabilities[0]]
-        availabilities = availabilities[1:]
+        result = [sorted_availabilities[0]]
 
-        for avail in availabilities:
+        for avail in sorted_availabilities[1:]:
             if avail.overlaps(result[-1], False):
                 result[-1] = result[-1].merge_with(avail)
             else:
@@ -260,15 +259,15 @@ class Availability(models.Model):
         given sets."""
 
         # get rid of any overlaps and unmerged ranges in each set
-        availabilitysets = [cls.union(avialset) for avialset in availabilitysets]
+        merged_sets = [cls.union(avialset) for avialset in availabilitysets]
         # bail out for obvious cases (there are no sets given, one of the sets is empty)
-        if not availabilitysets:
+        if not merged_sets:
             return []
-        if not all(availabilitysets):
+        if not all(merged_sets):
             return []
         # start with the very first set ...
-        result = availabilitysets[0]
-        for availset in availabilitysets[1:]:
+        result = merged_sets[0]
+        for availset in merged_sets[1:]:
             # ... subtract each of the other sets
             result = cls._pair_intersection(result, availset)
         return result
@@ -334,7 +333,7 @@ class Availability(models.Model):
         return Availability(start=timeframe_start, end=timeframe_end, event=event, person=person,
                             room=room, ak=ak, ak_category=ak_category, participant=participant)
 
-    def is_covered(self, availabilities: List['Availability']):
+    def is_covered(self, availabilities: Iterable['Availability']) -> bool:
         """Check if list of availibilities cover this object.
 
         :param availabilities: availabilities to check.
@@ -345,7 +344,7 @@ class Availability(models.Model):
         return any(avail.contains(self) for avail in avail_union)
 
     @classmethod
-    def is_event_covered(cls, event: Event, availabilities: List['Availability']) -> bool:
+    def is_event_covered(cls, event: Event, availabilities: Iterable['Availability']) -> bool:
         """Check if list of availibilities cover whole event.
 
         :param event: event to check.

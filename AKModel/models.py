@@ -5,14 +5,12 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_DOWN
-from typing import Any, Generator, Iterable
-
 from django.apps import apps
 from django.conf import settings
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models, transaction
 from django.db.models import Count
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.functional import cached_property
@@ -20,6 +18,12 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 from timezone_field import TimeZoneField
+from typing import Any, Generator, Iterable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.db.models.fields.related_descriptors import ManyRelatedManager
+
+    from AKModel.availability.models import Availability
 
 # Custom validators to be used for some of the fields
 # Prevent inclusion of the quotation marks ' " ´ `
@@ -405,7 +409,7 @@ class Event(models.Model):
         if constraints is None:
             constraints = set()
 
-        current_block = []
+        current_block: TimeslotBlock = []
 
         room_availabilities = list({
             availability
@@ -538,20 +542,19 @@ class Event(models.Model):
             https://github.com/Die-KoMa/ak-plan-optimierung/wiki/Input-&-output-format
         :return: list of all slots that were scheduled/updated by this import (fixed slots are not changed)
         """
-        if isinstance(schedule, str):
-            schedule = json.loads(schedule)
+        schedule_data: dict[str, Any] = json.loads(schedule) if isinstance(schedule, str) else schedule
 
-        if "input" not in schedule or "scheduled_aks" not in schedule:
+        if "input" not in schedule_data or "scheduled_aks" not in schedule_data:
             raise ValueError(_("Cannot parse malformed JSON input."))
 
         if apps.is_installed("AKSolverInterface") and check_for_data_inconsistency:
             from AKSolverInterface.serializers import ExportEventSerializer  # pylint: disable=import-outside-toplevel
             export_dict = ExportEventSerializer(self).data
 
-            if schedule["input"] != export_dict:
+            if schedule_data["input"] != export_dict:
                 raise ValueError(_("Data has changed since the export. Reexport and run the solver again."))
 
-        slots_in_an_hour = 1.0 / schedule["input"]["timeslots"]["info"]["duration"]
+        slots_in_an_hour = 1.0 / schedule_data["input"]["timeslots"]["info"]["duration"]
 
         timeslot_dict = {
             timeslot.idx: timeslot
@@ -560,7 +563,7 @@ class Event(models.Model):
         }
 
         slots_updated = []
-        for scheduled_slot in schedule["scheduled_aks"]:
+        for scheduled_slot in schedule_data["scheduled_aks"]:
             scheduled_slot["timeslot_ids"] = list(map(int, scheduled_slot["timeslot_ids"]))
             slot = AKSlot.objects.get(id=int(scheduled_slot["ak_id"]))
 
@@ -595,7 +598,7 @@ class Event(models.Model):
                             ).format(
                                     ak_name=slot.ak.name,
                                     solver_room=solver_room.name,
-                                    slot_room=slot.room.name,
+                                    slot_room=slot.room.name if slot.room is not None else "-",
                             )
                     )
                 if slot.start != start_timeslot.start:
@@ -697,7 +700,9 @@ class AKOwner(models.Model):
         :return: the slug
         :rtype: str
         """
-        max_length = self._meta.get_field('slug').max_length
+        slug_field = self._meta.get_field('slug')
+        assert isinstance(slug_field, models.SlugField)
+        max_length = slug_field.max_length
 
         # Try name alone (truncated if necessary)
         slug_candidate = slugify(self.name)[:max_length]
@@ -927,12 +932,19 @@ class AK(models.Model):
     requirements = models.ManyToManyField(to=AKRequirement, blank=True, verbose_name=_('Requirements'),
                                           help_text=_("AK's Requirements"))
 
-    conflicts = models.ManyToManyField(to='AK', blank=True, related_name='conflict', verbose_name=_('Conflicting AKs'),
-                                       help_text=_('AKs that conflict and thus must not take place at the same time'),
-                                       )
-    prerequisites = models.ManyToManyField(to='AK', blank=True, verbose_name=_('Prerequisite AKs'),
-                                           help_text=_('AKs that should precede this AK in the schedule'),
-                                           related_name='is_prerequisite_of')
+    conflicts: "models.ManyToManyField[AK, Any]" = models.ManyToManyField(
+            to='AK', blank=True, related_name='conflict', verbose_name=_('Conflicting AKs'),
+            help_text=_('AKs that conflict and thus must not take place at the same time'),
+    )
+    prerequisites: "models.ManyToManyField[AK, Any]" = models.ManyToManyField(
+            to='AK', blank=True, verbose_name=_('Prerequisite AKs'),
+            help_text=_('AKs that should precede this AK in the schedule'),
+            related_name='is_prerequisite_of',
+    )
+    if TYPE_CHECKING:
+        # Reverse accessors of the self-referencing fields above, not detected by the django-stubs plugin
+        conflict: "ManyRelatedManager[AK, Any]"
+        is_prerequisite_of: "ManyRelatedManager[AK, Any]"
 
     notes = models.TextField(blank=True, verbose_name=_('Organizational Notes'), help_text=_(
             'Notes to organizers. These are public. For private notes, please use the button for private messages '
@@ -998,7 +1010,7 @@ class AK(models.Model):
         # Find conflicts
         # (both directions, those specified for this AK and those were this AK was specified as conflict)
         # Deduplicate and order list alphabetically
-        conflicts = set()
+        conflicts: set[str] = set()
         if self.conflicts.count() > 0:
             for c in self.conflicts.all():
                 conflicts.add(str(c))
@@ -1006,9 +1018,7 @@ class AK(models.Model):
             for c in self.conflict.all():
                 conflicts.add(str(c))
         if len(conflicts) > 0:
-            conflicts = list(conflicts)
-            conflicts.sort()
-            detail_string += f"\n{_('Conflicts')}: {', '.join(conflicts)}"
+            detail_string += f"\n{_('Conflicts')}: {', '.join(sorted(conflicts))}"
 
         if self.prerequisites.count() > 0:
             detail_string += f"\n{_('Prerequisites')}: {', '.join(str(p) for p in self.prerequisites.all())}"
@@ -1063,15 +1073,6 @@ class AK(models.Model):
         self.skip_history_when_saving = True  # pylint: disable=attribute-defined-outside-init
         self.save()
         del self.skip_history_when_saving
-
-    @property
-    def availabilities(self):
-        """
-        Get all availabilities associated to this AK
-        :return: availabilities
-        :rtype: QuerySet[Availability]
-        """
-        return "Availability".objects.filter(ak=self)
 
     @property
     def edit_url(self):
@@ -1284,22 +1285,44 @@ class AKSlot(models.Model):
             return _("Not scheduled yet")
 
         start = self.start.astimezone(self.event.timezone)
-        end = self.end.astimezone(self.event.timezone)
+        end = self.scheduled_end.astimezone(self.event.timezone)
 
         end_format = 'G:i' if start.day == end.day else 'D G:i'
         return (f"{date_format(start, format='D G:i', use_l10n=True)} - "
                 f"{date_format(end, format=end_format, use_l10n=True)}")
 
     @property
-    def end(self):
+    def end(self) -> datetime | None:
         """
-        Retrieve end time of the AK slot
+        Retrieve end time of the AK slot (None if the slot is not scheduled)
+        """
+        if self.start is None:
+            return None
+        return self.scheduled_end
+
+    @property
+    def scheduled_start(self) -> datetime:
+        """
+        Retrieve start time of a slot that is known to be scheduled
+
+        :raises ValueError: if the slot is not scheduled
+        """
+        if self.start is None:
+            raise ValueError(f"Slot {self.pk} is not scheduled")
+        return self.start
+
+    @property
+    def scheduled_end(self) -> datetime:
+        """
+        Retrieve end time of a slot that is known to be scheduled
+
+        :raises ValueError: if the slot is not scheduled
         """
         # Durations are stored in hours with two decimal places, which cannot represent most minute values
         # exactly (e.g., 40 minutes are stored as 0.67 hours, i.e., 40:12). Round to full minutes to prevent
         # artifacts like overlaps with directly following slots (two decimal places are always less than
         # half a minute away from a full minute, hence the intended value is restored)
-        return self.start + timedelta(minutes=round(float(self.duration) * 60))
+        return self.scheduled_start + timedelta(minutes=round(float(self.duration) * 60))
 
     @property
     def seconds_since_last_update(self):
@@ -1317,8 +1340,9 @@ class AKSlot(models.Model):
         :param other: second slot to compare with
         :return: true if they overlap, false if not:
         :rtype: bool
+        :raises ValueError: if one of the slots is not scheduled
         """
-        return self.start < other.end and other.start < self.end
+        return self.scheduled_start < other.scheduled_end and other.scheduled_start < self.scheduled_end
 
     def save(self, *args, force_insert=False, force_update=False, using=None, update_fields=None):
         # Make sure duration is not longer than the event
@@ -1343,7 +1367,7 @@ class AKSlot(models.Model):
         return room_constraints
 
     def get_time_constraints(self, export_scheduled_aks_as_fixed: bool = False,
-                             aks_to_ignore_category_for: set[AK] = None,
+                             aks_to_ignore_category_for: set[AK] | None = None,
                              ak_availabilities: dict[int, list] | None = None,
                              person_availabilities: dict[int, list] | None = None) -> list[str]:
         """Construct list of required time constraint labels.
@@ -1365,6 +1389,7 @@ class AKSlot(models.Model):
             person_availabilities = {}
 
         def _owner_time_constraints(owner: AKOwner):
+            owner_avails: Iterable[Availability]
             if owner.pk in person_availabilities:
                 owner_avails = person_availabilities[owner.pk]
             else:
@@ -1559,8 +1584,6 @@ class ConstraintViolation(models.Model):
                 output.append(f"{field}: {a}")
         return ", ".join(output)
 
-    get_details.short_description = _('Details')
-
     @property
     def details(self):
         """
@@ -1573,7 +1596,7 @@ class ConstraintViolation(models.Model):
         """
         Property: Edit URL for this CV
         """
-        return reverse_lazy('admin:AKModel_constraintviolation_change', kwargs={'object_id': self.pk})
+        return reverse('admin:AKModel_constraintviolation_change', kwargs={'object_id': self.pk})
 
     @property
     def level_display(self) -> str:

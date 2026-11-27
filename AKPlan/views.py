@@ -1,6 +1,5 @@
 import json
 from datetime import datetime, timedelta
-
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import Max, Q
@@ -9,6 +8,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, ListView
+from typing import Any
 
 from AKModel.metaviews.admin import FilterByEventSlugMixin
 from AKModel.models import AKSlot, AKTrack, AKType, Room
@@ -25,11 +25,11 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
     template_name = "AKPlan/plan_index.html"
     context_object_name = "akslots"
     ordering = "start"
-    types_filter = None
+    types_filter: dict[str, Any] | None = None
     query_string = ""
     # Daily range of hours shown in the timeline, determined based on the slots if not set before
-    earliest_start_hour = None
-    latest_end_hour = None
+    earliest_start_hour: int | None = None
+    latest_end_hour: int | None = None
 
     def get(self, request, *args, **kwargs):
         if 'types' in request.GET:
@@ -105,7 +105,7 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
                 'title': slot.ak.short_name,
                 'description': slot.ak.name,
                 'start': timezone.localtime(slot.start, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
-                'end': timezone.localtime(slot.end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
+                'end': timezone.localtime(slot.scheduled_end, self.event.timezone).strftime("%Y-%m-%d %H:%M:%S"),
                 'resourceId': slot.room.title,
                 'backgroundColor': highlight_change_colors(slot),
                 'borderColor': slot.ak.category.color,
@@ -196,7 +196,7 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
                     buildings.add(akslot.room.location)
 
             # Recent AKs: Started but not ended yet
-            if akslot.start <= current_timestamp <= akslot.end:
+            if akslot.start <= current_timestamp <= akslot.scheduled_end:
                 context["akslots_now"].append(akslot)
             # Next AKs: Not started yet (in order of their start)
             elif akslot.start > current_timestamp:
@@ -290,7 +290,7 @@ class PlanIndexView(FilterByEventSlugMixin, ListView):
         if start_hour < self.earliest_start_hour:
             # Use hour - 1 to improve visibility of date change
             self.earliest_start_hour = max(start_hour - 1, 0)
-        end_hour = akslot.end.astimezone(self.event.timezone).hour
+        end_hour = akslot.scheduled_end.astimezone(self.event.timezone).hour
         # Special case: AK starts before but ends after midnight -- show until midnight
         if end_hour < start_hour:
             self.latest_end_hour = 24
@@ -340,7 +340,7 @@ class PlanScreenView(PlanIndexView):
         longest = qs.aggregate(longest=Max('duration'))['longest'] or 0
         candidates = qs.filter(start__gt=self.start - timedelta(hours=float(longest)))
         qs = qs.filter(pk__in=[s.pk for s in candidates.select_related(None).only('start', 'duration')
-                               if s.end > self.start])
+                               if s.scheduled_end > self.start])
 
         # Determine the daily range of hours shown in the plan (based on all remaining slots,
         # so that the range stays stable independent of the further restriction below)
@@ -370,7 +370,8 @@ class PlanScreenView(PlanIndexView):
         :return: cutoff point in time or None if no restriction is possible/necessary
         :rtype: datetime | None
         """
-        if self.earliest_start_hour >= self.latest_end_hour:
+        if (self.earliest_start_hour is None or self.latest_end_hour is None
+                or self.earliest_start_hour >= self.latest_end_hour):
             return None
         tz = self.event.timezone
         cursor = reference.astimezone(tz)
@@ -405,7 +406,7 @@ class PlanScreenView(PlanIndexView):
         # Recently added or moved slots that did not end yet
         # (ordered by start time of the slots which is also the default order of AKSlots, so no need to reorder)
         now = timezone.now()
-        context["akslots_changed"] = [s for s in context["akslots"] if s.end > now and recently_changed(s)]
+        context["akslots_changed"] = [s for s in context["akslots"] if s.scheduled_end > now and recently_changed(s)]
 
         # Start the plan early enough to completely show slots that started before but are still relevant
         context["start"] = min([self.start] + [s.start for s in context["akslots"]])
@@ -413,7 +414,7 @@ class PlanScreenView(PlanIndexView):
         # Extend the range if necessary such that slots starting before but ending after the cutoff are not clipped
         end = self.event.end
         if self.cutoff is not None:
-            end = max([self.cutoff] + [s.end for s in context["akslots"]])
+            end = max([self.cutoff] + [s.scheduled_end for s in context["akslots"]])
             end = min(end, self.event.end)
         context["end"] = end
         return context

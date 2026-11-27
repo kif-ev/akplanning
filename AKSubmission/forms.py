@@ -5,7 +5,6 @@ Submission-specific forms
 import itertools
 import re
 from decimal import Decimal, InvalidOperation
-
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -13,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from AKModel.availability.forms import AvailabilitiesFormMixin
 from AKModel.availability.models import Availability
 from AKModel.models import AK, AKCategory, AKOrgaMessage, AKOwner, AKRequirement, AKSlot, AKType
+from AKModel.typing_utils import model_choice_field
 
 
 def clean_slot_duration(raw_duration, event):
@@ -130,21 +130,22 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
         self.fields["conflicts"].widget.attrs = {'class': 'chosen-select'}
         self.fields["prerequisites"].widget.attrs = {'class': 'chosen-select'}
 
-        self.fields['category'].queryset = AKCategory.objects.filter(event=self.initial.get('event'))
-        self.fields['types'].queryset = AKType.objects.filter(event=self.initial.get('event'))
+        model_choice_field(self, 'category').queryset = AKCategory.objects.filter(event=self.event)
+        types = AKType.objects.filter(event=self.event)
+        model_choice_field(self, 'types').queryset = types
         # Don't ask for types if there are no types configured for this event
-        if self.fields['types'].queryset.count() == 0:
+        if types.count() == 0:
             self.fields.pop('types')
-        self.fields['requirements'].queryset = AKRequirement.objects.filter(event=self.initial.get('event'))
+        requirements = AKRequirement.objects.filter(event=self.event)
+        model_choice_field(self, 'requirements').queryset = requirements
         # Don't ask for requirements if there are no requirements configured for this event
-        if self.fields['requirements'].queryset.count() == 0:
+        if requirements.count() == 0:
             self.fields.pop('requirements')
-        self.fields['prerequisites'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(
-                pk=self.instance.pk)
-        self.fields['conflicts'].queryset = AK.objects.filter(event=self.initial.get('event')).exclude(
-                pk=self.instance.pk)
+        other_aks = AK.objects.filter(event=self.event).exclude(pk=self.instance.pk)
+        model_choice_field(self, 'prerequisites').queryset = other_aks
+        model_choice_field(self, 'conflicts').queryset = other_aks
         if "owners" in self.fields:
-            self.fields['owners'].queryset = AKOwner.objects.filter(event=self.initial.get('event'))
+            model_choice_field(self, 'owners').queryset = AKOwner.objects.filter(event=self.event)
 
     def clean(self):
         """
@@ -156,7 +157,8 @@ class AKForm(AvailabilitiesFormMixin, forms.ModelForm):
 
         :return: cleaned inputs
         """
-        cleaned_data = super().clean()
+        super().clean()
+        cleaned_data = self.cleaned_data
         self.clamped_durations = []
 
         # Generate short name if not given
@@ -228,7 +230,7 @@ class AKSubmissionForm(AKForm):
                 label=_("Duration(s)"),
                 help_text=_("Give the duration for your AK in hours, as a decimal number and without a unit symbol. "
                             "For every time your AK should take place, enter one line with one duration."),
-                initial=self.initial.get('event').default_slot
+                initial=self.event.default_slot
         )
 
     def clean_availabilities(self):
@@ -305,7 +307,8 @@ class AKDurationForm(forms.ModelForm):
 
         :return: cleaned inputs
         """
-        cleaned_data = super().clean()
+        super().clean()
+        cleaned_data = self.cleaned_data
         self.clamped_durations = []
         # (if the event is invalid, the form is invalid anyway and the duration cannot be clamped)
         if "duration" in cleaned_data and "event" in cleaned_data:

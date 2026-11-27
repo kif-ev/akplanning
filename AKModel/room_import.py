@@ -8,8 +8,8 @@ returns a :class:`RoomImportResult` that can be shown as preview,
 
 import csv
 import io
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -108,7 +108,8 @@ def _format_validation_error(error: ValidationError) -> str:
         if field_name == "__all__":
             parts.append(messages)
         else:
-            parts.append(f"{Room._meta.get_field(field_name).verbose_name}: {messages}")
+            label = getattr(Room._meta.get_field(field_name), "verbose_name", field_name)
+            parts.append(f"{label}: {messages}")
     return " ".join(parts)
 
 
@@ -121,7 +122,7 @@ class _ColumnMapping:
     requirements: list[tuple[str, AKRequirement]] = field(default_factory=list)
 
 
-def _map_columns(fieldnames: list[str], event: Event, result: RoomImportResult) -> _ColumnMapping:
+def _map_columns(fieldnames: Sequence[str], event: Event, result: RoomImportResult) -> _ColumnMapping:
     """
     Map known fields and requirements to the (possibly differently written) column names of the data
 
@@ -192,7 +193,7 @@ def _parse_requirements(raw_row: dict, columns: _ColumnMapping) -> tuple[list[AK
 
 
 def _parse_row(raw_row: dict, line: int, columns: _ColumnMapping, event: Event,
-               seen_rooms: set) -> tuple[ParsedRoom | None, list[str]]:
+               seen_rooms: set[tuple[str, str]]) -> tuple[ParsedRoom | None, list[str]]:
     """
     Parse and validate a single row of the CSV data
 
@@ -259,7 +260,7 @@ def parse_rooms_csv(text: str, event: Event) -> RoomImportResult:
     reader = csv.DictReader(io.StringIO(text), delimiter=detect_delimiter(text.splitlines()[0]))
     columns = _map_columns(reader.fieldnames or [], event, result)
 
-    seen_rooms = set()
+    seen_rooms: set[tuple[str, str]] = set()
     for raw_row in reader:
         line = reader.line_num
         surplus_cells = [v for v in raw_row.pop(None, []) if isinstance(v, str) and v.strip()]

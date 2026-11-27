@@ -2,3 +2,10 @@
 pylint==4.1.4
 pylint-django==2.8.0
 pylint-gitlab==2.1.1
+
+# Type checking (configured in setup.cfg)
+mypy==2.4.1
+django-stubs==6.1.2
+djangorestframework-stubs==3.18.2
+types-jsonschema==4.26.0.20261006
+types-requests==2.33.0.20261030

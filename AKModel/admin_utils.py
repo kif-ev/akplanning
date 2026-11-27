@@ -6,6 +6,7 @@ from django.contrib.admin import RelatedFieldListFilter
 from django.utils import timezone
 
 from AKModel.models import Event
+from AKModel.typing_utils import ModelAdminMixinBase
 
 
 class EventRelatedFieldListFilter(RelatedFieldListFilter):
@@ -23,7 +24,7 @@ class EventRelatedFieldListFilter(RelatedFieldListFilter):
         return field.get_choices(include_blank=False, limit_choices_to=limit_choices, ordering=ordering)
 
 
-class PrepopulateWithNextActiveEventMixin:
+class PrepopulateWithNextActiveEventMixin(ModelAdminMixinBase):
     """
     Mixin for automated pre-population of the event field
     """
@@ -41,7 +42,7 @@ class PrepopulateWithNextActiveEventMixin:
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-class EventTimezoneFormMixin:
+class EventTimezoneFormMixin(ModelAdminMixinBase):
     """
     Mixin to enforce the usage of the timezone of the associated event in forms
     """

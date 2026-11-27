@@ -1,6 +1,6 @@
-import json
 from collections import defaultdict
 
+import json
 from django.contrib import messages
 from django.contrib.admin.models import CHANGE, LogEntry
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -13,9 +13,9 @@ from django.views.generic import DetailView, ListView
 
 from AKModel.forms import TrackAssignmentForm
 from AKModel.metaviews.admin import AdminViewMixin, EventSlugMixin, FilterByEventSlugMixin, \
-    IntermediateAdminActionView, IntermediateAdminView
+    IntermediateAdminActionView, IntermediateAdminView, logged_in_user_id
 from AKModel.models import AK, AKOrgaMessage, AKRequirement, AKSlot, AKTrack, Event, StatusTrackingEntry
-from AKModel.protocol_migration import MigrationStatus, migrate_protocols, NOTHING_TO_MIGRATE_STATUSES
+from AKModel.protocol_migration import migrate_protocols, MigrationStatus, NOTHING_TO_MIGRATE_STATUSES
 from AKModel.status_tracking import status_tracker
 
 Progress = StatusTrackingEntry.Progress
@@ -335,15 +335,17 @@ class AKMigrateProtocolView(PermissionRequiredMixin, View):
         """
         Perform the migration
         """
+        # Only logged-in users with the required permission can use this view (needed for logging the migration)
+        user_id = logged_in_user_id(request)
         ak = get_object_or_404(AK, pk=pk)
         result = migrate_protocols([ak])[0]
         # Only log AKs whose wiki page was actually written
         if result.success:
             LogEntry.objects.log_actions(
-                    user_id=request.user.id,
+                    user_id=user_id,
                     queryset=AK.objects.filter(pk=ak.pk),
                     action_flag=CHANGE,
-                    change_message=self.success_message
+                    change_message=str(self.success_message)
             )
         return JsonResponse({
             "status": result.status.value,
